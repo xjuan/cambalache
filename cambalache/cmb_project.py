@@ -652,6 +652,12 @@ class CmbProject(Gtk.TreeStore):
         self.__selection = selection
         self.emit('selection-changed')
 
+    def get_iter_from_object_id(self, ui_id, object_id=None):
+        if object_id:
+            return self.__object_id.get(f'{ui_id}.{object_id}', None)
+        else:
+            return self.__object_id.get(ui_id, None)
+
     def get_iter_from_object(self, obj):
         if type(obj) == CmbObject:
             return self.__object_id.get(f'{obj.ui_id}.{obj.object_id}', None)
@@ -859,13 +865,14 @@ class CmbProject(Gtk.TreeStore):
     def get_undo_redo_msg(self):
         c = self.db.cursor()
 
-        def get_msg_vars(table, index):
+        def get_msg_vars(table, column, index):
             retval = {
                 'ui': '',
                 'css': '',
                 'obj': '',
                 'prop': '',
-                'value': ''
+                'value': '',
+                'field': column
             }
 
             commands = self.db.history_commands[table]
@@ -930,12 +937,12 @@ class CmbProject(Gtk.TreeStore):
                 'ui': {
                     'INSERT': _('Create UI {ui}'),
                     'DELETE': _('Remove UI {ui}'),
-                    'UPDATE': _('Update UI {ui}')
+                    'UPDATE': _('Update {field} of UI {ui}')
                 },
                 'css': {
                     'INSERT': _('Add CSS provider {css}'),
                     'DELETE': _('Remove CSS provider {css}'),
-                    'UPDATE': _('Update CSS provider {css}')
+                    'UPDATE': _('Update {field} of CSS provider {css}')
                 },
                 'css_ui': {
                     'INSERT': _('Add {ui} to CSS provider {css}'),
@@ -944,7 +951,7 @@ class CmbProject(Gtk.TreeStore):
                 'object': {
                     'INSERT': _('Create object {obj}'),
                     'DELETE': _('Remove object {obj}'),
-                    'UPDATE': _('Update object {obj}')
+                    'UPDATE': _('Update {field} of object {obj}')
                 },
                 'object_property': {
                     'INSERT': _('Set property "{prop}" of {obj} to {value}'),
@@ -964,7 +971,7 @@ class CmbProject(Gtk.TreeStore):
             }.get(table, {}).get(command, None)
 
             if msg is not None:
-                msg = msg.format(**get_msg_vars(table, index))
+                msg = msg.format(**get_msg_vars(table, column, index))
 
             return msg
 
@@ -994,8 +1001,13 @@ class CmbProject(Gtk.TreeStore):
         info = self.type_info.get(name, None)
         return info.properties if info else None
 
+    def __object_update_row(self, ui_id, object_id):
+        iter = self.get_iter_from_object_id(ui_id, object_id)
+        if iter:
+            self.row_changed(self.get_path(iter), iter)
+
     def __update_template_type_info(self, ui):
-        template_info = self.__template_info.get(ui.ui_id, None)
+        template_info, template_id = self.__template_info.get(ui.ui_id, (None, None))
 
         if ui.template_id:
             c = self.db.execute('SELECT type_id, name FROM object WHERE ui_id=? AND object_id=?;',
@@ -1018,28 +1030,29 @@ class CmbProject(Gtk.TreeStore):
                 info.parent = self.type_info.get(parent_id, None)
 
                 self.type_info[type_id] = info
-                self.__template_info[ui.ui_id] = type_id
+                self.__template_info[ui.ui_id] = (type_id, ui.template_id)
 
                 self.emit('type-info-added', info)
-                return
             elif type_id and template_info != type_id:
                 # name changed
                 info = self.type_info.pop(template_info)
 
                 self.type_info[type_id] = info
-                self.__template_info[ui.ui_id] = type_id
+                self.__template_info[ui.ui_id] = (type_id, ui.template_id)
 
                 # Update object property since its not read from DB each time
                 info.type_id = type_id
                 info.parent_id = parent_id
                 info.parent = self.type_info.get(parent_id, None)
                 self.emit('type-info-changed', info)
-                return
+
+            self.__object_update_row(ui.ui_id, ui.template_id)
 
         if template_info:
             info = self.type_info.pop(template_info)
             self.__template_info.pop(ui.ui_id)
             self.emit('type-info-removed', info)
+            self.__object_update_row(ui.ui_id, template_id)
 
     def _ui_changed(self, ui, field):
         iter = self.get_iter_from_object(ui)
