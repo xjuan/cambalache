@@ -116,17 +116,7 @@
     </category>
 
     <category name="model">
-      <HdyCenteringPolicy/>
-      <HdyColorScheme/>
-      <HdyDeckTransitionType/>
       <HdyEnumValueObject/>
-      <HdyFlapFoldPolicy/>
-      <HdyFlapTransitionType/>
-      <HdyHeaderGroupChildType/>
-      <HdyLeafletTransitionType/>
-      <HdyNavigationDirection/>
-      <HdySqueezerTransitionType/>
-      <HdyViewSwitcherPolicy/>
     </category>
 
     <category name="toplevel">
