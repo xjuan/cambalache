@@ -77,5 +77,65 @@
     </HdyViewSwitcherTitle>
 
   </types>
+
+  <categories>
+    <category name="control">
+      <HdyComboRow/>
+      <HdyKeypad/>
+      <HdyViewSwitcher/>
+    </category>
+
+    <category name="display">
+      <HdyAvatar/>
+      <HdyCarouselIndicatorDots/>
+      <HdyCarouselIndicatorLines/>
+      <HdyViewSwitcherTitle/>
+    </category>
+
+    <category name="layout">
+      <HdyActionRow/>
+      <HdyCarousel/>
+      <HdyClamp/>
+      <HdyDeck/>
+      <HdyExpanderRow/>
+      <HdyFlap/>
+      <HdyHeaderBar/>
+      <HdyHeaderGroup/>
+      <HdyLeaflet/>
+      <HdyPreferencesGroup/>
+      <HdyPreferencesPage/>
+      <HdyPreferencesRow/>
+      <HdySearchBar/>
+      <HdySqueezer/>
+      <HdyTabBar/>
+      <HdyTabPage/>
+      <HdyTabView/>
+      <HdyTitleBar/>
+      <HdyViewSwitcherBar/>
+      <HdyWindowHandle/>
+    </category>
+
+    <category name="model">
+      <HdyCenteringPolicy/>
+      <HdyColorScheme/>
+      <HdyDeckTransitionType/>
+      <HdyEnumValueObject/>
+      <HdyFlapFoldPolicy/>
+      <HdyFlapTransitionType/>
+      <HdyHeaderGroupChildType/>
+      <HdyLeafletTransitionType/>
+      <HdyNavigationDirection/>
+      <HdySqueezerTransitionType/>
+      <HdyViewSwitcherPolicy/>
+    </category>
+
+    <category name="toplevel">
+      <HdyApplicationWindow/>
+      <HdyPreferencesWindow/>
+      <HdyStatusPage/>
+      <HdyWindow/>
+    </category>
+  </categories>
+
 </meta>
   

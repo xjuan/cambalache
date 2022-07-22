@@ -128,5 +128,64 @@
     </AdwViewSwitcherTitle>
 
   </types>
+
+  <categories>
+    <category name="control">
+      <AdwComboRow/>
+      <AdwSplitButton/>
+      <AdwViewSwitcher/>
+    </category>
+
+    <category name="display">
+      <AdwAvatar/>
+      <AdwButtonContent/>
+      <AdwCallbackAnimationTarget/>
+      <AdwCarouselIndicatorDots/>
+      <AdwCarouselIndicatorLines/>
+      <AdwSpringAnimation/>
+      <AdwTimedAnimation/>
+      <AdwViewSwitcherTitle/>
+      <AdwWindowTitle/>
+    </category>
+
+    <category name="layout">
+      <AdwActionRow/>
+      <AdwBin/>
+      <AdwCarousel/>
+      <AdwClamp/>
+      <AdwClampScrollable/>
+      <AdwExpanderRow/>
+      <AdwFlap/>
+      <AdwHeaderBar/>
+      <AdwLeaflet/>
+      <AdwLeafletPage/>
+      <AdwPreferencesGroup/>
+      <AdwPreferencesPage/>
+      <AdwPreferencesRow/>
+      <AdwSqueezer/>
+      <AdwSqueezerPage/>
+      <AdwStatusPage/>
+      <AdwTabBar/>
+      <AdwTabPage/>
+      <AdwTabView/>
+      <AdwToast/>
+      <AdwToastOverlay/>
+      <AdwViewStack/>
+      <AdwViewStackPage/>
+      <AdwViewSwitcherBar/>
+    </category>
+
+    <category name="model">
+      <AdwEnumListItem/>
+      <AdwEnumListModel/>
+    </category>
+
+    <category name="toplevel">
+      <AdwApplicationWindow/>
+      <AdwPreferencesWindow/>
+      <AdwWindow/>
+    </category>
+  </categories>
+
 </meta>
   
