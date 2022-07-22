@@ -445,6 +445,7 @@ class CmbToplevelChooser(Gtk.ComboBox):
     __gtype_name__ = 'CmbToplevelChooser'
 
     object = GObject.Property(type=CmbUI, flags = GObject.ParamFlags.READWRITE)
+    derivable_only = GObject.Property(type=bool, default=False, flags = GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         self.filter = None
@@ -474,7 +475,10 @@ class CmbToplevelChooser(Gtk.ComboBox):
             return False
 
         if type(obj) == CmbObject:
-            return obj.parent_id == 0
+            if self.derivable_only:
+                return obj.info.derivable and obj.parent_id == 0
+            else:
+                return obj.parent_id == 0
 
         return False
 
