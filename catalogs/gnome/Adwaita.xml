@@ -127,6 +127,13 @@
       </properties>
     </AdwViewSwitcherTitle>
 
+    <AdwWindowTitle>
+      <properties>
+        <property id="subtitle" translatable="True"/>
+        <property id="title" translatable="True"/>
+      </properties>
+    </AdwWindowTitle>
+
   </types>
 
   <categories>
