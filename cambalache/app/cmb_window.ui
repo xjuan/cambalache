@@ -1397,13 +1397,6 @@ Author: Juan Pablo Ugarte <juanpablougarte@gmail.com>
     <property name="website">https://gitlab.gnome.org/jpu/cambalache</property>
     <property name="website-label" translatable="yes">Source repository and issue tracker</property>
     <property name="authors">Juan Pablo Ugarte</property>
-    <property name="translator-credits">capaz
-Gert
-Juan Pablo Ugarte
-Philipp Unger
-PhilProg
-Vojtěch Perník
-Volodymyr M. Lisivka</property>
     <property name="artists">Franco Dodorico
 Juan Pablo Ugarte</property>
     <property name="logo-icon-name">ar.xjuan.Cambalache</property>

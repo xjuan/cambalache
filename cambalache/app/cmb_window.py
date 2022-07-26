@@ -25,6 +25,7 @@ import os
 import sys
 import gi
 import traceback
+import locale
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import GLib, GObject, Gio, Gdk, Gtk, Pango
@@ -166,7 +167,7 @@ class CmbWindow(Gtk.ApplicationWindow):
 
         self.version_label.props.label = f"version {config.VERSION}"
         self.about_dialog.props.version = config.VERSION
-
+        self.__update_translators()
         self.__populate_about_dialog_supporters()
 
         GObject.Object.bind_property(self.np_name_entry, 'text',
@@ -345,6 +346,25 @@ class CmbWindow(Gtk.ApplicationWindow):
 
         self.__clipboard_enabled = focused_widget_needs
         self.__update_action_clipboard()
+
+    def __update_translators(self):
+        lang_country, encoding = locale.getlocale()
+        lang = lang_country.split('_')[0]
+
+        translators = {
+            'cs': ['Vojtěch Perník'],
+            'de': ['PhilProg', 'Philipp Unger'],
+            'es': ['Juan Pablo Ugarte'],
+            'fr': ['rene-coty'],
+            'it': ['Lorenzo Capalbo'],
+            'nl': ['Gert'],
+            'uk': ['Volodymyr M. Lisivka']
+        }
+
+        translator_list = translators.get(lang, None)
+
+        if translator_list:
+            self.about_dialog.props.translator_credits = '\n'.join(translator_list)
 
     def __update_dark_mode(self):
         # https://en.wikipedia.org/wiki/Relative_luminance
