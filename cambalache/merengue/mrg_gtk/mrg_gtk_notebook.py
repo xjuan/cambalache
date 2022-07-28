@@ -36,9 +36,9 @@ class MrgGtkNotebook(MrgGtkWidget):
                               flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
+        self.current_page = 0
+
         super().__init__(**kwargs)
-        self.connect("notify::object", self.__on_object_changed)
-        self.__ensure_placeholders()
 
     def get_children(self):
         if Gtk.MAJOR_VERSION == 4:
@@ -62,8 +62,23 @@ class MrgGtkNotebook(MrgGtkWidget):
         if len(self.get_children()) == 0:
             self.add(MrgPlaceholder(visible=True, controller=self))
 
-    def __on_object_changed(self, obj, pspec):
+    def __on_object_page_notify(self, obj, pspec):
+        if obj.is_visible():
+            self.current_page = obj.props.page
+
+    def __on_object_map(self, obj):
+        self.object.props.page = self.current_page
+
+    def do_object_changed(self, old, new):
+        if old:
+            old.disconnect_by_func(self.__on_object_page_notify)
+            old.disconnect_by_func(self.__on_object_map)
+
         self.__ensure_placeholders()
+
+        if self.object:
+            self.object.connect("notify::page", self.__on_object_page_notify)
+            self.object.connect("map", self.__on_object_map)
 
     def show_child(self, child):
         if Gtk.MAJOR_VERSION == 4:
