@@ -35,9 +35,6 @@ class MrgGtkLabel(MrgGtkWidget):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.connect("notify::object", self.__on_object_changed)
-        self.__init_label()
-
     def __init_label(self):
         if self.object is None:
             return
@@ -46,7 +43,7 @@ class MrgGtkLabel(MrgGtkWidget):
         if self.object.props.label == '':
             self.object.set_label('<label>')
 
-    def __on_object_changed(self, obj, pspec):
+    def do_object_changed(self, old, new):
         self.__init_label()
 
     def set_object_property(self, name, value):

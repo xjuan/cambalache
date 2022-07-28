@@ -34,9 +34,6 @@ class MrgGtkBin(MrgGtkWidget):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.connect("notify::object", self.__on_object_changed)
-        self.__update_placeholder()
-
     def add(self, child):
         if self.object is None:
             return
@@ -53,6 +50,6 @@ class MrgGtkBin(MrgGtkWidget):
         if len(self.get_children()) == 0:
             self.add(MrgPlaceholder(visible=True, controller=self))
 
-    def __on_object_changed(self, obj, pspec):
+    def do_object_changed(self, old, new):
         self.__update_placeholder()
 

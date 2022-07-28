@@ -30,8 +30,6 @@ from merengue.mrg_gtk import MrgGtkWidget
 class MrgContainer(MrgGtkWidget):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.connect("notify::object", self.__on_object_changed)
-        self.__ensure_placeholders()
 
     def __get_placeholder(self):
         for child in self.get_children():
@@ -46,7 +44,7 @@ class MrgContainer(MrgGtkWidget):
         if len(self.get_children()) == 0:
             self.add(MrgPlaceholder(visible=True, controller=self))
 
-    def __on_object_changed(self, obj, pspec):
+    def do_object_changed(self, old, new):
         self.__ensure_placeholders()
 
     def add(self, child):

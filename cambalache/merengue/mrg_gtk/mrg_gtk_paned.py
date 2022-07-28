@@ -34,9 +34,6 @@ class MrgGtkPaned(MrgGtkWidget):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.connect("notify::object", self.__on_object_changed)
-        self.__on_object_changed(self.object, None)
-
     def set_start_child(self, child):
         if self.object is None:
             return
@@ -89,6 +86,6 @@ class MrgGtkPaned(MrgGtkWidget):
         if end_child is None:
             self.set_end_child(MrgPlaceholder(visible=True, controller=self))
 
-    def __on_object_changed(self, obj, pspec):
+    def do_object_changed(self, old, new):
         self.__update_placeholder()
 

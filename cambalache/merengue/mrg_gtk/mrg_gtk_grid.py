@@ -43,9 +43,6 @@ class MrgGtkGrid(MrgGtkWidget):
         self.width = None
         self.height = None
 
-        self.connect("notify::object", self.__on_object_changed)
-        self.__on_object_changed(None, None)
-
     def __get_size(self, ignore_placeholders=False):
         w = 0
         h = 0
@@ -82,7 +79,7 @@ class MrgGtkGrid(MrgGtkWidget):
         self.width = width
         self.height = height
 
-    def __on_object_changed(self, obj, pspec):
+    def do_object_changed(self, old, new):
         width, height = self.__get_size()
 
         if self.width is None:

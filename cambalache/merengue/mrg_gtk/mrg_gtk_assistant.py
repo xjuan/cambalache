@@ -36,9 +36,6 @@ class MrgGtkAssistant(MrgGtkWindow):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.connect("notify::object", self.__on_object_changed)
-        self.__ensure_placeholders()
-
     def __get_placeholder(self):
         for i in range(0, self.object.get_n_pages()):
             page = self.object.get_nth_page(i)
@@ -53,7 +50,7 @@ class MrgGtkAssistant(MrgGtkWindow):
         if self.object.get_n_pages() == 0:
             self.add(MrgPlaceholder(visible=True, controller=self))
 
-    def __on_object_changed(self, obj, pspec):
+    def do_object_changed(self, old, new):
         self.__ensure_placeholders()
         self.__update_page_status()
 

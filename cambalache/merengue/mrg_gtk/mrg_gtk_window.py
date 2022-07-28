@@ -41,13 +41,10 @@ class MrgGtkWindow(MrgGtkBin):
 
         super().__init__(**kwargs)
 
-        self.connect("notify::object", self.__on_object_changed)
-
         self.selection = MrgSelection(app=self.app, container=self.object)
-
         self.property_ignore_list.add('modal')
 
-    def __on_object_changed(self, obj, pspec):
+    def do_object_changed(self, old, new):
         if self._object:
             self._object.destroy()
 

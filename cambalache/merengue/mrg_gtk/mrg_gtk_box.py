@@ -33,12 +33,8 @@ class MrgGtkBox(MrgGtkWidget):
     object = GObject.Property(type=Gtk.Box, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
         self.size = None
-
-        self.connect("notify::object", self.__on_object_changed)
-        self.__ensure_placeholders()
+        super().__init__(**kwargs)
 
     def add(self, child):
         if self.object is None:
@@ -62,7 +58,7 @@ class MrgGtkBox(MrgGtkWidget):
         for i in range(n_children, self.size):
             self.add(MrgPlaceholder(visible=True, controller=self))
 
-    def __on_object_changed(self, obj, pspec):
+    def do_object_changed(self, old, new):
         self.__ensure_placeholders()
 
     def get_child_position(self, child):

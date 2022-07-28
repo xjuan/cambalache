@@ -33,12 +33,9 @@ class MrgGtkCenterBox(MrgGtkWidget):
     object = GObject.Property(type=Gtk.CenterBox, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
         self.size = None
 
-        self.connect("notify::object", self.__on_object_changed)
-        self.__ensure_placeholders()
+        super().__init__(**kwargs)
 
     def __get_children(self):
         return [
@@ -74,7 +71,7 @@ class MrgGtkCenterBox(MrgGtkWidget):
         if end is None:
             self.object.set_end_widget(MrgPlaceholder(visible=True, controller=self))
 
-    def __on_object_changed(self, obj, pspec):
+    def do_object_changed(self, old, new):
         self.__ensure_placeholders()
 
     def remove_child(self, child):
