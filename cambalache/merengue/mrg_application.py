@@ -44,6 +44,8 @@ class MrgApplication(Gtk.Application):
     preview = GObject.Property(type=bool, default=False,
                                flags=GObject.ParamFlags.READWRITE)
 
+    dirname = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
+
     def __init__(self):
         self.stdin = None
 
@@ -67,6 +69,13 @@ class MrgApplication(Gtk.Application):
         self.preselected_widget = None
 
         self.settings = Gtk.Settings.get_default()
+
+        self.connect('notify::dirname', self.__on_dirname_notify)
+
+    def __on_dirname_notify(self, obj, pspec):
+        # Change CWD for builder to pick relative paths
+        if self.dirname:
+            os.chdir(self.dirname)
 
     def get_controller(self, ui_id, object_id):
         return self.controllers.get(f'{ui_id}.{object_id}', None)
@@ -93,9 +102,8 @@ class MrgApplication(Gtk.Application):
 
         self.ui_id = ui_id
 
-        # Change CWD for builder to pick relative paths
-        if dirname:
-            os.chdir(dirname)
+        # Update app dirname
+        self.dirname = dirname
 
         # Build everything
         builder = Gtk.Builder()
