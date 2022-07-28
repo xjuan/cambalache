@@ -236,6 +236,17 @@ window.setupDocument = function (document) {
         self.buffer.set_text('')
         self.__ui_id = 0
 
+    def __get_ui_dirname(self, ui_id):
+        # Use project dir as default base directory
+        dirname = os.path.dirname(self.__project.filename)
+
+        # Use UI directory
+        ui = self.__project.get_object_by_id(ui_id)
+        if ui and ui.filename:
+            dirname = os.path.join(dirname, os.path.dirname(ui.filename))
+
+        return dirname
+
     def __merengue_update_ui(self, ui_id):
         ui = self.__get_ui_xml(ui_id, merengue=True)
         toplevels = self.__project.db.get_toplevels(ui_id)
@@ -246,13 +257,13 @@ window.setupDocument = function (document) {
                                 payload=ui,
                                 args={
                                     'ui_id': ui_id,
-                                    'dirname': os.path.dirname(self.__project.filename),
+                                    'dirname': self.__get_ui_dirname(ui_id),
                                     'toplevels': toplevels,
                                     'selection': objects
                                 })
 
     def __on_ui_changed(self, project, ui, field):
-        if field in ['custom-fragment']:
+        if field in ['custom-fragment', 'filename']:
             self.__update_view()
             self.__merengue_update_ui(ui.ui_id)
 
