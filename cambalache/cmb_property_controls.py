@@ -502,8 +502,15 @@ class CmbToplevelChooser(Gtk.ComboBox):
 
     @GObject.Property(type=int)
     def cmb_value(self):
+        if self.filter is None:
+            return 0
+
         iter = self.get_active_iter()
-        return self.filter[iter][0].object_id
+        if iter is None:
+            return 0
+
+        row = self.filter[iter]
+        return row[0].object_id if row else 0
 
     @cmb_value.setter
     def _set_cmb_value(self, value):
