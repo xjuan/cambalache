@@ -33,7 +33,6 @@ class MrgGtkMenu(MrgGtkWidget):
 
     def __init__(self, **kwargs):
         self.window = None
-        self.__object = None
         self.__button = None
 
         super().__init__(**kwargs)
@@ -49,9 +48,7 @@ class MrgGtkMenu(MrgGtkWidget):
                                     Gdk.Gravity.NORTH_WEST,
                                     None)
 
-    def on_object_changed(self):
-        # Keep a reference to object
-        self.__object = self.object
+    def do_object_changed(self, old, new):
         self.selection = None
 
         if self.object is None:
@@ -78,7 +75,7 @@ class MrgGtkMenu(MrgGtkWidget):
             self.window.set_default_size(640, 480)
             self.window.add(self.__button)
 
-        self.selection = MrgSelection(app=self.app, container=self.__object)
+        self.selection = MrgSelection(app=self.app, container=self.object)
         self.__button.set_popup(self.object)
         self.object.show_all()
         self.window.show_all()

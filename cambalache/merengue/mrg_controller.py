@@ -27,6 +27,10 @@ from . import utils
 
 
 class MrgController(GObject.Object):
+    __gsignals__ = {
+        'object-changed': (GObject.SignalFlags.RUN_FIRST, None,
+                           (GObject.GObject, GObject.GObject)),
+    }
 
     app = GObject.Property(type=GObject.GObject,
                            flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
@@ -44,24 +48,33 @@ class MrgController(GObject.Object):
         # Properties in this will will be ignored by set_object_property()
         self.property_ignore_list = set()
 
+        self.__object = None
         self.ui_id = 0
         self.object_id = 0
 
         super().__init__(**kwargs)
         self.connect("notify::object", self.__on_object_changed)
-        self.on_object_changed()
 
-    def on_object_changed(self):
         if self.object:
-            ui_id, object_id = utils.object_get_id(self.object).split('.')
+            self.on_object_changed(self.object)
+
+    def on_object_changed(self, value):
+        old = self.__object
+
+        if value:
+            ui_id, object_id = utils.object_get_id(value).split('.')
             self.ui_id = int(ui_id)
             self.object_id = int(object_id)
         else:
             self.ui_id = 0
             self.object_id = 0
 
+        self.__object = value
+
+        self.emit('object-changed', old, value)
+
     def __on_object_changed(self, obj, pspec):
-        self.on_object_changed()
+        self.on_object_changed(self.object)
 
     # Object set property wrapper
     def set_object_property(self, name, value):
