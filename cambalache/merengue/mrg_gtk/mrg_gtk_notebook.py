@@ -73,8 +73,11 @@ class MrgGtkNotebook(MrgGtkWidget):
         super().object_changed(old, new)
 
         if old:
-            old.disconnect_by_func(self.__on_object_page_notify)
-            old.disconnect_by_func(self.__on_object_map)
+            try:
+                old.disconnect_by_func(self.__on_object_page_notify)
+                old.disconnect_by_func(self.__on_object_map)
+            except:
+               pass
 
         self.__ensure_placeholders()
 
