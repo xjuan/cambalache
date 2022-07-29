@@ -70,6 +70,10 @@ class MrgApplication(Gtk.Application):
 
         self.settings = Gtk.Settings.get_default()
 
+        # Keep a reference to the default seat to easily ungrab the pointer
+        default_seat = Gdk.Display.get_default().get_default_seat()
+        self.default_seat_pointer = default_seat.get_pointer() if default_seat else None
+
         self.connect('notify::dirname', self.__on_dirname_notify)
 
     def __on_dirname_notify(self, obj, pspec):
@@ -194,6 +198,11 @@ class MrgApplication(Gtk.Application):
 
     def set_selection(self, ui_id, selection):
         length = len(selection)
+
+        # Gtk 3: Ungrab pointer everytime we switch selection just in case
+        # there is a broken grab (Fix issue #101)
+        if Gtk.MAJOR_VERSION == 3 and self.default_seat_pointer:
+            self.default_seat_pointer.ungrab(Gdk.CURRENT_TIME)
 
         # Add class to selected objects
         for object_id in selection:
