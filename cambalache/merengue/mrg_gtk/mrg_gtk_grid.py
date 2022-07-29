@@ -79,7 +79,8 @@ class MrgGtkGrid(MrgGtkWidget):
         self.width = width
         self.height = height
 
-    def do_object_changed(self, old, new):
+    def object_changed(self, old, new):
+        super().object_changed(old, new)
         width, height = self.__get_size()
 
         if self.width is None:

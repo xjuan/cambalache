@@ -58,7 +58,9 @@ class MrgGtkBox(MrgGtkWidget):
         for i in range(n_children, self.size):
             self.add(MrgPlaceholder(visible=True, controller=self))
 
-    def do_object_changed(self, old, new):
+    def object_changed(self, old, new):
+        super().object_changed(old, new)
+
         self.__ensure_placeholders()
 
     def get_child_position(self, child):
@@ -93,3 +95,4 @@ class MrgGtkBox(MrgGtkWidget):
                 self.remove_child(child)
                 self.size -= 1
                 break
+

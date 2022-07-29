@@ -24,14 +24,12 @@
 import gi
 from gi.repository import GObject, CambalachePrivate
 from . import utils
+from merengue import getLogger
+
+logger = getLogger(__name__)
 
 
 class MrgController(GObject.Object):
-    __gsignals__ = {
-        'object-changed': (GObject.SignalFlags.RUN_FIRST, None,
-                           (GObject.GObject, GObject.GObject)),
-    }
-
     app = GObject.Property(type=GObject.GObject,
                            flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
 
@@ -71,10 +69,13 @@ class MrgController(GObject.Object):
 
         self.__object = value
 
-        self.emit('object-changed', old, value)
+        self.object_changed(old, value)
 
     def __on_object_changed(self, obj, pspec):
         self.on_object_changed(self.object)
+
+    def object_changed(self, old, new):
+        pass
 
     # Object set property wrapper
     def set_object_property(self, name, value):

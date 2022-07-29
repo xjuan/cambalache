@@ -69,7 +69,9 @@ class MrgGtkNotebook(MrgGtkWidget):
     def __on_object_map(self, obj):
         self.object.props.page = self.current_page
 
-    def do_object_changed(self, old, new):
+    def object_changed(self, old, new):
+        super().object_changed(old, new)
+
         if old:
             old.disconnect_by_func(self.__on_object_page_notify)
             old.disconnect_by_func(self.__on_object_map)

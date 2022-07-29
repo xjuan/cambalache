@@ -51,7 +51,9 @@ class MrgGtkWidget(MrgController):
         if Gtk.MAJOR_VERSION == 3:
             self.property_ignore_list.add('no-show-all')
 
-    def do_object_changed(self, old, new):
+    def object_changed(self, old, new):
+        super().object_changed(old, new)
+
         def window_remove_child(window):
             if window is None:
                 return

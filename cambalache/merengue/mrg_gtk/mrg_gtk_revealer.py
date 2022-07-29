@@ -33,7 +33,8 @@ class MrgGtkRevealer(MrgGtkBin):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def do_object_changed(self, obj, pspec):
+    def object_changed(self, obj, pspec):
+        super().object_changed(old, new)
         if new:
             new.set_reveal_child(True)
 

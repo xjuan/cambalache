@@ -47,7 +47,8 @@ class MrgGtkStack(MrgGtkWidget):
         if len(self.get_children()) == 0:
             self.add(MrgPlaceholder(visible=True, controller=self))
 
-    def do_object_changed(self, old, new):
+    def object_changed(self, old, new):
+        super().object_changed(old, new)
         self.__ensure_placeholders()
 
     def show_child(self, child):

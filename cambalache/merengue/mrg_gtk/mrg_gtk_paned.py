@@ -86,6 +86,7 @@ class MrgGtkPaned(MrgGtkWidget):
         if end_child is None:
             self.set_end_child(MrgPlaceholder(visible=True, controller=self))
 
-    def do_object_changed(self, old, new):
+    def object_changed(self, old, new):
+        super().object_changed(old, new)
         self.__update_placeholder()
 

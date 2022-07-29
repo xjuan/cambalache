@@ -48,7 +48,9 @@ class MrgGtkMenu(MrgGtkWidget):
                                     Gdk.Gravity.NORTH_WEST,
                                     None)
 
-    def do_object_changed(self, old, new):
+    def object_changed(self, old, new):
+        super().object_changed(old, new)
+
         self.selection = None
 
         if self.object is None:

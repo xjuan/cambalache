@@ -43,7 +43,8 @@ class MrgGtkLabel(MrgGtkWidget):
         if self.object.props.label == '':
             self.object.set_label('<label>')
 
-    def do_object_changed(self, old, new):
+    def object_changed(self, old, new):
+        super().object_changed(old, new)
         self.__init_label()
 
     def set_object_property(self, name, value):

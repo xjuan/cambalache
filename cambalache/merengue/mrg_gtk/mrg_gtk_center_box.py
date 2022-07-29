@@ -71,7 +71,8 @@ class MrgGtkCenterBox(MrgGtkWidget):
         if end is None:
             self.object.set_end_widget(MrgPlaceholder(visible=True, controller=self))
 
-    def do_object_changed(self, old, new):
+    def object_changed(self, old, new):
+        super().object_changed(old, new)
         self.__ensure_placeholders()
 
     def remove_child(self, child):

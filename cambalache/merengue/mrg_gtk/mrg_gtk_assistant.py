@@ -50,7 +50,9 @@ class MrgGtkAssistant(MrgGtkWindow):
         if self.object.get_n_pages() == 0:
             self.add(MrgPlaceholder(visible=True, controller=self))
 
-    def do_object_changed(self, old, new):
+    def object_changed(self, old, new):
+        super().object_changed(old, new)
+
         self.__ensure_placeholders()
         self.__update_page_status()
 

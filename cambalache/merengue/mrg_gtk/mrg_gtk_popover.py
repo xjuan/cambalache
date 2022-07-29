@@ -33,7 +33,6 @@ class MrgGtkPopover(MrgGtkWidget):
 
     def __init__(self, **kwargs):
         self.window = None
-        self.__object = None
         self.__button = None
 
         super().__init__(**kwargs)
@@ -64,13 +63,13 @@ class MrgGtkPopover(MrgGtkWidget):
         else:
             self.__button.popup()
 
-    def on_object_changed(self):
+    def object_changed(self, old, new):
+        super().object_changed(old, new)
+
         # Clear old popover
-        if self.__object:
+        if old:
             self.__button.set_popover(None)
 
-        # Keep a reference to object
-        self.__object = self.object
         self.selection = None
 
         if self.object is None:

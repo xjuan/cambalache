@@ -26,13 +26,16 @@ from gi.repository import GObject, Gdk, Gtk
 from .mrg_gtk_bin import MrgGtkBin
 from .mrg_selection import MrgSelection
 
+from merengue import getLogger
+
+logger = getLogger(__name__)
+
 
 class MrgGtkWindow(MrgGtkBin):
     object = GObject.Property(type=Gtk.Window,
                               flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
-        self._object = None
         self._position = None
         self._size = None
         self._is_maximized = None
@@ -44,11 +47,11 @@ class MrgGtkWindow(MrgGtkBin):
         self.selection = MrgSelection(app=self.app, container=self.object)
         self.property_ignore_list.add('modal')
 
-    def do_object_changed(self, old, new):
-        if self._object:
-            self._object.destroy()
+    def object_changed(self, old, new):
+        super().object_changed(old, new)
 
-        self._object = self.object
+        if old:
+            old.destroy()
 
         # Handle widget selection
         if self.selection:
