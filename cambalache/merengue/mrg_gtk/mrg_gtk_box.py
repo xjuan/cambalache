@@ -95,4 +95,11 @@ class MrgGtkBox(MrgGtkWidget):
                 self.remove_child(child)
                 self.size -= 1
                 break
+            else:
+                if Gtk.MAJOR_VERSION == 4:
+                    break
+                else:
+                    pack_type, = self.child_get(child, ['pack-type'])
+                    if pack_type == Gtk.PackType.START:
+                        break
 
