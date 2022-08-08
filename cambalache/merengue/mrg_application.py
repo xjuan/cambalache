@@ -78,7 +78,7 @@ class MrgApplication(Gtk.Application):
 
     def __on_dirname_notify(self, obj, pspec):
         # Change CWD for builder to pick relative paths
-        if self.dirname:
+        if self.dirname and os.path.isdir(self.dirname):
             os.chdir(self.dirname)
 
     def get_controller(self, ui_id, object_id):
