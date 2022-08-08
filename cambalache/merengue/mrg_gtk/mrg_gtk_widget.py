@@ -74,6 +74,9 @@ class MrgGtkWidget(MrgController):
                 self.window.hide()
             return
 
+        # Make sure widget is visible in workspace
+        self.object.set_visible(True)
+
         if not self.toplevel or issubclass(type(self.object), Gtk.Window):
             return
 
@@ -88,10 +91,10 @@ class MrgGtkWidget(MrgController):
 
         if Gtk.MAJOR_VERSION == 4:
             self.window.set_child(self.object)
-            self.window.show()
         else:
             self.window.add(self.object)
-            self.window.show_all()
+
+        self.window.show()
 
     def on_selected_changed(self):
         if self.object is None:
