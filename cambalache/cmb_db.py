@@ -1310,18 +1310,19 @@ class CmbDB(GObject.GObject):
             self.__node_add_comment(node, comment)
 
         # Signals
-        for row in c.execute('SELECT signal_id, handler, detail, (SELECT name FROM object WHERE ui_id=? AND object_id=user_data), swap, after, comment FROM object_signal WHERE ui_id=? AND object_id=?;',
-                             (ui_id, ui_id, object_id,)):
-            signal_id, handler, detail, data, swap, after, comment = row
-            name = f'{signal_id}::{detail}' if detail is not None else signal_id
-            node = E.signal(name=name, handler=handler)
-            node_set(node, 'object', data)
-            if swap:
-                node_set(node, 'swapped', 'yes')
-            if after:
-                node_set(node, 'after', 'yes')
-            obj.append(node)
-            self.__node_add_comment(node, comment)
+        if not merengue:
+            for row in c.execute('SELECT signal_id, handler, detail, (SELECT name FROM object WHERE ui_id=? AND object_id=user_data), swap, after, comment FROM object_signal WHERE ui_id=? AND object_id=?;',
+                                 (ui_id, ui_id, object_id,)):
+                signal_id, handler, detail, data, swap, after, comment = row
+                name = f'{signal_id}::{detail}' if detail is not None else signal_id
+                node = E.signal(name=name, handler=handler)
+                node_set(node, 'object', data)
+                if swap:
+                    node_set(node, 'swapped', 'yes')
+                if after:
+                    node_set(node, 'after', 'yes')
+                obj.append(node)
+                self.__node_add_comment(node, comment)
 
         # Layout properties class
         layout_class = f'{type_id}LayoutChild'
