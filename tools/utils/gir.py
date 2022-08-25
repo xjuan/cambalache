@@ -418,6 +418,8 @@ class GirData:
 
         is_container = False
 
+        nons_name = name.removeprefix(self.prefix)
+        GObject.type_ensure(getattr(self.mod, nons_name).__gtype__)
         props = CmbUtils.get_class_properties(name)
 
         if use_instance:

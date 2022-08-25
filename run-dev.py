@@ -159,6 +159,8 @@ def create_catalogs_dir():
     link_plugin('catalogs/gtk/gsk-4.0.xml')
     link_plugin('catalogs/gtk/gtk-4.0.xml')
     link_plugin('catalogs/gtk/gtk+-3.0.xml')
+    link_plugin('catalogs/gnome/webkit2gtk-4.1.xml')
+    link_plugin('catalogs/gnome/webkit2gtk-5.0.xml')
     link_plugin('catalogs/gnome/libhandy-1.xml')
     link_plugin('catalogs/gnome/libadwaita-1.xml')
 

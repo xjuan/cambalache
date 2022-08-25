@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!--
+ WebKit2 Extra meta data
+
+ Copyright (C) 2022  Juan Pablo Ugarte
+-->
+<meta>
+  <types>
+    <WebKitWebView workspace-type="MrgDummyWebViewProxy"/>
+  </types>
+
+  <categories>
+
+    <category name="hidden">
+      <WebKitWebViewBase />
+    </category>
+
+  </categories>
+
+</meta>

@@ -7,7 +7,7 @@ CAMBALACHE_DB=flatpak run \
 	--device=all \
 	--filesystem=host \
 	--command=python3 \
-	org.gnome.Sdk//42 \
+	org.gnome.Sdk//master \
 	../tools/cambalache-db.py
 
 BASE_CATALOG_FILES = \
@@ -31,6 +31,8 @@ CATALOG_FILES = \
 	${GTK4_DEPS} \
 	gtk/gtk-4.0.xml \
 	gtk/gtk+-3.0.xml \
+	gnome/webkit2gtk-5.0.xml \
+	gnome/webkit2gtk-4.1.xml \
 	gnome/libhandy-1.xml \
 	gnome/libadwaita-1.xml \
 	$(NULL)
@@ -113,7 +115,6 @@ gtk/gtk-4.0.xml: gtk/Gtk.xml ${GTK4_DEPS}
 		--skip-types GtkActivateAction GtkMnemonicAction GtkNamedAction GtkNeverTrigger GtkNothingAction GtkSignalAction GtkPrintJob \
 		--output $@ && true
 
-
 gnome/libhandy-1.xml: gtk/gtk+-3.0.xml
 	${CAMBALACHE_DB} \
 		--dependencies gtk+-3.0 \
@@ -121,6 +122,16 @@ gnome/libhandy-1.xml: gtk/gtk+-3.0.xml
 		--external-catalogs ${GTK3_DEPS} gtk/gtk+-3.0.xml \
 		--extra-data gnome/Handy.xml \
 		--skip-types HdySwipeTracker HdyValueObject \
+		--output $@
+
+gnome/webkit2gtk-4.1.xml: gtk/gtk+-3.0.xml
+	${CAMBALACHE_DB} \
+		--dependencies gtk+-3.0 \
+		--gir /usr/share/gir-1.0/WebKit2-4.1.gir \
+		--external-catalogs ${GTK3_DEPS} gtk/gtk+-3.0.xml \
+		--types WebKitWebViewBase WebKitWebView WebKitSettings \
+		--extra-data gnome/WebKit2.xml \
+		--skip-types WebKitWebViewBase \
 		--output $@
 
 gnome/libadwaita-1.xml: gtk/gtk-4.0.xml
@@ -133,6 +144,16 @@ gnome/libadwaita-1.xml: gtk/gtk-4.0.xml
 		--skip-types AdwAnimation AdwSwipeTracker\
 		--output $@
 
+gnome/webkit2gtk-5.0.xml: gtk/gtk-4.0.xml
+	${CAMBALACHE_DB} \
+		--target-gtk4 \
+		--dependencies gtk-4.0 \
+		--gir /usr/share/gir-1.0/WebKit2-5.0.gir \
+		--external-catalogs ${GTK4_DEPS} gtk/gtk-4.0.xml \
+		--types WebKitWebViewBase WebKitWebView WebKitSettings \
+		--extra-data gnome/WebKit2.xml \
+		--skip-types WebKitWebViewBase \
+		--output $@
 
 .PHONY: all clean
 

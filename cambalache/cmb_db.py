@@ -58,6 +58,9 @@ GSK4_XML = os.path.join(catalogsdir, 'gsk-4.0.xml')
 GTK3_XML = os.path.join(catalogsdir, 'gtk+-3.0.xml')
 GTK4_XML = os.path.join(catalogsdir, 'gtk-4.0.xml')
 
+WEBKIT2GTK_4_1_XML = os.path.join(catalogsdir, 'webkit2gtk-4.1.xml')
+WEBKIT2GTK_5_0_XML = os.path.join(catalogsdir, 'webkit2gtk-5.0.xml')
+
 LIBHANDY_XML = os.path.join(catalogsdir, 'libhandy-1.xml')
 LIBADWAITA_XML = os.path.join(catalogsdir, 'libadwaita-1.xml')
 
@@ -303,12 +306,14 @@ class CmbDB(GObject.GObject):
             self.load_catalog(GDK3_XML)
             self.load_catalog(GTK3_XML)
             # FIXME: this should be optional
+            self.load_catalog(WEBKIT2GTK_4_1_XML)
             self.load_catalog(LIBHANDY_XML)
         elif self.target_tk == 'gtk-4.0':
             self.load_catalog(GDK4_XML)
             self.load_catalog(GSK4_XML)
             self.load_catalog(GTK4_XML)
             # FIXME: this should be optional
+            self.load_catalog(WEBKIT2GTK_5_0_XML)
             self.load_catalog(LIBADWAITA_XML)
 
         # TODO: Load all libraries that depend on self.target_tk

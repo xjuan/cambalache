@@ -8,6 +8,8 @@ install_data([
     'gtk/gsk-4.0.xml',
     'gtk/gtk-4.0.xml',
     'gtk/gtk+-3.0.xml',
+    'gnome/webkit2gtk-4.1.xml',
+    'gnome/webkit2gtk-5.0.xml',
     'gnome/libhandy-1.xml',
     'gnome/libadwaita-1.xml'
     ],
