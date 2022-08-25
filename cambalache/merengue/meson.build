@@ -93,3 +93,11 @@ install_data([
   ],
   install_dir: join_paths(moduledir, 'mrg_adw')
 )
+
+
+install_data([
+  'mrg_webkit2/__init__.py',
+  'mrg_webkit2/mrg_webkit_web_view.py',
+  ],
+  install_dir: join_paths(moduledir, 'mrg_webkit2')
+)
