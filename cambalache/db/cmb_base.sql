@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS type (
   abstract BOOLEAN,
   derivable BOOLEAN,
   layout TEXT CHECK (layout IN ('container', 'manager', 'child')),
-  category TEXT CHECK (category IN ('toplevel', 'layout', 'control', 'display', 'model')),
+  category TEXT CHECK (category IN ('toplevel', 'layout', 'control', 'display', 'model', 'hidden')),
   workspace_type TEXT
 ) WITHOUT ROWID;
 

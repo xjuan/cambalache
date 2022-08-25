@@ -65,6 +65,9 @@ class CmbTypeChooserWidget(Gtk.Box):
         if not info.instantiable or info.layout not in [None, 'container']:
             return False
 
+        if info.category == 'hidden':
+            return False
+
         if self.parent_type_id != '':
             retval = self.project._check_can_add(info.type_id, self.parent_type_id)
         else:
