@@ -28,6 +28,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import GLib, GObject, Gtk
 
 from .cmb_object import CmbObject
+from .cmb_object_data_editor import CmbObjectDataEditor
 from .cmb_property_controls import *
 
 
@@ -171,13 +172,20 @@ class CmbObjectEditor(Gtk.Box):
             for property_id in info.properties:
                 prop = properties.get(property_id, None)
 
-                if prop is None:
+                if prop is None or prop.info is None:
                     continue
 
-                editor = self.__create_editor_for_property(prop)
+                editor = cmb_create_editor(prop.project,
+                                           prop.info.type_id,
+                                           prop=prop)
 
                 if editor is None:
                     continue
+
+                GObject.Object.bind_property(prop, 'value',
+                                             editor, 'cmb-value',
+                                             GObject.BindingFlags.SYNC_CREATE |
+                                             GObject.BindingFlags.BIDIRECTIONAL)
 
                 label = Gtk.Label(label=prop.property_id,
                                   xalign=0)
@@ -190,6 +198,24 @@ class CmbObjectEditor(Gtk.Box):
 
                 grid.attach(label, 0, i, 1, 1)
                 grid.attach(editor, 1, i, 1, 1)
+                i += 1
+
+            for data_key in info.data:
+                data = None
+
+                # Find data
+                for d in self.__object.data:
+                    if d.info.key == data_key:
+                        data = d
+                        break
+
+                editor = CmbObjectDataEditor(visible=True,
+                                             hexpand=True,
+                                             object=self.__object,
+                                             data=data,
+                                             info=None if data else info.data[data_key])
+
+                grid.attach(editor, 0, i, 2, 1)
                 i += 1
 
             # Continue if class had no editors to add
@@ -247,106 +273,6 @@ class CmbObjectEditor(Gtk.Box):
                                  self.__on_layout_property_changed)
 
         self.__update_view()
-
-    def __get_min_max_for_type(self, type_id):
-        if type_id == 'gchar':
-            return (GLib.MININT8, GLib.MAXINT8)
-        elif type_id == 'guchar':
-            return (0, GLib.MAXUINT8)
-        elif type_id == 'gint':
-            return (GLib.MININT, GLib.MAXINT)
-        elif type_id == 'guint':
-            return (0, GLib.MAXUINT)
-        elif type_id == 'glong':
-            return (GLib.MINLONG, GLib.MAXLONG)
-        elif type_id == 'gulong':
-            return (0, GLib.MAXULONG)
-        elif type_id == 'gint64':
-            return (GLib.MININT64, GLib.MAXINT64)
-        elif type_id == 'guint64':
-            return (0, GLib.MAXUINT64)
-        elif type_id == 'gfloat':
-            return (-GLib.MAXFLOAT, GLib.MAXFLOAT)
-        elif type_id == 'gdouble':
-            return (-GLib.MAXDOUBLE, GLib.MAXDOUBLE)
-
-    def __create_editor_for_property(self, prop):
-        editor = None
-
-        if prop.info is None:
-            return None
-
-        info = prop.info
-        type_id = info.type_id
-        tinfo = self.__object.project.type_info.get(type_id, None)
-
-        if type_id == 'gboolean':
-            editor = CmbSwitch()
-        if type_id == 'gunichar':
-            editor = CmbEntry(hexpand=True,
-                              max_length=1,
-                              placeholder_text=f'<{type_id}>')
-        elif type_id == 'gchar' or type_id == 'guchar' or \
-             type_id == 'gint' or type_id == 'guint' or \
-             type_id == 'glong' or type_id == 'gulong' or \
-             type_id == 'gint64' or type_id == 'guint64'or \
-             type_id == 'gfloat' or type_id == 'gdouble':
-
-            digits = 0
-            step_increment = 1
-            minimum, maximum = self.__get_min_max_for_type(type_id)
-
-            # FIXME: is there a better way to handle inf -inf values other
-            # than casting to str?
-            if info.minimum is not None:
-                value = float(info.minimum)
-                minimum = value if value != -math.inf else -GLib.MAXDOUBLE
-            if info.maximum is not None:
-                value = float(info.maximum)
-                maximum = value if value != math.inf else GLib.MAXDOUBLE
-
-            if type_id == 'gfloat' or type_id == 'gdouble':
-                digits = 4
-                step_increment = 0.1
-
-            adjustment = Gtk.Adjustment(lower=minimum,
-                                        upper=maximum,
-                                        step_increment=step_increment,
-                                        page_increment=10)
-
-            editor = CmbSpinButton(digits=digits,
-                                   adjustment=adjustment)
-        elif type_id == 'GStrv':
-            editor = CmbTextView(hexpand=True)
-        elif type_id == 'GdkRGBA':
-            editor = CmbColorEntry()
-        elif type_id == 'GdkColor':
-            editor = CmbColorEntry(use_color=True)
-        elif type_id == 'GdkPixbuf':
-            dirname = os.path.dirname(self.object.project.filename)
-            editor = CmbPixbufEntry(hexpand=True,
-                                    dirname=dirname)
-        elif type_id == 'CmbIconName':
-            editor = CmbIconNameEntry(hexpand=True,
-                                      placeholder_text=f'<Icon Name>')
-        elif info.is_object:
-            editor = CmbObjectChooser(prop=prop)
-        elif tinfo:
-            if tinfo.parent_id == 'enum':
-                editor = CmbEnumComboBox(info=tinfo)
-            elif tinfo.parent_id == 'flags':
-                editor = CmbFlagsEntry(info=tinfo)
-
-        if editor is None:
-            editor = CmbEntry(hexpand=True, placeholder_text=f'<{type_id}>')
-            if info.translatable == True:
-                editor.make_translatable(target = prop)
-
-        GObject.Object.bind_property(prop, 'value',
-                                     editor, 'cmb-value',
-                                     GObject.BindingFlags.SYNC_CREATE |
-                                     GObject.BindingFlags.BIDIRECTIONAL)
-        return editor
 
 
 Gtk.WidgetClass.set_css_name(CmbObjectEditor, 'CmbObjectEditor')
