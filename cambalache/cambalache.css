@@ -37,3 +37,12 @@ CmbWindow stackswitcher.compact > button {
 popover.cmb-icon-chooser iconview:not(:selected) {
   background-color: unset;
 }
+
+button.hidden {
+  opacity: 0;
+  transition: opacity 200ms ease-in-out 0;
+}
+
+button.hidden:hover {
+  opacity: 1;
+}

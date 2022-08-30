@@ -11,6 +11,7 @@
     <file>cmb_ui_editor.ui</file>
     <file>cmb_css_editor.ui</file>
     <file>cmb_fragment_editor.ui</file>
+    <file>cmb_object_data_editor.ui</file>
     <file>cmb_signal_editor.ui</file>
     <file>cmb_translatable_widget.ui</file>
     <file>cambalache.css</file>
