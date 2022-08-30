@@ -46,7 +46,11 @@ class CmbObject(CmbBaseObject):
 
         'signal-added': (GObject.SignalFlags.RUN_FIRST, None, (CmbSignal, )),
 
-        'signal-removed': (GObject.SignalFlags.RUN_FIRST, None, (CmbSignal, ))
+        'signal-removed': (GObject.SignalFlags.RUN_FIRST, None, (CmbSignal, )),
+
+        'data-added': (GObject.SignalFlags.RUN_FIRST, None, (CmbObjectData, )),
+
+        'data-removed': (GObject.SignalFlags.RUN_FIRST, None, (CmbObjectData, )),
     }
 
     def __init__(self, **kwargs):
@@ -56,6 +60,7 @@ class CmbObject(CmbBaseObject):
         self.layout_dict = {}
         self.signals = []
         self.data = []
+        self.data_dict = {}
         self.position_layout_property = None
 
         super().__init__(**kwargs)
@@ -65,9 +70,13 @@ class CmbObject(CmbBaseObject):
         if self.project is None:
             return
 
+        # Append object to project automatically
+        self.project._append_object(self)
+
         self.__populate_properties()
         self.__populate_layout_properties()
         self.__populate_signals()
+        self.__populate_data()
 
     def __str__(self):
         return f'CmbObject<{self.type_id}> {self.ui_id}:{self.object_id}'
@@ -141,6 +150,15 @@ class CmbObject(CmbBaseObject):
         self.emit('signal-added', signal)
         self.project._object_signal_added(self, signal)
 
+    def __add_data_object(self, data):
+        if data in self.data:
+            return
+
+        self.data.append(data)
+        self.data_dict[data.get_id_string()] = data
+        self.emit('data-added', data)
+        self.project._object_data_added(self, data)
+
     def __on_notify(self, obj, pspec):
         self.project._object_changed(self, pspec.name)
 
@@ -151,6 +169,14 @@ class CmbObject(CmbBaseObject):
         for row in c.execute('SELECT * FROM object_signal WHERE ui_id=? AND object_id=?;',
                              (self.ui_id, self.object_id)):
             self.__add_signal_object(CmbSignal.from_row(self.project, *row))
+
+    def __populate_data(self):
+        c = self.project.db.cursor()
+
+        # Populate data
+        for row in c.execute('SELECT * FROM object_data WHERE ui_id=? AND object_id=? AND parent_id IS NULL;',
+                             (self.ui_id, self.object_id)):
+            self.__add_data_object(CmbObjectData.from_row(self.project, *row))
 
     def __populate_layout_properties(self):
         parent_id = self.parent_id
@@ -238,6 +264,18 @@ class CmbObject(CmbBaseObject):
             self._remove_signal(signal)
             return True
 
+    def _add_data(self, owner_id, data_id, id, info=None):
+        data = CmbObjectData(project=self.project,
+                             object=self,
+                             info=info,
+                             ui_id=self.ui_id,
+                             object_id=self.object_id,
+                             owner_id=owner_id,
+                             data_id=data_id,
+                             id=id)
+        self.__add_data_object(data)
+        return data
+
     def add_data(self, data_key, value=None, comment=None):
         try:
             value = str(value) if value is not None else None
@@ -249,18 +287,17 @@ class CmbObject(CmbBaseObject):
             logger.warning(f'Error adding data {data_key} {e}')
             return None
         else:
-            new_data = CmbObjectData(project=self.project,
-                                     object=self,
-                                     info=taginfo,
-                                     ui_id=self.ui_id,
-                                     object_id=self.object_id,
-                                     owner_id=owner_id,
-                                     data_id=data_id,
-                                     id=id,
-                                     value=value,
-                                     comment=comment)
-            self.data.append(new_data)
-            return new_data
+            return self._add_data(owner_id, data_id, id, info=taginfo)
+
+    def _remove_data(self, data):
+        if data not in self.data:
+            return
+
+        self.data.remove(data)
+        del self.data_dict[data.get_id_string()]
+
+        self.emit('data-removed', data)
+        self.project._object_data_removed(self, data)
 
     def remove_data(self, data):
         try:
@@ -272,7 +309,7 @@ class CmbObject(CmbBaseObject):
             logger.warning(f'{self} Error removing data {data}: {e}')
             return False
         else:
-            self.data.remove(data)
+            self._remove_data(data)
             return True
 
     def reorder_child(self, child, position):

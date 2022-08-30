@@ -61,7 +61,9 @@ class CmbTypeInfo(CmbBaseTypeInfo):
 
         self.child_types = self.__init_child_type()
 
-        self.instantiable = self.is_a('GObject') and not self.abstract
+        self.is_object = self.is_a('GObject')
+
+        self.instantiable = self.is_object and not self.abstract
 
     def __init_hierarchy(self):
         retval = []
@@ -193,6 +195,28 @@ class CmbTypeInfo(CmbBaseTypeInfo):
                 return parent.data[name]
 
             parent = parent.parent
+
+        return None
+
+    def find_data_info(self, data_id):
+        def find_child_info(info, data_id):
+            for name in info.children:
+                child_info = info.children[name]
+                if child_info.data_id == data_id:
+                    return child_info
+
+                retval = find_child_info(child_info, data_id)
+                if retval:
+                    return retval
+
+        for name in self.data:
+            info = self.data[name]
+            if info.data_id == data_id:
+                return info
+
+            retval = find_child_info(info, data_id)
+            if retval:
+                return retval
 
         return None
 

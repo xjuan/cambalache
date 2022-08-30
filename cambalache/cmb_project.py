@@ -35,6 +35,7 @@ from .cmb_db import CmbDB
 from .cmb_ui import CmbUI
 from .cmb_css import CmbCSS
 from .cmb_object import CmbObject
+from .cmb_object_data import CmbObjectData
 from .cmb_property import CmbProperty
 from .cmb_layout_property import CmbLayoutProperty
 from .cmb_library_info import CmbLibraryInfo
@@ -91,6 +92,21 @@ class CmbProject(Gtk.TreeStore):
 
         'object-signal-removed': (GObject.SignalFlags.RUN_FIRST, None,
                                   (CmbObject, CmbSignal)),
+
+        'object-data-added': (GObject.SignalFlags.RUN_FIRST, None,
+                              (CmbObject, CmbObjectData)),
+
+        'object-data-removed': (GObject.SignalFlags.RUN_FIRST, None,
+                                (CmbObject, CmbObjectData)),
+
+        'object-data-data-added': (GObject.SignalFlags.RUN_FIRST, None,
+                                   (CmbObjectData, CmbObjectData)),
+
+        'object-data-data-removed': (GObject.SignalFlags.RUN_FIRST, None,
+                                     (CmbObjectData, CmbObjectData)),
+
+        'object-data-arg-changed': (GObject.SignalFlags.RUN_FIRST, None,
+                                    (CmbObjectData, str)),
 
         'selection-changed': (GObject.SignalFlags.RUN_FIRST, None, ()),
 
@@ -551,18 +567,23 @@ class CmbProject(Gtk.TreeStore):
 
         return retval
 
-    def __add_object(self, emit, ui_id, object_id, obj_type, name=None, parent_id=None, internal_child=None, child_type=None, comment=None, position=0, custom_fragment=None):
-        obj = CmbObject(project=self,
-                        ui_id=ui_id,
-                        object_id=object_id,
-                        info=self.type_info[obj_type])
+    def _append_object(self, obj):
+        ui_id = obj.ui_id
+        object_id = obj.object_id
+        parent_id = obj.parent_id
 
         if parent_id:
             parent = self.__object_id.get(f'{ui_id}.{parent_id}', None)
         else:
             parent = self.__object_id.get(ui_id, None)
 
-        self.__object_id[f'{ui_id}.{object_id}'] = self.insert(parent, position, [obj])
+        self.__object_id[f'{ui_id}.{object_id}'] = self.insert(parent, obj.position, [obj])
+
+    def __add_object(self, emit, ui_id, object_id, obj_type, name=None, parent_id=None, internal_child=None, child_type=None, comment=None, position=0, custom_fragment=None):
+        obj = CmbObject(project=self,
+                        ui_id=ui_id,
+                        object_id=object_id,
+                        info=self.type_info[obj_type])
 
         if emit:
             self.emit('object-added', obj)
@@ -775,7 +796,7 @@ class CmbProject(Gtk.TreeStore):
                 obj = self.get_css_by_id(pk[0])
                 if obj:
                     obj.notify(column)
-        elif command == 'INSERT' or command == 'DELETE':
+        elif command in ['INSERT', 'DELETE']:
             if table == 'object_property':
                 obj = self.get_object_by_id(pk[0], pk[1])
                 self.__undo_redo_property_notify(obj, False, 'value', pk[2], pk[3])
@@ -805,22 +826,39 @@ class CmbProject(Gtk.TreeStore):
                         self.__add_object(True, *row)
                     elif table == 'css':
                         self.__add_css(True, *row)
-            elif table == 'object_signal':
+            elif table in ['object_signal', 'object_data']:
                 c.execute(commands['COUNT'], (self.history_index, ))
                 count = c.fetchone()
 
                 c.execute(commands['DATA'], (self.history_index, ))
                 row = c.fetchone()
 
-                obj = self.get_object_by_id(row[1], row[2])
+                if table == 'object_signal':
+                    obj = self.get_object_by_id(row[1], row[2])
+                    if count[0] == 0:
+                        for signal in obj.signals:
+                            if signal.signal_pk == row[0]:
+                                obj._remove_signal(signal)
+                                break
+                    else:
+                        obj._add_signal(row[0], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
+                elif table == 'object_data':
+                    obj = self.get_object_by_id(row[0], row[1])
 
-                if count[0] == 0:
-                    for signal in obj.signals:
-                        if signal.signal_pk == row[0]:
-                            obj._remove_signal(signal)
-                            break
-                else:
-                    obj._add_signal(row[0], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
+                    if count[0] == 0:
+                        data = obj.data_dict.get(f'{row[2]}.{row[4]}', None)
+                        if data:
+                            if data.parent:
+                                data.parent._remove_child(data)
+                            else:
+                                obj._remove_data(data)
+                    else:
+                        parent = obj.data_dict.get(f'{row[2]}.{row[6]}', None)
+
+                        if parent:
+                            parent._add_child(row[2], row[3], row[4])
+                        else:
+                            obj._add_data(row[2], row[3], row[4])
             elif table == 'css_ui':
                 obj = self.get_css_by_id(pk[0])
                 if obj:
@@ -920,6 +958,8 @@ class CmbProject(Gtk.TreeStore):
                     retval['value'] = data[5]
                 elif table == 'object_signal':
                     retval['signal'] = data[4]
+                elif table == 'object_data':
+                    retval['data'] = f'{data[2]}:{data[3]}'
 
             return retval
 
@@ -967,6 +1007,11 @@ class CmbProject(Gtk.TreeStore):
                     'INSERT': _('Add {signal} signal to {obj}'),
                     'DELETE': _('Remove {signal} signal from {obj}'),
                     'UPDATE': _('Update {signal} signal of {obj}')
+                },
+                'object_data': {
+                    'INSERT': _('Add {data} to {obj}'),
+                    'DELETE': _('Remove {data} from {obj}'),
+                    'UPDATE': _('Update {data} of {obj} to {value}')
                 },
             }.get(table, {}).get(command, None)
 
@@ -1107,6 +1152,21 @@ class CmbProject(Gtk.TreeStore):
 
     def _object_signal_added(self, obj, signal):
         self.emit('object-signal-added', obj, signal)
+
+    def _object_data_data_removed(self, parent, data):
+        self.emit('object-data-data-removed', parent, data)
+
+    def _object_data_data_added(self, parent, data):
+        self.emit('object-data-data-added', parent, data)
+
+    def _object_data_arg_changed(self, data, key):
+        self.emit('object-data-arg-changed', data, key)
+
+    def _object_data_removed(self, obj, data):
+        self.emit('object-data-removed', obj, data)
+
+    def _object_data_added(self, obj, data):
+        self.emit('object-data-added', obj, data)
 
     def _css_changed(self, obj, field):
         iter = self.get_iter_from_object(obj)
@@ -1260,6 +1320,21 @@ class CmbProject(Gtk.TreeStore):
         self.emit('changed')
 
     def do_object_signal_removed(self, obj, signal):
+        self.emit('changed')
+
+    def do_object_data_added(self, obj, data):
+        self.emit('changed')
+
+    def do_object_data_removed(self, obj, data):
+        self.emit('changed')
+
+    def do_object_data_data_added(self, parent, data):
+        self.emit('changed')
+
+    def do_object_data_data_removed(self, parent, data):
+        self.emit('changed')
+
+    def do_object_data_arg_changed(self, data, arg):
         self.emit('changed')
 
     def __update_children_iters(self, parent):
