@@ -51,7 +51,8 @@ class CmbEntry(Gtk.Entry):
         self.connect("icon-press", self.__on_icon_pressed)
 
     def __on_icon_pressed(self, widget, icon_pos, event):
-        popover = CmbTranslatablePopover(self._target, relative_to=self)
+        popover = CmbTranslatablePopover(relative_to=self)
+        popover.bind_properties(self._target)
         popover.popup()
 
     def __on_text_notify(self, obj, pspec):
@@ -352,6 +353,7 @@ class CmbPixbufEntry(Gtk.Entry):
 class CmbObjectChooser(Gtk.Entry):
     __gtype_name__ = 'CmbObjectChooser'
 
+    parent = GObject.Property(type=CmbObject, flags = GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
     prop = GObject.Property(type=CmbProperty, flags = GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self, **kwargs):
@@ -361,8 +363,8 @@ class CmbObjectChooser(Gtk.Entry):
 
         if self.prop.info.is_inline_object:
             self.connect("icon-press", self.__on_icon_pressed)
-            self.prop.object.connect("property-changed",
-                                     lambda o, p: self.__update_icons())
+            self.parent.connect("property-changed",
+                                 lambda o, p: self.__update_icons())
             self.__update_icons()
         else:
             self.props.placeholder_text = f'<{self.prop.info.type_id}>'
@@ -371,8 +373,8 @@ class CmbObjectChooser(Gtk.Entry):
         if self.prop.inline_object_id:
             return
 
-        obj = self.prop.project.get_object_by_name(self.prop.ui_id,
-                                                   self.props.text)
+        obj = self.parent.project.get_object_by_name(self.parent.ui_id,
+                                                     self.props.text)
         self._value = obj.object_id if obj else None
 
         self.notify('cmb-value')
@@ -383,12 +385,12 @@ class CmbObjectChooser(Gtk.Entry):
 
     @cmb_value.setter
     def _set_cmb_value(self, value):
-        prop = self.prop
+        parent = self.parent
 
         self._value = int(value) if value else None
 
         if self._value:
-            obj = prop.project.get_object_by_id(prop.ui_id, self._value)
+            obj = parent.project.get_object_by_id(parent.ui_id, self._value)
             self.props.text = obj.name if obj else ''
         else:
             self.props.text = ''
@@ -398,8 +400,8 @@ class CmbObjectChooser(Gtk.Entry):
             return
 
         if self.prop.inline_object_id:
-            obj = self.prop.project.get_object_by_id(self.prop.ui_id,
-                                                     self.prop.inline_object_id)
+            obj = self.parent.project.get_object_by_id(self.parent.ui_id,
+                                                       self.prop.inline_object_id)
             type = obj.type_id
             self.props.secondary_icon_name = 'edit-clear-symbolic'
             self.props.secondary_icon_tooltip_text = _('Clear property')
@@ -418,25 +420,27 @@ class CmbObjectChooser(Gtk.Entry):
         return obj.type_id.lower() if name is None else name
 
     def __on_type_selected(self, popover, info):
-        prop = self.prop
-        prop.project.add_object(prop.ui_id,
-                                info.type_id,
-                                parent_id=prop.object_id,
-                                inline_property=prop.property_id)
+        parent = self.parent
+        parent.project.add_object(parent.ui_id,
+                                  info.type_id,
+                                  parent_id=parent.object_id,
+                                  inline_property=self.prop.property_id)
         self.__update_icons()
 
     def __on_icon_pressed(self, widget, icon_pos, event):
+        parent = self.parent
+        project = parent.project
         prop = self.prop
 
         if self.prop.inline_object_id:
-            obj = prop.project.get_object_by_id(prop.ui_id, prop.inline_object_id)
-            prop.project.remove_object(obj)
+            obj = project.get_object_by_id(self.parent.ui_id, prop.inline_object_id)
+            project.remove_object(obj)
             self.__update_icons()
         else:
             chooser = CmbTypeChooserPopover(relative_to=self,
-                                            parent_type_id=prop.object.type_id,
+                                            parent_type_id=parent.type_id,
                                             derived_type_id=prop.info.type_id)
-            chooser.project = prop.project
+            chooser.project = project
             chooser.connect('type-selected', self.__on_type_selected)
             chooser.popup()
 
@@ -846,3 +850,106 @@ class CmbSourceView(GtkSource.View):
 
     def __on_buffer_changed(self, buffer):
         self.notify('text')
+
+
+# Functions
+def cmb_create_editor(project,
+                      type_id,
+                      prop=None):
+    def get_min_max_for_type(type_id):
+        if type_id == 'gchar':
+            return (GLib.MININT8, GLib.MAXINT8)
+        elif type_id == 'guchar':
+            return (0, GLib.MAXUINT8)
+        elif type_id == 'gint':
+            return (GLib.MININT, GLib.MAXINT)
+        elif type_id == 'guint':
+            return (0, GLib.MAXUINT)
+        elif type_id == 'glong':
+            return (GLib.MINLONG, GLib.MAXLONG)
+        elif type_id == 'gulong':
+            return (0, GLib.MAXULONG)
+        elif type_id == 'gint64':
+            return (GLib.MININT64, GLib.MAXINT64)
+        elif type_id == 'guint64':
+            return (0, GLib.MAXUINT64)
+        elif type_id == 'gfloat':
+            return (-GLib.MAXFLOAT, GLib.MAXFLOAT)
+        elif type_id == 'gdouble':
+            return (-GLib.MAXDOUBLE, GLib.MAXDOUBLE)
+
+    editor = None
+    info = project.type_info.get(type_id, None)
+    translatable = False
+
+    if prop:
+        translatable = prop.translatable
+
+    if type_id == 'gboolean':
+        editor = CmbSwitch()
+    if type_id == 'gunichar':
+        editor = CmbEntry(hexpand=True,
+                          max_length=1,
+                          placeholder_text=f'<{type_id}>')
+    elif type_id == 'gchar' or type_id == 'guchar' or \
+         type_id == 'gint' or type_id == 'guint' or \
+         type_id == 'glong' or type_id == 'gulong' or \
+         type_id == 'gint64' or type_id == 'guint64'or \
+         type_id == 'gfloat' or type_id == 'gdouble':
+
+        digits = 0
+        step_increment = 1
+        minimum, maximum = get_min_max_for_type(type_id)
+
+        pinfo = prop.info if prop else None
+
+        # FIXME: is there a better way to handle inf -inf values other
+        # than casting to str?
+        if pinfo and pinfo.minimum is not None:
+            value = float(minimum)
+            minimum = value if value != -math.inf else -GLib.MAXDOUBLE
+        if pinfo and pinfo.maximum is not None:
+            value = float(maximum)
+            maximum = value if value != math.inf else GLib.MAXDOUBLE
+
+        if type_id == 'gfloat' or type_id == 'gdouble':
+            digits = 4
+            step_increment = 0.1
+
+        adjustment = Gtk.Adjustment(lower=minimum,
+                                    upper=maximum,
+                                    step_increment=step_increment,
+                                    page_increment=10)
+
+        editor = CmbSpinButton(digits=digits,
+                               adjustment=adjustment)
+    elif type_id == 'GStrv':
+        editor = CmbTextView(hexpand=True)
+    elif type_id == 'GdkRGBA':
+        editor = CmbColorEntry()
+    elif type_id == 'GdkColor':
+        editor = CmbColorEntry(use_color=True)
+    elif type_id == 'GdkPixbuf':
+        dirname = os.path.dirname(project.filename)
+        editor = CmbPixbufEntry(hexpand=True,
+                                dirname=dirname)
+    elif type_id == 'CmbIconName':
+        editor = CmbIconNameEntry(hexpand=True,
+                                  placeholder_text=f'<Icon Name>')
+    elif info:
+        if info.is_object:
+            # TODO: replace prop with project and is_inline
+            editor = CmbObjectChooser(parent=prop.object, prop=prop)
+        if info.parent_id == 'enum':
+            editor = CmbEnumComboBox(info=info)
+        elif info.parent_id == 'flags':
+            editor = CmbFlagsEntry(info=info)
+
+    if editor is None:
+        editor = CmbEntry(hexpand=True, placeholder_text=f'<{type_id}>')
+        if translatable == True:
+            editor.make_translatable(target=prop)
+
+    editor.show()
+
+    return editor

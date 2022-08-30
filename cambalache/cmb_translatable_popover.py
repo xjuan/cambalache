@@ -32,7 +32,7 @@ from .cmb_translatable_widget import CmbTranslatableWidget
 class CmbTranslatablePopover(Gtk.Popover):
     __gtype_name__ = 'CmbTranslatablePopover'
 
-    def __init__(self, target, **kwargs):
+    def __init__(self, **kwargs):
         self._object = None
         super().__init__(**kwargs)
 
@@ -43,8 +43,10 @@ class CmbTranslatablePopover(Gtk.Popover):
         box.pack_start(Gtk.Separator(), False, False, 0)
 
         self._translation = CmbTranslatableWidget()
-        self._translation.bind_properties(target)
         box.pack_start(self._translation, False, False, 0)
 
         box.show_all()
         self.add(box)
+
+    def bind_properties(self, target):
+        self._translation.bind_properties(target)
