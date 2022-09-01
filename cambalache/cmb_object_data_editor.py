@@ -275,13 +275,11 @@ class CmbObjectDataEditor(Gtk.Box):
 
             self.top_box.add(editor)
 
+        nargs = len(info.args)
+
         # Arguments
         for arg in info.args:
             arg_info = info.args[arg]
-
-            label = Gtk.Label(visible=True,
-                              label=arg_info.key,
-                              xalign=1)
 
             editor = cmb_create_editor(self.data.project, arg_info.type_id)
             self.__arg_editors[arg_info.key] = editor
@@ -292,7 +290,15 @@ class CmbObjectDataEditor(Gtk.Box):
             # Listen for editor value changes and update argument
             editor.connect('notify::cmb-value', self.__on_arg_notify, arg_info)
 
-            self.__add(editor, label)
+            # Special case items with one argument and no value (like styles)
+            if nargs == 1 and not info.type_id:
+                self.label.props.label = f'{info.key} {arg_info.key}'
+                self.top_box.add(editor)
+            else:
+                label = Gtk.Label(visible=True,
+                                  label=arg_info.key,
+                                  xalign=1)
+                self.__add(editor, label)
 
         # Current children
         if self.data:
