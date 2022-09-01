@@ -127,7 +127,7 @@ class CmbView(Gtk.Stack):
     preview = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
 
     webview = Gtk.Template.Child()
-    buffer = Gtk.Template.Child()
+    text_view = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         self.__project = None
@@ -230,10 +230,10 @@ window.setupDocument = function (document) {
         if self.__project is not None and self.__ui_id > 0:
             if self.props.visible_child_name == 'ui_xml':
                 ui = self.__get_ui_xml(self.__ui_id)
-                self.buffer.set_text(ui)
+                self.text_view.buffer.set_text(ui)
             return
 
-        self.buffer.set_text('')
+        self.text_view.buffer.set_text('')
         self.__ui_id = 0
 
     def __get_ui_dirname(self, ui_id):
