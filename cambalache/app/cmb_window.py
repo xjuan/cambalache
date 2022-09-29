@@ -223,8 +223,11 @@ class CmbWindow(Gtk.ApplicationWindow):
 
     @Gtk.Template.Callback('on_about_dialog_delete_event')
     def __on_about_dialog_delete_event(self, widget, event):
-        widget.hide()
         return True
+
+    @Gtk.Template.Callback('on_about_dialog_response')
+    def __on_about_dialog_response(self, widget, response_id):
+        widget.hide()
 
     @Gtk.Template.Callback('on_type_chooser_type_selected')
     def __on_type_chooser_type_selected(self, popover, info):
