@@ -355,6 +355,9 @@ class CmbProject(Gtk.TreeStore):
                 dirname = os.path.dirname(self.filename)
             filename = os.path.join(dirname, filename)
 
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+
         # Get XML tree
         ui = self.db.export_ui(ui_id)
 
