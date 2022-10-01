@@ -38,6 +38,18 @@ from .cmb_property import CmbProperty
 from .icon_naming_spec import standard_icon_names, standard_icon_context
 
 
+def unset_scroll_event(widget):
+    def ignore_scroll_event(widget, event):
+        Gtk.propagate_event(widget.get_parent(), event);
+        return True
+
+    events = widget.get_events()
+    widget.set_events(events & ~(Gdk.EventMask.SCROLL_MASK | Gdk.EventMask.SMOOTH_SCROLL_MASK))
+
+    if isinstance(widget, Gtk.ComboBox):
+        widget.connect('scroll-event', ignore_scroll_event)
+
+
 class CmbEntry(Gtk.Entry):
     __gtype_name__ = 'CmbEntry'
 
@@ -118,6 +130,8 @@ class CmbSpinButton(Gtk.SpinButton):
         self.props.numeric=True
         self.props.width_chars=8
 
+        unset_scroll_event(self)
+
     def __on_text_notify(self, obj, pspec):
         self.notify('cmb-value')
 
@@ -189,6 +203,8 @@ class CmbEnumComboBox(Gtk.ComboBox):
 
         self.props.id_column = self.text_column
         self.props.model = self.info.enum
+
+        unset_scroll_event(self)
 
     def __on_changed(self, obj):
         self.notify('cmb-value')
@@ -533,6 +549,9 @@ class CmbChildTypeComboBox(Gtk.ComboBox):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        unset_scroll_event(self)
+
         self.connect('changed', self.__on_changed)
 
         # Model, store it in a Python variable to make sure we hold a reference
