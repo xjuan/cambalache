@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.38.2 -->
+<!-- Generated with glade 3.40.0 -->
 <interface>
   <requires lib="gtk+" version="3.24"/>
-  <!-- n-columns=2 n-rows=7 -->
+  <requires lib="gladecambalache" version="0.0"/>
+  <object class="CmbTextBuffer" id="authors"/>
+  <object class="CmbTextBuffer" id="comment"/>
+  <object class="CmbTextBuffer" id="copyright"/>
+  <object class="CmbTextBuffer" id="description"/>
+  <!-- n-columns=2 n-rows=8 -->
   <template class="CmbUIEditor" parent="GtkGrid">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
@@ -70,9 +75,9 @@
     </child>
     <child>
       <object class="CmbEntry" id="filename">
-        <property name="hexpand">True</property>
         <property name="visible">True</property>
         <property name="can-focus">True</property>
+        <property name="hexpand">True</property>
         <property name="placeholder-text" translatable="yes">&lt;file name relative to project&gt;</property>
       </object>
       <packing>
@@ -98,8 +103,8 @@
         <property name="visible">True</property>
         <property name="can-focus">True</property>
         <property name="shadow-type">in</property>
-        <property name="max-content-height">256</property>
         <property name="min-content-height">96</property>
+        <property name="max-content-height">256</property>
         <child>
           <object class="GtkTextView">
             <property name="visible">True</property>
@@ -118,8 +123,8 @@
         <property name="visible">True</property>
         <property name="can-focus">True</property>
         <property name="shadow-type">in</property>
-        <property name="max-content-height">256</property>
         <property name="min-content-height">96</property>
+        <property name="max-content-height">256</property>
         <child>
           <object class="GtkTextView">
             <property name="visible">True</property>
@@ -207,7 +212,7 @@
       </object>
       <packing>
         <property name="left-attach">0</property>
-        <property name="top-attach">6</property>
+        <property name="top-attach">7</property>
         <property name="width">2</property>
       </packing>
     </child>
@@ -216,8 +221,8 @@
         <property name="visible">True</property>
         <property name="can-focus">True</property>
         <property name="shadow-type">in</property>
-        <property name="max-content-height">256</property>
         <property name="min-content-height">96</property>
+        <property name="max-content-height">256</property>
         <child>
           <object class="GtkTextView">
             <property name="visible">True</property>
@@ -231,8 +236,37 @@
         <property name="top-attach">3</property>
       </packing>
     </child>
+    <child>
+      <object class="GtkLabel">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="halign">start</property>
+        <property name="label" translatable="yes">Comment:</property>
+      </object>
+      <packing>
+        <property name="left-attach">0</property>
+        <property name="top-attach">6</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkScrolledWindow">
+        <property name="visible">True</property>
+        <property name="can-focus">True</property>
+        <property name="shadow-type">in</property>
+        <property name="min-content-height">96</property>
+        <property name="max-content-height">256</property>
+        <child>
+          <object class="GtkTextView">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="buffer">comment</property>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="left-attach">1</property>
+        <property name="top-attach">6</property>
+      </packing>
+    </child>
   </template>
-  <object class="CmbTextBuffer" id="authors"/>
-  <object class="CmbTextBuffer" id="copyright"/>
-  <object class="CmbTextBuffer" id="description"/>
 </interface>

@@ -41,6 +41,7 @@ class CmbUIEditor(Gtk.Grid):
     copyright = Gtk.Template.Child()
     authors = Gtk.Template.Child()
     translation_domain = Gtk.Template.Child()
+    comment = Gtk.Template.Child()
 
     fields = [
         'filename',
@@ -48,7 +49,8 @@ class CmbUIEditor(Gtk.Grid):
         'description',
         'copyright',
         'authors',
-        'translation_domain'
+        'translation_domain',
+        'comment'
     ]
 
     def __init__(self, **kwargs):
