@@ -145,6 +145,7 @@ class CmbObjectData(CmbBaseObjectData):
                                  parent=self,
                                  info=info)
         self.__add_child(new_data)
+        return new_data
 
     def __populate_children(self):
         c = self.project.db.cursor()
