@@ -22,6 +22,7 @@ modules = [
     ['gi.repository.Gtk', '>= 3.24.0', '3.0'],
     ['gi.repository.Gtk', '>= 4.0.0', '4.0'],
     ['gi.repository.WebKit2', '>= 2.32.0', '4.1'],
+    ['gi.repository.WebKit2', '>= 2.32.0', '5.0'],
     ['gi.repository.GtkSource', '', '4'],
     ['gi.repository.Handy'],
     ['gi.repository.Adw'],
@@ -61,7 +62,7 @@ foreach mod_ver: modules
 
     found_msg = found ? '\u001b[32mYES\u001b[0m' : '\u001b[31mNO\u001b[0m'
 
-    message('Python module \u001b[1m@0@\u001b[0m @1@ found: @2@ @3@'.format(mod, version, found_msg, ver))
+    message('Python module \u001b[1m@0@\u001b[0m @1@ found: @2@ @3@ @4@'.format(mod, version, found_msg, ver, gi_req))
 
     if all_required
         all_required = found
