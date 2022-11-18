@@ -84,6 +84,10 @@ on your distribution defaults
 export PYTHONPATH=.local/lib/python3/dist-packages/
 ```
 
+## Using in MS Windows
+
+Instructions to run Cambalache in MS Windows are [here](README_MS_Windows.md)
+
 ## Contributing
 
 If you are interested in contributing you can open and issue [here](https://gitlab.gnome.org/jpu/cambalache/-/issues)
