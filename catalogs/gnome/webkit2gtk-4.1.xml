@@ -49,6 +49,10 @@
 	("WebKitWebViewBase","GtkContainer","webkit2gtk",None,None,None,1,"container","hidden",None),
 	("WebKitWebsiteDataTypes","flags","webkit2gtk",None,None,None,None,None,None,None)
   </type>
+  <type_iface>
+	("WebKitWebView","GtkBuildable"),
+	("WebKitWebViewBase","GtkBuildable")
+  </type_iface>
   <type_enum>
 	("WebKitAuthenticationScheme","WEBKIT_AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE_PIN_REQUESTED","client-certificate-pin-requested",9,"Client certificate PIN required for use. Since: 2.34"),
 	("WebKitAuthenticationScheme","WEBKIT_AUTHENTICATION_SCHEME_CLIENT_CERTIFICATE_REQUESTED","client-certificate-requested",7,"Client Certificate Authentication (see RFC 2246)."),
