@@ -398,6 +398,8 @@ class GirData:
             name = child.get('name')
             if name.find('.') < 0:
                 retval.append(self.prefix + name)
+            elif name in self.external_types:
+                retval.append(self.external_types[name])
 
         return retval
 
