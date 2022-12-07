@@ -626,14 +626,14 @@ class CmbWindow(Gtk.ApplicationWindow):
                     unsupported_feature = msg[0]
                     text = _("Cambalache encounter {unsupported_feature}\nYour file will be exported as '{name}.cmb.ui' to avoid data loss.").format(unsupported_feature=unsupported_feature, name=name)
 
-                self.present_message_to_user(_("Error importing {filename}").format(filename=filename),
+                self.present_message_to_user(_("Error importing {filename}").format(filename=os.path.basename(filename),
                                              secondary_text=text,
-                                             details=unsupported_features_list)
+                                             details=unsupported_features_list))
         except Exception as e:
             filename = os.path.basename(filename)
             logger.warning(f'Error loading {filename} {traceback.format_exc()}')
-            self.present_message_to_user(_("Error importing {filename}").format(filename=filename),
-                                         secondary_text=str(e))
+            self.present_message_to_user(_("Error importing {filename}").format(filename=os.path.basename(filename),
+                                         secondary_text=str(e)))
 
     def open_project(self, filename, target_tk=None, uiname=None):
         try:
@@ -648,7 +648,8 @@ class CmbWindow(Gtk.ApplicationWindow):
             self.__update_actions()
         except Exception as e:
             logger.warning(f'Error loading {filename} {traceback.format_exc()}')
-            self.present_message_to_user(_('Error loading {filename}').format(filename=filename))
+            self.present_message_to_user(_('Error loading {filename}').format(filename=os.path.basename(filename)),
+                                         secondary_text=str(e))
 
     def _on_open_activate(self, action, data):
         dialog = self.__file_open_dialog_new(_("Choose project to open"),

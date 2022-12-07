@@ -166,16 +166,21 @@ def create_catalogs_dir():
 
 def get_version():
     meson = open(os.path.join(basedir, 'meson.build'))
+    version = None
+    fileformatversion = None
 
     for line in meson:
         line = line.strip()
-        if line.startswith('version'):
+        if version is None and line.startswith('version'):
             tokens = line.split(':')
-            return tokens[1].strip().replace('\'', '').replace(',', '')
+            version = tokens[1].strip().replace('\'', '').replace(',', '')
+        elif fileformatversion is None and line.startswith('fileformatversion'):
+            tokens = line.split('=')
+            fileformatversion = tokens[1].strip().replace('\'', '')
 
     meson.close()
 
-    return 'git'
+    return (version, fileformatversion)
 
 
 def check_init_locale():
@@ -239,17 +244,26 @@ if __name__ == '__main__':
         print('Could not find glib-compile-resources in PATH')
         exit()
 
-    version = get_version()
+    version, fileformatversion = get_version()
 
     check_init_locale()
 
     # Create config files pointing to source directories
     dev_config('cambalache/config.py',
-               f"VERSION = '{version}'\npkgdatadir = '{os.path.abspath('cambalache')}'\nmerenguedir = '{os.path.abspath('cambalache')}'\ncatalogsdir = '{os.path.abspath('.catalogs')}'")
+               f"""VERSION = '{version}'
+FILE_FORMAT_VERSION = '{fileformatversion}'
+pkgdatadir = '{os.path.abspath('cambalache')}'
+merenguedir = '{os.path.abspath('cambalache')}'
+catalogsdir = '{os.path.abspath('.catalogs')}'
+""")
 
     # Create config files pointing to source directories
     dev_config('cambalache/merengue/config.py',
-               f"VERSION = '{version}'\npkgdatadir = '{os.path.abspath('cambalache')}'\nmerenguedir = '{os.path.abspath('cambalache')}'")
+               f"""VERSION = '{version}'
+pkgdatadir = '{os.path.abspath('cambalache')}'
+merenguedir = '{os.path.abspath('cambalache')}'
+""")
+
 
     # Create merengue bin script
     configure_file('cambalache/merengue/merengue.in', 'cambalache/merengue/merengue', {

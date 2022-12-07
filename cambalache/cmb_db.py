@@ -71,7 +71,7 @@ class CmbDB(GObject.GObject):
     target_tk = GObject.Property(type=str, flags = GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self, **kwargs):
-        self.version = self.__parse_version(VERSION)
+        self.version = self.__parse_version(FILE_FORMAT_VERSION)
 
         self.type_info = None
 
@@ -428,7 +428,8 @@ class CmbDB(GObject.GObject):
         version = self.__parse_version(root.get('version', None))
 
         if version > self.version:
-            raise Exception(f'Can not open file version {version}')
+            version = '.'.join(map(str, version))
+            raise Exception(f'File format {version} is not supported by this release,\nplease update to a newer version to open this file.')
 
         c = self.conn.cursor()
 
@@ -547,7 +548,7 @@ class CmbDB(GObject.GObject):
         c = self.conn.cursor()
 
         project = E('cambalache-project',
-                    version=VERSION,
+                    version=FILE_FORMAT_VERSION,
                     target_tk=self.target_tk)
 
         for table in self.__tables:

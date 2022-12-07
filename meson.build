@@ -4,6 +4,10 @@ project(
     meson_version: '>= 0.50.0'
 )
 
+# File format version follows app version and only changes when there is a
+# change that prevents older versions to load it.
+fileformatversion = '0.11.3'
+
 python = import('python')
 python_bin = python.find_installation('python3')
 pkgdatadir = join_paths(get_option('prefix'), get_option('datadir'), 'cambalache')
