@@ -292,7 +292,7 @@
 	("PangoWeight","PANGO_WEIGHT_BOOK","book",380,"the book weight (= 380) Since: 1.24)"),
 	("PangoWeight","PANGO_WEIGHT_HEAVY","heavy",900,"the heavy weight (= 900)"),
 	("PangoWeight","PANGO_WEIGHT_LIGHT","light",300,"the light weight (= 300)"),
-	("PangoWeight","PANGO_WEIGHT_MEDIUM","medium",500,"the medium weight (= 500) Since: 1.24"),
+	("PangoWeight","PANGO_WEIGHT_MEDIUM","medium",500,"the normal weight (= 500) Since: 1.24"),
 	("PangoWeight","PANGO_WEIGHT_NORMAL","normal",400,"the default weight (= 400)"),
 	("PangoWeight","PANGO_WEIGHT_SEMIBOLD","semibold",600,"the semibold weight (= 600)"),
 	("PangoWeight","PANGO_WEIGHT_SEMILIGHT","semilight",350,"the semilight weight (= 350) Since: 1.36.7"),
