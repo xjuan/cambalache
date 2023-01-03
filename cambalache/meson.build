@@ -10,6 +10,7 @@ gnome.compile_resources('cambalache',
 
 conf = configuration_data()
 conf.set('VERSION', meson.project_version())
+conf.set('fileformatversion', fileformatversion)
 conf.set('pkgdatadir', pkgdatadir)
 conf.set('catalogsdir', catalogsdir)
 conf.set('merenguedir', merenguedir)
