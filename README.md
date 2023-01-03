@@ -77,11 +77,12 @@ meson --prefix=~/.local
 ninja
 ninja install
 ```
-To run it from .local/ you might need to setup PYTHONPATH env variable depending
+To run it from .local/ you might need to setup PYTHONPATH and GI_TYPELIB_PATH env variable depending
 on your distribution defaults
 
 ```
-export PYTHONPATH=.local/lib/python3/dist-packages/
+export PYTHONPATH=~/.local/lib/python3/dist-packages/
+export GI_TYPELIB_PATH=~/.local/lib/x86_64-linux-gnu/girepository-1.0/
 ```
 
 ## Using in MS Windows
