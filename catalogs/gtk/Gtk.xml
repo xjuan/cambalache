@@ -486,6 +486,14 @@
       </children-types>
     </GtkHeaderBar>
 
+    <GtkActionBar>
+      <children-types target="Gtk-4.0">
+        <type>start</type>
+        <type max-children="1">center</type>
+        <type>end</type>
+      </children-types>
+    </GtkActionBar>
+
     <GtkCenterBox>
       <children-types>
         <type max-children="1">start</type>

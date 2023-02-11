@@ -1563,6 +1563,9 @@
 	("GtkWidget",2,"name","gchararray")
   </type_data_arg>
   <type_child_type>
+	("GtkActionBar","center",1,None),
+	("GtkActionBar","end",None,None),
+	("GtkActionBar","start",None,None),
 	("GtkCenterBox","center",1,None),
 	("GtkCenterBox","end",1,None),
 	("GtkCenterBox","start",1,None),
