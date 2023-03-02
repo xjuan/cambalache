@@ -80,17 +80,23 @@ class CmbProcess(GObject.Object):
 
             self.pid = 0
 
-    def run(self, args, env=[]):
+    def run(self, args, env={}):
         if self.file is None or self.pid > 0:
             return
 
         envp = []
         for var in os.environ:
+            # Ignore vars in custom environment
+            if var in env:
+                continue
             val = os.environ.get(var)
             envp.append(f"{var}={val}")
 
+        for var in env:
+            envp.append(f"{var}={env[var]}")
+
         pid, stdin, stdout, stderr = GLib.spawn_async([self.file] + args,
-                                                      envp=envp+env,
+                                                      envp=envp,
                                                       flags=GLib.SpawnFlags.DO_NOT_REAP_CHILD,
                                                       standard_input=True,
                                                       standard_output=True)
@@ -593,11 +599,11 @@ window.setupDocument = function (document) {
             version = '4.0'
 
         display = self.__port - 8080
-        self.__merengue.run([version], [
-            'GDK_BACKEND=broadway',
-            #'GTK_DEBUG=interactive',
-            f'BROADWAY_DISPLAY=:{display}'
-        ])
+        self.__merengue.run([version], {
+            'GDK_BACKEND': 'broadway',
+            #'GTK_DEBUG': 'interactive',
+            'BROADWAY_DISPLAY': f':{display}'
+        })
 
         # Load broadway desktop
         self.webview.load_uri(f'http://127.0.0.1:{self.__port}')
