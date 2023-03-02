@@ -544,6 +544,13 @@
       </properties>
     </GtkMenuButton>
 
+    <GtkPaned>
+      <properties>
+        <property id="start-child" is-inline-object="True"/>
+        <property id="end-child" is-inline-object="True"/>
+      </properties>
+    </GtkPaned>
+
   </types>
 
   <categories>
