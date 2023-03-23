@@ -243,8 +243,11 @@ window.setupDocument = function (document) {
         self.__ui_id = 0
 
     def __get_ui_dirname(self, ui_id):
+        dirname = GLib.get_home_dir()
+
         # Use project dir as default base directory
-        dirname = os.path.dirname(self.__project.filename)
+        if self.__project.filename:
+            dirname = os.path.dirname(self.__project.filename)
 
         # Use UI directory
         ui = self.__project.get_object_by_id(ui_id)

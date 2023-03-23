@@ -117,7 +117,9 @@ class CmbProject(Gtk.TreeStore):
                               (CmbTypeInfo, )),
 
         'type-info-changed': (GObject.SignalFlags.RUN_FIRST, None,
-                              (CmbTypeInfo, ))
+                              (CmbTypeInfo, )),
+
+        'filename-required': (GObject.SignalFlags.RUN_FIRST, str, ())
     }
 
     target_tk = GObject.Property(type=str, flags = GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
@@ -316,7 +318,14 @@ class CmbProject(Gtk.TreeStore):
         cc.close()
 
     def save(self):
-        self.db.save(self.filename)
+        if self.filename is None:
+            self.filename = self.emit('filename-required')
+
+        if self.filename:
+            self.db.save(self.filename)
+            return True
+
+        return False
 
     def __get_import_errors(self):
         errors = self.db.errors

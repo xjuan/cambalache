@@ -217,6 +217,7 @@ class CmbWindow(Gtk.ApplicationWindow):
         if self.__project is not None:
             self.__project.disconnect_by_func(self.__on_project_filename_notify)
             self.__project.disconnect_by_func(self.__on_project_selection_changed)
+            self.__project.disconnect_by_func(self.__on_project_filename_required)
             self.__project.disconnect_by_func(self.__on_project_changed)
 
         self.__project = project
@@ -236,6 +237,7 @@ class CmbWindow(Gtk.ApplicationWindow):
             self.__on_project_filename_notify(None, None)
             self.__project.connect("notify::filename", self.__on_project_filename_notify)
             self.__project.connect('selection-changed', self.__on_project_selection_changed)
+            self.__project.connect('filename-required', self.__on_project_filename_required)
             self.__project.connect('changed', self.__on_project_changed)
         else:
             self.headerbar.set_subtitle(None)
@@ -243,7 +245,10 @@ class CmbWindow(Gtk.ApplicationWindow):
         self.__update_actions()
 
     def __on_project_filename_notify(self, obj, pspec):
-        path = self.project.filename.replace(GLib.get_home_dir(), '~')
+        if self.project.filename:
+            path = self.project.filename.replace(GLib.get_home_dir(), '~')
+        else:
+            path = _("Untitled")
         self.headerbar.set_subtitle(path)
 
     @Gtk.Template.Callback('on_about_dialog_delete_event')
@@ -349,6 +354,12 @@ class CmbWindow(Gtk.ApplicationWindow):
 
         self.__clipboard_enabled = focused_widget_needs
         self.__update_action_clipboard()
+
+    @Gtk.Template.Callback('on_np_name_entry_changed')
+    def __on_np_name_entry_changed(self, editable):
+        sensitive = len(editable.get_chars(0, -1)) != 0
+        self.np_location_chooser.set_sensitive(sensitive)
+        self.np_ui_entry.set_sensitive(sensitive)
 
     def __update_translators(self):
         lang_country, encoding = locale.getlocale()
@@ -533,7 +544,7 @@ class CmbWindow(Gtk.ApplicationWindow):
             Gtk.ResponseType.OK,
         )
 
-        if self.project is not None:
+        if self.project and self.project.filename:
             dialog.set_current_folder(os.path.dirname(self.project.filename))
 
         return dialog
@@ -639,7 +650,7 @@ class CmbWindow(Gtk.ApplicationWindow):
         try:
             self.project = CmbProject(filename=filename, target_tk=target_tk)
 
-            if uiname:
+            if uiname or (filename is None and uiname is None):
                 ui = self.project.add_ui(uiname)
                 self.project.set_selection([ui])
 
@@ -673,28 +684,29 @@ class CmbWindow(Gtk.ApplicationWindow):
         name = self.np_name_entry.props.text
         location = self.np_location_chooser.get_filename() or '.'
         uiname = self.np_ui_entry.props.text
-
-        if len(name) < 1:
-            self.set_focus(self.np_name_entry)
-            return
+        filename = None
+        uipath = None
 
         if self.np_gtk3_radiobutton.get_active():
             target_tk='gtk+-3.0'
         elif self.np_gtk4_radiobutton.get_active():
             target_tk='gtk-4.0'
 
-        name, ext = os.path.splitext(name)
-        filename = os.path.join(location, name + '.cmb')
+        if len(name):
+            name, ext = os.path.splitext(name)
+            filename = os.path.join(location, name + '.cmb')
 
-        if len(uiname) == 0:
-            uiname = self.np_ui_entry.props.placeholder_text
+            if len(uiname) == 0:
+                uiname = self.np_ui_entry.props.placeholder_text
 
-        if os.path.exists(filename):
-            self.present_message_to_user(_("File name already exists, choose a different name."))
-            self.set_focus(self.np_name_entry)
-            return
+            if os.path.exists(filename):
+                self.present_message_to_user(_("File name already exists, choose a different name."))
+                self.set_focus(self.np_name_entry)
+                return
 
-        self.emit('open-project', filename, target_tk, os.path.join(location, uiname))
+            uipath = os.path.join(location, uiname)
+
+        self.emit('open-project', filename, target_tk, uipath)
         self.__set_page('workspace' if self.project is not None else 'cambalache')
 
     def _on_undo_activate(self, action, data):
@@ -707,9 +719,20 @@ class CmbWindow(Gtk.ApplicationWindow):
             self.project.redo()
             self.__update_action_undo_redo()
 
+    def __on_project_filename_required(self, project):
+        filename = None
+
+        if project.filename is None:
+            dialog = self.__file_open_dialog_new(_("Choose a file to save the project"),
+                                                 Gtk.FileChooserAction.SAVE)
+            if dialog.run() == Gtk.ResponseType.OK:
+                filename = dialog.get_filename()
+            dialog.destroy()
+
+        return filename
+
     def _on_save_activate(self, action, data):
-        if self.project is not None:
-            self.__save_project()
+        self.__save_project()
 
     def _on_save_as_activate(self, action, data):
         if self.project is None:
@@ -857,9 +880,9 @@ class CmbWindow(Gtk.ApplicationWindow):
 
     def __save_project(self):
         if self.project is not None:
-            self.__last_saved_index = self.project.history_index
-            self.project.save()
-            self.__update_action_save()
+            if self.project.save():
+                self.__last_saved_index = self.project.history_index
+                self.__update_action_save()
 
     def _on_export_activate(self, action, data):
         if self.project is None:
