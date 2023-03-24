@@ -248,6 +248,8 @@ window.setupDocument = function (document) {
         # Use project dir as default base directory
         if self.__project.filename:
             dirname = os.path.dirname(self.__project.filename)
+        else:
+            dirname = os.getcwd()
 
         # Use UI directory
         ui = self.__project.get_object_by_id(ui_id)

@@ -949,7 +949,10 @@ def cmb_create_editor(project,
     elif type_id == 'GdkColor':
         editor = CmbColorEntry(use_color=True)
     elif type_id == 'GdkPixbuf':
-        dirname = os.path.dirname(project.filename)
+        if project.filename:
+            dirname = os.path.dirname(project.filename)
+        else:
+            dirname = os.getcwd()
         editor = CmbPixbufEntry(hexpand=True,
                                 dirname=dirname)
     elif type_id == 'CmbIconName':
