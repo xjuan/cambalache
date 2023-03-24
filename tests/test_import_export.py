@@ -98,5 +98,17 @@ def test_gtk4_stack_page():
 def test_gtk4_liststore():
     assert_original_and_exported("gtk-4.0", "liststore.ui")
 
+def test_gtk4_treestore():
+    assert_original_and_exported("gtk-4.0", "treestore.ui")
+
+def test_gtk4_comboboxtext():
+    assert_original_and_exported("gtk-4.0", "comboboxtext.ui")
+
+def test_gtk4_style():
+    assert_original_and_exported("gtk-4.0", "style.ui")
+
+def test_gtk4_label():
+    assert_original_and_exported("gtk-4.0", "label.ui")
+
 def test_gtk4_custom_fragment():
     assert_original_and_exported("gtk-4.0", "custom_fragment.ui")

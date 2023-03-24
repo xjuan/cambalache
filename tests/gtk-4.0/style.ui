@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<interface>
+  <!-- interface-name style.ui -->
+  <requires lib="gtk" version="4.0"/>
+  <object class="GtkWindow">
+    <style>
+      <class name="test_style"/>
+      <class name="another_css_class"/>
+    </style>
+  </object>
+</interface>
