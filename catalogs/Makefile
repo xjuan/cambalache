@@ -7,7 +7,7 @@ CAMBALACHE_DB=flatpak run \
 	--device=all \
 	--filesystem=host \
 	--command=python3 \
-	org.gnome.Sdk//master \
+	org.gnome.Sdk//44 \
 	../tools/cambalache-db.py
 
 BASE_CATALOG_FILES = \
@@ -31,7 +31,7 @@ CATALOG_FILES = \
 	${GTK4_DEPS} \
 	gtk/gtk-4.0.xml \
 	gtk/gtk+-3.0.xml \
-	gnome/webkit2gtk-5.0.xml \
+	gnome/webkitgtk-6.0.xml \
 	gnome/webkit2gtk-4.1.xml \
 	gnome/libhandy-1.xml \
 	gnome/libadwaita-1.xml \
@@ -112,7 +112,7 @@ gtk/gtk-4.0.xml: gtk/Gtk.xml ${GTK4_DEPS}
 		--gir /usr/share/gir-1.0/Gtk-4.0.gir \
 		--external-catalogs ${GTK4_DEPS} \
 		--extra-data gtk/Gtk.xml \
-		--skip-types GtkActivateAction GtkMnemonicAction GtkNamedAction GtkNeverTrigger GtkNothingAction GtkSignalAction GtkPrintJob \
+		--skip-types GtkActivateAction GtkMnemonicAction GtkNamedAction GtkNeverTrigger GtkNothingAction GtkSignalAction GtkPrintJob GtkStackPage \
 		--output $@ && true
 
 gnome/libhandy-1.xml: gtk/gtk+-3.0.xml
@@ -141,14 +141,14 @@ gnome/libadwaita-1.xml: gtk/gtk-4.0.xml
 		--gir /usr/share/gir-1.0/Adw-1.gir \
 		--external-catalogs ${GTK4_DEPS} gtk/gtk-4.0.xml \
 		--extra-data gnome/Adwaita.xml \
-		--skip-types AdwAnimation AdwSwipeTracker\
+		--skip-types AdwAnimation AdwSwipeTracker AdwPropertyAnimationTarget \
 		--output $@
 
-gnome/webkit2gtk-5.0.xml: gtk/gtk-4.0.xml
+gnome/webkitgtk-6.0.xml: gtk/gtk-4.0.xml
 	${CAMBALACHE_DB} \
 		--target-gtk4 \
 		--dependencies gtk-4.0 \
-		--gir /usr/share/gir-1.0/WebKit2-5.0.gir \
+		--gir /usr/share/gir-1.0/WebKit-6.0.gir \
 		--external-catalogs ${GTK4_DEPS} gtk/gtk-4.0.xml \
 		--types WebKitWebViewBase WebKitWebView WebKitSettings \
 		--extra-data gnome/WebKit2.xml \

@@ -26,7 +26,7 @@ modules = [
     ['gi.repository.Gtk', '>= 3.24.0', '3.0'],
     ['gi.repository.Gtk', '>= 4.0.0', '4.0'],
     ['gi.repository.WebKit2', '>= 2.32.0', '4.1'],
-    ['gi.repository.WebKit2', '>= 2.32.0', '5.0'],
+    ['gi.repository.WebKit', '>= 2.32.0', '6.0'],
     ['gi.repository.GtkSource', '', '4'],
     ['gi.repository.Handy'],
     ['gi.repository.Adw'],
