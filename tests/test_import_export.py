@@ -66,6 +66,8 @@ def test_gtk3_style():
 def test_gtk3_treestore():
     assert_original_and_exported("gtk+-3.0", "treestore.ui")
 
+def test_gtk3_filefilter():
+    assert_original_and_exported("gtk+-3.0", "filefilter.ui")
 
 def test_gtk3_custom_fragment():
     assert_original_and_exported("gtk+-3.0", "custom_fragment.ui")
@@ -109,6 +111,9 @@ def test_gtk4_style():
 
 def test_gtk4_label():
     assert_original_and_exported("gtk-4.0", "label.ui")
+
+def test_gtk4_filefilter():
+    assert_original_and_exported("gtk-4.0", "filefilter.ui")
 
 def test_gtk4_custom_fragment():
     assert_original_and_exported("gtk-4.0", "custom_fragment.ui")

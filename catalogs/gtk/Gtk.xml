@@ -551,6 +551,29 @@
       </properties>
     </GtkPaned>
 
+    <GtkFileFilter>
+      <data target="Gtk+-3.0">
+        <mime-types>
+          <mime-type>gchararray</mime-type>
+        </mime-types>
+        <patterns>
+          <pattern>gchararray</pattern>
+        </patterns>
+      </data>
+
+      <data target="Gtk-4.0">
+        <mime-types>
+          <mime-type>gchararray</mime-type>
+        </mime-types>
+        <patterns>
+          <pattern>gchararray</pattern>
+        </patterns>
+        <suffixes>
+          <suffix>gchararray</suffix>
+        </suffixes>
+      </data>
+    </GtkFileFilter>
+
   </types>
 
   <categories>
