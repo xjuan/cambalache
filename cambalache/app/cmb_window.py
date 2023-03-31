@@ -1,7 +1,7 @@
 #
 # CmbWindow
 #
-# Copyright (C) 2021  Juan Pablo Ugarte
+# Copyright (C) 2021-2023  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -26,6 +26,7 @@ import sys
 import gi
 import traceback
 import locale
+import tempfile
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import GLib, GObject, Gio, Gdk, Gtk, Pango
@@ -899,7 +900,11 @@ class CmbWindow(Gtk.ApplicationWindow):
         self.__set_page('cambalache')
 
     def _on_debug_activate(self, action, data):
-        filename = self.project.filename + '.db'
+        if self.project.filename:
+            filename = self.project.filename + '.db'
+        else:
+            fd, filename = tempfile.mkstemp(".db", "cmb")
+
         self.project.db_move_to_fs(filename)
         Gtk.show_uri_on_window(self, f'file://{filename}', Gdk.CURRENT_TIME)
 
