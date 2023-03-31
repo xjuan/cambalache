@@ -49,8 +49,6 @@ class MrgGtkMenu(MrgGtkWidget):
                                     None)
 
     def object_changed(self, old, new):
-        super().object_changed(old, new)
-
         self.selection = None
 
         if self.object is None:

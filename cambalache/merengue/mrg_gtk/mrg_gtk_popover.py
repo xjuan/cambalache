@@ -64,8 +64,6 @@ class MrgGtkPopover(MrgGtkWidget):
             self.__button.popup()
 
     def object_changed(self, old, new):
-        super().object_changed(old, new)
-
         # Clear old popover
         if old:
             self.__button.set_popover(None)
