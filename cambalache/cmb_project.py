@@ -123,7 +123,7 @@ class CmbProject(Gtk.TreeStore):
     }
 
     target_tk = GObject.Property(type=str, flags = GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
-    filename = GObject.Property(type=str, flags = GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
+    __filename = None
 
     undo_msg = GObject.Property(type=str)
     redo_msg = GObject.Property(type=str)
@@ -316,6 +316,18 @@ class CmbProject(Gtk.TreeStore):
 
         c.close()
         cc.close()
+
+    @GObject.Property(type=str, flags = GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
+    def filename(self):
+        return self.__filename
+
+    @filename.setter
+    def filename(self, value):
+        # Ensure extension
+        if value and not value.endswith('.cmb'):
+            value = value + '.cmb'
+
+        self.__filename = value
 
     def save(self):
         if self.filename is None:
