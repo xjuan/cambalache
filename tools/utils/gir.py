@@ -78,6 +78,12 @@ class GirData:
             'GParamVariant': 'variant'
         }
 
+        # GtkBuilder native object types
+        self.builder_native_object_types = [
+            'GdkPixbuf',
+            'GFile'
+        ]
+
         tree = etree.parse(gir_file)
         root = tree.getroot()
 
@@ -598,7 +604,7 @@ class GirData:
                 p = properties[prop]
                 prop_type = p['type']
 
-                # Ignore unknown types (Propably GBoxed)
+                # Ignore unknown types (Probably GBoxed)
                 if prop_type.startswith(self.name) and \
                    prop_type not in self.types and \
                    prop_type not in self.flags and \
@@ -610,7 +616,7 @@ class GirData:
                              (name,
                               prop,
                               prop_type,
-                              p['is_object'] if prop_type != 'GdkPixbuf' else False,
+                              p['is_object'] if prop_type not in self.builder_native_object_types else False,
                               p['construct'],
                               p.get('default_value', None),
                               p.get('minimum', None),
