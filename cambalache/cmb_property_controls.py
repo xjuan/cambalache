@@ -317,33 +317,32 @@ class CmbFlagsEntry(Gtk.Entry):
                     self.flags[flag_id] = val
 
 
-class CmbPixbufEntry(Gtk.Entry):
-    __gtype_name__ = 'CmbPixbufEntry'
+class CmbFileEntry(Gtk.Entry):
+    __gtype_name__ = 'CmbFileEntry'
 
     dirname = GObject.Property(type=str, flags = GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.props.placeholder_text='<GdkPixbuf>'
-        self.connect('notify::text', self.__on_text_notify)
 
+        self.title=_('Select File'),
+        self.filter = None
+        self.props.placeholder_text='<GFile>'
         self.props.secondary_icon_name = 'document-open-symbolic'
+
+        self.connect('notify::text', self.__on_text_notify)
         self.connect("icon-press", self.__on_icon_pressed)
 
     def __on_icon_pressed(self, widget, icon_pos, event):
-        # Only show images formats supported by GdkPixbuf
-        filter_obj = Gtk.FileFilter()
-        filter_obj.add_pixbuf_formats()
-
         # Create Open Dialog
         dialog = Gtk.FileChooserDialog(
-            title=_('Select Image'),
+            title=self.title,
             parent=self.get_toplevel(),
             action=Gtk.FileChooserAction.OPEN,
-            filter=filter_obj
+            filter=self.filter
         )
-        dialog.add_buttons('_Cancel', Gtk.ResponseType.CANCEL,
-                           '_Open', Gtk.ResponseType.OK)
+        dialog.add_buttons(_('_Cancel'), Gtk.ResponseType.CANCEL,
+                           _('_Open'), Gtk.ResponseType.OK)
 
         if self.dirname is not None:
             dialog.set_current_folder(self.dirname)
@@ -364,6 +363,20 @@ class CmbPixbufEntry(Gtk.Entry):
     @cmb_value.setter
     def _set_cmb_value(self, value):
         self.props.text = value if value is not None else ''
+
+
+class CmbPixbufEntry(CmbFileEntry):
+    __gtype_name__ = 'CmbPixbufEntry'
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.title=_('Select Image'),
+        self.props.placeholder_text='<GdkPixbuf>'
+
+        # Only show images formats supported by GdkPixbuf
+        self.filter = Gtk.FileFilter()
+        self.filter.add_pixbuf_formats()
 
 
 class CmbObjectChooser(Gtk.Entry):
@@ -897,6 +910,12 @@ def cmb_create_editor(project,
         elif type_id == 'gdouble':
             return (-GLib.MAXDOUBLE, GLib.MAXDOUBLE)
 
+    def get_dirname():
+        if project.filename:
+            return os.path.dirname(project.filename)
+        else:
+            return os.getcwd()
+
     editor = None
     info = project.type_info.get(type_id, None)
     translatable = False
@@ -949,12 +968,11 @@ def cmb_create_editor(project,
     elif type_id == 'GdkColor':
         editor = CmbColorEntry(use_color=True)
     elif type_id == 'GdkPixbuf':
-        if project.filename:
-            dirname = os.path.dirname(project.filename)
-        else:
-            dirname = os.getcwd()
         editor = CmbPixbufEntry(hexpand=True,
-                                dirname=dirname)
+                                dirname=get_dirname())
+    elif type_id == 'GFile':
+        editor = CmbFileEntry(hexpand=True,
+                              dirname=get_dirname())
     elif type_id == 'CmbIconName':
         editor = CmbIconNameEntry(hexpand=True,
                                   placeholder_text=f'<Icon Name>')
