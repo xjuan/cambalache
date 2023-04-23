@@ -248,11 +248,17 @@ class CmbDB(GObject.GObject):
     CREATE TRIGGER on_{table}_update_{column} AFTER UPDATE OF {column} ON {table}
     WHEN
       NEW.{column} IS NOT OLD.{column} AND {history_is_enabled} AND
-      ((SELECT command, table_name, column_name FROM history WHERE history_id = {history_seq})
-         IS NOT ('UPDATE', '{table}', '{column}')
-         OR
-       (SELECT {pkcolumns} FROM history_{table} WHERE history_id = {history_seq} AND history_old=0)
-         IS NOT ({pkcolumns_values}))
+      (
+        (SELECT {pkcolumns} FROM history_{table} WHERE history_id = {history_seq} AND history_old=0) IS NOT ({pkcolumns_values})
+        OR
+        (
+          (SELECT command, table_name, column_name FROM history WHERE history_id = {history_seq})
+          IS NOT ('UPDATE', '{table}', '{column}')
+          AND
+          (SELECT command, table_name, column_name FROM history WHERE history_id = {history_seq})
+          IS NOT ('INSERT', '{table}',  NULL)
+        )
+      )
     BEGIN
       {clear_history};
       INSERT INTO history (history_id, command, table_name, column_name) VALUES ({history_next_seq}, 'UPDATE', '{table}', '{column}');
@@ -266,11 +272,15 @@ class CmbDB(GObject.GObject):
     CREATE TRIGGER on_{table}_update_{column}_compress AFTER UPDATE OF {column} ON {table}
     WHEN
       NEW.{column} IS NOT OLD.{column} AND {history_is_enabled} AND
-      ((SELECT command, table_name, column_name FROM history WHERE history_id = {history_seq})
-         IS ('UPDATE', '{table}', '{column}')
-         AND
-       (SELECT {pkcolumns} FROM history_{table} WHERE history_id = {history_seq} AND history_old=0)
-         IS ({pkcolumns_values}))
+      (SELECT {pkcolumns} FROM history_{table} WHERE history_id = {history_seq} AND history_old=0) IS ({pkcolumns_values})
+      AND
+      (
+        (SELECT command, table_name, column_name FROM history WHERE history_id = {history_seq})
+        IS ('UPDATE', '{table}', '{column}')
+        OR
+        (SELECT command, table_name, column_name FROM history WHERE history_id = {history_seq})
+        IS ('INSERT', '{table}', NULL)
+      )
     BEGIN
       UPDATE history_{table} SET {column}=NEW.{column} WHERE history_id = {history_seq} AND history_old=0;
     END;
