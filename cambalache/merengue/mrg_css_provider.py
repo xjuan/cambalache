@@ -42,7 +42,7 @@ class MrgCssProvider(Gtk.CssProvider):
         self.monitor = None
         super().__init__(**kwargs)
 
-        self.connect('notify', self.__on_notify)
+        self.connect("notify", self.__on_notify)
         self.__update()
 
     def __on_notify(self, obj, pspec):
@@ -68,7 +68,7 @@ class MrgCssProvider(Gtk.CssProvider):
 
         gfile = Gio.File.new_for_path(self.filename)
         self.monitor = gfile.monitor(Gio.FileMonitorFlags.NONE, None)
-        self.monitor.connect('changed', self.__on_css_file_changed)
+        self.monitor.connect("changed", self.__on_css_file_changed)
 
     def load(self):
         try:
@@ -78,31 +78,16 @@ class MrgCssProvider(Gtk.CssProvider):
             pass
 
         if Gtk.MAJOR_VERSION == 4:
-            Gtk.StyleContext.add_provider_for_display(
-                Gdk.Display.get_default(),
-                self,
-                self.priority
-            )
+            Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(), self, self.priority)
         elif Gtk.MAJOR_VERSION == 3:
-            Gtk.StyleContext.add_provider_for_screen(
-                Gdk.Screen.get_default(),
-                self,
-                self.priority
-            )
+            Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(), self, self.priority)
 
     def remove(self):
         if Gtk.MAJOR_VERSION == 4:
-            Gtk.StyleContext.remove_provider_for_display(
-                Gdk.Display.get_default(),
-                self
-            )
+            Gtk.StyleContext.remove_provider_for_display(Gdk.Display.get_default(), self)
         elif Gtk.MAJOR_VERSION == 3:
-            Gtk.StyleContext.remove_provider_for_screen(
-                Gdk.Screen.get_default(),
-                self
-            )
+            Gtk.StyleContext.remove_provider_for_screen(Gdk.Screen.get_default(), self)
 
         if self.monitor:
             self.monitor.cancel()
             self.monitor = None
-

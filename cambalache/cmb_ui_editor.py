@@ -24,16 +24,16 @@
 import os
 import gi
 
-gi.require_version('Gtk', '3.0')
+gi.require_version("Gtk", "3.0")
 from gi.repository import GObject, Gtk
 
 from .cmb_ui import CmbUI
 from .cmb_property_controls import *
 
 
-@Gtk.Template(resource_path='/ar/xjuan/Cambalache/cmb_ui_editor.ui')
+@Gtk.Template(resource_path="/ar/xjuan/Cambalache/cmb_ui_editor.ui")
 class CmbUIEditor(Gtk.Grid):
-    __gtype_name__ = 'CmbUIEditor'
+    __gtype_name__ = "CmbUIEditor"
 
     filename = Gtk.Template.Child()
     template_id = Gtk.Template.Child()
@@ -43,15 +43,7 @@ class CmbUIEditor(Gtk.Grid):
     translation_domain = Gtk.Template.Child()
     comment = Gtk.Template.Child()
 
-    fields = [
-        'filename',
-        'template_id',
-        'description',
-        'copyright',
-        'authors',
-        'translation_domain',
-        'comment'
-    ]
+    fields = ["filename", "template_id", "description", "copyright", "authors", "translation_domain", "comment"]
 
     def __init__(self, **kwargs):
         self._object = None
@@ -90,32 +82,41 @@ class CmbUIEditor(Gtk.Grid):
         self.template_id.object = obj
 
         for field in self.fields:
-            binding = GObject.Object.bind_property(obj, field,
-                                                   getattr(self, field), 'cmb-value',
-                                                   GObject.BindingFlags.SYNC_CREATE |
-                                                   GObject.BindingFlags.BIDIRECTIONAL)
+            binding = GObject.Object.bind_property(
+                obj,
+                field,
+                getattr(self, field),
+                "cmb-value",
+                GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
+            )
             self._bindings.append(binding)
 
-    @Gtk.Template.Callback('on_remove_button_clicked')
+    @Gtk.Template.Callback("on_remove_button_clicked")
     def __on_remove_button_clicked(self, button):
-        self.emit('remove-ui')
+        self.emit("remove-ui")
 
-    @Gtk.Template.Callback('on_export_button_clicked')
+    @Gtk.Template.Callback("on_export_button_clicked")
     def __on_export_button_clicked(self, button):
-        self.emit('export-ui')
+        self.emit("export-ui")
 
-    @GObject.Signal(flags=GObject.SignalFlags.RUN_LAST, return_type=bool,
-                    arg_types=(),
-                    accumulator=GObject.signal_accumulator_true_handled)
+    @GObject.Signal(
+        flags=GObject.SignalFlags.RUN_LAST,
+        return_type=bool,
+        arg_types=(),
+        accumulator=GObject.signal_accumulator_true_handled,
+    )
     def export_ui(self):
         if self.object:
             self.object.project.export_ui(self.object)
 
         return True
 
-    @GObject.Signal(flags=GObject.SignalFlags.RUN_LAST, return_type=bool,
-                    arg_types=(),
-                    accumulator=GObject.signal_accumulator_true_handled)
+    @GObject.Signal(
+        flags=GObject.SignalFlags.RUN_LAST,
+        return_type=bool,
+        arg_types=(),
+        accumulator=GObject.signal_accumulator_true_handled,
+    )
     def remove_ui(self):
         if self.object:
             self.object.project.remove_ui(self.object)

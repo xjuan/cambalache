@@ -25,7 +25,7 @@
 
 import gi
 
-gi.require_version('Gtk', '3.0')
+gi.require_version("Gtk", "3.0")
 from gi.repository import GObject, GLib, Gdk, Gtk
 from enum import Enum
 from collections import namedtuple
@@ -44,17 +44,17 @@ class CmbTutorPosition(Enum):
     CENTER = 4
 
 
-ScriptNode = namedtuple('ScriptNode', 'widget text delay name position')
+ScriptNode = namedtuple("ScriptNode", "widget text delay name position")
 
 
 class CmbTutor(GObject.GObject):
     __gsignals__ = {
-        'show-node': (GObject.SIGNAL_RUN_LAST, None, (str, Gtk.Widget)),
-        'hide-node': (GObject.SIGNAL_RUN_LAST, None, (str, Gtk.Widget)),
+        "show-node": (GObject.SIGNAL_RUN_LAST, None, (str, Gtk.Widget)),
+        "hide-node": (GObject.SIGNAL_RUN_LAST, None, (str, Gtk.Widget)),
     }
 
-    window = GObject.Property(type=Gtk.Window, flags = GObject.ParamFlags.READWRITE)
-    state = GObject.Property(type=int, flags = GObject.ParamFlags.READABLE)
+    window = GObject.Property(type=Gtk.Window, flags=GObject.ParamFlags.READWRITE)
+    state = GObject.Property(type=int, flags=GObject.ParamFlags.READABLE)
 
     def __init__(self, script, **kwargs):
         # List of ScriptNode
@@ -89,7 +89,7 @@ class CmbTutor(GObject.GObject):
         retval = {}
 
         def find_widget(w, data):
-            if data.get('widget', None):
+            if data.get("widget", None):
                 return
 
             name = None
@@ -100,12 +100,12 @@ class CmbTutor(GObject.GObject):
                 name = n
             elif isinstance(w, Gtk.Buildable):
                 n = Gtk.Buildable.get_name(w)
-                if n and not n.startswith('___object'):
+                if n and not n.startswith("___object"):
                     name = n
 
             # Return widget
             if name == widget_name:
-                data['widget'] = w
+                data["widget"] = w
                 return
 
             if isinstance(w, Gtk.Container):
@@ -113,7 +113,7 @@ class CmbTutor(GObject.GObject):
 
         self.window.forall(find_widget, retval)
 
-        widget = retval.get('widget', None)
+        widget = retval.get("widget", None)
 
         if widget:
             self.script.append(ScriptNode(widget, text, delay, name, position))
@@ -123,11 +123,11 @@ class CmbTutor(GObject.GObject):
             return
 
         if self.current is None:
-          self.current = 0
+            self.current = 0
 
         self.__script_play()
 
-        self.notify('state')
+        self.notify("state")
 
     def pause(self):
         if self.timeout_id:
@@ -135,23 +135,19 @@ class CmbTutor(GObject.GObject):
 
         self.timeout_id = None
         self.__hide_node(self.current)
-        self.notify('state')
+        self.notify("state")
 
     def stop(self):
         self.pause()
         self.current = None
-        self.notify('state')
+        self.notify("state")
 
     def __popover_new(self, text):
         popover = Gtk.Popover(modal=False)
-        box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
-                      spacing=6)
+        box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
 
-        box.add(Gtk.Image(icon_name="dialog-information-symbolic",
-                          icon_size=Gtk.IconSize.DIALOG))
-        box.add(Gtk.Label(label=text,
-                          wrap=True,
-                          max_width_chars=28))
+        box.add(Gtk.Image(icon_name="dialog-information-symbolic", icon_size=Gtk.IconSize.DIALOG))
+        box.add(Gtk.Label(label=text, wrap=True, max_width_chars=28))
         popover.add(box)
         popover.get_style_context().add_class("cmb-tutor")
         box.show_all()
@@ -159,13 +155,13 @@ class CmbTutor(GObject.GObject):
         return popover
 
     def __script_transition(self):
-        self.timeout_id = GLib.timeout_add (250, self.__script_play)
+        self.timeout_id = GLib.timeout_add(250, self.__script_play)
 
         self.__hide_current_node()
 
         # Set next node
         if self.current is not None:
-            self.current = self.current + 1 if self.current < (len(self.script) - 1) else None;
+            self.current = self.current + 1 if self.current < (len(self.script) - 1) else None
 
         return GLib.SOURCE_REMOVE
 
@@ -190,12 +186,12 @@ class CmbTutor(GObject.GObject):
 
         if self.current is not None:
             node = self.script[self.current]
-            self.emit('hide-node', node.name, node.widget)
+            self.emit("hide-node", node.name, node.widget)
 
         self.hiding_node = False
 
     def __script_play(self):
-        self.timeout_id = None;
+        self.timeout_id = None
 
         if self.current is None:
             return GLib.SOURCE_REMOVE
@@ -223,19 +219,18 @@ class CmbTutor(GObject.GObject):
             elif node.position == CmbTutorPosition.RIGHT:
                 self.popover.set_position(Gtk.PositionType.RIGHT)
             elif node.position == CmbTutorPosition.CENTER:
-                rect = Gdk.Rectangle();
+                rect = Gdk.Rectangle()
                 rect.x = node.widget.get_allocated_width() / 2
                 rect.y = node.widget.get_allocated_height() / 2
-                self.popover.set_pointing_to(rect);
-                self.popover.set_position(Gtk.PositionType.TOP);
+                self.popover.set_pointing_to(rect)
+                self.popover.set_position(Gtk.PositionType.TOP)
 
-        self.emit('show-node', node.name, node.widget);
+        self.emit("show-node", node.name, node.widget)
 
         if self.popover:
             self.popover.set_sensitive(True)
             self.popover.popup()
 
-        self.timeout_id = GLib.timeout_add(node.delay * 1000, self.__script_transition);
+        self.timeout_id = GLib.timeout_add(node.delay * 1000, self.__script_transition)
 
         return GLib.SOURCE_REMOVE
-

@@ -27,8 +27,7 @@ from .mrg_gtk_bin import MrgGtkBin
 
 
 class MrgGtkExpander(MrgGtkBin):
-    object = GObject.Property(type=Gtk.Expander,
-                              flags=GObject.ParamFlags.READWRITE)
+    object = GObject.Property(type=Gtk.Expander, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

@@ -23,7 +23,7 @@
 
 import gi
 
-gi.require_version('Gtk', '3.0')
+gi.require_version("Gtk", "3.0")
 from gi.repository import GObject, Gtk
 
 from .cmb_project import CmbProject
@@ -32,33 +32,37 @@ from .cmb_type_chooser_widget import CmbTypeChooserWidget
 
 
 class CmbTypeChooserPopover(Gtk.Popover):
-    __gtype_name__ = 'CmbTypeChooserPopover'
+    __gtype_name__ = "CmbTypeChooserPopover"
 
     __gsignals__ = {
-        'type-selected': (GObject.SignalFlags.RUN_LAST, None, (CmbTypeInfo, )),
+        "type-selected": (GObject.SignalFlags.RUN_LAST, None, (CmbTypeInfo,)),
     }
 
-    project = GObject.Property(type=CmbProject, flags = GObject.ParamFlags.READWRITE)
-    category = GObject.Property(type=str, flags = GObject.ParamFlags.READWRITE)
-    uncategorized_only = GObject.Property(type=bool, flags = GObject.ParamFlags.READWRITE, default=False)
-    show_categories = GObject.Property(type=bool, flags = GObject.ParamFlags.READWRITE, default=False)
-    parent_type_id = GObject.Property(type=str, flags = GObject.ParamFlags.READWRITE)
-    derived_type_id = GObject.Property(type=str, flags = GObject.ParamFlags.READWRITE)
+    project = GObject.Property(type=CmbProject, flags=GObject.ParamFlags.READWRITE)
+    category = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
+    uncategorized_only = GObject.Property(type=bool, flags=GObject.ParamFlags.READWRITE, default=False)
+    show_categories = GObject.Property(type=bool, flags=GObject.ParamFlags.READWRITE, default=False)
+    parent_type_id = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
+    derived_type_id = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
         self._chooser = CmbTypeChooserWidget()
-        self._chooser.connect('type-selected', self.__on_type_selected)
+        self._chooser.connect("type-selected", self.__on_type_selected)
         self._chooser.show_all()
         self.add(self._chooser)
 
-        for prop in ['project', 'category', 'uncategorized_only', 'show_categories', 'parent_type_id', 'derived_type_id']:
-            GObject.Object.bind_property(self, prop,
-                                         self._chooser, prop,
-                                         GObject.BindingFlags.SYNC_CREATE)
+        for prop in [
+            "project",
+            "category",
+            "uncategorized_only",
+            "show_categories",
+            "parent_type_id",
+            "derived_type_id",
+        ]:
+            GObject.Object.bind_property(self, prop, self._chooser, prop, GObject.BindingFlags.SYNC_CREATE)
 
     def __on_type_selected(self, chooser, info):
-        self.emit('type-selected', info)
+        self.emit("type-selected", info)
         self.popdown()
-

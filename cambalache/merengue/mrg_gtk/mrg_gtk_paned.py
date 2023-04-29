@@ -28,8 +28,7 @@ from merengue import MrgPlaceholder
 
 
 class MrgGtkPaned(MrgGtkWidget):
-    object = GObject.Property(type=Gtk.Paned,
-                              flags=GObject.ParamFlags.READWRITE)
+    object = GObject.Property(type=Gtk.Paned, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -89,4 +88,3 @@ class MrgGtkPaned(MrgGtkWidget):
     def object_changed(self, old, new):
         super().object_changed(old, new)
         self.__update_placeholder()
-

@@ -24,16 +24,16 @@
 import os
 import gi
 
-gi.require_version('Gtk', '3.0')
+gi.require_version("Gtk", "3.0")
 from gi.repository import GObject, Gio, Gtk, GtkSource
 
 from .cmb_css import CmbCSS
 from .cmb_property_controls import *
 
 
-@Gtk.Template(resource_path='/ar/xjuan/Cambalache/cmb_css_editor.ui')
+@Gtk.Template(resource_path="/ar/xjuan/Cambalache/cmb_css_editor.ui")
 class CmbCSSEditor(Gtk.Grid):
-    __gtype_name__ = 'CmbCSSEditor'
+    __gtype_name__ = "CmbCSSEditor"
 
     filename = Gtk.Template.Child()
     priority = Gtk.Template.Child()
@@ -44,11 +44,7 @@ class CmbCSSEditor(Gtk.Grid):
     save_button = Gtk.Template.Child()
     view = Gtk.Template.Child()
 
-    fields = [
-        ('filename', 'cmb-value'),
-        ('priority', 'value'),
-        ('is_global', 'active')
-    ]
+    fields = [("filename", "cmb-value"), ("priority", "value"), ("is_global", "active")]
 
     def __init__(self, **kwargs):
         self._object = None
@@ -90,37 +86,39 @@ class CmbCSSEditor(Gtk.Grid):
         self.set_sensitive(True)
 
         for field, target in self.fields:
-            binding = GObject.Object.bind_property(obj, field,
-                                                   getattr(self, field), target,
-                                                   GObject.BindingFlags.SYNC_CREATE |
-                                                   GObject.BindingFlags.BIDIRECTIONAL)
+            binding = GObject.Object.bind_property(
+                obj,
+                field,
+                getattr(self, field),
+                target,
+                GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
+            )
             self._bindings.append(binding)
 
-        binding = GObject.Object.bind_property(obj, 'css',
-                                               self.view, 'text',
-                                               GObject.BindingFlags.SYNC_CREATE |
-                                               GObject.BindingFlags.BIDIRECTIONAL)
+        binding = GObject.Object.bind_property(
+            obj, "css", self.view, "text", GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL
+        )
         self._bindings.append(binding)
 
-        obj.project.connect('ui-added', self.__on_ui_added_removed)
-        obj.project.connect('ui-removed', self.__on_ui_added_removed)
-        obj.connect('notify::provider-for', self.__on_provider_for_notify)
-        obj.connect('notify::css', self.__on_css_notify)
-        obj.connect('file-changed', self.__on_file_changed)
+        obj.project.connect("ui-added", self.__on_ui_added_removed)
+        obj.project.connect("ui-removed", self.__on_ui_added_removed)
+        obj.connect("notify::provider-for", self.__on_provider_for_notify)
+        obj.connect("notify::css", self.__on_css_notify)
+        obj.connect("file-changed", self.__on_file_changed)
 
         self.__update_provider_for()
 
-    @Gtk.Template.Callback('on_remove_button_clicked')
+    @Gtk.Template.Callback("on_remove_button_clicked")
     def __on_remove_button_clicked(self, button):
-        self.emit('remove-css')
+        self.emit("remove-css")
 
-    @Gtk.Template.Callback('on_save_button_clicked')
+    @Gtk.Template.Callback("on_save_button_clicked")
     def __on_save_button_clicked(self, button):
         self._object.save_css()
         self.infobar.set_revealed(False)
         self.save_button.set_sensitive(False)
 
-    @Gtk.Template.Callback('on_infobar_response')
+    @Gtk.Template.Callback("on_infobar_response")
     def __on_infobar_response(self, infobar, response_id):
         if response_id == Gtk.ResponseType.OK:
             self.__load_filename()
@@ -141,11 +139,10 @@ class CmbCSSEditor(Gtk.Grid):
 
         # Generate a check button for each UI
         for ui in ui_list:
-            check = Gtk.CheckButton(label=ui.get_display_name(),
-                                    active=ui.ui_id in provider_for,
-                                    halign=Gtk.Align.START,
-                                    visible=True)
-            check.connect('toggled', self.__on_check_button_toggled, ui)
+            check = Gtk.CheckButton(
+                label=ui.get_display_name(), active=ui.ui_id in provider_for, halign=Gtk.Align.START, visible=True
+            )
+            check.connect("toggled", self.__on_check_button_toggled, ui)
             self.ui_box.add(check)
 
     def __on_file_changed(self, obj):
@@ -171,9 +168,12 @@ class CmbCSSEditor(Gtk.Grid):
     def __on_css_notify(self, obj, pspec):
         self.save_button.set_sensitive(True)
 
-    @GObject.Signal(flags=GObject.SignalFlags.RUN_LAST, return_type=bool,
-                    arg_types=(),
-                    accumulator=GObject.signal_accumulator_true_handled)
+    @GObject.Signal(
+        flags=GObject.SignalFlags.RUN_LAST,
+        return_type=bool,
+        arg_types=(),
+        accumulator=GObject.signal_accumulator_true_handled,
+    )
     def remove_css(self):
         if self.object:
             self.object.project.remove_css(self.object)

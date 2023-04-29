@@ -22,7 +22,7 @@
 
 import gi
 
-gi.require_version('Handy', '1')
+gi.require_version("Handy", "1")
 from gi.repository import Handy
 
 Handy.init()

@@ -27,10 +27,7 @@ from merengue.mrg_gtk import MrgGtkBox
 
 
 class MrgAdwCarousel(MrgGtkBox):
-    object = GObject.Property(type=Adw.Carousel,
-                              flags=GObject.ParamFlags.READWRITE)
+    object = GObject.Property(type=Adw.Carousel, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
-

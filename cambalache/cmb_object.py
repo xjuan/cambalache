@@ -23,7 +23,7 @@
 
 import gi
 
-gi.require_version('Gtk', '3.0')
+gi.require_version("Gtk", "3.0")
 from gi.repository import GObject, Gtk
 
 from .cmb_objects_base import CmbBaseObject, CmbSignal
@@ -36,21 +36,17 @@ from cambalache import getLogger
 
 logger = getLogger(__name__)
 
+
 class CmbObject(CmbBaseObject):
-    info = GObject.Property(type=CmbTypeInfo, flags = GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    info = GObject.Property(type=CmbTypeInfo, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
 
     __gsignals__ = {
-        'property-changed': (GObject.SignalFlags.RUN_FIRST, None, (CmbProperty, )),
-
-        'layout-property-changed': (GObject.SignalFlags.RUN_FIRST, None, (GObject.GObject, CmbLayoutProperty)),
-
-        'signal-added': (GObject.SignalFlags.RUN_FIRST, None, (CmbSignal, )),
-
-        'signal-removed': (GObject.SignalFlags.RUN_FIRST, None, (CmbSignal, )),
-
-        'data-added': (GObject.SignalFlags.RUN_FIRST, None, (CmbObjectData, )),
-
-        'data-removed': (GObject.SignalFlags.RUN_FIRST, None, (CmbObjectData, )),
+        "property-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbProperty,)),
+        "layout-property-changed": (GObject.SignalFlags.RUN_FIRST, None, (GObject.GObject, CmbLayoutProperty)),
+        "signal-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbSignal,)),
+        "signal-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbSignal,)),
+        "data-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbObjectData,)),
+        "data-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObjectData,)),
     }
 
     def __init__(self, **kwargs):
@@ -65,7 +61,7 @@ class CmbObject(CmbBaseObject):
 
         super().__init__(**kwargs)
 
-        self.connect('notify', self.__on_notify)
+        self.connect("notify", self.__on_notify)
 
         if self.project is None:
             return
@@ -79,7 +75,7 @@ class CmbObject(CmbBaseObject):
         self.__populate_data()
 
     def __str__(self):
-        return f'CmbObject<{self.type_id}> {self.ui_id}:{self.object_id}'
+        return f"CmbObject<{self.type_id}> {self.ui_id}:{self.object_id}"
 
     def __populate_type_properties(self, name):
         property_info = self.project.get_type_properties(name)
@@ -89,13 +85,15 @@ class CmbObject(CmbBaseObject):
         for property_name in property_info:
             info = property_info[property_name]
 
-            prop = CmbProperty(object=self,
-                               project=self.project,
-                               ui_id=self.ui_id,
-                               object_id=self.object_id,
-                               owner_id=name,
-                               property_id=info.property_id,
-                               info=info)
+            prop = CmbProperty(
+                object=self,
+                project=self.project,
+                ui_id=self.ui_id,
+                object_id=self.object_id,
+                owner_id=name,
+                property_id=info.property_id,
+                info=info,
+            )
 
             # List of property
             self.properties.append(prop)
@@ -118,14 +116,16 @@ class CmbObject(CmbBaseObject):
         for property_name in property_info:
             info = property_info[property_name]
 
-            prop = CmbLayoutProperty(object=self,
-                                     project=self.project,
-                                     ui_id=self.ui_id,
-                                     object_id=parent_id,
-                                     child_id=self.object_id,
-                                     owner_id=name,
-                                     property_id=info.property_id,
-                                     info=info)
+            prop = CmbLayoutProperty(
+                object=self,
+                project=self.project,
+                ui_id=self.ui_id,
+                object_id=parent_id,
+                child_id=self.object_id,
+                owner_id=name,
+                property_id=info.property_id,
+                info=info,
+            )
 
             # Keep a reference to the position layout property
             if info.is_position:
@@ -137,17 +137,17 @@ class CmbObject(CmbBaseObject):
             self.layout_dict[property_name] = prop
 
     def _property_changed(self, prop):
-        self.emit('property-changed', prop)
+        self.emit("property-changed", prop)
         self.project._object_property_changed(self, prop)
 
     def _layout_property_changed(self, prop):
         parent = self.project.get_object_by_id(self.ui_id, self.parent_id)
-        self.emit('layout-property-changed', parent, prop)
+        self.emit("layout-property-changed", parent, prop)
         self.project._object_layout_property_changed(parent, self, prop)
 
     def __add_signal_object(self, signal):
         self.signals.append(signal)
-        self.emit('signal-added', signal)
+        self.emit("signal-added", signal)
         self.project._object_signal_added(self, signal)
 
     def __add_data_object(self, data):
@@ -156,7 +156,7 @@ class CmbObject(CmbBaseObject):
 
         self.data.append(data)
         self.data_dict[data.get_id_string()] = data
-        self.emit('data-added', data)
+        self.emit("data-added", data)
         self.project._object_data_added(self, data)
 
     def __on_notify(self, obj, pspec):
@@ -166,16 +166,17 @@ class CmbObject(CmbBaseObject):
         c = self.project.db.cursor()
 
         # Populate signals
-        for row in c.execute('SELECT * FROM object_signal WHERE ui_id=? AND object_id=?;',
-                             (self.ui_id, self.object_id)):
+        for row in c.execute("SELECT * FROM object_signal WHERE ui_id=? AND object_id=?;", (self.ui_id, self.object_id)):
             self.__add_signal_object(CmbSignal.from_row(self.project, *row))
 
     def __populate_data(self):
         c = self.project.db.cursor()
 
         # Populate data
-        for row in c.execute('SELECT * FROM object_data WHERE ui_id=? AND object_id=? AND parent_id IS NULL;',
-                             (self.ui_id, self.object_id)):
+        for row in c.execute(
+            "SELECT * FROM object_data WHERE ui_id=? AND object_id=? AND parent_id IS NULL;",
+            (self.ui_id, self.object_id),
+        ):
             self.__add_data_object(CmbObjectData.from_row(self.project, *row))
 
     def __populate_layout_properties(self):
@@ -189,15 +190,25 @@ class CmbObject(CmbBaseObject):
 
     @GObject.Property(type=int)
     def parent_id(self):
-        retval = self.db_get('SELECT parent_id FROM object WHERE (ui_id, object_id) IS (?, ?);',
-                             (self.ui_id, self.object_id, ))
+        retval = self.db_get(
+            "SELECT parent_id FROM object WHERE (ui_id, object_id) IS (?, ?);",
+            (
+                self.ui_id,
+                self.object_id,
+            ),
+        )
         return retval if retval is not None else 0
 
     @parent_id.setter
     def _set_parent_id(self, value):
-        self.db_set('UPDATE object SET parent_id=? WHERE (ui_id, object_id) IS (?, ?);',
-                    (self.ui_id, self.object_id, ),
-                    value if value != 0 else None)
+        self.db_set(
+            "UPDATE object SET parent_id=? WHERE (ui_id, object_id) IS (?, ?);",
+            (
+                self.ui_id,
+                self.object_id,
+            ),
+            value if value != 0 else None,
+        )
 
         self.__populate_layout_properties()
 
@@ -210,17 +221,19 @@ class CmbObject(CmbBaseObject):
         return self.project.get_object_by_id(self.ui_id, self.parent_id)
 
     def _add_signal(self, signal_pk, owner_id, signal_id, handler, detail=None, user_data=0, swap=False, after=False):
-        signal = CmbSignal(project=self.project,
-                           signal_pk=signal_pk,
-                           ui_id=self.ui_id,
-                           object_id=self.object_id,
-                           owner_id=owner_id,
-                           signal_id=signal_id,
-                           handler=handler,
-                           detail=detail,
-                           user_data=user_data if user_data is not None else 0,
-                           swap=swap,
-                           after=after)
+        signal = CmbSignal(
+            project=self.project,
+            signal_pk=signal_pk,
+            ui_id=self.ui_id,
+            object_id=self.object_id,
+            owner_id=owner_id,
+            signal_id=signal_id,
+            handler=handler,
+            detail=detail,
+            user_data=user_data if user_data is not None else 0,
+            swap=swap,
+            after=after,
+        )
 
         self.__add_signal_object(signal)
 
@@ -229,50 +242,59 @@ class CmbObject(CmbBaseObject):
     def add_signal(self, owner_id, signal_id, handler, detail=None, user_data=0, swap=False, after=False):
         try:
             c = self.project.db.cursor()
-            c.execute("INSERT INTO object_signal (ui_id, object_id, owner_id, signal_id, handler, detail, user_data, swap, after) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);",
-                      (self.ui_id, self.object_id, owner_id, signal_id, handler, detail, user_data, swap, after))
+            c.execute(
+                "INSERT INTO object_signal (ui_id, object_id, owner_id, signal_id, handler, detail, user_data, swap, after) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);",
+                (self.ui_id, self.object_id, owner_id, signal_id, handler, detail, user_data, swap, after),
+            )
             signal_pk = c.lastrowid
             c.close()
             self.project.db.commit()
         except Exception as e:
-            logger.warning(f'Error adding signal handler {owner_id}:{signal_id} {handler} to object {self.ui_id}.{{self.object_id}} {e}')
+            logger.warning(
+                f"Error adding signal handler {owner_id}:{signal_id} {handler} to object {self.ui_id}.{{self.object_id}} {e}"
+            )
             return None
         else:
-            return self._add_signal(signal_pk,
-                                    owner_id,
-                                    signal_id,
-                                    handler,
-                                    detail=detail,
-                                    user_data=user_data if user_data is not None else 0,
-                                    swap=swap,
-                                    after=after)
+            return self._add_signal(
+                signal_pk,
+                owner_id,
+                signal_id,
+                handler,
+                detail=detail,
+                user_data=user_data if user_data is not None else 0,
+                swap=swap,
+                after=after,
+            )
 
     def _remove_signal(self, signal):
         self.signals.remove(signal)
-        self.emit('signal-removed', signal)
+        self.emit("signal-removed", signal)
         self.project._object_signal_removed(self, signal)
 
     def remove_signal(self, signal):
         try:
-            self.project.db.execute("DELETE FROM object_signal WHERE signal_pk=?;",
-                                    (signal.signal_pk, ))
+            self.project.db.execute("DELETE FROM object_signal WHERE signal_pk=?;", (signal.signal_pk,))
             self.project.db.commit()
         except Exception as e:
-            logger.warning(f'Error removing signal handler {signal.owner_id}:{signal.signal_id} {signal.handler} from object {self.ui_id}.{{self.object_id}} {e}')
+            logger.warning(
+                f"Error removing signal handler {signal.owner_id}:{signal.signal_id} {signal.handler} from object {self.ui_id}.{{self.object_id}} {e}"
+            )
             return False
         else:
             self._remove_signal(signal)
             return True
 
     def _add_data(self, owner_id, data_id, id, info=None):
-        data = CmbObjectData(project=self.project,
-                             object=self,
-                             info=info,
-                             ui_id=self.ui_id,
-                             object_id=self.object_id,
-                             owner_id=owner_id,
-                             data_id=data_id,
-                             id=id)
+        data = CmbObjectData(
+            project=self.project,
+            object=self,
+            info=info,
+            ui_id=self.ui_id,
+            object_id=self.object_id,
+            owner_id=owner_id,
+            data_id=data_id,
+            id=id,
+        )
         self.__add_data_object(data)
         return data
 
@@ -284,7 +306,7 @@ class CmbObject(CmbBaseObject):
             data_id = taginfo.data_id
             id = self.project.db.object_add_data(self.ui_id, self.object_id, owner_id, data_id, value, None, comment)
         except Exception as e:
-            logger.warning(f'Error adding data {data_key} {e}')
+            logger.warning(f"Error adding data {data_key} {e}")
             return None
         else:
             return self._add_data(owner_id, data_id, id, info=taginfo)
@@ -296,17 +318,19 @@ class CmbObject(CmbBaseObject):
         self.data.remove(data)
         del self.data_dict[data.get_id_string()]
 
-        self.emit('data-removed', data)
+        self.emit("data-removed", data)
         self.project._object_data_removed(self, data)
 
     def remove_data(self, data):
         try:
             assert data in self.data
-            self.project.db.execute("DELETE FROM object_data WHERE ui_id=? AND object_id=? AND owner_id=? AND data_id=? AND id=?;",
-                                    (self.ui_id, self.object_id, data.owner_id, data.data_id, data.id))
+            self.project.db.execute(
+                "DELETE FROM object_data WHERE ui_id=? AND object_id=? AND owner_id=? AND data_id=? AND id=?;",
+                (self.ui_id, self.object_id, data.owner_id, data.data_id, data.id),
+            )
             self.project.db.commit()
         except Exception as e:
-            logger.warning(f'{self} Error removing data {data}: {e}')
+            logger.warning(f"{self} Error removing data {data}: {e}")
             return False
         else:
             self._remove_data(data)
@@ -314,26 +338,31 @@ class CmbObject(CmbBaseObject):
 
     def reorder_child(self, child, position):
         if child is None:
-            logger.warning(f'child has to be a CmbObject')
+            logger.warning(f"child has to be a CmbObject")
             return
 
         if self.ui_id != child.ui_id or self.object_id != child.parent_id:
-            logger.warning(f'{child} is not children of {self}')
+            logger.warning(f"{child} is not children of {self}")
             return
 
         name = child.name if child.name is not None else child.type_id
-        self.project.history_push(_('Reorder object {name} from position {old} to {new}').format(name=name, old=child.position, new=position))
+        self.project.history_push(
+            _("Reorder object {name} from position {old} to {new}").format(name=name, old=child.position, new=position)
+        )
 
         children = []
 
         # Get children in order
         c = self.project.db.cursor()
-        for row in c.execute('''
+        for row in c.execute(
+            """
             SELECT object_id, position
                 FROM object
                 WHERE ui_id=? AND parent_id=? AND internal IS NULL AND object_id!=?
                     AND object_id NOT IN (SELECT inline_object_id FROM object_property WHERE inline_object_id IS NOT NULL AND ui_id=? AND object_id=?)
-                ORDER BY position;''', (self.ui_id, self.object_id, child.object_id, self.ui_id, self.object_id)):
+                ORDER BY position;""",
+            (self.ui_id, self.object_id, child.object_id, self.ui_id, self.object_id),
+        ):
             child_id, child_position = row
 
             obj = self.project.get_object_by_id(self.ui_id, child_id)
@@ -360,11 +389,12 @@ class CmbObject(CmbBaseObject):
 
         name = self.name
         name = name if name is not None else self.type_id
-        self.project.history_push(_('Clear object {name} properties').format(name=name))
+        self.project.history_push(_("Clear object {name} properties").format(name=name))
 
         properties = []
-        for row in c.execute("SELECT property_id FROM object_property WHERE ui_id=? AND object_id=?;",
-                             (self.ui_id, self.object_id)):
+        for row in c.execute(
+            "SELECT property_id FROM object_property WHERE ui_id=? AND object_id=?;", (self.ui_id, self.object_id)
+        ):
             properties.append(row[0])
 
         # Remove all properties from this object
@@ -375,5 +405,5 @@ class CmbObject(CmbBaseObject):
 
         for prop_id in properties:
             prop = self.properties_dict[prop_id]
-            prop.notify('value')
+            prop.notify("value")
             self._property_changed(prop)

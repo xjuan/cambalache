@@ -68,7 +68,7 @@ class MrgGtkBox(MrgGtkWidget):
 
     def get_child_layout(self, child, layout):
         if Gtk.MAJOR_VERSION == 3:
-            layout['position'] = self.get_child_position(child)
+            layout["position"] = self.get_child_position(child)
 
         return super().get_child_layout(child, layout)
 
@@ -99,7 +99,6 @@ class MrgGtkBox(MrgGtkWidget):
                 if Gtk.MAJOR_VERSION == 4:
                     break
                 else:
-                    pack_type, = self.child_get(child, ['pack-type'])
+                    (pack_type,) = self.child_get(child, ["pack-type"])
                     if pack_type == Gtk.PackType.START:
                         break
-

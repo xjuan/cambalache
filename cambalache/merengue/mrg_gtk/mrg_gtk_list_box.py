@@ -28,8 +28,7 @@ from merengue import MrgPlaceholder, utils
 
 
 class MrgGtkListBox(MrgGtkBox):
-    object = GObject.Property(type=Gtk.ListBox,
-                              flags=GObject.ParamFlags.READWRITE)
+    object = GObject.Property(type=Gtk.ListBox, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

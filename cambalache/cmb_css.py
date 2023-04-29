@@ -30,7 +30,7 @@ from .cmb_objects_base import CmbBaseCSS
 
 class CmbCSS(CmbBaseCSS):
     __gsignals__ = {
-        'file-changed': (GObject.SignalFlags.RUN_FIRST, None, ()),
+        "file-changed": (GObject.SignalFlags.RUN_FIRST, None, ()),
     }
 
     css = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
@@ -42,36 +42,34 @@ class CmbCSS(CmbBaseCSS):
 
         super().__init__(**kwargs)
 
-        self.connect('notify', self.__on_notify)
+        self.connect("notify", self.__on_notify)
         self.load_css()
 
     def __on_notify(self, obj, pspec):
-        if pspec.name not in ['css']:
+        if pspec.name not in ["css"]:
             self.project._css_changed(self, pspec.name)
 
-        if pspec.name == 'filename':
+        if pspec.name == "filename":
             self.load_css()
 
     def get_display_name(self):
-        return self.filename if self.filename else _('Unnamed CSS {css_id}').format(css_id=self.css_id)
+        return self.filename if self.filename else _("Unnamed CSS {css_id}").format(css_id=self.css_id)
 
     @GObject.Property(type=int)
     def priority(self):
-        retval = self.db_get('SELECT priority FROM css WHERE css_id=?;',
-                             (self.css_id, ))
+        retval = self.db_get("SELECT priority FROM css WHERE css_id=?;", (self.css_id,))
         return retval if retval is not None else 0
 
     @priority.setter
     def _set_priority(self, value):
-        self.db_set('UPDATE css SET priority=? WHERE css_id=?;',
-                    (self.css_id, ), value if value != 0 else None)
+        self.db_set("UPDATE css SET priority=? WHERE css_id=?;", (self.css_id,), value if value != 0 else None)
 
     @GObject.Property(type=object)
     def provider_for(self):
         c = self.project.db.cursor()
 
         retval = []
-        for row in c.execute("SELECT ui_id FROM css_ui WHERE css_id=? ORDER BY ui_id;", (self.css_id, )):
+        for row in c.execute("SELECT ui_id FROM css_ui WHERE css_id=? ORDER BY ui_id;", (self.css_id,)):
             retval.append(row[0])
 
         c.close()
@@ -85,7 +83,7 @@ class CmbCSS(CmbBaseCSS):
             self.__saving = False
             return
         else:
-            self.emit('file-changed')
+            self.emit("file-changed")
 
     def load_css(self):
         if not self.project or not self.filename:
@@ -105,7 +103,7 @@ class CmbCSS(CmbBaseCSS):
 
                 gfile = Gio.File.new_for_path(path)
                 self._monitor = gfile.monitor(Gio.FileMonitorFlags.NONE, None)
-                self._monitor.connect('changed', self.__on_css_file_changed)
+                self._monitor.connect("changed", self.__on_css_file_changed)
 
                 return True
         else:
@@ -125,33 +123,29 @@ class CmbCSS(CmbBaseCSS):
             needs_load = True
 
         self.__saving = True
-        with open(self._path, 'w') as fd:
+        with open(self._path, "w") as fd:
             fd.write(self.css)
 
         if needs_load:
-            self.notify('filename')
+            self.notify("filename")
 
     def add_ui(self, ui):
         c = self.project.db.cursor()
 
         # Do not use REPLACE INTO, to make sure both INSERT and UPDATE triggers are used
-        count = self.db_get("SELECT count(css_id) FROM css_ui WHERE css_id=? AND ui_id=?;",
-                            (self.css_id, ui.ui_id))
+        count = self.db_get("SELECT count(css_id) FROM css_ui WHERE css_id=? AND ui_id=?;", (self.css_id, ui.ui_id))
 
         if count == 0:
-            c.execute("INSERT INTO css_ui (css_id, ui_id) VALUES (?, ?);",
-                      (self.css_id, ui.ui_id))
+            c.execute("INSERT INTO css_ui (css_id, ui_id) VALUES (?, ?);", (self.css_id, ui.ui_id))
 
         c.close()
 
-        self.notify('provider_for')
+        self.notify("provider_for")
 
     def remove_ui(self, ui):
         c = self.project.db.cursor()
 
-        c.execute("DELETE FROM css_ui WHERE css_id=? AND ui_id=?;",
-                  (self.css_id, ui.ui_id))
+        c.execute("DELETE FROM css_ui WHERE css_id=? AND ui_id=?;", (self.css_id, ui.ui_id))
         c.close()
 
-        self.notify('provider_for')
-
+        self.notify("provider_for")

@@ -4,8 +4,8 @@ import gi
 
 from gi.repository import GObject
 
-basedir = os.path.dirname(__file__) or '.'
-sys.path.append(os.path.join(basedir, '../../'))
+basedir = os.path.dirname(__file__) or "."
+sys.path.append(os.path.join(basedir, "../../"))
 
 from cambalache import *
 
@@ -19,4 +19,3 @@ GObject.type_ensure(CmbSignalEditor)
 GObject.type_ensure(CmbTypeChooser)
 GObject.type_ensure(CmbTypeChooserPopover)
 GObject.type_ensure(CmbTypeChooserWidget)
-

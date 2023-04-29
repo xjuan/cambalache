@@ -21,11 +21,12 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
+
 def ensure_columns_for_0_7_5(table, data):
-    if table == 'object':
+    if table == "object":
         # Append position column
-        return [row + (None, ) for row in data]
-    elif table in ['object_property', 'object_layout_property']:
+        return [row + (None,) for row in data]
+    elif table in ["object_property", "object_layout_property"]:
         # Append translation_context, translation_comments columns
         return [row + (None, None) for row in data]
 
@@ -33,55 +34,55 @@ def ensure_columns_for_0_7_5(table, data):
 
 
 def migrate_table_data_to_0_7_5(c, table, data):
-    if table == 'object':
-        c.execute('''
+    if table == "object":
+        c.execute(
+            """
             UPDATE object SET position=new.position - 1
             FROM (
-                SELECT row_number() OVER (
-                    PARTITION BY parent_id ORDER BY object_id
-                ) position, ui_id, object_id
+                SELECT row_number() OVER (PARTITION BY parent_id ORDER BY object_id) position, ui_id, object_id
                 FROM object
                 WHERE parent_id IS NOT NULL
             ) AS new
             WHERE object.ui_id=new.ui_id AND object.object_id=new.object_id;
-        ''')
-        c.execute('''
+            """
+        )
+        c.execute(
+            """
             UPDATE object SET position=new.position - 1
             FROM (
-                SELECT row_number() OVER (
-                    PARTITION BY ui_id ORDER BY object_id
-                ) position, ui_id, object_id
+                SELECT row_number() OVER (PARTITION BY ui_id ORDER BY object_id) position, ui_id, object_id
                 FROM object
                 WHERE parent_id IS NULL
             ) AS new
             WHERE object.ui_id=new.ui_id AND object.object_id=new.object_id;
-        ''')
+            """
+        )
 
 
 def ensure_columns_for_0_9_0(table, data):
-    if table == 'object_property':
+    if table == "object_property":
         # Append inline_object_id column
-        return [row + (None, ) for row in data]
+        return [row + (None,) for row in data]
 
     return data
 
+
 def migrate_table_data_to_0_9_0(c, table, data):
-    if table == 'object_property':
+    if table == "object_property":
         # Remove all object properties with a 0 as value
-        c.execute('''
+        c.execute(
+            """
             DELETE FROM object_property AS op
-                WHERE value = 0 AND
-                    (SELECT property_id
-                        FROM property
-                        WHERE owner_id=op.owner_id
-                            AND property_id=op.property_id
-                            AND is_object)
-                    IS NOT NULL;
-        ''')
+            WHERE value = 0 AND
+                (SELECT property_id FROM property WHERE owner_id=op.owner_id AND property_id=op.property_id AND is_object)
+            IS NOT NULL;
+            """
+        )
+
 
 def ensure_columns_for_0_11_2(table, data):
-    if table in ['object', 'ui']:
+    if table in ["object", "ui"]:
         # Append custom_text column
-        return [row + (None, ) for row in data]
+        return [row + (None,) for row in data]
 
     return data

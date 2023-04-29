@@ -31,33 +31,35 @@ from gi.repository import GObject
 # WORKAROUND: only create the GBinding once we have all the properties
 #
 class MrgGBindingProxy(GObject.Object):
-    __gtype_name__ = 'MrgGBindingProxy'
+    __gtype_name__ = "MrgGBindingProxy"
 
-    flags = GObject.Property(type=GObject.BindingFlags, default=GObject.BindingFlags.DEFAULT, flags = GObject.ParamFlags.READWRITE)
-    source = GObject.Property(type=GObject.Object, flags = GObject.ParamFlags.READWRITE)
-    source_property = GObject.Property(type=str, flags = GObject.ParamFlags.READWRITE)
-    target = GObject.Property(type=GObject.Object, flags = GObject.ParamFlags.READWRITE)
-    target_property = GObject.Property(type=str, flags = GObject.ParamFlags.READWRITE)
+    flags = GObject.Property(
+        type=GObject.BindingFlags, default=GObject.BindingFlags.DEFAULT, flags=GObject.ParamFlags.READWRITE
+    )
+    source = GObject.Property(type=GObject.Object, flags=GObject.ParamFlags.READWRITE)
+    source_property = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
+    target = GObject.Property(type=GObject.Object, flags=GObject.ParamFlags.READWRITE)
+    target_property = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         self.__proxy = None
 
         super().__init__(**kwargs)
 
-        self.connect('notify', self.__on_notify)
+        self.connect("notify", self.__on_notify)
 
     def __on_notify(self, obj, pspec):
         if self.__proxy:
             self.__proxy.unbind()
             self.__proxy = None
 
-        if self.flags and \
-           self.source and self.source_property and \
-           self.target and self.target_property and \
-           self.source.find_property(self.source_property) and \
-           self.target.find_property(self.target_property):
-            self.__proxy = self.source.bind_property(self.source_property,
-                                                     self.target,
-                                                     self.target_property,
-                                                     self.flags)
-            
+        if (
+            self.flags
+            and self.source
+            and self.source_property
+            and self.target
+            and self.target_property
+            and self.source.find_property(self.source_property)
+            and self.target.find_property(self.target_property)
+        ):
+            self.__proxy = self.source.bind_property(self.source_property, self.target, self.target_property, self.flags)

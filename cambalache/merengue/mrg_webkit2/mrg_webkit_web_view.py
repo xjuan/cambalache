@@ -32,18 +32,18 @@ logger = getLogger(__name__)
 
 
 class MrgWebKitWebView(MrgGtkWidget):
-    object = GObject.Property(type=WebKit2.WebView,
-                              flags=GObject.ParamFlags.READWRITE)
+    object = GObject.Property(type=WebKit2.WebView, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        logger.warning('MrgWebKitWebView __init__')
+        logger.warning("MrgWebKitWebView __init__")
 
     def object_changed(self, old, new):
         super().object_changed(old, new)
 
         if self.object:
-            self.object.load_html("""
+            self.object.load_html(
+                """
 <!DOCTYPE html>
 <html>
   <head>
@@ -97,38 +97,50 @@ function open_url() {
   </body>
 </html>
                 """,
-                '.')
+                ".",
+            )
 
 
 class MrgDummyWebViewProxy(Gtk.Label):
-    __gtype_name__ = 'MrgDummyWebViewProxy'
+    __gtype_name__ = "MrgDummyWebViewProxy"
 
-    automation_presentation_type = GObject.Property(type=WebKit2.AutomationBrowsingContextPresentation, default=WebKit2.AutomationBrowsingContextPresentation.WINDOW, flags=GObject.ParamFlags.READWRITE)
-    camera_capture_state = GObject.Property(type=WebKit2.MediaCaptureState, default=WebKit2.MediaCaptureState.NONE, flags=GObject.ParamFlags.READWRITE)
+    automation_presentation_type = GObject.Property(
+        type=WebKit2.AutomationBrowsingContextPresentation,
+        default=WebKit2.AutomationBrowsingContextPresentation.WINDOW,
+        flags=GObject.ParamFlags.READWRITE,
+    )
+    camera_capture_state = GObject.Property(
+        type=WebKit2.MediaCaptureState, default=WebKit2.MediaCaptureState.NONE, flags=GObject.ParamFlags.READWRITE
+    )
     default_content_security_policy = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
-    display_capture_state = GObject.Property(type=WebKit2.MediaCaptureState, default=WebKit2.MediaCaptureState.NONE, flags=GObject.ParamFlags.READWRITE)
+    display_capture_state = GObject.Property(
+        type=WebKit2.MediaCaptureState, default=WebKit2.MediaCaptureState.NONE, flags=GObject.ParamFlags.READWRITE
+    )
     editable = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
     is_controlled_by_automation = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
     is_ephemeral = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
     is_muted = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
-    microphone_capture_state = GObject.Property(type=WebKit2.MediaCaptureState, default=WebKit2.MediaCaptureState.NONE, flags=GObject.ParamFlags.READWRITE)
+    microphone_capture_state = GObject.Property(
+        type=WebKit2.MediaCaptureState, default=WebKit2.MediaCaptureState.NONE, flags=GObject.ParamFlags.READWRITE
+    )
     related_view = GObject.Property(type=WebKit2.WebView, flags=GObject.ParamFlags.READWRITE)
     settings = GObject.Property(type=WebKit2.Settings, flags=GObject.ParamFlags.READWRITE)
     user_content_manager = GObject.Property(type=WebKit2.UserContentManager, flags=GObject.ParamFlags.READWRITE)
     web_context = GObject.Property(type=WebKit2.WebContext, flags=GObject.ParamFlags.READWRITE)
-    web_extension_mode = GObject.Property(type=WebKit2.WebExtensionMode, default=WebKit2.WebExtensionMode.NONE, flags=GObject.ParamFlags.READWRITE)
+    web_extension_mode = GObject.Property(
+        type=WebKit2.WebExtensionMode, default=WebKit2.WebExtensionMode.NONE, flags=GObject.ParamFlags.READWRITE
+    )
     website_policies = GObject.Property(type=WebKit2.WebsitePolicies, flags=GObject.ParamFlags.READWRITE)
     zoom_level = GObject.Property(type=float, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.props.label = 'WebKit2.WebView\nplaceholder'
+        self.props.label = "WebKit2.WebView\nplaceholder"
         self.props.justify = Gtk.Justification.CENTER
 
 
 class MrgDummyWebView(MrgGtkWidget):
-    object = GObject.Property(type=MrgDummyWebViewProxy,
-                              flags=GObject.ParamFlags.READWRITE)
+    object = GObject.Property(type=MrgDummyWebViewProxy, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

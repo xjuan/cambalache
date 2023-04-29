@@ -27,17 +27,15 @@ from merengue.mrg_gtk import MrgGtkWindow
 
 
 class MrgAdwWindow(MrgGtkWindow):
-    object = GObject.Property(type=Adw.Window,
-                              flags=GObject.ParamFlags.READWRITE)
+    object = GObject.Property(type=Adw.Window, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     def get_children(self):
         child = self.object.get_content() if self.object else None
-        return [ child ] if child else []
+        return [child] if child else []
 
     def add(self, child):
         if self.object:
             self.object.set_content(child)
-

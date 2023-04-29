@@ -30,17 +30,13 @@ logger = getLogger(__name__)
 
 
 class MrgController(GObject.Object):
-    app = GObject.Property(type=GObject.GObject,
-                           flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    app = GObject.Property(type=GObject.GObject, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
 
-    object = GObject.Property(type=GObject.GObject,
-                              flags=GObject.ParamFlags.READWRITE)
+    object = GObject.Property(type=GObject.GObject, flags=GObject.ParamFlags.READWRITE)
 
-    toplevel = GObject.Property(type=bool, default=False,
-                                flags=GObject.ParamFlags.READWRITE)
+    toplevel = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
 
-    selected = GObject.Property(type=bool, default=False,
-                                flags=GObject.ParamFlags.READWRITE)
+    selected = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         # Properties in this will will be ignored by set_object_property()
@@ -60,7 +56,7 @@ class MrgController(GObject.Object):
         old = self.__object
 
         if value:
-            ui_id, object_id = utils.object_get_id(value).split('.')
+            ui_id, object_id = utils.object_get_id(value).split(".")
             self.ui_id = int(ui_id)
             self.object_id = int(object_id)
         else:
@@ -84,5 +80,3 @@ class MrgController(GObject.Object):
                 CambalachePrivate.object_set_property_from_string(self.object, name, value)
             else:
                 self.object.set_property(name, value)
-
-

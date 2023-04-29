@@ -1,4 +1,4 @@
-# GtkAspectFrame 
+# GtkAspectFrame
 #
 # Copyright (C) 2022  Juan Pablo Ugarte
 #
@@ -28,9 +28,7 @@ from merengue import MrgPlaceholder
 
 
 class MrgGtkAspectFrame(MrgGtkBin):
-    object = GObject.Property(type=Gtk.AspectFrame,
-                              flags=GObject.ParamFlags.READWRITE)
+    object = GObject.Property(type=Gtk.AspectFrame, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-

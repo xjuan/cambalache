@@ -32,7 +32,7 @@ logger = getLogger(__name__)
 
 
 class MrgPlaceholder(Gtk.Box):
-    __gtype_name__ = 'MrgPlaceholder'
+    __gtype_name__ = "MrgPlaceholder"
 
     controller = GObject.Property(type=MrgController, flags=GObject.ParamFlags.READWRITE)
 
@@ -60,11 +60,13 @@ class MrgPlaceholder(Gtk.Box):
         if not self.controller:
             return
 
-        self.__binding = GObject.Object.bind_property(self.controller.app, 'preview',
-                                                      self, 'visible',
-                                                      GObject.BindingFlags.SYNC_CREATE |
-                                                      GObject.BindingFlags.BIDIRECTIONAL |
-                                                      GObject.BindingFlags.INVERT_BOOLEAN)
+        self.__binding = GObject.Object.bind_property(
+            self.controller.app,
+            "preview",
+            self,
+            "visible",
+            GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL | GObject.BindingFlags.INVERT_BOOLEAN,
+        )
 
     def selected(self):
         if self.controller:
@@ -74,4 +76,5 @@ class MrgPlaceholder(Gtk.Box):
         if self.controller:
             self.controller.placeholder_activated(self)
 
-Gtk.WidgetClass.set_css_name(MrgPlaceholder, 'MrgPlaceholder')
+
+Gtk.WidgetClass.set_css_name(MrgPlaceholder, "MrgPlaceholder")

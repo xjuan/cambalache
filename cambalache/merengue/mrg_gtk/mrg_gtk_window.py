@@ -32,8 +32,7 @@ logger = getLogger(__name__)
 
 
 class MrgGtkWindow(MrgGtkBin):
-    object = GObject.Property(type=Gtk.Window,
-                              flags=GObject.ParamFlags.READWRITE)
+    object = GObject.Property(type=Gtk.Window, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         self._position = None
@@ -45,7 +44,7 @@ class MrgGtkWindow(MrgGtkBin):
         super().__init__(**kwargs)
 
         self.selection = MrgSelection(app=self.app, container=self.object)
-        self.property_ignore_list.add('modal')
+        self.property_ignore_list.add("modal")
 
     def object_changed(self, old, new):
         super().object_changed(old, new)
@@ -62,9 +61,9 @@ class MrgGtkWindow(MrgGtkBin):
 
             # Make sure the user can not close the window
             if Gtk.MAJOR_VERSION == 4:
-                self.object.connect('close-request', lambda o: True)
+                self.object.connect("close-request", lambda o: True)
             else:
-                self.object.connect('delete-event', lambda o, e: True)
+                self.object.connect("delete-event", lambda o, e: True)
 
             # Restore size
             if self._size and not self._is_maximized:
@@ -82,7 +81,7 @@ class MrgGtkWindow(MrgGtkBin):
                 self.object.show_all()
 
             # Add gtk version CSS class
-            gtkversion = 'gtk4' if Gtk.MAJOR_VERSION == 4 else 'gtk3'
+            gtkversion = "gtk4" if Gtk.MAJOR_VERSION == 4 else "gtk3"
             self.object.get_style_context().add_class(gtkversion)
 
             self._restore_state()
@@ -125,4 +124,3 @@ class MrgGtkWindow(MrgGtkBin):
         else:
             if self._position:
                 self.object.move(*self._position)
-

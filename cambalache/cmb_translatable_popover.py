@@ -24,22 +24,21 @@
 import os
 import gi
 
-gi.require_version('Gtk', '3.0')
+gi.require_version("Gtk", "3.0")
 from gi.repository import GObject, Gtk
 
 from .cmb_translatable_widget import CmbTranslatableWidget
 
+
 class CmbTranslatablePopover(Gtk.Popover):
-    __gtype_name__ = 'CmbTranslatablePopover'
+    __gtype_name__ = "CmbTranslatablePopover"
 
     def __init__(self, **kwargs):
         self._object = None
         super().__init__(**kwargs)
 
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        box.pack_start(Gtk.Label(label=_(f'<b>Translation</b>'),
-                                 use_markup=True),
-                       False, True, 4)
+        box.pack_start(Gtk.Label(label=_(f"<b>Translation</b>"), use_markup=True), False, True, 4)
         box.pack_start(Gtk.Separator(), False, False, 0)
 
         self._translation = CmbTranslatableWidget()

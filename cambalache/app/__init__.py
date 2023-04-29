@@ -24,9 +24,8 @@ import os
 
 from cambalache import config
 from gi.repository import Gio
-resource = Gio.Resource.load(os.path.join(config.pkgdatadir, 'app.gresource'))
+
+resource = Gio.Resource.load(os.path.join(config.pkgdatadir, "app.gresource"))
 resource._register()
 
 from .cmb_application import CmbApplication
-
-

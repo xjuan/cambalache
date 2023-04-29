@@ -24,7 +24,7 @@
 import gi
 import traceback
 
-gi.require_version('Gtk', '3.0')
+gi.require_version("Gtk", "3.0")
 from gi.repository import GLib, GObject, Gtk
 
 from .cmb_type_info import CmbTypeDataInfo
@@ -32,11 +32,11 @@ from .cmb_object_data import CmbObjectData
 from .cmb_property_controls import *
 
 
-@Gtk.Template(resource_path='/ar/xjuan/Cambalache/cmb_object_data_editor.ui')
+@Gtk.Template(resource_path="/ar/xjuan/Cambalache/cmb_object_data_editor.ui")
 class CmbObjectDataEditor(Gtk.Box):
-    __gtype_name__ = 'CmbObjectDataEditor'
+    __gtype_name__ = "CmbObjectDataEditor"
 
-    info = GObject.Property(type=CmbTypeDataInfo, flags = GObject.ParamFlags.READWRITE)
+    info = GObject.Property(type=CmbTypeDataInfo, flags=GObject.ParamFlags.READWRITE)
 
     label = Gtk.Template.Child()
     top_box = Gtk.Template.Child()
@@ -59,7 +59,7 @@ class CmbObjectDataEditor(Gtk.Box):
 
         self.__update_view()
 
-    @Gtk.Template.Callback('on_add_only_child_clicked')
+    @Gtk.Template.Callback("on_add_only_child_clicked")
     def __on_add_only_child_clicked(self, button):
         info = self.data.info if self.data else self.info
 
@@ -67,14 +67,14 @@ class CmbObjectDataEditor(Gtk.Box):
         child_info = list(info.children.values())[0]
         self.__on_child_button_clicked(button, child_info)
 
-    @Gtk.Template.Callback('on_remove_clicked')
+    @Gtk.Template.Callback("on_remove_clicked")
     def __on_remove_clicked(self, button):
         if self.info:
             self.object.remove_data(self.__data)
         else:
             self.__data.parent.remove_data(self.__data)
 
-    @Gtk.Template.Callback('on_remove_size_allocate')
+    @Gtk.Template.Callback("on_remove_size_allocate")
     def __on_remove_size_allocate(self, button, alloc):
         info = self.data.info if self.data else self.info
 
@@ -99,8 +99,8 @@ class CmbObjectDataEditor(Gtk.Box):
         self.__object = value
 
         if self.__object:
-            self.__object.connect('data-added', self.__on_data_added)
-            self.__object.connect('data-removed', self.__on_data_removed)
+            self.__object.connect("data-added", self.__on_data_added)
+            self.__object.connect("data-removed", self.__on_data_removed)
 
     @GObject.Property(type=CmbObjectData)
     def data(self):
@@ -121,9 +121,9 @@ class CmbObjectDataEditor(Gtk.Box):
         self.__editors = []
 
         if self.__data:
-            self.__data.connect('data-added', self.__on_data_data_added)
-            self.__data.connect('data-removed', self.__on_data_data_removed)
-            self.__data.connect('arg-changed', self.__on_data_arg_changed)
+            self.__data.connect("data-added", self.__on_data_data_added)
+            self.__data.connect("data-removed", self.__on_data_data_removed)
+            self.__data.connect("arg-changed", self.__on_data_arg_changed)
 
     def __update_arg(self, key):
         if not self.data:
@@ -161,14 +161,17 @@ class CmbObjectDataEditor(Gtk.Box):
         self.data = self.object.add_data(self.info.key)
 
         if self.__value_editor:
-            GObject.Object.bind_property(self.data, 'value',
-                                         self.__value_editor, 'cmb-value',
-                                         GObject.BindingFlags.SYNC_CREATE |
-                                         GObject.BindingFlags.BIDIRECTIONAL)
+            GObject.Object.bind_property(
+                self.data,
+                "value",
+                self.__value_editor,
+                "cmb-value",
+                GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
+            )
         return True
 
     def __on_child_button_clicked(self, button, info):
-        msg = _('Add {key}').format(key=info.key)
+        msg = _("Add {key}").format(key=info.key)
         history_pushed = self.__ensure_object_data(msg)
         self.data.add_data(info.key)
         if history_pushed:
@@ -177,17 +180,13 @@ class CmbObjectDataEditor(Gtk.Box):
     def __context_menu_new(self, info):
         popover = Gtk.Popover(position=Gtk.PositionType.BOTTOM)
 
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL,
-                      visible=True,
-                      spacing=4,
-                      border_width=4)
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, visible=True, spacing=4, border_width=4)
 
         # Add children types
         for child in info.children:
             child_info = info.children[child]
-            button = Gtk.ModelButton(label=_('Add {key}').format(key=child_info.key),
-                                     visible=True)
-            button.connect('clicked', self.__on_child_button_clicked, child_info)
+            button = Gtk.ModelButton(label=_("Add {key}").format(key=child_info.key), visible=True)
+            button.connect("clicked", self.__on_child_button_clicked, child_info)
             box.add(button)
 
         popover.add(box)
@@ -195,7 +194,7 @@ class CmbObjectDataEditor(Gtk.Box):
         return popover
 
     def __on_arg_notify(self, obj, pspec, info):
-        msg = _('Set {key} to {value}').format(key=info.key, value=obj.cmb_value)
+        msg = _("Set {key} to {value}").format(key=info.key, value=obj.cmb_value)
         history_pushed = self.__ensure_object_data(msg)
         self.data.set_arg(info.key, obj.cmb_value)
         if history_pushed:
@@ -216,11 +215,7 @@ class CmbObjectDataEditor(Gtk.Box):
         self.__editors.append(editor)
 
     def __add_data_editor(self, data):
-        editor = CmbObjectDataEditor(visible=True,
-                                     hexpand=True,
-                                     margin_start=16,
-                                     object=self.object,
-                                     data=data)
+        editor = CmbObjectDataEditor(visible=True, hexpand=True, margin_start=16, object=self.object, data=data)
         self.__add(editor)
 
     def __remove_data_editor(self, data):
@@ -245,7 +240,7 @@ class CmbObjectDataEditor(Gtk.Box):
 
         nchildren = len(info.children)
 
-        self.remove_button.set_tooltip_text(_('Remove {key}').format(key=info.key))
+        self.remove_button.set_tooltip_text(_("Remove {key}").format(key=info.key))
 
         # Add a menu if there is more than one child type
         if nchildren > 1:
@@ -253,7 +248,7 @@ class CmbObjectDataEditor(Gtk.Box):
             self.add_child.set_visible(True)
         elif nchildren:
             key = list(info.children.keys())[0]
-            self.add_only_child.set_tooltip_text(_('Add {key}').format(key=key))
+            self.add_only_child.set_tooltip_text(_("Add {key}").format(key=key))
             self.add_only_child.set_visible(True)
 
         # Item name
@@ -268,10 +263,13 @@ class CmbObjectDataEditor(Gtk.Box):
             self.__value_editor = editor
 
             if self.data:
-                GObject.Object.bind_property(self.data, 'value',
-                                             self.__value_editor, 'cmb-value',
-                                             GObject.BindingFlags.SYNC_CREATE |
-                                             GObject.BindingFlags.BIDIRECTIONAL)
+                GObject.Object.bind_property(
+                    self.data,
+                    "value",
+                    self.__value_editor,
+                    "cmb-value",
+                    GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
+                )
 
             self.top_box.add(editor)
 
@@ -288,20 +286,17 @@ class CmbObjectDataEditor(Gtk.Box):
             self.__update_arg(arg_info.key)
 
             # Listen for editor value changes and update argument
-            editor.connect('notify::cmb-value', self.__on_arg_notify, arg_info)
+            editor.connect("notify::cmb-value", self.__on_arg_notify, arg_info)
 
             # Special case items with one argument and no value (like styles)
             if nargs == 1 and not info.type_id:
-                self.label.props.label = f'{info.key} {arg_info.key}'
+                self.label.props.label = f"{info.key} {arg_info.key}"
                 self.top_box.add(editor)
             else:
-                label = Gtk.Label(visible=True,
-                                  label=arg_info.key,
-                                  xalign=1)
+                label = Gtk.Label(visible=True, label=arg_info.key, xalign=1)
                 self.__add(editor, label)
 
         # Current children
         if self.data:
             for child in self.data.children:
                 self.__add_data_editor(child)
-

@@ -55,4 +55,5 @@ from .mrg_selection import MrgSelection
 # Proxy objects
 # Some objects can not be instantiated in the runtime if not properly configured
 from .mrg_g_binding import MrgGBindingProxy
+
 GObject.type_ensure(MrgGBindingProxy.__gtype__)

@@ -25,21 +25,22 @@ import sys
 import csv
 
 
-header_text = '''# Cambalache supporters
+header_text = """# Cambalache supporters
 
 Many thanks to all the people that suppport the project
 
-'''
+"""
+
 
 def get_supporters(filename):
     retval = []
 
-    with open(filename, newline='') as f:
+    with open(filename, newline="") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            name = row['Name']
-            tier = row['Tier'].lower()
-            lifetime = float(row['Lifetime Amount'])
+            name = row["Name"]
+            tier = row["Tier"].lower()
+            lifetime = float(row["Lifetime Amount"])
 
             if lifetime > 0:
                 retval.append((name, lifetime))
@@ -49,7 +50,7 @@ def get_supporters(filename):
 
 def save_supporters(fd, supporters, prefix):
     for name in supporters:
-        fd.write(f'{prefix} {name}\n')
+        fd.write(f"{prefix} {name}\n")
 
 
 if __name__ == "__main__":
@@ -59,7 +60,7 @@ if __name__ == "__main__":
 
     supporters = get_supporters(sys.argv[1])
 
-    with open(sys.argv[2], 'w') as fd:
+    with open(sys.argv[2], "w") as fd:
         fd.write(header_text)
-        save_supporters(fd, supporters, ' - ')
+        save_supporters(fd, supporters, " - ")
         fd.close()

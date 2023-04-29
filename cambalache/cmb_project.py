@@ -26,7 +26,7 @@ import sys
 import gi
 import time
 
-gi.require_version('Gtk', '3.0')
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gio, GLib, GObject, Gtk
 
 from lxml import etree
@@ -49,80 +49,40 @@ logger = getLogger(__name__)
 
 
 class CmbProject(Gtk.TreeStore):
-    __gtype_name__ = 'CmbProject'
+    __gtype_name__ = "CmbProject"
 
     __gsignals__ = {
-        'changed': (GObject.SignalFlags.RUN_FIRST, None, ()),
-
-        'ui-added': (GObject.SignalFlags.RUN_FIRST, None,
-                     (CmbUI,)),
-
-        'ui-removed': (GObject.SignalFlags.RUN_FIRST, None,
-                       (CmbUI,)),
-
-        'ui-changed': (GObject.SignalFlags.RUN_FIRST, None,
-                       (CmbUI, str)),
-
-        'css-added': (GObject.SignalFlags.RUN_FIRST, None,
-                     (CmbCSS,)),
-
-        'css-removed': (GObject.SignalFlags.RUN_FIRST, None,
-                       (CmbCSS,)),
-
-        'css-changed': (GObject.SignalFlags.RUN_FIRST, None,
-                        (CmbCSS, str)),
-
-        'object-added': (GObject.SignalFlags.RUN_FIRST, None,
-                         (CmbObject,)),
-
-        'object-removed': (GObject.SignalFlags.RUN_FIRST, None,
-                           (CmbObject,)),
-
-        'object-changed': (GObject.SignalFlags.RUN_FIRST, None,
-                           (CmbObject, str)),
-
-        'object-property-changed': (GObject.SignalFlags.RUN_FIRST, None,
-                                    (CmbObject, CmbProperty)),
-
-        'object-layout-property-changed': (GObject.SignalFlags.RUN_FIRST, None,
-                                           (CmbObject, CmbObject, CmbLayoutProperty)),
-
-        'object-signal-added': (GObject.SignalFlags.RUN_FIRST, None,
-                                (CmbObject, CmbSignal)),
-
-        'object-signal-removed': (GObject.SignalFlags.RUN_FIRST, None,
-                                  (CmbObject, CmbSignal)),
-
-        'object-data-added': (GObject.SignalFlags.RUN_FIRST, None,
-                              (CmbObject, CmbObjectData)),
-
-        'object-data-removed': (GObject.SignalFlags.RUN_FIRST, None,
-                                (CmbObject, CmbObjectData)),
-
-        'object-data-data-added': (GObject.SignalFlags.RUN_FIRST, None,
-                                   (CmbObjectData, CmbObjectData)),
-
-        'object-data-data-removed': (GObject.SignalFlags.RUN_FIRST, None,
-                                     (CmbObjectData, CmbObjectData)),
-
-        'object-data-arg-changed': (GObject.SignalFlags.RUN_FIRST, None,
-                                    (CmbObjectData, str)),
-
-        'selection-changed': (GObject.SignalFlags.RUN_FIRST, None, ()),
-
-        'type-info-added': (GObject.SignalFlags.RUN_FIRST, None,
-                            (CmbTypeInfo, )),
-
-        'type-info-removed': (GObject.SignalFlags.RUN_FIRST, None,
-                              (CmbTypeInfo, )),
-
-        'type-info-changed': (GObject.SignalFlags.RUN_FIRST, None,
-                              (CmbTypeInfo, )),
-
-        'filename-required': (GObject.SignalFlags.RUN_FIRST, str, ())
+        "changed": (GObject.SignalFlags.RUN_FIRST, None, ()),
+        "ui-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbUI,)),
+        "ui-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbUI,)),
+        "ui-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbUI, str)),
+        "css-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbCSS,)),
+        "css-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbCSS,)),
+        "css-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbCSS, str)),
+        "object-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject,)),
+        "object-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject,)),
+        "object-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, str)),
+        "object-property-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, CmbProperty)),
+        "object-layout-property-changed": (
+            GObject.SignalFlags.RUN_FIRST,
+            None,
+            (CmbObject, CmbObject, CmbLayoutProperty),
+        ),
+        "object-signal-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, CmbSignal)),
+        "object-signal-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, CmbSignal)),
+        "object-data-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, CmbObjectData)),
+        "object-data-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, CmbObjectData)),
+        "object-data-data-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbObjectData, CmbObjectData)),
+        "object-data-data-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObjectData, CmbObjectData)),
+        "object-data-arg-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObjectData, str)),
+        "selection-changed": (GObject.SignalFlags.RUN_FIRST, None, ()),
+        "type-info-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbTypeInfo,)),
+        "type-info-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbTypeInfo,)),
+        "type-info-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbTypeInfo,)),
+        "filename-required": (GObject.SignalFlags.RUN_FIRST, str, ()),
     }
 
-    target_tk = GObject.Property(type=str, flags = GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
+    target_tk = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
     __filename = None
 
     undo_msg = GObject.Property(type=str)
@@ -157,8 +117,8 @@ class CmbProject(Gtk.TreeStore):
             if target_tk is not None:
                 self.target_tk = target_tk
 
-        if self.target_tk is None or self.target_tk == '':
-            raise Exception('Either target_tk or filename are required')
+        if self.target_tk is None or self.target_tk == "":
+            raise Exception("Either target_tk or filename are required")
 
         # Use a TreeStore to hold object tree instead of using SQL for every
         # TreeStore call
@@ -173,11 +133,11 @@ class CmbProject(Gtk.TreeStore):
 
     @GObject.Property(type=bool, default=False)
     def history_enabled(self):
-        return bool(self.db.get_data('history_enabled'))
+        return bool(self.db.get_data("history_enabled"))
 
     @history_enabled.setter
     def _set_history_enabled(self, value):
-        self.db.set_data('history_enabled', value)
+        self.db.set_data("history_enabled", value)
 
     @GObject.Property(type=int)
     def history_index_max(self):
@@ -192,7 +152,7 @@ class CmbProject(Gtk.TreeStore):
 
     @GObject.Property(type=int)
     def history_index(self):
-        history_index = int(self.db.get_data('history_index'))
+        history_index = int(self.db.get_data("history_index"))
 
         if history_index < 0:
             return self.history_index_max
@@ -204,7 +164,7 @@ class CmbProject(Gtk.TreeStore):
         if value == self.history_index_max:
             value = -1
 
-        self.db.set_data('history_index', value)
+        self.db.set_data("history_index", value)
 
     def _get_table_data(self, table):
         c = self.db.cursor()
@@ -213,19 +173,19 @@ class CmbProject(Gtk.TreeStore):
         types = []
         pks = []
 
-        for row in c.execute(f'PRAGMA table_info({table});'):
+        for row in c.execute(f"PRAGMA table_info({table});"):
             col = row[1]
-            col_type =  row[2]
+            col_type = row[2]
             pk = row[5]
 
-            if col_type == 'INTEGER':
+            if col_type == "INTEGER":
                 col_type = GObject.TYPE_INT
-            elif col_type == 'TEXT':
+            elif col_type == "TEXT":
                 col_type = GObject.TYPE_STRING
-            elif col_type == 'BOOLEAN':
+            elif col_type == "BOOLEAN":
                 col_type = GObject.TYPE_BOOLEAN
             else:
-                logger.warning(f'Unknown column type {col_type}')
+                logger.warning(f"Unknown column type {col_type}")
 
             columns.append(col)
             types.append(col_type)
@@ -235,17 +195,15 @@ class CmbProject(Gtk.TreeStore):
 
         c.close()
 
-        return {
-            'names': columns,
-            'types': types,
-            'pks': pks
-        }
+        return {"names": columns, "types": types, "pks": pks}
 
     def __init_type_info(self, c):
-        for row in c.execute('''SELECT * FROM type
+        for row in c.execute(
+            """SELECT * FROM type
                                   WHERE
                                     parent_id IS NOT NULL
-                                  ORDER BY type_id;'''):
+                                  ORDER BY type_id;"""
+        ):
             type_id = row[0]
             self.type_info[type_id] = CmbTypeInfo.from_row(self, *row)
 
@@ -255,10 +213,12 @@ class CmbProject(Gtk.TreeStore):
             info.parent = self.type_info.get(info.parent_id, None)
 
     def __init_library_info(self, c):
-        for row in c.execute('''SELECT * FROM library
+        for row in c.execute(
+            """SELECT * FROM library
                                   WHERE
                                     library_id NOT IN ('gobject', 'pango', 'gdkpixbuf', 'gio', 'gdk', 'gtk', 'gtk+')
-                                  ORDER BY library_id;'''):
+                                  ORDER BY library_id;"""
+        ):
             library_id = row[0]
             self.library_info[library_id] = CmbLibraryInfo.from_row(self, *row)
 
@@ -288,9 +248,9 @@ class CmbProject(Gtk.TreeStore):
         cc = self.db.cursor()
 
         if ui_id:
-            rows = c.execute('SELECT * FROM ui WHERE ui_id=?;', (ui_id, ))
+            rows = c.execute("SELECT * FROM ui WHERE ui_id=?;", (ui_id,))
         else:
-            rows = c.execute('SELECT * FROM ui;')
+            rows = c.execute("SELECT * FROM ui;")
 
         uis = []
 
@@ -301,13 +261,12 @@ class CmbProject(Gtk.TreeStore):
         # Populate tree view objects
         for ui in uis:
             # Update UI objects
-            for obj in cc.execute('SELECT * FROM object WHERE ui_id=? ORDER BY parent_id, position;',
-                                  (ui.ui_id, )):
+            for obj in cc.execute("SELECT * FROM object WHERE ui_id=? ORDER BY parent_id, position;", (ui.ui_id,)):
                 self.__add_object(False, *obj)
 
         # Populate CSS
         if ui_id is None:
-            rows = c.execute('SELECT * FROM css;')
+            rows = c.execute("SELECT * FROM css;")
 
             # Populate tree view
             for row in rows:
@@ -317,21 +276,21 @@ class CmbProject(Gtk.TreeStore):
         c.close()
         cc.close()
 
-    @GObject.Property(type=str, flags = GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
+    @GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
     def filename(self):
         return self.__filename
 
     @filename.setter
     def filename(self, value):
         # Ensure extension
-        if value and not value.endswith('.cmb'):
-            value = value + '.cmb'
+        if value and not value.endswith(".cmb"):
+            value = value + ".cmb"
 
         self.__filename = value
 
     def save(self):
         if self.filename is None:
-            self.filename = self.emit('filename-required')
+            self.filename = self.emit("filename-required")
 
         if self.filename:
             self.db.save(self.filename)
@@ -349,21 +308,21 @@ class CmbProject(Gtk.TreeStore):
         detail_msg = []
 
         msgs_strings = {
-            'unknown-type': (_("one unknown class '{detail}'"), _("{n} unknown classes ({detail})")),
-            'unknown-property': (_("one unknown property '{detail}'"), _("{n} unknown properties ({detail})")),
-            'unknown-signal': (_("one unknown signal '{detail}'"), _("{n} unknown signals ({detail})")),
-            'unknown-tag': (_("one unknown tag '{detail}'"), _("{n} unknown tags ({detail})")),
-            'unknown-attr': (_("one unknown attribute '{detail}'"), _("{n} unknown attributes ({detail})")),
-            'missing-tag': (_("one missing attribute '{detail}'"), _("{n} missing attributes ({detail})"))
+            "unknown-type": (_("one unknown class '{detail}'"), _("{n} unknown classes ({detail})")),
+            "unknown-property": (_("one unknown property '{detail}'"), _("{n} unknown properties ({detail})")),
+            "unknown-signal": (_("one unknown signal '{detail}'"), _("{n} unknown signals ({detail})")),
+            "unknown-tag": (_("one unknown tag '{detail}'"), _("{n} unknown tags ({detail})")),
+            "unknown-attr": (_("one unknown attribute '{detail}'"), _("{n} unknown attributes ({detail})")),
+            "missing-tag": (_("one missing attribute '{detail}'"), _("{n} missing attributes ({detail})")),
         }
 
         detail_strings = {
-            'unknown-type': _("xml:{line} unknown class '{detail}'"),
-            'unknown-property': _("xml:{line} unknown property '{detail}'"),
-            'unknown-signal': _("xml:{line} unknown signal '{detail}'"),
-            'unknown-tag': _("xml:{line} unknown tag '{detail}'"),
-            'unknown-attr': _("xml:{line} unknown attribute '{detail}'"),
-            'missing-tag': _("xml:{line} missing attribute '{detail}'")
+            "unknown-type": _("xml:{line} unknown class '{detail}'"),
+            "unknown-property": _("xml:{line} unknown property '{detail}'"),
+            "unknown-signal": _("xml:{line} unknown signal '{detail}'"),
+            "unknown-tag": _("xml:{line} unknown tag '{detail}'"),
+            "unknown-attr": _("xml:{line} unknown attribute '{detail}'"),
+            "missing-tag": _("xml:{line} missing attribute '{detail}'"),
         }
 
         detail = []
@@ -374,7 +333,7 @@ class CmbProject(Gtk.TreeStore):
 
             # Error summary
             n = len(error)
-            list = ', '.join(error.keys())
+            list = ", ".join(error.keys())
             msgs.append(N_(*msgs_strings[error_type], n).format(n=n, detail=list))
 
             # Error details
@@ -399,7 +358,7 @@ class CmbProject(Gtk.TreeStore):
 
         # Remove old UI
         if overwrite:
-            c.execute("DELETE FROM ui WHERE filename=?;", (filename, ))
+            c.execute("DELETE FROM ui WHERE filename=?;", (filename,))
 
         # Import file
         dirname = os.path.dirname(self.filename if self.filename else filename)
@@ -412,8 +371,8 @@ class CmbProject(Gtk.TreeStore):
 
         self.history_pop()
 
-        logger.info('Import took: {import_end - start}')
-        logger.info('UI update: {time.monotonic() - import_end}')
+        logger.info("Import took: {import_end - start}")
+        logger.info("UI update: {time.monotonic() - import_end}")
 
         # Get parsing errors
         msgs, detail_msg = self.__get_import_errors()
@@ -436,11 +395,8 @@ class CmbProject(Gtk.TreeStore):
         ui = self.db.export_ui(ui_id)
 
         # Dump xml to file
-        with open(filename, 'wb') as fd:
-            ui.write(fd,
-                     pretty_print=True,
-                     xml_declaration=True,
-                     encoding='UTF-8')
+        with open(filename, "wb") as fd:
+            ui.write(fd, pretty_print=True, xml_declaration=True, encoding="UTF-8")
             fd.close()
 
     def export_ui(self, ui):
@@ -453,7 +409,7 @@ class CmbProject(Gtk.TreeStore):
 
         n_files = 0
 
-        for row in c.execute('SELECT ui_id, filename FROM ui WHERE filename IS NOT NULL;'):
+        for row in c.execute("SELECT ui_id, filename FROM ui WHERE filename IS NOT NULL;"):
             ui_id, filename = row
             self.__export(ui_id, filename, dirname=dirname)
             n_files += 1
@@ -468,7 +424,7 @@ class CmbProject(Gtk.TreeStore):
         except:
             pass
         else:
-            self.emit('selection-changed')
+            self.emit("selection-changed")
 
     def __get_basename_relpath(self, filename):
         if filename is None:
@@ -487,7 +443,21 @@ class CmbProject(Gtk.TreeStore):
 
         return (basename, relpath)
 
-    def __add_ui(self, emit, ui_id, template_id, name, filename, description, copyright, authors, license_id, translation_domain, comment, custom_fragment):
+    def __add_ui(
+        self,
+        emit,
+        ui_id,
+        template_id,
+        name,
+        filename,
+        description,
+        copyright,
+        authors,
+        license_id,
+        translation_domain,
+        comment,
+        custom_fragment,
+    ):
         ui = CmbUI(project=self, ui_id=ui_id)
 
         self.__object_id[ui_id] = self.append(None, [ui])
@@ -495,7 +465,7 @@ class CmbProject(Gtk.TreeStore):
         self.__update_template_type_info(ui)
 
         if emit:
-            self.emit('ui-added', ui)
+            self.emit("ui-added", ui)
 
         return ui
 
@@ -518,15 +488,15 @@ class CmbProject(Gtk.TreeStore):
         if iter_ is not None:
             self.__selection_remove(ui)
             self.remove(iter_)
-            self.emit('ui-removed', ui)
+            self.emit("ui-removed", ui)
 
     def remove_ui(self, ui):
         try:
             self.history_push(_('Remove UI "{name}"').format(name=ui.name))
-            self.db.execute("DELETE FROM ui WHERE ui_id=?;", (ui.ui_id, ))
+            self.db.execute("DELETE FROM ui WHERE ui_id=?;", (ui.ui_id,))
             self.history_pop()
             self.db.commit()
-            self.__remove_ui(ui);
+            self.__remove_ui(ui)
         except:
             pass
 
@@ -547,7 +517,7 @@ class CmbProject(Gtk.TreeStore):
         self.__css_id[css_id] = self.append(None, [css])
 
         if emit:
-            self.emit('css-added', css)
+            self.emit("css-added", css)
 
         return css
 
@@ -570,15 +540,15 @@ class CmbProject(Gtk.TreeStore):
         if iter_ is not None:
             self.__selection_remove(css)
             self.remove(iter_)
-            self.emit('css-removed', css)
+            self.emit("css-removed", css)
 
     def remove_css(self, css):
         try:
             self.history_push(_('Remove CSS "{name}"').format(name=css.get_display_name()))
-            self.db.execute("DELETE FROM css WHERE css_id=?;", (css.css_id, ))
+            self.db.execute("DELETE FROM css WHERE css_id=?;", (css.css_id,))
             self.history_pop()
             self.db.commit()
-            self.__remove_css(css);
+            self.__remove_css(css)
         except Exception as e:
             print(e)
 
@@ -597,20 +567,30 @@ class CmbProject(Gtk.TreeStore):
         parent_id = obj.parent_id
 
         if parent_id:
-            parent = self.__object_id.get(f'{ui_id}.{parent_id}', None)
+            parent = self.__object_id.get(f"{ui_id}.{parent_id}", None)
         else:
             parent = self.__object_id.get(ui_id, None)
 
-        self.__object_id[f'{ui_id}.{object_id}'] = self.insert(parent, obj.position, [obj])
+        self.__object_id[f"{ui_id}.{object_id}"] = self.insert(parent, obj.position, [obj])
 
-    def __add_object(self, emit, ui_id, object_id, obj_type, name=None, parent_id=None, internal_child=None, child_type=None, comment=None, position=0, custom_fragment=None):
-        obj = CmbObject(project=self,
-                        ui_id=ui_id,
-                        object_id=object_id,
-                        info=self.type_info[obj_type])
+    def __add_object(
+        self,
+        emit,
+        ui_id,
+        object_id,
+        obj_type,
+        name=None,
+        parent_id=None,
+        internal_child=None,
+        child_type=None,
+        comment=None,
+        position=0,
+        custom_fragment=None,
+    ):
+        obj = CmbObject(project=self, ui_id=ui_id, object_id=object_id, info=self.type_info[obj_type])
 
         if emit:
-            self.emit('object-added', obj)
+            self.emit("object-added", obj)
 
         return obj
 
@@ -621,20 +601,22 @@ class CmbProject(Gtk.TreeStore):
         if obj_info is None or parent_info is None:
             return False
 
-        if parent_info.is_a('GtkWidget'):
+        if parent_info.is_a("GtkWidget"):
             # In Gtk 3 only GtkWidget can be a child on Gtk 4 on the other hand there are types that can have GObjects as children
-            if self.target_tk == 'gtk+-3.0' and not obj_info.is_a('GtkWidget'):
+            if self.target_tk == "gtk+-3.0" and not obj_info.is_a("GtkWidget"):
                 return False
 
             # GtkWindow can not be a child
-            if obj_info.is_a('GtkWindow'):
+            if obj_info.is_a("GtkWindow"):
                 return False
 
-            return parent_info.layout == 'container'
+            return parent_info.layout == "container"
         else:
             return True
 
-    def add_object(self, ui_id, obj_type, name=None, parent_id=None, layout=None, position=0, child_type=None, inline_property=None):
+    def add_object(
+        self, ui_id, obj_type, name=None, parent_id=None, layout=None, position=0, child_type=None, inline_property=None
+    ):
         if parent_id:
             parent = self.get_object_by_id(ui_id, parent_id)
             if parent is None:
@@ -646,40 +628,41 @@ class CmbProject(Gtk.TreeStore):
         obj_name = name if name is not None else obj_type
 
         try:
-            self.history_push(_('Add object {name}').format(name=obj_name))
-            object_id = self.db.add_object(ui_id,
-                                           obj_type,
-                                           name,
-                                           parent_id,
-                                           layout=layout,
-                                           position=position,
-                                           inline_property=inline_property,
-                                           child_type=child_type)
+            self.history_push(_("Add object {name}").format(name=obj_name))
+            object_id = self.db.add_object(
+                ui_id,
+                obj_type,
+                name,
+                parent_id,
+                layout=layout,
+                position=position,
+                inline_property=inline_property,
+                child_type=child_type,
+            )
             self.history_pop()
             self.db.commit()
         except Exception as e:
-            logger.warning(f'Error adding object {obj_name}: {e}')
+            logger.warning(f"Error adding object {obj_name}: {e}")
             return None
         else:
             return self.__add_object(True, ui_id, object_id, obj_type, name, parent_id, position=position)
 
     def __remove_object(self, obj):
-        iter_ = self.__object_id.pop(f'{obj.ui_id}.{obj.object_id}', None)
+        iter_ = self.__object_id.pop(f"{obj.ui_id}.{obj.object_id}", None)
         if iter_ is not None:
             self.__selection_remove(obj)
             self.remove(iter_)
-            self.emit('object-removed', obj)
+            self.emit("object-removed", obj)
 
     def remove_object(self, obj):
         try:
             name = obj.name if obj.name is not None else obj.type_id
-            self.history_push(_('Remove object {name}').format(name=name))
-            self.db.execute("DELETE FROM object WHERE ui_id=? AND object_id=?;",
-                            (obj.ui_id, obj.object_id))
+            self.history_push(_("Remove object {name}").format(name=name))
+            self.db.execute("DELETE FROM object WHERE ui_id=? AND object_id=?;", (obj.ui_id, obj.object_id))
             self.history_pop()
             self.db.commit()
         except Exception as e:
-            logger.warning(f'Error removing object {obj}: {e}')
+            logger.warning(f"Error removing object {obj}: {e}")
         else:
             self.__remove_object(obj)
 
@@ -695,17 +678,17 @@ class CmbProject(Gtk.TreeStore):
                 return
 
         self.__selection = selection
-        self.emit('selection-changed')
+        self.emit("selection-changed")
 
     def get_iter_from_object_id(self, ui_id, object_id=None):
         if object_id:
-            return self.__object_id.get(f'{ui_id}.{object_id}', None)
+            return self.__object_id.get(f"{ui_id}.{object_id}", None)
         else:
             return self.__object_id.get(ui_id, None)
 
     def get_iter_from_object(self, obj):
         if type(obj) == CmbObject:
-            return self.__object_id.get(f'{obj.ui_id}.{obj.object_id}', None)
+            return self.__object_id.get(f"{obj.ui_id}.{obj.object_id}", None)
         elif type(obj) == CmbUI:
             return self.__object_id.get(obj.ui_id, None)
         elif type(obj) == CmbCSS:
@@ -715,22 +698,20 @@ class CmbProject(Gtk.TreeStore):
         _iter = self.__object_id.get(key, None)
         return self.get_value(_iter, 0) if _iter else None
 
-    def get_object_by_id(self, ui_id, object_id = None):
-        key = f'{ui_id}.{object_id}' if object_id is not None else ui_id
+    def get_object_by_id(self, ui_id, object_id=None):
+        key = f"{ui_id}.{object_id}" if object_id is not None else ui_id
         return self.get_object_by_key(key)
 
     def get_object_by_name(self, ui_id, name):
-        c = self.db.execute("SELECT object_id FROM object WHERE ui_id=? AND name=?;",
-                            (ui_id, name))
+        c = self.db.execute("SELECT object_id FROM object WHERE ui_id=? AND name=?;", (ui_id, name))
         row = c.fetchone()
-        return self.get_object_by_key(f'{ui_id}.{row[0]}') if row else None
+        return self.get_object_by_key(f"{ui_id}.{row[0]}") if row else None
 
     def get_ui_by_filename(self, filename):
         dirname = os.path.dirname(self.filename)
         relpath = os.path.relpath(filename, dirname)
 
-        c = self.db.execute("SELECT ui_id FROM ui WHERE filename=?;",
-                            (relpath, ))
+        c = self.db.execute("SELECT ui_id FROM ui WHERE filename=?;", (relpath,))
         row = c.fetchone()
         return self.get_object_by_key(row[0]) if row else None
 
@@ -751,7 +732,7 @@ class CmbProject(Gtk.TreeStore):
 
     def __get_history_command(self, history_index):
         c = self.db.cursor()
-        c.execute("SELECT command, range_id, table_name, column_name FROM history WHERE history_id=?", (history_index, ))
+        c.execute("SELECT command, range_id, table_name, column_name FROM history WHERE history_id=?", (history_index,))
         retval = c.fetchone()
         c.close()
         return retval
@@ -768,17 +749,17 @@ class CmbProject(Gtk.TreeStore):
         # Undo or Redo command
         # TODO: catch sqlite errors and do something with it.
         # probably nuke history data
-        if command == 'INSERT':
-            c.execute(commands['DELETE' if undo else 'INSERT'], (self.history_index, ))
-        elif command == 'DELETE':
-            c.execute(commands['INSERT' if undo else 'DELETE'], (self.history_index, ))
-        elif command == 'UPDATE':
+        if command == "INSERT":
+            c.execute(commands["DELETE" if undo else "INSERT"], (self.history_index,))
+        elif command == "DELETE":
+            c.execute(commands["INSERT" if undo else "DELETE"], (self.history_index,))
+        elif command == "UPDATE":
             old_data = 1 if undo else 0
-            c.execute(commands['UPDATE'], (self.history_index, old_data, self.history_index, old_data))
-        elif command == 'PUSH' or command == 'POP':
+            c.execute(commands["UPDATE"], (self.history_index, old_data, self.history_index, old_data))
+        elif command == "PUSH" or command == "POP":
             pass
         else:
-            logger.warning(f'Error unknown history command {command}')
+            logger.warning(f"Error unknown history command {command}")
 
         c.close()
 
@@ -796,68 +777,68 @@ class CmbProject(Gtk.TreeStore):
         # even if the transaction is rollback because of a FK constraint
 
         commands = self.db.history_commands[table]
-        c.execute(commands['PK'], (self.history_index, ))
+        c.execute(commands["PK"], (self.history_index,))
         pk = c.fetchone()
 
-        if command == 'UPDATE':
-            if table == 'object':
+        if command == "UPDATE":
+            if table == "object":
                 obj = self.get_object_by_id(pk[0], pk[1])
                 if obj:
                     obj.notify(column)
-            elif table == 'object_property':
+            elif table == "object_property":
                 obj = self.get_object_by_id(pk[0], pk[1])
                 self.__undo_redo_property_notify(obj, False, column, pk[2], pk[3])
-            elif table == 'object_layout_property':
+            elif table == "object_layout_property":
                 child = self.get_object_by_id(pk[0], pk[2])
                 self.__undo_redo_property_notify(child, True, column, pk[3], pk[4])
-            elif table == 'object_signal':
+            elif table == "object_signal":
                 pass
-            elif table == 'ui':
+            elif table == "ui":
                 obj = self.get_object_by_id(pk[0])
                 if obj:
                     obj.notify(column)
-            elif table == 'css':
+            elif table == "css":
                 obj = self.get_css_by_id(pk[0])
                 if obj:
                     obj.notify(column)
-        elif command in ['INSERT', 'DELETE']:
-            if table == 'object_property':
+        elif command in ["INSERT", "DELETE"]:
+            if table == "object_property":
                 obj = self.get_object_by_id(pk[0], pk[1])
-                self.__undo_redo_property_notify(obj, False, 'value', pk[2], pk[3])
-            elif table == 'object_layout_property':
+                self.__undo_redo_property_notify(obj, False, "value", pk[2], pk[3])
+            elif table == "object_layout_property":
                 child = self.get_object_by_id(pk[0], pk[2])
-                self.__undo_redo_property_notify(child, True, 'value', pk[3], pk[4])
-            elif table in ['object', 'ui', 'css']:
-                c.execute(commands['COUNT'], (self.history_index, ))
+                self.__undo_redo_property_notify(child, True, "value", pk[3], pk[4])
+            elif table in ["object", "ui", "css"]:
+                c.execute(commands["COUNT"], (self.history_index,))
                 count = c.fetchone()
 
                 if count[0] == 0:
-                    if table =='object':
+                    if table == "object":
                         obj = self.get_object_by_id(pk[0], pk[1])
                         self.__remove_object(obj)
-                    elif table == 'ui':
+                    elif table == "ui":
                         obj = self.get_object_by_id(pk[0])
                         self.__remove_ui(obj)
-                    elif table == 'css':
+                    elif table == "css":
                         obj = self.get_css_by_id(pk[0])
                         self.__remove_css(obj)
                 else:
-                    c.execute(commands['DATA'], (self.history_index, ))
+                    c.execute(commands["DATA"], (self.history_index,))
                     row = c.fetchone()
-                    if table == 'ui':
+                    if table == "ui":
                         self.__add_ui(True, *row)
-                    elif table == 'object':
+                    elif table == "object":
                         self.__add_object(True, *row)
-                    elif table == 'css':
+                    elif table == "css":
                         self.__add_css(True, *row)
-            elif table in ['object_signal', 'object_data']:
-                c.execute(commands['COUNT'], (self.history_index, ))
+            elif table in ["object_signal", "object_data"]:
+                c.execute(commands["COUNT"], (self.history_index,))
                 count = c.fetchone()
 
-                c.execute(commands['DATA'], (self.history_index, ))
+                c.execute(commands["DATA"], (self.history_index,))
                 row = c.fetchone()
 
-                if table == 'object_signal':
+                if table == "object_signal":
                     obj = self.get_object_by_id(row[1], row[2])
                     if count[0] == 0:
                         for signal in obj.signals:
@@ -866,27 +847,27 @@ class CmbProject(Gtk.TreeStore):
                                 break
                     else:
                         obj._add_signal(row[0], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
-                elif table == 'object_data':
+                elif table == "object_data":
                     obj = self.get_object_by_id(row[0], row[1])
 
                     if count[0] == 0:
-                        data = obj.data_dict.get(f'{row[2]}.{row[4]}', None)
+                        data = obj.data_dict.get(f"{row[2]}.{row[4]}", None)
                         if data:
                             if data.parent:
                                 data.parent._remove_child(data)
                             else:
                                 obj._remove_data(data)
                     else:
-                        parent = obj.data_dict.get(f'{row[2]}.{row[6]}', None)
+                        parent = obj.data_dict.get(f"{row[2]}.{row[6]}", None)
 
                         if parent:
                             parent._add_child(row[2], row[3], row[4])
                         else:
                             obj._add_data(row[2], row[3], row[4])
-            elif table == 'css_ui':
+            elif table == "css_ui":
                 obj = self.get_css_by_id(pk[0])
                 if obj:
-                    obj.notify('provider-for')
+                    obj.notify("provider-for")
 
         c.close()
 
@@ -899,7 +880,7 @@ class CmbProject(Gtk.TreeStore):
 
         command, range_id, table, column = self.__get_history_command(self.history_index)
 
-        if command == 'POP':
+        if command == "POP":
             if undo:
                 self.history_index -= 1
                 while range_id < self.history_index:
@@ -907,7 +888,7 @@ class CmbProject(Gtk.TreeStore):
                     self.history_index -= 1
             else:
                 logger.warning("Error on undo/redo stack: we should not try to redo a POP command")
-        elif command == 'PUSH':
+        elif command == "PUSH":
             if not undo:
                 while range_id > self.history_index:
                     self.history_index += 1
@@ -928,67 +909,60 @@ class CmbProject(Gtk.TreeStore):
         c = self.db.cursor()
 
         def get_msg_vars(table, column, index):
-            retval = {
-                'ui': '',
-                'css': '',
-                'obj': '',
-                'prop': '',
-                'value': '',
-                'field': column
-            }
+            retval = {"ui": "", "css": "", "obj": "", "prop": "", "value": "", "field": column}
 
             commands = self.db.history_commands[table]
-            c.execute(commands['DATA'], (index, ))
+            c.execute(commands["DATA"], (index,))
             data = c.fetchone()
 
             if data is None:
                 return retval
 
-            if table == 'ui':
-                retval['ui'] = data[3]
-            elif table == 'css':
-                retval['css'] = data[1]
-            elif table == 'css_ui':
+            if table == "ui":
+                retval["ui"] = data[3]
+            elif table == "css":
+                retval["css"] = data[1]
+            elif table == "css_ui":
                 css_id = data[0]
                 ui_id = data[1]
 
                 css = self.get_css_by_id(css_id)
                 ui = self.get_object_by_id(ui_id)
 
-                retval['css'] = css.get_display_name()
-                retval['ui'] = ui.get_display_name()
+                retval["css"] = css.get_display_name()
+                retval["ui"] = ui.get_display_name()
             else:
-                if table == 'object_signal':
+                if table == "object_signal":
                     ui_id = data[1]
                     object_id = data[2]
                 else:
                     ui_id = data[0]
                     object_id = data[1]
 
-                if table == 'object':
-                    retval['obj'] = data[3] if data[3] is not None else data[2]
+                if table == "object":
+                    retval["obj"] = data[3] if data[3] is not None else data[2]
                 else:
-                    c.execute('SELECT type_id, name FROM object WHERE ui_id=? AND object_id=?', (ui_id, object_id))
+                    c.execute("SELECT type_id, name FROM object WHERE ui_id=? AND object_id=?", (ui_id, object_id))
                     row = c.fetchone()
                     if row is not None:
                         type_id, name = row
-                        retval['obj'] = name if name is not None else type_id
+                        retval["obj"] = name if name is not None else type_id
 
-                if table == 'object_property':
-                    retval['prop'] = data[3]
-                    retval['value'] = data[4]
-                elif table == 'object_layout_property':
-                    retval['prop'] = data[4]
-                    retval['value'] = data[5]
-                elif table == 'object_signal':
-                    retval['signal'] = data[4]
-                elif table == 'object_data':
-                    retval['data'] = f'{data[2]}:{data[3]}'
+                if table == "object_property":
+                    retval["prop"] = data[3]
+                    retval["value"] = data[4]
+                elif table == "object_layout_property":
+                    retval["prop"] = data[4]
+                    retval["value"] = data[5]
+                elif table == "object_signal":
+                    retval["signal"] = data[4]
+                elif table == "object_data":
+                    retval["data"] = f"{data[2]}:{data[3]}"
 
             return retval
 
         def get_msg(index):
-            c.execute("SELECT command, range_id, table_name, column_name, message FROM history WHERE history_id=?", (index, ))
+            c.execute("SELECT command, range_id, table_name, column_name, message FROM history WHERE history_id=?", (index,))
             cmd = c.fetchone()
             if cmd is None:
                 return None
@@ -997,47 +971,51 @@ class CmbProject(Gtk.TreeStore):
             if message is not None:
                 return message
 
-            msg = {
-                'ui': {
-                    'INSERT': _('Create UI {ui}'),
-                    'DELETE': _('Remove UI {ui}'),
-                    'UPDATE': _('Update {field} of UI {ui}')
-                },
-                'css': {
-                    'INSERT': _('Add CSS provider {css}'),
-                    'DELETE': _('Remove CSS provider {css}'),
-                    'UPDATE': _('Update {field} of CSS provider {css}')
-                },
-                'css_ui': {
-                    'INSERT': _('Add {ui} to CSS provider {css}'),
-                    'DELETE': _('Remove {ui} from CSS provider {css}')
-                },
-                'object': {
-                    'INSERT': _('Create object {obj}'),
-                    'DELETE': _('Remove object {obj}'),
-                    'UPDATE': _('Update {field} of object {obj}')
-                },
-                'object_property': {
-                    'INSERT': _('Set property "{prop}" of {obj} to {value}'),
-                    'DELETE': _('Unset property "{prop}" of {obj}'),
-                    'UPDATE': _('Update property "{prop}" of {obj} to {value}')
-                },
-                'object_layout_property': {
-                    'INSERT': _('Set layout property "{prop}" of {obj} to {value}'),
-                    'DELETE': _('Unset layout property "{prop}" of {obj}'),
-                    'UPDATE': _('Update layout property "{prop}" of {obj} to {value}')
-                },
-                'object_signal': {
-                    'INSERT': _('Add {signal} signal to {obj}'),
-                    'DELETE': _('Remove {signal} signal from {obj}'),
-                    'UPDATE': _('Update {signal} signal of {obj}')
-                },
-                'object_data': {
-                    'INSERT': _('Add {data} to {obj}'),
-                    'DELETE': _('Remove {data} from {obj}'),
-                    'UPDATE': _('Update {data} of {obj} to {value}')
-                },
-            }.get(table, {}).get(command, None)
+            msg = (
+                {
+                    "ui": {
+                        "INSERT": _("Create UI {ui}"),
+                        "DELETE": _("Remove UI {ui}"),
+                        "UPDATE": _("Update {field} of UI {ui}"),
+                    },
+                    "css": {
+                        "INSERT": _("Add CSS provider {css}"),
+                        "DELETE": _("Remove CSS provider {css}"),
+                        "UPDATE": _("Update {field} of CSS provider {css}"),
+                    },
+                    "css_ui": {
+                        "INSERT": _("Add {ui} to CSS provider {css}"),
+                        "DELETE": _("Remove {ui} from CSS provider {css}"),
+                    },
+                    "object": {
+                        "INSERT": _("Create object {obj}"),
+                        "DELETE": _("Remove object {obj}"),
+                        "UPDATE": _("Update {field} of object {obj}"),
+                    },
+                    "object_property": {
+                        "INSERT": _('Set property "{prop}" of {obj} to {value}'),
+                        "DELETE": _('Unset property "{prop}" of {obj}'),
+                        "UPDATE": _('Update property "{prop}" of {obj} to {value}'),
+                    },
+                    "object_layout_property": {
+                        "INSERT": _('Set layout property "{prop}" of {obj} to {value}'),
+                        "DELETE": _('Unset layout property "{prop}" of {obj}'),
+                        "UPDATE": _('Update layout property "{prop}" of {obj} to {value}'),
+                    },
+                    "object_signal": {
+                        "INSERT": _("Add {signal} signal to {obj}"),
+                        "DELETE": _("Remove {signal} signal from {obj}"),
+                        "UPDATE": _("Update {signal} signal of {obj}"),
+                    },
+                    "object_data": {
+                        "INSERT": _("Add {data} to {obj}"),
+                        "DELETE": _("Remove {data} from {obj}"),
+                        "UPDATE": _("Update {data} of {obj} to {value}"),
+                    },
+                }
+                .get(table, {})
+                .get(command, None)
+            )
 
             if msg is not None:
                 msg = msg.format(**get_msg_vars(table, column, index))
@@ -1057,7 +1035,7 @@ class CmbProject(Gtk.TreeStore):
 
         self.__undo_redo(True)
         self.history_index -= 1
-        self.emit('changed')
+        self.emit("changed")
 
     def redo(self):
         if self.history_index >= self.history_index_max:
@@ -1079,21 +1057,22 @@ class CmbProject(Gtk.TreeStore):
         template_info, template_id = self.__template_info.get(ui.ui_id, (None, None))
 
         if ui.template_id:
-            c = self.db.execute('SELECT type_id, name FROM object WHERE ui_id=? AND object_id=?;',
-                                (ui.ui_id, ui.template_id))
+            c = self.db.execute("SELECT type_id, name FROM object WHERE ui_id=? AND object_id=?;", (ui.ui_id, ui.template_id))
             parent_id, type_id = c.fetchone()
 
             if template_info is None:
-                info = CmbTypeInfo(project=self,
-                                   type_id=type_id,
-                                   parent_id=parent_id,
-                                   library_id=None,
-                                   version=None,
-                                   deprecated_version=None,
-                                   abstract=None,
-                                   layout=None,
-                                   category=None,
-                                   workspace_type=None)
+                info = CmbTypeInfo(
+                    project=self,
+                    type_id=type_id,
+                    parent_id=parent_id,
+                    library_id=None,
+                    version=None,
+                    deprecated_version=None,
+                    abstract=None,
+                    layout=None,
+                    category=None,
+                    workspace_type=None,
+                )
 
                 # Set parent back reference
                 info.parent = self.type_info.get(parent_id, None)
@@ -1101,7 +1080,7 @@ class CmbProject(Gtk.TreeStore):
                 self.type_info[type_id] = info
                 self.__template_info[ui.ui_id] = (type_id, ui.template_id)
 
-                self.emit('type-info-added', info)
+                self.emit("type-info-added", info)
             elif type_id and template_info != type_id:
                 # name changed
                 info = self.type_info.pop(template_info)
@@ -1113,31 +1092,31 @@ class CmbProject(Gtk.TreeStore):
                 info.type_id = type_id
                 info.parent_id = parent_id
                 info.parent = self.type_info.get(parent_id, None)
-                self.emit('type-info-changed', info)
+                self.emit("type-info-changed", info)
 
             self.__object_update_row(ui.ui_id, ui.template_id)
 
         if template_info:
             info = self.type_info.pop(template_info)
             self.__template_info.pop(ui.ui_id)
-            self.emit('type-info-removed', info)
+            self.emit("type-info-removed", info)
             self.__object_update_row(ui.ui_id, template_id)
 
     def _ui_changed(self, ui, field):
         iter = self.get_iter_from_object(ui)
 
-        if field == 'template-id':
+        if field == "template-id":
             self.__update_template_type_info(ui)
 
         path = self.get_path(iter)
         self.row_changed(path, iter)
 
-        self.emit('ui-changed', ui, field)
+        self.emit("ui-changed", ui, field)
 
     def _object_changed(self, obj, field):
         iter = self.get_iter_from_object(obj)
 
-        if field == 'position':
+        if field == "position":
             if self.__reordering_children:
                 return
 
@@ -1158,39 +1137,39 @@ class CmbProject(Gtk.TreeStore):
             self.row_changed(path, iter)
 
         # Update template type id
-        if field == 'name':
+        if field == "name":
             ui = obj.ui
             if obj.object_id == ui.template_id:
                 self.__update_template_type_info(ui)
 
-        self.emit('object-changed', obj, field)
+        self.emit("object-changed", obj, field)
 
     def _object_property_changed(self, obj, prop):
-        self.emit('object-property-changed', obj, prop)
+        self.emit("object-property-changed", obj, prop)
 
     def _object_layout_property_changed(self, obj, child, prop):
-        self.emit('object-layout-property-changed', obj, child, prop)
+        self.emit("object-layout-property-changed", obj, child, prop)
 
     def _object_signal_removed(self, obj, signal):
-        self.emit('object-signal-removed', obj, signal)
+        self.emit("object-signal-removed", obj, signal)
 
     def _object_signal_added(self, obj, signal):
-        self.emit('object-signal-added', obj, signal)
+        self.emit("object-signal-added", obj, signal)
 
     def _object_data_data_removed(self, parent, data):
-        self.emit('object-data-data-removed', parent, data)
+        self.emit("object-data-data-removed", parent, data)
 
     def _object_data_data_added(self, parent, data):
-        self.emit('object-data-data-added', parent, data)
+        self.emit("object-data-data-added", parent, data)
 
     def _object_data_arg_changed(self, data, key):
-        self.emit('object-data-arg-changed', data, key)
+        self.emit("object-data-arg-changed", data, key)
 
     def _object_data_removed(self, obj, data):
-        self.emit('object-data-removed', obj, data)
+        self.emit("object-data-removed", obj, data)
 
     def _object_data_added(self, obj, data):
-        self.emit('object-data-added', obj, data)
+        self.emit("object-data-added", obj, data)
 
     def _css_changed(self, obj, field):
         iter = self.get_iter_from_object(obj)
@@ -1198,7 +1177,7 @@ class CmbProject(Gtk.TreeStore):
         path = self.get_path(iter)
         self.row_changed(path, iter)
 
-        self.emit('css-changed', obj, field)
+        self.emit("css-changed", obj, field)
 
     def db_move_to_fs(self, filename):
         self.db.move_to_fs(filename)
@@ -1210,16 +1189,17 @@ class CmbProject(Gtk.TreeStore):
         # Make sure we clear history on new push
         self.db.clear_history()
 
-        self.db.execute("INSERT INTO history (history_id, command, message) VALUES (?, 'PUSH', ?)",
-                          (self.history_index_max + 1, message))
+        self.db.execute(
+            "INSERT INTO history (history_id, command, message) VALUES (?, 'PUSH', ?)",
+            (self.history_index_max + 1, message),
+        )
 
     def history_pop(self):
         if not self.history_enabled:
             return
 
-        self.db.execute("INSERT INTO history (history_id, command) VALUES (?, 'POP')",
-                          (self.history_index_max + 1, ))
-        self.emit('changed')
+        self.db.execute("INSERT INTO history (history_id, command) VALUES (?, 'POP')", (self.history_index_max + 1,))
+        self.emit("changed")
 
     def copy(self):
         # TODO: filter children out
@@ -1237,7 +1217,7 @@ class CmbProject(Gtk.TreeStore):
         parent_id = obj.object_id if isinstance(obj, CmbObject) else None
         name = obj.name if obj.name is not None else obj.type_id
 
-        self.history_push(_('Paste clipboard to {name}').format(name=name))
+        self.history_push(_("Paste clipboard to {name}").format(name=name))
 
         new_objects = self.db.clipboard_paste(ui_id, parent_id)
 
@@ -1247,12 +1227,11 @@ class CmbProject(Gtk.TreeStore):
         # Update UI objects
         for object_id in new_objects:
             for child_id in new_objects[object_id]:
-                c.execute('SELECT * FROM object WHERE ui_id=? AND object_id=?;',
-                          (ui_id, child_id))
+                c.execute("SELECT * FROM object WHERE ui_id=? AND object_id=?;", (ui_id, child_id))
                 self.__add_object(False, *c.fetchone())
 
             obj = self.get_object_by_id(ui_id, object_id)
-            self.emit('object-added', obj)
+            self.emit("object-added", obj)
 
         c.close()
 
@@ -1270,13 +1249,12 @@ class CmbProject(Gtk.TreeStore):
             if n_objects == 1:
                 obj = selection[0]
                 name = obj.name if obj.name is not None else obj.type_id
-                self.history_push(_('Cut object {name}').format(name=name))
+                self.history_push(_("Cut object {name}").format(name=name))
             else:
-                self.history_push(_('Cut {n_objects} object').format(n_objects=n_objects))
+                self.history_push(_("Cut {n_objects} object").format(n_objects=n_objects))
 
             for obj in selection:
-                self.db.execute("DELETE FROM object WHERE ui_id=? AND object_id=?;",
-                                (obj.ui_id, obj.object_id))
+                self.db.execute("DELETE FROM object WHERE ui_id=? AND object_id=?;", (obj.ui_id, obj.object_id))
 
             self.history_pop()
             self.db.commit()
@@ -1296,7 +1274,7 @@ class CmbProject(Gtk.TreeStore):
 
         lib, ver, inferred = CmbDB._get_target_from_node(root)
 
-        return f'{lib}-{ver}' if lib is not None else None
+        return f"{lib}-{ver}" if lib is not None else None
 
     def __get_object_from_path(self, path):
         try:
@@ -1308,58 +1286,58 @@ class CmbProject(Gtk.TreeStore):
 
     # Default handlers
     def do_ui_added(self, ui):
-        self.emit('changed')
+        self.emit("changed")
 
     def do_ui_removed(self, ui):
-        self.emit('changed')
+        self.emit("changed")
 
     def do_ui_changed(self, ui, field):
-        self.emit('changed')
+        self.emit("changed")
 
     def do_css_added(self, css):
-        self.emit('changed')
+        self.emit("changed")
 
     def do_css_removed(self, css):
-        self.emit('changed')
+        self.emit("changed")
 
     def do_css_changed(self, css, field):
-        self.emit('changed')
+        self.emit("changed")
 
     def do_object_added(self, obj):
-        self.emit('changed')
+        self.emit("changed")
 
     def do_object_removed(self, obj):
-        self.emit('changed')
+        self.emit("changed")
 
     def do_object_changed(self, obj, field):
-        self.emit('changed')
+        self.emit("changed")
 
     def do_object_property_changed(self, obj, prop):
-        self.emit('changed')
+        self.emit("changed")
 
     def do_object_layout_property_changed(self, obj, child, prop):
-        self.emit('changed')
+        self.emit("changed")
 
     def do_object_signal_added(self, obj, signal):
-        self.emit('changed')
+        self.emit("changed")
 
     def do_object_signal_removed(self, obj, signal):
-        self.emit('changed')
+        self.emit("changed")
 
     def do_object_data_added(self, obj, data):
-        self.emit('changed')
+        self.emit("changed")
 
     def do_object_data_removed(self, obj, data):
-        self.emit('changed')
+        self.emit("changed")
 
     def do_object_data_data_added(self, parent, data):
-        self.emit('changed')
+        self.emit("changed")
 
     def do_object_data_data_removed(self, parent, data):
-        self.emit('changed')
+        self.emit("changed")
 
     def do_object_data_arg_changed(self, data, arg):
-        self.emit('changed')
+        self.emit("changed")
 
     def __update_children_iters(self, parent):
         if self.__reordering_children:
@@ -1372,9 +1350,9 @@ class CmbProject(Gtk.TreeStore):
             obj = self[iter][0]
             if obj:
                 if isinstance(obj, CmbObject):
-                    self.__object_id[f'{obj.ui_id}.{obj.object_id}'] = iter
+                    self.__object_id[f"{obj.ui_id}.{obj.object_id}"] = iter
                 else:
-                    self.__object_id[f'{obj.ui_id}'] = iter
+                    self.__object_id[f"{obj.ui_id}"] = iter
 
             # Recurse children
             if self.iter_has_child(iter):
@@ -1414,7 +1392,7 @@ class CmbProject(Gtk.TreeStore):
         self.__reordering_children = False
 
         # Manually emmit signal since we disable it by setting __reordering_children flag
-        self.emit('object-changed', drag_obj, 'position')
+        self.emit("object-changed", drag_obj, "position")
 
         self.set_selection([drag_obj])
 
@@ -1429,9 +1407,7 @@ class CmbProject(Gtk.TreeStore):
         drag = self.__get_object_from_path(drag_path)
         dest = self.__get_object_from_path(path)
 
-        if drag and dest and drag != dest and \
-           isinstance(drag, CmbObject) and isinstance(dest, CmbObject):
+        if drag and dest and drag != dest and isinstance(drag, CmbObject) and isinstance(dest, CmbObject):
             return drag.parent == dest.parent
 
         return False
-        

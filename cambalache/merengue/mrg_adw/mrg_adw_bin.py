@@ -27,10 +27,7 @@ from merengue.mrg_gtk import MrgGtkBin
 
 
 class MrgAdwBin(MrgGtkBin):
-    object = GObject.Property(type=Adw.Bin,
-                              flags=GObject.ParamFlags.READWRITE)
+    object = GObject.Property(type=Adw.Bin, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
-

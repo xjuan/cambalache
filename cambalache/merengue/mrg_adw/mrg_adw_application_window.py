@@ -27,9 +27,7 @@ from .mrg_adw_window import MrgAdwWindow
 
 
 class MrgAdwApplicationWindow(MrgAdwWindow):
-    object = GObject.Property(type=Adw.ApplicationWindow,
-                              flags=GObject.ParamFlags.READWRITE)
+    object = GObject.Property(type=Adw.ApplicationWindow, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-

@@ -30,8 +30,7 @@ logger = getLogger(__name__)
 
 
 class MrgGtkAssistant(MrgGtkWindow):
-    object = GObject.Property(type=Gtk.Assistant,
-                              flags=GObject.ParamFlags.READWRITE)
+    object = GObject.Property(type=Gtk.Assistant, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -61,13 +60,13 @@ class MrgGtkAssistant(MrgGtkWindow):
             return
 
         self.object.show()
-        n_pages = self.object.get_n_pages();
+        n_pages = self.object.get_n_pages()
 
         for i in range(0, n_pages):
             page = self.object.get_nth_page(i)
 
             if page is None:
-                continue;
+                continue
 
             page.show()
 

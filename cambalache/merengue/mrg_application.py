@@ -40,17 +40,14 @@ logger = getLogger(__name__)
 
 
 class MrgApplication(Gtk.Application):
-
-    preview = GObject.Property(type=bool, default=False,
-                               flags=GObject.ParamFlags.READWRITE)
+    preview = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
 
     dirname = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self):
         self.stdin = None
 
-        super().__init__(application_id='ar.xjuan.Merengue',
-                         flags=Gio.ApplicationFlags.NON_UNIQUE)
+        super().__init__(application_id="ar.xjuan.Merengue", flags=Gio.ApplicationFlags.NON_UNIQUE)
 
         # List of available controler classes for objects
         self.registry = MrgControllerRegistry()
@@ -74,7 +71,7 @@ class MrgApplication(Gtk.Application):
         default_seat = Gdk.Display.get_default().get_default_seat()
         self.default_seat_pointer = default_seat.get_pointer() if default_seat else None
 
-        self.connect('notify::dirname', self.__on_dirname_notify)
+        self.connect("notify::dirname", self.__on_dirname_notify)
 
     def __on_dirname_notify(self, obj, pspec):
         # Change CWD for builder to pick relative paths
@@ -82,7 +79,7 @@ class MrgApplication(Gtk.Application):
             os.chdir(self.dirname)
 
     def get_controller(self, ui_id, object_id):
-        return self.controllers.get(f'{ui_id}.{object_id}', None)
+        return self.controllers.get(f"{ui_id}.{object_id}", None)
 
     def get_controller_from_object(self, obj):
         object_id = utils.object_get_id(obj)
@@ -115,7 +112,7 @@ class MrgApplication(Gtk.Application):
         try:
             builder.add_from_string(payload)
         except Exception as e:
-            logger.warning(f'Error updating UI {ui_id}: {e}')
+            logger.warning(f"Error updating UI {ui_id}: {e}")
 
         objects = builder.get_objects()
         placeholders = []
@@ -134,7 +131,7 @@ class MrgApplication(Gtk.Application):
                 obj.props.expanded = True
 
             controller = self.controllers.get(object_id, None)
-            pspec = controller.find_property('object') if controller else None
+            pspec = controller.find_property("object") if controller else None
 
             # FIXME: object_id could be reused for a different object type
             # if you undo the creation of a widget and create a different type
@@ -144,7 +141,7 @@ class MrgApplication(Gtk.Application):
             if pspec is None or pspec.value_type != obj.__gtype__:
                 controller = self.registry.new_controller_for_type(obj.__gtype__, self)
 
-            _uiid, obj_id = object_id.split('.')
+            _uiid, obj_id = object_id.split(".")
             controller.toplevel = int(obj_id) in toplevels
             controller.object = obj
 
@@ -167,8 +164,7 @@ class MrgApplication(Gtk.Application):
 
         if is_object:
             target = self.get_controller(ui_id, value)
-            controller.set_object_property(property_id,
-                                           target.object if target else None)
+            controller.set_object_property(property_id, target.object if target else None)
 
             return
 
@@ -227,11 +223,7 @@ class MrgApplication(Gtk.Application):
         self.settings.set_property(property, value)
 
     def gtk_settings_get(self, property):
-        utils.write_command('gtk_settings_get',
-                            args={
-                                'property': property,
-                                'value': self.settings.get_property(property)
-                            })
+        utils.write_command("gtk_settings_get", args={"property": property, "value": self.settings.get_property(property)})
 
     def add_placeholder(self, ui_id, object_id, modifier):
         controller = self.get_controller(ui_id, object_id)
@@ -248,14 +240,14 @@ class MrgApplication(Gtk.Application):
             gi.require_version(namespace, version)
 
         try:
-            mod = importlib.import_module(f'gi.repository.{namespace}')
+            mod = importlib.import_module(f"gi.repository.{namespace}")
         except Exception as e:
             logger.warning(e)
             return
 
         # Load merengue plugin if any
         try:
-            plugin = importlib.import_module(f'merengue.mrg_{namespace.lower()}')
+            plugin = importlib.import_module(f"merengue.mrg_{namespace.lower()}")
             self.registry.load_module(namespace, plugin)
         except ImportError:
             pass
@@ -270,10 +262,7 @@ class MrgApplication(Gtk.Application):
         self.set_property(property, value)
 
     def add_css_provider(self, css_id, filename, priority, is_global, provider_for):
-        css = MrgCssProvider(filename=filename,
-                             priority=priority,
-                             is_global=is_global,
-                             ui_id=self.ui_id if self.ui_id else 0)
+        css = MrgCssProvider(filename=filename, priority=priority, is_global=is_global, ui_id=self.ui_id if self.ui_id else 0)
 
         self.css_providers[css_id] = css
 
@@ -296,38 +285,38 @@ class MrgApplication(Gtk.Application):
             css.set_property(field, value)
 
     def run_command(self, command, args, payload):
-        logger.debug(f'{command} {args}')
+        logger.debug(f"{command} {args}")
 
-        if command == 'clear_all':
+        if command == "clear_all":
             self.clear_all()
-        elif command == 'update_ui':
+        elif command == "update_ui":
             self.update_ui(**args, payload=payload)
-        elif command == 'selection_changed':
+        elif command == "selection_changed":
             self.selection_changed(**args)
-        elif command == 'object_property_changed':
+        elif command == "object_property_changed":
             self.object_property_changed(**args)
-        elif command == 'object_layout_property_changed':
+        elif command == "object_layout_property_changed":
             self.object_layout_property_changed(**args)
-        elif command == 'gtk_settings_set':
+        elif command == "gtk_settings_set":
             self.gtk_settings_set(**args)
-        elif command == 'gtk_settings_get':
+        elif command == "gtk_settings_get":
             self.gtk_settings_get(**args)
-        elif command == 'add_placeholder':
+        elif command == "add_placeholder":
             self.add_placeholder(**args)
-        elif command == 'remove_placeholder':
+        elif command == "remove_placeholder":
             self.remove_placeholder(**args)
-        elif command == 'load_namespace':
+        elif command == "load_namespace":
             self.load_namespace(**args)
-        elif command == 'set_app_property':
+        elif command == "set_app_property":
             self.set_app_property(**args)
-        elif command == 'add_css_provider':
+        elif command == "add_css_provider":
             self.add_css_provider(**args)
-        elif command == 'remove_css_provider':
+        elif command == "remove_css_provider":
             self.remove_css_provider(**args)
-        elif command == 'update_css_provider':
+        elif command == "update_css_provider":
             self.update_css_provider(**args)
         else:
-            logger.warning(f'Unknown command {command}')
+            logger.warning(f"Unknown command {command}")
 
     def on_stdin(self, channel, condition):
         if condition == GLib.IOCondition.HUP:
@@ -341,11 +330,11 @@ class MrgApplication(Gtk.Application):
             # Command is a Json string with a command, args and payload fields
             cmd = json.loads(retval)
         except Exception as e:
-            logger.warning(f'Error parsing command {e}')
+            logger.warning(f"Error parsing command {e}")
         else:
-            command = cmd.get('command', None)
-            args = cmd.get('args', {})
-            has_payload = cmd.get('payload', False)
+            command = cmd.get("command", None)
+            args = cmd.get("args", {})
+            has_payload = cmd.get("payload", False)
 
             # Read payload
             payload = GLib.strcompress(self.stdin.readline()) if has_payload else None
@@ -359,27 +348,22 @@ class MrgApplication(Gtk.Application):
         Gtk.Application.do_startup(self)
 
         from merengue import mrg_gtk
-        self.registry.load_module('Gtk', mrg_gtk)
+
+        self.registry.load_module("Gtk", mrg_gtk)
 
         self.stdin = GLib.IOChannel.unix_new(sys.stdin.fileno())
-        GLib.io_add_watch(self.stdin, GLib.PRIORITY_DEFAULT_IDLE,
-                          GLib.IOCondition.IN | GLib.IOCondition.HUP,
-                          self.on_stdin)
+        GLib.io_add_watch(self.stdin, GLib.PRIORITY_DEFAULT_IDLE, GLib.IOCondition.IN | GLib.IOCondition.HUP, self.on_stdin)
 
         provider = Gtk.CssProvider()
-        provider.load_from_resource('/ar/xjuan/Merengue/merengue.css')
+        provider.load_from_resource("/ar/xjuan/Merengue/merengue.css")
 
         if Gtk.MAJOR_VERSION == 4:
             Gtk.StyleContext.add_provider_for_display(
-                Gdk.Display.get_default(),
-                provider,
-                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+                Gdk.Display.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
             )
         elif Gtk.MAJOR_VERSION == 3:
             Gtk.StyleContext.add_provider_for_screen(
-                Gdk.Screen.get_default(),
-                provider,
-                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+                Gdk.Screen.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
             )
 
         settings = Gtk.Settings.get_default()
@@ -389,4 +373,4 @@ class MrgApplication(Gtk.Application):
         self.add_window(Gtk.Window())
 
     def do_activate(self):
-        utils.write_command('started')
+        utils.write_command("started")

@@ -24,7 +24,7 @@
 import gi
 import math
 
-gi.require_version('Gtk', '3.0')
+gi.require_version("Gtk", "3.0")
 from gi.repository import GLib, GObject, Gtk
 
 from .cmb_object import CmbObject
@@ -33,11 +33,9 @@ from .cmb_property_controls import *
 
 
 class CmbObjectEditor(Gtk.Box):
-    __gtype_name__ = 'CmbObjectEditor'
+    __gtype_name__ = "CmbObjectEditor"
 
-    layout = GObject.Property(type=bool,
-                              flags = GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY,
-                              default=False)
+    layout = GObject.Property(type=bool, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY, default=False)
 
     def __init__(self, **kwargs):
         self.__object = None
@@ -49,20 +47,20 @@ class CmbObjectEditor(Gtk.Box):
         self.props.orientation = Gtk.Orientation.VERTICAL
 
     def __create_id_editor(self):
-        grid = Gtk.Grid(hexpand=True,
-                        row_spacing=4,
-                        column_spacing=4)
+        grid = Gtk.Grid(hexpand=True, row_spacing=4, column_spacing=4)
 
         # Label
-        self.__id_label = Gtk.Label(label=_('Object Id'),
-                                    halign=Gtk.Align.START)
+        self.__id_label = Gtk.Label(label=_("Object Id"), halign=Gtk.Align.START)
 
         # Id/Class entry
         entry = CmbEntry()
-        GObject.Object.bind_property(self.__object, 'name',
-                                     entry, 'cmb-value',
-                                     GObject.BindingFlags.SYNC_CREATE |
-                                     GObject.BindingFlags.BIDIRECTIONAL)
+        GObject.Object.bind_property(
+            self.__object,
+            "name",
+            entry,
+            "cmb-value",
+            GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
+        )
 
         grid.attach(self.__id_label, 0, 0, 1, 1)
         grid.attach(entry, 1, 0, 1, 1)
@@ -70,22 +68,16 @@ class CmbObjectEditor(Gtk.Box):
         # Template check
         if self.__object and not self.__object.parent_id:
             is_template = self.__object.object_id == self.__object.ui.template_id
-            tooltip_text = _('Switch between object and template')
+            tooltip_text = _("Switch between object and template")
             derivable = self.__object.info.derivable
 
             if not derivable:
-                tooltip_text = _('{type} is not derivable.').format(type=self.__object.info.type_id)
+                tooltip_text = _("{type} is not derivable.").format(type=self.__object.info.type_id)
 
-            label = Gtk.Label(label=_('Template'),
-                              halign=Gtk.Align.START,
-                              tooltip_text=tooltip_text,
-                              sensitive=derivable)
-            switch = Gtk.Switch(active=is_template,
-                                halign=Gtk.Align.START,
-                                tooltip_text=tooltip_text,
-                                sensitive=derivable)
+            label = Gtk.Label(label=_("Template"), halign=Gtk.Align.START, tooltip_text=tooltip_text, sensitive=derivable)
+            switch = Gtk.Switch(active=is_template, halign=Gtk.Align.START, tooltip_text=tooltip_text, sensitive=derivable)
 
-            switch.connect('notify::active', self.__on_template_switch_notify)
+            switch.connect("notify::active", self.__on_template_switch_notify)
             self.__update_template_label()
 
             grid.attach(label, 0, 1, 1, 1)
@@ -95,7 +87,7 @@ class CmbObjectEditor(Gtk.Box):
 
     def __update_template_label(self):
         istmpl = self.__object.ui.template_id == self.__object.object_id
-        self.__id_label.props.label = _('Type Name') if istmpl else _('Object Id')
+        self.__id_label.props.label = _("Type Name") if istmpl else _("Object Id")
 
     def __on_template_switch_notify(self, switch, pspec):
         self.__object.ui.template_id = self.__object.object_id if switch.props.active else 0
@@ -112,17 +104,19 @@ class CmbObjectEditor(Gtk.Box):
         revealer.props.reveal_child = expanded
 
     def __create_child_type_editor(self):
-        box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL,
-                      spacing=6)
+        box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
 
-        box.add(Gtk.Label(label=_('Child Type'), width_chars=8))
+        box.add(Gtk.Label(label=_("Child Type"), width_chars=8))
 
         combo = CmbChildTypeComboBox(object=self.__object)
 
-        GObject.Object.bind_property(self.__object, 'type',
-                                     combo, 'cmb-value',
-                                     GObject.BindingFlags.SYNC_CREATE |
-                                     GObject.BindingFlags.BIDIRECTIONAL)
+        GObject.Object.bind_property(
+            self.__object,
+            "type",
+            combo,
+            "cmb-value",
+            GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
+        )
         box.pack_start(combo, True, True, 0)
         return box
 
@@ -151,7 +145,7 @@ class CmbObjectEditor(Gtk.Box):
         info = parent.info if self.layout and parent else self.__object.info
         for owner_id in [info.type_id] + info.hierarchy:
             if self.layout:
-                owner_id = f'{owner_id}LayoutChild'
+                owner_id = f"{owner_id}LayoutChild"
 
             info = self.__object.project.type_info.get(owner_id, None)
 
@@ -162,10 +156,7 @@ class CmbObjectEditor(Gtk.Box):
             i = 0
 
             # Grid for all properties and custom data editors
-            grid = Gtk.Grid(hexpand=True,
-                            margin_start=16,
-                            row_spacing=4,
-                            column_spacing=4)
+            grid = Gtk.Grid(hexpand=True, margin_start=16, row_spacing=4, column_spacing=4)
 
             # Properties
             properties = self.__object.layout_dict if self.layout else self.__object.properties_dict
@@ -175,20 +166,20 @@ class CmbObjectEditor(Gtk.Box):
                 if prop is None or prop.info is None:
                     continue
 
-                editor = cmb_create_editor(prop.project,
-                                           prop.info.type_id,
-                                           prop=prop)
+                editor = cmb_create_editor(prop.project, prop.info.type_id, prop=prop)
 
                 if editor is None:
                     continue
 
-                GObject.Object.bind_property(prop, 'value',
-                                             editor, 'cmb-value',
-                                             GObject.BindingFlags.SYNC_CREATE |
-                                             GObject.BindingFlags.BIDIRECTIONAL)
+                GObject.Object.bind_property(
+                    prop,
+                    "value",
+                    editor,
+                    "cmb-value",
+                    GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
+                )
 
-                label = Gtk.Label(label=prop.property_id,
-                                  xalign=0)
+                label = Gtk.Label(label=prop.property_id, xalign=0)
 
                 # Keep a dict of labels
                 self.__labels[prop.property_id] = label
@@ -209,11 +200,13 @@ class CmbObjectEditor(Gtk.Box):
                         data = d
                         break
 
-                editor = CmbObjectDataEditor(visible=True,
-                                             hexpand=True,
-                                             object=self.__object,
-                                             data=data,
-                                             info=None if data else info.data[data_key])
+                editor = CmbObjectDataEditor(
+                    visible=True,
+                    hexpand=True,
+                    object=self.__object,
+                    data=data,
+                    info=None if data else info.data[data_key],
+                )
 
                 grid.attach(editor, 0, i, 2, 1)
                 i += 1
@@ -223,11 +216,9 @@ class CmbObjectEditor(Gtk.Box):
                 continue
 
             # Create expander/revealer to pack editor grid
-            expander = Gtk.Expander(label=f'<b>{owner_id}</b>',
-                                    use_markup=True,
-                                    expanded=True)
+            expander = Gtk.Expander(label=f"<b>{owner_id}</b>", use_markup=True, expanded=True)
             revealer = Gtk.Revealer(reveal_child=True)
-            expander.connect('notify::expanded', self.__on_expander_expanded, revealer)
+            expander.connect("notify::expanded", self.__on_expander_expanded, revealer)
             revealer.add(grid)
             self.add(expander)
             self.add(revealer)
@@ -247,9 +238,9 @@ class CmbObjectEditor(Gtk.Box):
             return
 
         if prop.value != prop.info.default_value:
-            label.get_style_context().add_class('modified')
+            label.get_style_context().add_class("modified")
         else:
-            label.get_style_context().remove_class('modified')
+            label.get_style_context().remove_class("modified")
 
     @GObject.Property(type=CmbObject)
     def object(self):
@@ -267,12 +258,10 @@ class CmbObjectEditor(Gtk.Box):
         self.__object = obj
 
         if obj:
-            self.__object.connect('property-changed',
-                                 self.__on_property_changed)
-            self.__object.connect('layout-property-changed',
-                                 self.__on_layout_property_changed)
+            self.__object.connect("property-changed", self.__on_property_changed)
+            self.__object.connect("layout-property-changed", self.__on_layout_property_changed)
 
         self.__update_view()
 
 
-Gtk.WidgetClass.set_css_name(CmbObjectEditor, 'CmbObjectEditor')
+Gtk.WidgetClass.set_css_name(CmbObjectEditor, "CmbObjectEditor")

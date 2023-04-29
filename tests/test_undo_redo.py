@@ -5,6 +5,7 @@ import os
 
 from cambalache import CmbProject, config
 
+
 def undo_test(target_tk, filename, name):
     path = os.path.join(os.path.dirname(__file__), target_tk, filename)
 
@@ -26,9 +27,9 @@ def undo_test(target_tk, filename, name):
         assert obj is not None and obj.name == name
 
 
-
 def test_gtk3_undo():
-    undo_test('gtk+-3.0', 'dialog.ui', 'dialog')
+    undo_test("gtk+-3.0", "dialog.ui", "dialog")
+
 
 def test_gtk4_undo():
-    undo_test('gtk-4.0', 'liststore.ui', 'liststore_test')
+    undo_test("gtk-4.0", "liststore.ui", "liststore_test")

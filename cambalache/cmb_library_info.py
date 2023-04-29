@@ -38,9 +38,8 @@ class CmbLibraryInfo(CmbBaseLibraryInfo):
         prefix_len = len(prefix)
         retval = []
 
-        for row in self.project.db.execute('SELECT type_id FROM type WHERE library_id=?',
-                                           (self.library_id, )):
-            type_id, = row
+        for row in self.project.db.execute("SELECT type_id FROM type WHERE library_id=?", (self.library_id,)):
+            (type_id,) = row
             if type_id.startswith(prefix):
                 # Remove Prefix from type name
                 retval.append(type_id[prefix_len:])

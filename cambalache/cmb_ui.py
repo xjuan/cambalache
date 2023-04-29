@@ -34,25 +34,22 @@ class CmbUI(CmbBaseUI):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.connect('notify', self.__on_notify)
+        self.connect("notify", self.__on_notify)
 
     @GObject.Property(type=int)
     def template_id(self):
-        retval = self.db_get('SELECT template_id FROM ui WHERE (ui_id) IS (?);',
-                             (self.ui_id, ))
+        retval = self.db_get("SELECT template_id FROM ui WHERE (ui_id) IS (?);", (self.ui_id,))
         return retval if retval is not None else 0
 
     @template_id.setter
     def _set_template_id(self, value):
-        self.db_set('UPDATE ui SET template_id=? WHERE (ui_id) IS (?);',
-                    (self.ui_id, ), value if value != 0 else None)
+        self.db_set("UPDATE ui SET template_id=? WHERE (ui_id) IS (?);", (self.ui_id,), value if value != 0 else None)
 
     def __on_notify(self, obj, pspec):
         self.project._ui_changed(self, pspec.name)
 
     def get_library(self, library_id):
-        c = self.project.db.execute("SELECT version FROM ui_library WHERE ui_id=? AND library_id=?;",
-                                    (self.ui_id, library_id))
+        c = self.project.db.execute("SELECT version FROM ui_library WHERE ui_id=? AND library_id=?;", (self.ui_id, library_id))
         row = c.fetchone()
         return row[0] if row is not None else None
 
@@ -61,24 +58,28 @@ class CmbUI(CmbBaseUI):
 
         try:
             if version is None:
-                c.execute("DELETE FROM ui_library WHERE ui_id=? AND library_id=?;",
-                          (self.ui_id, library_id))
+                c.execute("DELETE FROM ui_library WHERE ui_id=? AND library_id=?;", (self.ui_id, library_id))
             else:
                 # Do not use REPLACE INTO, to make sure both INSERT and UPDATE triggers are used
-                count = self.db_get("SELECT count(version) FROM ui_library WHERE ui_id=? AND library_id=?;", (self.ui_id, library_id))
+                count = self.db_get(
+                    "SELECT count(version) FROM ui_library WHERE ui_id=? AND library_id=?;", (self.ui_id, library_id)
+                )
 
                 if count:
-                    c.execute("UPDATE ui_library SET version=?, comment=? WHERE ui_id=?, library_id=?;",
-                              (str(version), comment, self.ui_id, library_id))
+                    c.execute(
+                        "UPDATE ui_library SET version=?, comment=? WHERE ui_id=?, library_id=?;",
+                        (str(version), comment, self.ui_id, library_id),
+                    )
                 else:
-                    c.execute("INSERT INTO ui_library (ui_id, library_id, version, comment) VALUES (?, ?, ?, ?);",
-                              (self.ui_id, library_id, str(version), comment))
+                    c.execute(
+                        "INSERT INTO ui_library (ui_id, library_id, version, comment) VALUES (?, ?, ?, ?);",
+                        (self.ui_id, library_id, str(version), comment),
+                    )
 
         except Exception as e:
-            logger.warning(f'{self} Error setting library {library_id}={version}: {e}')
+            logger.warning(f"{self} Error setting library {library_id}={version}: {e}")
 
         c.close()
 
     def get_display_name(self):
-        return self.filename if self.filename else _('Unnamed {ui_id}').format(ui_id=self.ui_id)
-
+        return self.filename if self.filename else _("Unnamed {ui_id}").format(ui_id=self.ui_id)

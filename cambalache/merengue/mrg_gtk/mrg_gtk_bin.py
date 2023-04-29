@@ -1,4 +1,4 @@
-# GtkBin 
+# GtkBin
 #
 # Copyright (C) 2021  Juan Pablo Ugarte
 #
@@ -28,8 +28,7 @@ from merengue import MrgPlaceholder
 
 
 class MrgGtkBin(MrgGtkWidget):
-    object = GObject.Property(type=Gtk.Bin if Gtk.MAJOR_VERSION == 3 else Gtk.Widget,
-                              flags=GObject.ParamFlags.READWRITE)
+    object = GObject.Property(type=Gtk.Bin if Gtk.MAJOR_VERSION == 3 else Gtk.Widget, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -53,4 +52,3 @@ class MrgGtkBin(MrgGtkWidget):
     def object_changed(self, old, new):
         super().object_changed(old, new)
         self.__update_placeholder()
-

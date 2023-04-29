@@ -25,8 +25,8 @@ import os
 import gi
 import math
 
-gi.require_version('Gtk', '3.0')
-gi.require_version('GtkSource', '4')
+gi.require_version("Gtk", "3.0")
+gi.require_version("GtkSource", "4")
 from gi.repository import GLib, GObject, Gdk, Gtk, Pango, GdkPixbuf, GtkSource
 
 from .cmb_object import CmbObject
@@ -40,26 +40,26 @@ from .icon_naming_spec import standard_icon_names, standard_icon_context
 
 def unset_scroll_event(widget):
     def ignore_scroll_event(widget, event):
-        Gtk.propagate_event(widget.get_parent(), event);
+        Gtk.propagate_event(widget.get_parent(), event)
         return True
 
     events = widget.get_events()
     widget.set_events(events & ~(Gdk.EventMask.SCROLL_MASK | Gdk.EventMask.SMOOTH_SCROLL_MASK))
 
     if isinstance(widget, Gtk.ComboBox):
-        widget.connect('scroll-event', ignore_scroll_event)
+        widget.connect("scroll-event", ignore_scroll_event)
 
 
 class CmbEntry(Gtk.Entry):
-    __gtype_name__ = 'CmbEntry'
+    __gtype_name__ = "CmbEntry"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.connect('notify::text', self.__on_text_notify)
+        self.connect("notify::text", self.__on_text_notify)
 
     def make_translatable(self, target):
         self._target = target
-        self.props.secondary_icon_name = 'document-edit-symbolic'
+        self.props.secondary_icon_name = "document-edit-symbolic"
         self.connect("icon-press", self.__on_icon_pressed)
 
     def __on_icon_pressed(self, widget, icon_pos, event):
@@ -68,40 +68,40 @@ class CmbEntry(Gtk.Entry):
         popover.popup()
 
     def __on_text_notify(self, obj, pspec):
-        self.notify('cmb-value')
+        self.notify("cmb-value")
 
     @GObject.Property(type=str)
     def cmb_value(self):
-        return self.props.text if self.props.text != '' else None
+        return self.props.text if self.props.text != "" else None
 
     @cmb_value.setter
     def _set_cmb_value(self, value):
-        self.props.text = value if value is not None else ''
+        self.props.text = value if value is not None else ""
 
 
 class CmbTextBuffer(Gtk.TextBuffer):
-    __gtype_name__ = 'CmbTextBuffer'
+    __gtype_name__ = "CmbTextBuffer"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.connect('notify::text', self.__on_text_notify)
+        self.connect("notify::text", self.__on_text_notify)
 
     def __on_text_notify(self, obj, pspec):
-        self.notify('cmb-value')
+        self.notify("cmb-value")
 
     @GObject.Property(type=str)
     def cmb_value(self):
-        return self.props.text if self.props.text != '' else None
+        return self.props.text if self.props.text != "" else None
 
     @cmb_value.setter
     def _set_cmb_value(self, value):
-        self.props.text = value if value is not None else ''
+        self.props.text = value if value is not None else ""
 
 
 class CmbTextView(Gtk.ScrolledWindow):
-    __gtype_name__ = 'CmbTextView'
+    __gtype_name__ = "CmbTextView"
 
-    cmb_value = GObject.Property(type=str, flags = GObject.ParamFlags.READWRITE)
+    cmb_value = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -109,31 +109,33 @@ class CmbTextView(Gtk.ScrolledWindow):
         self.props.shadow_type = Gtk.ShadowType.IN
         self.props.height_request = 64
         self.buffer = CmbTextBuffer()
-        self.view = Gtk.TextView(visible=True,
-                                 buffer=self.buffer)
+        self.view = Gtk.TextView(visible=True, buffer=self.buffer)
 
-        GObject.Object.bind_property(self, 'cmb-value',
-                                     self.buffer, 'cmb-value',
-                                     GObject.BindingFlags.SYNC_CREATE |
-                                     GObject.BindingFlags.BIDIRECTIONAL)
+        GObject.Object.bind_property(
+            self,
+            "cmb-value",
+            self.buffer,
+            "cmb-value",
+            GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
+        )
 
         self.add(self.view)
 
 
 class CmbSpinButton(Gtk.SpinButton):
-    __gtype_name__ = 'CmbSpinButton'
+    __gtype_name__ = "CmbSpinButton"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.connect('notify::value', self.__on_text_notify)
-        self.props.halign=Gtk.Align.START
-        self.props.numeric=True
-        self.props.width_chars=8
+        self.connect("notify::value", self.__on_text_notify)
+        self.props.halign = Gtk.Align.START
+        self.props.numeric = True
+        self.props.width_chars = 8
 
         unset_scroll_event(self)
 
     def __on_text_notify(self, obj, pspec):
-        self.notify('cmb-value')
+        self.notify("cmb-value")
 
     @GObject.Property(type=str)
     def cmb_value(self):
@@ -157,19 +159,19 @@ class CmbSpinButton(Gtk.SpinButton):
 
 
 class CmbSwitch(Gtk.Switch):
-    __gtype_name__ = 'CmbSwitch'
+    __gtype_name__ = "CmbSwitch"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.connect('notify::active', self.__on_notify)
-        self.props.halign=Gtk.Align.START
+        self.connect("notify::active", self.__on_notify)
+        self.props.halign = Gtk.Align.START
 
     def __on_notify(self, obj, pspec):
-        self.notify('cmb-value')
+        self.notify("cmb-value")
 
     @GObject.Property(type=str)
     def cmb_value(self):
-        return 'True' if self.props.active else 'False'
+        return "True" if self.props.active else "False"
 
     @cmb_value.setter
     def _set_cmb_value(self, value):
@@ -177,7 +179,7 @@ class CmbSwitch(Gtk.Switch):
             val = value.lower()
 
             if type(val) == str:
-                if val.lower() in {'1', 't', 'y', 'true', 'yes'}:
+                if val.lower() in {"1", "t", "y", "true", "yes"}:
                     self.props.active = True
                 else:
                     self.props.active = False
@@ -188,14 +190,14 @@ class CmbSwitch(Gtk.Switch):
 
 
 class CmbEnumComboBox(Gtk.ComboBox):
-    __gtype_name__ = 'CmbEnumComboBox'
+    __gtype_name__ = "CmbEnumComboBox"
 
-    info = GObject.Property(type=CmbTypeInfo, flags = GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    text_column = GObject.Property(type=int, default = 1, flags = GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    info = GObject.Property(type=CmbTypeInfo, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    text_column = GObject.Property(type=int, default=1, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.connect('changed', self.__on_changed)
+        self.connect("changed", self.__on_changed)
 
         renderer_text = Gtk.CellRendererText()
         self.pack_start(renderer_text, True)
@@ -207,7 +209,7 @@ class CmbEnumComboBox(Gtk.ComboBox):
         unset_scroll_event(self)
 
     def __on_changed(self, obj):
-        self.notify('cmb-value')
+        self.notify("cmb-value")
 
     @GObject.Property(type=str)
     def cmb_value(self):
@@ -227,20 +229,20 @@ class CmbEnumComboBox(Gtk.ComboBox):
 
 
 class CmbFlagsEntry(Gtk.Entry):
-    __gtype_name__ = 'CmbFlagsEntry'
+    __gtype_name__ = "CmbFlagsEntry"
 
-    info = GObject.Property(type=CmbTypeInfo, flags = GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    id_column = GObject.Property(type=int, default = 1, flags = GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    text_column = GObject.Property(type=int, default = 1, flags = GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    value_column = GObject.Property(type=int, default = 2, flags = GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    info = GObject.Property(type=CmbTypeInfo, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    id_column = GObject.Property(type=int, default=1, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    text_column = GObject.Property(type=int, default=1, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    value_column = GObject.Property(type=int, default=2, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
         self.props.editable = False
-        self.props.secondary_icon_name = 'document-edit-symbolic'
+        self.props.secondary_icon_name = "document-edit-symbolic"
 
-        self.connect('icon-release', self.__on_icon_release)
+        self.connect("icon-release", self.__on_icon_release)
 
         self.__init_popover()
 
@@ -249,23 +251,19 @@ class CmbFlagsEntry(Gtk.Entry):
         self._checks = {}
         self._popover = Gtk.Popover(relative_to=self)
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        box.pack_start(Gtk.Label(label=f'<b>{self.info.type_id}</b>',
-                                 use_markup=True),
-                       False, True, 4)
+        box.pack_start(Gtk.Label(label=f"<b>{self.info.type_id}</b>", use_markup=True), False, True, 4)
         box.pack_start(Gtk.Separator(), False, False, 0)
-        sw = Gtk.ScrolledWindow(hscrollbar_policy=Gtk.PolicyType.NEVER,
-                                propagate_natural_height=True,
-                                max_content_height=360)
+        sw = Gtk.ScrolledWindow(hscrollbar_policy=Gtk.PolicyType.NEVER, propagate_natural_height=True, max_content_height=360)
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         sw.add(vbox)
         box.pack_start(sw, True, True, 0)
 
         for row in self.info.flags:
             flag = row[self.text_column]
-            flag_id =  row[self.id_column]
+            flag_id = row[self.id_column]
 
             check = Gtk.CheckButton(label=flag)
-            check.connect('toggled', self.__on_check_toggled, flag_id)
+            check.connect("toggled", self.__on_check_toggled, flag_id)
             vbox.pack_start(check, False, True, 4)
             self._checks[flag_id] = check
 
@@ -275,7 +273,7 @@ class CmbFlagsEntry(Gtk.Entry):
     def __on_check_toggled(self, check, flag_id):
         self.flags[flag_id] = check.props.active
         self.props.text = self.__to_string()
-        self.notify('cmb-value')
+        self.notify("cmb-value")
 
     def __on_icon_release(self, obj, pos, event):
         self._popover.popup()
@@ -285,24 +283,24 @@ class CmbFlagsEntry(Gtk.Entry):
         for row in self.info.flags:
             flag_id = row[self.id_column]
             if self.flags.get(flag_id, False):
-                retval = flag_id if retval is None else f'{retval} | {flag_id}'
+                retval = flag_id if retval is None else f"{retval} | {flag_id}"
 
-        return retval if retval is not None else ''
+        return retval if retval is not None else ""
 
     @GObject.Property(type=str)
     def cmb_value(self):
-        return self.props.text if self.props.text != '' else None
+        return self.props.text if self.props.text != "" else None
 
     @cmb_value.setter
     def _set_cmb_value(self, value):
-        self.props.text = value if value is not None else ''
+        self.props.text = value if value is not None else ""
 
         self.flags = {}
         for check in self._checks:
             self._checks[check].props.active = False
 
         if value:
-            tokens = [t.strip() for t in value.split('|')]
+            tokens = [t.strip() for t in value.split("|")]
 
             for row in self.info.flags:
                 flag = row[self.text_column]
@@ -318,61 +316,56 @@ class CmbFlagsEntry(Gtk.Entry):
 
 
 class CmbFileEntry(Gtk.Entry):
-    __gtype_name__ = 'CmbFileEntry'
+    __gtype_name__ = "CmbFileEntry"
 
-    dirname = GObject.Property(type=str, flags = GObject.ParamFlags.READWRITE)
+    dirname = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.title=_('Select File'),
+        self.title = (_("Select File"),)
         self.filter = None
-        self.props.placeholder_text='<GFile>'
-        self.props.secondary_icon_name = 'document-open-symbolic'
+        self.props.placeholder_text = "<GFile>"
+        self.props.secondary_icon_name = "document-open-symbolic"
 
-        self.connect('notify::text', self.__on_text_notify)
+        self.connect("notify::text", self.__on_text_notify)
         self.connect("icon-press", self.__on_icon_pressed)
 
     def __on_icon_pressed(self, widget, icon_pos, event):
         # Create Open Dialog
         dialog = Gtk.FileChooserDialog(
-            title=self.title,
-            parent=self.get_toplevel(),
-            action=Gtk.FileChooserAction.OPEN,
-            filter=self.filter
+            title=self.title, parent=self.get_toplevel(), action=Gtk.FileChooserAction.OPEN, filter=self.filter
         )
-        dialog.add_buttons(_('_Cancel'), Gtk.ResponseType.CANCEL,
-                           _('_Open'), Gtk.ResponseType.OK)
+        dialog.add_buttons(_("_Cancel"), Gtk.ResponseType.CANCEL, _("_Open"), Gtk.ResponseType.OK)
 
         if self.dirname is not None:
             dialog.set_current_folder(self.dirname)
 
         if dialog.run() == Gtk.ResponseType.OK:
-            self.props.text = os.path.relpath(dialog.get_filename(),
-                                              start=self.dirname)
+            self.props.text = os.path.relpath(dialog.get_filename(), start=self.dirname)
 
         dialog.destroy()
 
     def __on_text_notify(self, obj, pspec):
-        self.notify('cmb-value')
+        self.notify("cmb-value")
 
     @GObject.Property(type=str)
     def cmb_value(self):
-        return self.props.text if self.props.text != '' else None
+        return self.props.text if self.props.text != "" else None
 
     @cmb_value.setter
     def _set_cmb_value(self, value):
-        self.props.text = value if value is not None else ''
+        self.props.text = value if value is not None else ""
 
 
 class CmbPixbufEntry(CmbFileEntry):
-    __gtype_name__ = 'CmbPixbufEntry'
+    __gtype_name__ = "CmbPixbufEntry"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.title=_('Select Image'),
-        self.props.placeholder_text='<GdkPixbuf>'
+        self.title = (_("Select Image"),)
+        self.props.placeholder_text = "<GdkPixbuf>"
 
         # Only show images formats supported by GdkPixbuf
         self.filter = Gtk.FileFilter()
@@ -380,33 +373,31 @@ class CmbPixbufEntry(CmbFileEntry):
 
 
 class CmbObjectChooser(Gtk.Entry):
-    __gtype_name__ = 'CmbObjectChooser'
+    __gtype_name__ = "CmbObjectChooser"
 
-    parent = GObject.Property(type=CmbObject, flags = GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    prop = GObject.Property(type=CmbProperty, flags = GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    parent = GObject.Property(type=CmbObject, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    prop = GObject.Property(type=CmbProperty, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self, **kwargs):
         self._value = None
         super().__init__(**kwargs)
-        self.connect('notify::text', self.__on_text_notify)
+        self.connect("notify::text", self.__on_text_notify)
 
         if self.prop.info.is_inline_object:
             self.connect("icon-press", self.__on_icon_pressed)
-            self.parent.connect("property-changed",
-                                 lambda o, p: self.__update_icons())
+            self.parent.connect("property-changed", lambda o, p: self.__update_icons())
             self.__update_icons()
         else:
-            self.props.placeholder_text = f'<{self.prop.info.type_id}>'
+            self.props.placeholder_text = f"<{self.prop.info.type_id}>"
 
     def __on_text_notify(self, obj, pspec):
         if self.prop.inline_object_id:
             return
 
-        obj = self.parent.project.get_object_by_name(self.parent.ui_id,
-                                                     self.props.text)
+        obj = self.parent.project.get_object_by_name(self.parent.ui_id, self.props.text)
         self._value = obj.object_id if obj else None
 
-        self.notify('cmb-value')
+        self.notify("cmb-value")
 
     @GObject.Property(type=str)
     def cmb_value(self):
@@ -420,27 +411,26 @@ class CmbObjectChooser(Gtk.Entry):
 
         if self._value:
             obj = parent.project.get_object_by_id(parent.ui_id, self._value)
-            self.props.text = obj.name if obj else ''
+            self.props.text = obj.name if obj else ""
         else:
-            self.props.text = ''
+            self.props.text = ""
 
     def __update_icons(self):
         if not self.prop.info.is_inline_object:
             return
 
         if self.prop.inline_object_id:
-            obj = self.parent.project.get_object_by_id(self.parent.ui_id,
-                                                       self.prop.inline_object_id)
+            obj = self.parent.project.get_object_by_id(self.parent.ui_id, self.prop.inline_object_id)
             type = obj.type_id
-            self.props.secondary_icon_name = 'edit-clear-symbolic'
-            self.props.secondary_icon_tooltip_text = _('Clear property')
-            self.props.placeholder_text = f'<inline {type}>'
+            self.props.secondary_icon_name = "edit-clear-symbolic"
+            self.props.secondary_icon_tooltip_text = _("Clear property")
+            self.props.placeholder_text = f"<inline {type}>"
             self.props.editable = False
             self.props.can_focus = False
         else:
-            self.props.secondary_icon_name = 'list-add-symbolic'
-            self.props.secondary_icon_tooltip_text = _('Add inline object')
-            self.props.placeholder_text = f'<{self.prop.info.type_id}>'
+            self.props.secondary_icon_name = "list-add-symbolic"
+            self.props.secondary_icon_tooltip_text = _("Add inline object")
+            self.props.placeholder_text = f"<{self.prop.info.type_id}>"
             self.props.editable = True
             self.props.can_focus = True
 
@@ -450,10 +440,7 @@ class CmbObjectChooser(Gtk.Entry):
 
     def __on_type_selected(self, popover, info):
         parent = self.parent
-        parent.project.add_object(parent.ui_id,
-                                  info.type_id,
-                                  parent_id=parent.object_id,
-                                  inline_property=self.prop.property_id)
+        parent.project.add_object(parent.ui_id, info.type_id, parent_id=parent.object_id, inline_property=self.prop.property_id)
         self.__update_icons()
 
     def __on_icon_pressed(self, widget, icon_pos, event):
@@ -466,26 +453,24 @@ class CmbObjectChooser(Gtk.Entry):
             project.remove_object(obj)
             self.__update_icons()
         else:
-            chooser = CmbTypeChooserPopover(relative_to=self,
-                                            parent_type_id=parent.type_id,
-                                            derived_type_id=prop.info.type_id)
+            chooser = CmbTypeChooserPopover(relative_to=self, parent_type_id=parent.type_id, derived_type_id=prop.info.type_id)
             chooser.project = project
-            chooser.connect('type-selected', self.__on_type_selected)
+            chooser.connect("type-selected", self.__on_type_selected)
             chooser.popup()
 
 
 class CmbToplevelChooser(Gtk.ComboBox):
-    __gtype_name__ = 'CmbToplevelChooser'
+    __gtype_name__ = "CmbToplevelChooser"
 
-    object = GObject.Property(type=CmbUI, flags = GObject.ParamFlags.READWRITE)
-    derivable_only = GObject.Property(type=bool, default=False, flags = GObject.ParamFlags.READWRITE)
+    object = GObject.Property(type=CmbUI, flags=GObject.ParamFlags.READWRITE)
+    derivable_only = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         self.filter = None
 
         super().__init__(**kwargs)
-        self.connect('notify::object', self.__on_object_notify)
-        self.connect('changed', self.__on_changed)
+        self.connect("notify::object", self.__on_object_notify)
+        self.connect("changed", self.__on_changed)
 
         renderer = Gtk.CellRendererText()
         self.pack_start(renderer, True)
@@ -497,9 +482,9 @@ class CmbToplevelChooser(Gtk.ComboBox):
         if type(obj) != CmbObject:
             return
 
-        name = f'{obj.name} ' if obj.name else ''
-        extra = _('(template)') if not obj.parent_id and obj.ui.template_id == obj.object_id else obj.type_id
-        cell.set_property('markup', f'{name}<i>{extra}</i>')
+        name = f"{obj.name} " if obj.name else ""
+        extra = _("(template)") if not obj.parent_id and obj.ui.template_id == obj.object_id else obj.type_id
+        cell.set_property("markup", f"{name}<i>{extra}</i>")
 
     def __filter_func(self, model, iter, data):
         obj = model[iter][0]
@@ -531,7 +516,7 @@ class CmbToplevelChooser(Gtk.ComboBox):
         self.filter.set_visible_func(self.__filter_func)
 
     def __on_changed(self, combo):
-        self.notify('cmb-value')
+        self.notify("cmb-value")
 
     @GObject.Property(type=int)
     def cmb_value(self):
@@ -556,16 +541,16 @@ class CmbToplevelChooser(Gtk.ComboBox):
 
 
 class CmbChildTypeComboBox(Gtk.ComboBox):
-    __gtype_name__ = 'CmbChildTypeComboBox'
+    __gtype_name__ = "CmbChildTypeComboBox"
 
-    object = GObject.Property(type=GObject.Object, flags = GObject.ParamFlags.READWRITE)
+    object = GObject.Property(type=GObject.Object, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
         unset_scroll_event(self)
 
-        self.connect('changed', self.__on_changed)
+        self.connect("changed", self.__on_changed)
 
         # Model, store it in a Python variable to make sure we hold a reference
         # First column is the ID and the second is if you can select the child or not
@@ -598,7 +583,7 @@ class CmbChildTypeComboBox(Gtk.ComboBox):
             pinfo = pinfo.parent
 
     def __on_changed(self, obj):
-        self.notify('cmb-value')
+        self.notify("cmb-value")
 
     @GObject.Property(type=str)
     def cmb_value(self):
@@ -610,12 +595,12 @@ class CmbChildTypeComboBox(Gtk.ComboBox):
 
 
 class CmbIconNameEntry(CmbEntry):
-    __gtype_name__ = 'CmbIconNameEntry'
+    __gtype_name__ = "CmbIconNameEntry"
 
-    object = GObject.Property(type=GObject.Object, flags = GObject.ParamFlags.READWRITE)
+    object = GObject.Property(type=GObject.Object, flags=GObject.ParamFlags.READWRITE)
 
-    standard_only = GObject.Property(type=bool, default=True, flags = GObject.ParamFlags.READWRITE)
-    symbolic_only = GObject.Property(type=bool, default=False, flags = GObject.ParamFlags.READWRITE)
+    standard_only = GObject.Property(type=bool, default=True, flags=GObject.ParamFlags.READWRITE)
+    symbolic_only = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
 
     COL_ICON_NAME = 0
     COL_MARKUP = 1
@@ -630,11 +615,9 @@ class CmbIconNameEntry(CmbEntry):
 
         super().__init__(**kwargs)
 
-        GObject.Object.bind_property(self, 'cmb-value',
-                                     self, 'primary-icon-name',
-                                     GObject.BindingFlags.SYNC_CREATE)
+        GObject.Object.bind_property(self, "cmb-value", self, "primary-icon-name", GObject.BindingFlags.SYNC_CREATE)
 
-        self.props.secondary_icon_name = 'document-edit-symbolic'
+        self.props.secondary_icon_name = "document-edit-symbolic"
         self.connect("icon-press", self.__on_icon_pressed)
 
         # Model, store it in a Python variable to make sure we hold a reference
@@ -655,12 +638,12 @@ class CmbIconNameEntry(CmbEntry):
         # Icon
         renderer_text = Gtk.CellRendererPixbuf(xpad=4)
         self.__completion.pack_start(renderer_text, False)
-        self.__completion.add_attribute(renderer_text, 'icon-name', 0)
+        self.__completion.add_attribute(renderer_text, "icon-name", 0)
 
         # Icon Name
         renderer_text = Gtk.CellRendererText(ellipsize=Pango.EllipsizeMode.END)
         self.__completion.pack_start(renderer_text, False)
-        self.__completion.add_attribute(renderer_text, 'markup', 1)
+        self.__completion.add_attribute(renderer_text, "markup", 1)
 
         self.__populate_model()
 
@@ -676,7 +659,7 @@ class CmbIconNameEntry(CmbEntry):
                 iconlist.append((icon, context, icon in standard_icon_names))
 
         for icon, context, standard in sorted(iconlist, key=lambda i: i[0].lower()):
-            if icon.endswith('.symbolic'):
+            if icon.endswith(".symbolic"):
                 continue
 
             info = theme.lookup_icon(icon, 32, Gtk.IconLookupFlags.FORCE_SIZE)
@@ -685,15 +668,11 @@ class CmbIconNameEntry(CmbEntry):
             if not os.path.exists(info.get_filename()):
                 continue
 
-            standard_symbolic = symbolic and icon.removesuffix('-symbolic') in standard_icon_names
+            standard_symbolic = symbolic and icon.removesuffix("-symbolic") in standard_icon_names
 
-            iter = self.__model.append([icon,
-                                        icon if standard else f'<i>{icon}</i>',
-                                        context,
-                                        standard,
-                                        symbolic,
-                                        standard_symbolic,
-                                        None])
+            iter = self.__model.append(
+                [icon, icon if standard else f"<i>{icon}</i>", context, standard, symbolic, standard_symbolic, None]
+            )
             info.load_icon_async(None, self.__load_icon_finish, iter)
 
     def __load_icon_finish(self, info, res, data):
@@ -708,7 +687,7 @@ class CmbIconNameEntry(CmbEntry):
         elif self.symbolic_only and not model[iter][self.COL_SYMBOLIC]:
             return False
 
-        if data == 'cmb_all':
+        if data == "cmb_all":
             return True
 
         return model[iter][self.COL_CONTEXT] == data
@@ -731,14 +710,9 @@ class CmbIconNameEntry(CmbEntry):
         # Create popover with icon chooser
         popover = Gtk.Popover(relative_to=self)
         hbox = Gtk.Box(visible=True)
-        vbox = Gtk.Box(visible=True,
-                       orientation=Gtk.Orientation.VERTICAL,
-                       vexpand=True)
-        stack = Gtk.Stack(visible=True,
-                          transition_type=Gtk.StackTransitionType.CROSSFADE)
-        sidebar = Gtk.StackSidebar(visible=True,
-                                   stack=stack,
-                                   vexpand=True)
+        vbox = Gtk.Box(visible=True, orientation=Gtk.Orientation.VERTICAL, vexpand=True)
+        stack = Gtk.Stack(visible=True, transition_type=Gtk.StackTransitionType.CROSSFADE)
+        sidebar = Gtk.StackSidebar(visible=True, stack=stack, vexpand=True)
         vbox.pack_start(sidebar, True, True, 4)
         hbox.pack_start(vbox, False, True, 4)
         hbox.pack_start(stack, True, True, 4)
@@ -746,7 +720,7 @@ class CmbIconNameEntry(CmbEntry):
         theme = Gtk.IconTheme.get_default()
 
         sorted_contexts = sorted(theme.list_contexts())
-        sorted_contexts.insert(0, 'cmb_all')
+        sorted_contexts.insert(0, "cmb_all")
 
         # Add one icon view per context
         for context in sorted_contexts:
@@ -758,28 +732,19 @@ class CmbIconNameEntry(CmbEntry):
                 filter.set_visible_func(self.__model_filter_func, data=context)
                 filter.refilter()
 
-            sw = Gtk.ScrolledWindow(visible=True,
-                                    min_content_width=600,
-                                    min_content_height=480)
-            view = Gtk.IconView(visible=True,
-                                model=filter,
-                                pixbuf_column=self.COL_PIXBUF,
-                                text_column=self.COL_ICON_NAME)
-            view.connect('selection-changed', self.__on_view_selection_changed)
+            sw = Gtk.ScrolledWindow(visible=True, min_content_width=600, min_content_height=480)
+            view = Gtk.IconView(visible=True, model=filter, pixbuf_column=self.COL_PIXBUF, text_column=self.COL_ICON_NAME)
+            view.connect("selection-changed", self.__on_view_selection_changed)
             sw.add(view)
-            stack.add_titled(sw, context,
-                             standard_icon_context.get(context, context))
+            stack.add_titled(sw, context, standard_icon_context.get(context, context))
 
         # Add filters
-        for prop, label in [('standard_only', _('Only standard')),
-                            ('symbolic_only', _('Only symbolic'))]:
-            check = Gtk.CheckButton(visible=True,
-                                    label=label)
-            GObject.Object.bind_property(self, prop,
-                                         check, 'active',
-                                         GObject.BindingFlags.SYNC_CREATE |
-                                         GObject.BindingFlags.BIDIRECTIONAL)
-            check.connect_after('notify::active', self.__on_check_active_notify)
+        for prop, label in [("standard_only", _("Only standard")), ("symbolic_only", _("Only symbolic"))]:
+            check = Gtk.CheckButton(visible=True, label=label)
+            GObject.Object.bind_property(
+                self, prop, check, "active", GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL
+            )
+            check.connect_after("notify::active", self.__on_check_active_notify)
             vbox.pack_start(check, False, True, 4)
 
         popover.get_style_context().add_class("cmb-icon-chooser")
@@ -788,20 +753,17 @@ class CmbIconNameEntry(CmbEntry):
 
 
 class CmbColorEntry(Gtk.Box):
-    __gtype_name__ = 'CmbColorEntry'
+    __gtype_name__ = "CmbColorEntry"
 
-    use_color = GObject.Property(type=bool, default=False, flags = GObject.ParamFlags.READWRITE)
+    use_color = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         self.__ignore_notify = False
 
         super().__init__(**kwargs)
 
-        self.entry = Gtk.Entry(visible=True,
-                               width_chars=14,
-                               editable=False)
-        self.button = Gtk.ColorButton(visible=True,
-                                      use_alpha=True)
+        self.entry = Gtk.Entry(visible=True, width_chars=14, editable=False)
+        self.button = Gtk.ColorButton(visible=True, use_alpha=True)
 
         self.__default_color = self.button.props.color
         self.__default_rgba = self.button.props.rgba
@@ -809,7 +771,7 @@ class CmbColorEntry(Gtk.Box):
         self.pack_start(self.entry, False, True, 0)
         self.pack_start(self.button, False, True, 4)
 
-        self.button.connect('color-set', self.__on_color_set)
+        self.button.connect("color-set", self.__on_color_set)
         self.entry.connect("icon-press", self.__on_entry_icon_pressed)
 
     def __on_entry_icon_pressed(self, widget, icon_pos, event):
@@ -823,15 +785,15 @@ class CmbColorEntry(Gtk.Box):
 
     @GObject.Property(type=str)
     def cmb_value(self):
-        return self.entry.props.text if self.entry.props.text != '' else None
+        return self.entry.props.text if self.entry.props.text != "" else None
 
     @cmb_value.setter
     def _set_cmb_value(self, value):
         if value:
             self.entry.props.text = value
-            self.entry.props.secondary_icon_name = 'edit-clear-symbolic'
+            self.entry.props.secondary_icon_name = "edit-clear-symbolic"
         else:
-            self.entry.props.text = ''
+            self.entry.props.text = ""
             self.entry.props.secondary_icon_name = None
 
         valid = False
@@ -852,7 +814,7 @@ class CmbColorEntry(Gtk.Box):
 
 
 class CmbSourceView(GtkSource.View):
-    __gtype_name__ = 'CmbSourceView'
+    __gtype_name__ = "CmbSourceView"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -861,7 +823,7 @@ class CmbSourceView(GtkSource.View):
 
         self.buffer = GtkSource.Buffer()
         self.props.buffer = self.buffer
-        self.buffer.connect('changed', self.__on_buffer_changed)
+        self.buffer.connect("changed", self.__on_buffer_changed)
 
     @GObject.Property(type=str)
     def lang(self):
@@ -878,36 +840,34 @@ class CmbSourceView(GtkSource.View):
 
     @text.setter
     def _set_text(self, value):
-        self.buffer.set_text(value if value else '')
+        self.buffer.set_text(value if value else "")
 
     def __on_buffer_changed(self, buffer):
-        self.notify('text')
+        self.notify("text")
 
 
 # Functions
-def cmb_create_editor(project,
-                      type_id,
-                      prop=None):
+def cmb_create_editor(project, type_id, prop=None):
     def get_min_max_for_type(type_id):
-        if type_id == 'gchar':
+        if type_id == "gchar":
             return (GLib.MININT8, GLib.MAXINT8)
-        elif type_id == 'guchar':
+        elif type_id == "guchar":
             return (0, GLib.MAXUINT8)
-        elif type_id == 'gint':
+        elif type_id == "gint":
             return (GLib.MININT, GLib.MAXINT)
-        elif type_id == 'guint':
+        elif type_id == "guint":
             return (0, GLib.MAXUINT)
-        elif type_id == 'glong':
+        elif type_id == "glong":
             return (GLib.MINLONG, GLib.MAXLONG)
-        elif type_id == 'gulong':
+        elif type_id == "gulong":
             return (0, GLib.MAXULONG)
-        elif type_id == 'gint64':
+        elif type_id == "gint64":
             return (GLib.MININT64, GLib.MAXINT64)
-        elif type_id == 'guint64':
+        elif type_id == "guint64":
             return (0, GLib.MAXUINT64)
-        elif type_id == 'gfloat':
+        elif type_id == "gfloat":
             return (-GLib.MAXFLOAT, GLib.MAXFLOAT)
-        elif type_id == 'gdouble':
+        elif type_id == "gdouble":
             return (-GLib.MAXDOUBLE, GLib.MAXDOUBLE)
 
     def get_dirname():
@@ -923,18 +883,22 @@ def cmb_create_editor(project,
     if prop:
         translatable = prop.translatable
 
-    if type_id == 'gboolean':
+    if type_id == "gboolean":
         editor = CmbSwitch()
-    if type_id == 'gunichar':
-        editor = CmbEntry(hexpand=True,
-                          max_length=1,
-                          placeholder_text=f'<{type_id}>')
-    elif type_id == 'gchar' or type_id == 'guchar' or \
-         type_id == 'gint' or type_id == 'guint' or \
-         type_id == 'glong' or type_id == 'gulong' or \
-         type_id == 'gint64' or type_id == 'guint64'or \
-         type_id == 'gfloat' or type_id == 'gdouble':
-
+    if type_id == "gunichar":
+        editor = CmbEntry(hexpand=True, max_length=1, placeholder_text=f"<{type_id}>")
+    elif (
+        type_id == "gchar"
+        or type_id == "guchar"
+        or type_id == "gint"
+        or type_id == "guint"
+        or type_id == "glong"
+        or type_id == "gulong"
+        or type_id == "gint64"
+        or type_id == "guint64"
+        or type_id == "gfloat"
+        or type_id == "gdouble"
+    ):
         digits = 0
         step_increment = 1
         minimum, maximum = get_min_max_for_type(type_id)
@@ -950,43 +914,36 @@ def cmb_create_editor(project,
             value = float(maximum)
             maximum = value if value != math.inf else GLib.MAXDOUBLE
 
-        if type_id == 'gfloat' or type_id == 'gdouble':
+        if type_id == "gfloat" or type_id == "gdouble":
             digits = 4
             step_increment = 0.1
 
-        adjustment = Gtk.Adjustment(lower=minimum,
-                                    upper=maximum,
-                                    step_increment=step_increment,
-                                    page_increment=10)
+        adjustment = Gtk.Adjustment(lower=minimum, upper=maximum, step_increment=step_increment, page_increment=10)
 
-        editor = CmbSpinButton(digits=digits,
-                               adjustment=adjustment)
-    elif type_id == 'GStrv':
+        editor = CmbSpinButton(digits=digits, adjustment=adjustment)
+    elif type_id == "GStrv":
         editor = CmbTextView(hexpand=True)
-    elif type_id == 'GdkRGBA':
+    elif type_id == "GdkRGBA":
         editor = CmbColorEntry()
-    elif type_id == 'GdkColor':
+    elif type_id == "GdkColor":
         editor = CmbColorEntry(use_color=True)
-    elif type_id == 'GdkPixbuf':
-        editor = CmbPixbufEntry(hexpand=True,
-                                dirname=get_dirname())
-    elif type_id == 'GFile':
-        editor = CmbFileEntry(hexpand=True,
-                              dirname=get_dirname())
-    elif type_id == 'CmbIconName':
-        editor = CmbIconNameEntry(hexpand=True,
-                                  placeholder_text=f'<Icon Name>')
+    elif type_id == "GdkPixbuf":
+        editor = CmbPixbufEntry(hexpand=True, dirname=get_dirname())
+    elif type_id == "GFile":
+        editor = CmbFileEntry(hexpand=True, dirname=get_dirname())
+    elif type_id == "CmbIconName":
+        editor = CmbIconNameEntry(hexpand=True, placeholder_text=f"<Icon Name>")
     elif info:
         if info.is_object:
             # TODO: replace prop with project and is_inline
             editor = CmbObjectChooser(parent=prop.object, prop=prop)
-        if info.parent_id == 'enum':
+        if info.parent_id == "enum":
             editor = CmbEnumComboBox(info=info)
-        elif info.parent_id == 'flags':
+        elif info.parent_id == "flags":
             editor = CmbFlagsEntry(info=info)
 
     if editor is None:
-        editor = CmbEntry(hexpand=True, placeholder_text=f'<{type_id}>')
+        editor = CmbEntry(hexpand=True, placeholder_text=f"<{type_id}>")
         if translatable == True:
             editor.make_translatable(target=prop)
 

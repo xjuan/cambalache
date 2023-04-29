@@ -23,25 +23,25 @@
 
 import gi
 
-gi.require_version('Gtk', '3.0')
+gi.require_version("Gtk", "3.0")
 from gi.repository import GObject, Gtk
 
 from .cmb_project import CmbProject
 from .cmb_type_info import CmbTypeInfo
 
 
-@Gtk.Template(resource_path='/ar/xjuan/Cambalache/cmb_type_chooser.ui')
+@Gtk.Template(resource_path="/ar/xjuan/Cambalache/cmb_type_chooser.ui")
 class CmbTypeChooser(Gtk.Box):
-    __gtype_name__ = 'CmbTypeChooser'
+    __gtype_name__ = "CmbTypeChooser"
 
     __gsignals__ = {
-        'type-selected': (GObject.SignalFlags.RUN_LAST, None, (CmbTypeInfo, )),
-        'chooser-popup': (GObject.SignalFlags.RUN_LAST, None, (GObject.Object, )),
-        'chooser-popdown': (GObject.SignalFlags.RUN_LAST, None, (GObject.Object, ))
+        "type-selected": (GObject.SignalFlags.RUN_LAST, None, (CmbTypeInfo,)),
+        "chooser-popup": (GObject.SignalFlags.RUN_LAST, None, (GObject.Object,)),
+        "chooser-popdown": (GObject.SignalFlags.RUN_LAST, None, (GObject.Object,)),
     }
 
-    project = GObject.Property(type=CmbProject, flags = GObject.ParamFlags.READWRITE)
-    selected_type = GObject.Property(type=CmbTypeInfo, flags = GObject.ParamFlags.READWRITE)
+    project = GObject.Property(type=CmbProject, flags=GObject.ParamFlags.READWRITE)
+    selected_type = GObject.Property(type=CmbTypeInfo, flags=GObject.ParamFlags.READWRITE)
 
     type_label = Gtk.Template.Child()
     all = Gtk.Template.Child()
@@ -55,22 +55,14 @@ class CmbTypeChooser(Gtk.Box):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self._choosers = [
-            self.all,
-            self.toplevel,
-            self.layout,
-            self.control,
-            self.display,
-            self.model,
-            self.extra
-        ]
+        self._choosers = [self.all, self.toplevel, self.layout, self.control, self.display, self.model, self.extra]
 
-        self.connect('notify::project', self.__on_project_notify)
-        self.connect('notify::selected-type', self.__on_selected_type_notify)
+        self.connect("notify::project", self.__on_project_notify)
+        self.connect("notify::selected-type", self.__on_selected_type_notify)
 
         for chooser in self._choosers:
-            chooser.connect('type-selected', lambda o, t: self.emit('type-selected', t))
-            chooser.connect('notify::visible', self.__on_chooser_visible_notify)
+            chooser.connect("type-selected", lambda o, t: self.emit("type-selected", t))
+            chooser.connect("notify::visible", self.__on_chooser_visible_notify)
 
     def __on_project_notify(self, object, pspec):
         project = self.project
@@ -80,11 +72,11 @@ class CmbTypeChooser(Gtk.Box):
             chooser.project = project
 
     def __on_selected_type_notify(self, object, pspec):
-        project_target = self.project.target_tk if self.project else ''
+        project_target = self.project.target_tk if self.project else ""
         self.type_label.props.label = self.selected_type.type_id if self.selected_type else project_target
 
     def __on_chooser_visible_notify(self, obj, pspec):
         if obj.props.visible:
-            self.emit('chooser-popup', obj)
+            self.emit("chooser-popup", obj)
         else:
-            self.emit('chooser-popdown', obj)
+            self.emit("chooser-popdown", obj)

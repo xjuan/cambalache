@@ -32,8 +32,7 @@ logger = getLogger(__name__)
 
 
 class MrgGtkNotebook(MrgGtkWidget):
-    object = GObject.Property(type=Gtk.Notebook,
-                              flags=GObject.ParamFlags.READWRITE)
+    object = GObject.Property(type=Gtk.Notebook, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         self.current_page = 0
@@ -77,7 +76,7 @@ class MrgGtkNotebook(MrgGtkWidget):
                 old.disconnect_by_func(self.__on_object_page_notify)
                 old.disconnect_by_func(self.__on_object_map)
             except:
-               pass
+                pass
 
         self.__ensure_placeholders()
 

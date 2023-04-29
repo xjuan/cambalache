@@ -45,7 +45,7 @@ class MrgControllerRegistry(GObject.GObject):
             props = klass.list_properties()
 
             for pspec in props:
-                if pspec.name == 'object':
+                if pspec.name == "object":
                     return pspec.value_type
 
             return None

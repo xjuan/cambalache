@@ -28,9 +28,7 @@ from merengue import MrgPlaceholder
 
 
 class MrgGtkOverlay(MrgGtkBin):
-    object = GObject.Property(type=Gtk.Overlay,
-                              flags=GObject.ParamFlags.READWRITE)
+    object = GObject.Property(type=Gtk.Overlay, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-

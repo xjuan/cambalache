@@ -28,8 +28,7 @@ from .mrg_gtk_widget import MrgGtkWidget
 
 
 class MrgGtkMenu(MrgGtkWidget):
-    object = GObject.Property(type=Gtk.Menu,
-                              flags=GObject.ParamFlags.READWRITE)
+    object = GObject.Property(type=Gtk.Menu, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         self.window = None
@@ -37,16 +36,13 @@ class MrgGtkMenu(MrgGtkWidget):
 
         super().__init__(**kwargs)
 
-        self.property_ignore_list.add('attach-widget')
+        self.property_ignore_list.add("attach-widget")
 
     def popup(self):
         if self.object is None:
             return
 
-        self.object.popup_at_widget(self.__button,
-                                    Gdk.Gravity.SOUTH_WEST,
-                                    Gdk.Gravity.NORTH_WEST,
-                                    None)
+        self.object.popup_at_widget(self.__button, Gdk.Gravity.SOUTH_WEST, Gdk.Gravity.NORTH_WEST, None)
 
     def object_changed(self, old, new):
         self.selection = None
@@ -58,19 +54,14 @@ class MrgGtkMenu(MrgGtkWidget):
             return
 
         if self.window is None:
-            self.__button = Gtk.MenuButton(visible=True,
-                                           halign=Gtk.Align.CENTER,
-                                           valign=Gtk.Align.CENTER,
-                                           receives_default=False)
+            self.__button = Gtk.MenuButton(
+                visible=True, halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER, receives_default=False
+            )
 
-            image = Gtk.Image(visible=True,
-                              icon_name='open-menu-symbolic')
+            image = Gtk.Image(visible=True, icon_name="open-menu-symbolic")
             self.__button.add(image)
 
-            self.window = Gtk.Window(title='Menu Preview Window',
-                                     deletable=False,
-                                     width_request=320,
-                                     height_request=240)
+            self.window = Gtk.Window(title="Menu Preview Window", deletable=False, width_request=320, height_request=240)
 
             self.window.set_default_size(640, 480)
             self.window.add(self.__button)

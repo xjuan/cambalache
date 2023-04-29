@@ -27,44 +27,44 @@ import locale
 import builtins
 
 # Ensure _() builtin
-if '_' not in builtins.__dict__:
-    builtins.__dict__['_'] = locale.gettext
+if "_" not in builtins.__dict__:
+    builtins.__dict__["_"] = locale.gettext
 
-if 'N_' not in builtins.__dict__:
-    builtins.__dict__['N_'] = lambda s, p, n: _(p) if n > 1 else _(s)
+if "N_" not in builtins.__dict__:
+    builtins.__dict__["N_"] = lambda s, p, n: _(p) if n > 1 else _(s)
 
 from .config import *
 
-gi.require_version('Gdk', '3.0')
-gi.require_version('Gtk', '3.0')
+gi.require_version("Gdk", "3.0")
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gio, Gdk, Gtk
-resource = Gio.Resource.load(os.path.join(pkgdatadir, 'cambalache.gresource'))
+
+resource = Gio.Resource.load(os.path.join(pkgdatadir, "cambalache.gresource"))
 resource._register()
 
 provider = Gtk.CssProvider()
-provider.load_from_resource('/ar/xjuan/Cambalache/cambalache.css')
-Gtk.StyleContext.add_provider_for_screen(
-    Gdk.Screen.get_default(),
-    provider,
-    Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
-)
+provider.load_from_resource("/ar/xjuan/Cambalache/cambalache.css")
+Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+
 
 def getLogger(name):
-    formatter = logging.Formatter('%(levelname)s:%(name)s %(message)s')
+    formatter = logging.Formatter("%(levelname)s:%(name)s %(message)s")
 
     ch = logging.StreamHandler()
     ch.setFormatter(formatter)
 
     logger = logging.getLogger(name)
-    logger.setLevel(os.environ.get('MERENGUE_LOGLEVEL', 'WARNING').upper())
+    logger.setLevel(os.environ.get("MERENGUE_LOGLEVEL", "WARNING").upper())
     logger.addHandler(ch)
 
     return logger
 
+
 from .cmb_css import CmbCSS
 from .cmb_ui import CmbUI
 from .cmb_object import CmbObject
-#from .cmb_object_data import CmbObjectData
+
+# from .cmb_object_data import CmbObjectData
 from .cmb_property import CmbProperty
 from .cmb_layout_property import CmbLayoutProperty
 from .cmb_type_info import CmbTypeInfo

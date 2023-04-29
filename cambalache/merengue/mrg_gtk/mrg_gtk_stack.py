@@ -28,8 +28,7 @@ from merengue import MrgPlaceholder
 
 
 class MrgGtkStack(MrgGtkWidget):
-    object = GObject.Property(type=Gtk.Stack,
-                              flags=GObject.ParamFlags.READWRITE)
+    object = GObject.Property(type=Gtk.Stack, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

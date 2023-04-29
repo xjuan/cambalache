@@ -24,7 +24,7 @@
 import os
 import gi
 
-gi.require_version('Gtk', '3.0')
+gi.require_version("Gtk", "3.0")
 from gi.repository import GObject, Gdk, Gtk
 
 from .cmb_ui import CmbUI
@@ -34,7 +34,7 @@ from .cmb_context_menu import CmbContextMenu
 
 
 class CmbTreeView(Gtk.TreeView):
-    __gtype_name__ = 'CmbTreeView'
+    __gtype_name__ = "CmbTreeView"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -42,25 +42,24 @@ class CmbTreeView(Gtk.TreeView):
         self._project = None
         self._selection = self.get_selection()
         self.__in_selection_change = False
-        self._selection.connect('changed', self.__on_selection_changed)
-        self.set_headers_visible (False)
+        self._selection.connect("changed", self.__on_selection_changed)
+        self.set_headers_visible(False)
         self.__right_click = False
         self.__inline_objects = {}
 
         renderer = Gtk.CellRendererText()
-        column = Gtk.TreeViewColumn('Object(Type)', renderer)
+        column = Gtk.TreeViewColumn("Object(Type)", renderer)
         column.set_cell_data_func(renderer, self.__name_cell_data_func, None)
         self.append_column(column)
 
-        self.connect('notify::model', self.__on_model_notify)
-        self.connect('row-activated', self.__on_row_activated)
+        self.connect("notify::model", self.__on_model_notify)
+        self.connect("row-activated", self.__on_row_activated)
 
         self.menu = CmbContextMenu(relative_to=self)
 
-        self.add_events(Gdk.EventMask.BUTTON_PRESS_MASK |
-                        Gdk.EventMask.BUTTON_RELEASE_MASK)
-        self.connect('button-press-event', self.__on_button_press_event)
-        self.connect('button-release-event', self.__on_button_release_event)
+        self.add_events(Gdk.EventMask.BUTTON_PRESS_MASK | Gdk.EventMask.BUTTON_RELEASE_MASK)
+        self.connect("button-press-event", self.__on_button_press_event)
+        self.connect("button-release-event", self.__on_button_release_event)
 
         self.set_reorderable(True)
 
@@ -93,21 +92,21 @@ class CmbTreeView(Gtk.TreeView):
         return True
 
     def __object_get_inline_prop(self, obj):
-        prop = self.__inline_objects.get(f'{obj.ui_id}.{obj.object_id}', None)
-        return f'<b>{prop}</b> ' if prop else ''
+        prop = self.__inline_objects.get(f"{obj.ui_id}.{obj.object_id}", None)
+        return f"<b>{prop}</b> " if prop else ""
 
     def __name_cell_data_func(self, column, cell, model, iter_, data):
         obj = model.get_value(iter_, 0)
 
         if type(obj) == CmbObject:
             inline_prop = self.__object_get_inline_prop(obj)
-            name = f'{obj.name} ' if obj.name else ''
-            extra = _('(template)') if not obj.parent_id and obj.ui.template_id == obj.object_id else obj.type_id
-            text = f'{inline_prop}{name}<i>{extra}</i>'
+            name = f"{obj.name} " if obj.name else ""
+            extra = _("(template)") if not obj.parent_id and obj.ui.template_id == obj.object_id else obj.type_id
+            text = f"{inline_prop}{name}<i>{extra}</i>"
         else:
-            text = f'<b>{obj.get_display_name()}</b>'
+            text = f"<b>{obj.get_display_name()}</b>"
 
-        cell.set_property('markup', text)
+        cell.set_property("markup", text)
 
     def __update_inline_objects(self):
         self.__inline_objects = {}
@@ -115,9 +114,11 @@ class CmbTreeView(Gtk.TreeView):
         if self._project is None:
             return
 
-        for row in self._project.db.execute('SELECT ui_id, property_id, inline_object_id FROM object_property WHERE inline_object_id IS NOT NULL;'):
+        for row in self._project.db.execute(
+            "SELECT ui_id, property_id, inline_object_id FROM object_property WHERE inline_object_id IS NOT NULL;"
+        ):
             ui_id, property_id, inline_object_id = row
-            self.__inline_objects[f'{ui_id}.{inline_object_id}'] = property_id
+            self.__inline_objects[f"{ui_id}.{inline_object_id}"] = property_id
 
     def __on_project_changed(self, project):
         self.__update_inline_objects()
@@ -130,8 +131,8 @@ class CmbTreeView(Gtk.TreeView):
         self._project = self.props.model
 
         if self._project:
-            self._project.connect('selection-changed', self.__on_project_selection_changed)
-            self._project.connect('changed', self.__on_project_changed)
+            self._project.connect("selection-changed", self.__on_project_selection_changed)
+            self._project.connect("changed", self.__on_project_changed)
 
         self.__update_inline_objects()
 
@@ -171,4 +172,3 @@ class CmbTreeView(Gtk.TreeView):
         if _iter is not None:
             obj = project.get_value(_iter, 0)
             project.set_selection([obj])
-

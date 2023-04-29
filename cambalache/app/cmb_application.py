@@ -25,38 +25,29 @@ import os
 import sys
 import gi
 
-gi.require_version('Gdk', '3.0')
-gi.require_version('Gtk', '3.0')
+gi.require_version("Gdk", "3.0")
+gi.require_version("Gtk", "3.0")
 from gi.repository import GLib, Gdk, Gtk, Gio
 
 from cambalache import *
 
 from .cmb_window import CmbWindow
 
-basedir = os.path.dirname(__file__) or '.'
+basedir = os.path.dirname(__file__) or "."
 
 
 class CmbApplication(Gtk.Application):
     def __init__(self):
-        super().__init__(application_id='ar.xjuan.Cambalache',
-                         flags=Gio.ApplicationFlags.HANDLES_OPEN)
+        super().__init__(application_id="ar.xjuan.Cambalache", flags=Gio.ApplicationFlags.HANDLES_OPEN)
 
-        self.add_main_option('version', b'v',
-                             GLib.OptionFlags.NONE,
-                             GLib.OptionArg.NONE,
-                             _("Print version"),
-                             None)
+        self.add_main_option("version", b"v", GLib.OptionFlags.NONE, GLib.OptionArg.NONE, _("Print version"), None)
 
-        self.add_main_option('export-all', b'E',
-                             GLib.OptionFlags.NONE,
-                             GLib.OptionArg.FILENAME,
-                             _("Export project"),
-                             None)
+        self.add_main_option("export-all", b"E", GLib.OptionFlags.NONE, GLib.OptionArg.FILENAME, _("Export project"), None)
 
     def __add_window(self):
         window = CmbWindow(application=self)
-        window.connect('open-project', self.__on_open_project)
-        window.connect('delete-event', self.__on_window_delete_event)
+        window.connect("open-project", self.__on_open_project)
+        window.connect("delete-event", self.__on_window_delete_event)
         self.add_window(window)
         return window
 
@@ -85,30 +76,26 @@ class CmbApplication(Gtk.Application):
 
             content_type, uncertain = Gio.content_type_guess(path, None)
             if uncertain:
-                with open(path, 'rb') as fd:
+                with open(path, "rb") as fd:
                     data = fd.read(1024)
                 content_type, uncertain = Gio.content_type_guess(path, data)
 
-            if content_type == 'application/x-cambalache-project':
+            if content_type == "application/x-cambalache-project":
                 self.open(path)
-            elif content_type in ['application/x-gtk-builder', 'application/x-glade']:
+            elif content_type in ["application/x-gtk-builder", "application/x-glade"]:
                 self.import_file(path)
 
     def do_startup(self):
         Gtk.Application.do_startup(self)
 
-        for action in ['quit']:
-            gaction= Gio.SimpleAction.new(action, None)
-            gaction.connect("activate", getattr(self, f'_on_{action}_activate'))
+        for action in ["quit"]:
+            gaction = Gio.SimpleAction.new(action, None)
+            gaction.connect("activate", getattr(self, f"_on_{action}_activate"))
             self.add_action(gaction)
 
         provider = Gtk.CssProvider()
-        provider.load_from_resource('/ar/xjuan/Cambalache/app/cambalache.css')
-        Gtk.StyleContext.add_provider_for_screen(
-            Gdk.Screen.get_default(),
-            provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
-        )
+        provider.load_from_resource("/ar/xjuan/Cambalache/app/cambalache.css")
+        Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
     def do_activate(self):
         if self.props.active_window is None:
@@ -129,7 +116,7 @@ class CmbApplication(Gtk.Application):
             if win.project is None:
                 continue
 
-            if win.actions['save'].get_enabled():
+            if win.actions["save"].get_enabled():
                 unsaved_windows.append(win)
 
         unsaved_windows_len = len(unsaved_windows)
@@ -137,34 +124,35 @@ class CmbApplication(Gtk.Application):
             return True
 
         # Create Dialog
-        text = _('Save changes before closing?')
+        text = _("Save changes before closing?")
         dialog = Gtk.MessageDialog(
             transient_for=windows[0],
             flags=0,
             message_type=Gtk.MessageType.QUESTION,
-            text=f'<b><big>{text}</big></b>',
-            use_markup=True
+            text=f"<b><big>{text}</big></b>",
+            use_markup=True,
         )
 
         # Add buttons
-        dialog.add_buttons(_('Close without Saving'), Gtk.ResponseType.CLOSE,
-                           _('Cancel'), Gtk.ResponseType.CANCEL,
-                           _('Save'), Gtk.ResponseType.ACCEPT)
+        dialog.add_buttons(
+            _("Close without Saving"),
+            Gtk.ResponseType.CLOSE,
+            _("Cancel"),
+            Gtk.ResponseType.CANCEL,
+            _("Save"),
+            Gtk.ResponseType.ACCEPT,
+        )
 
         dialog.set_default_response(Gtk.ResponseType.ACCEPT)
 
         if unsaved_windows_len > 1:
             # Add checkbox for each unsaved project
             box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
-            box.add(Gtk.Label(label=_('Select which files:'),
-                              halign=Gtk.Align.START))
+            box.add(Gtk.Label(label=_("Select which files:"), halign=Gtk.Align.START))
 
             for win in unsaved_windows:
-                path = win.project.filename.replace(GLib.get_home_dir(), '~')
-                check = Gtk.CheckButton(label=path,
-                                        active=True,
-                                        margin_start=8,
-                                        can_focus=False)
+                path = win.project.filename.replace(GLib.get_home_dir(), "~")
+                check = Gtk.CheckButton(label=path, active=True, margin_start=8, can_focus=False)
                 projects2save.append((win.project, check))
                 box.add(check)
 
@@ -204,26 +192,27 @@ class CmbApplication(Gtk.Application):
         windows = self.__get_windows()
 
         if len(windows) == 0:
-            self.activate_action('quit')
+            self.activate_action("quit")
 
     def _on_quit_activate(self, action, data):
         if self.__check_can_quit(self.__get_windows()):
             self.quit()
 
     def do_handle_local_options(self, options):
-        if options.contains('version'):
+        if options.contains("version"):
             print(VERSION)
             return 0
 
-        if options.contains('export-all'):
-            filename = options.lookup_value('export-all')
-            filename = ''.join([ chr(c) for c in filename.unpack()])
+        if options.contains("export-all"):
+            filename = options.lookup_value("export-all")
+            filename = "".join([chr(c) for c in filename.unpack()])
             project = CmbProject(filename=filename)
             project.export()
             return 0
 
         return -1
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app = CmbApplication()
     app.run(sys.argv)

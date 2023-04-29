@@ -28,8 +28,8 @@ from .cmb_objects_base import CmbBaseProperty, CmbPropertyInfo
 
 
 class CmbProperty(CmbBaseProperty):
-    object = GObject.Property(type=GObject.GObject, flags = GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    info = GObject.Property(type=CmbPropertyInfo, flags = GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    object = GObject.Property(type=GObject.GObject, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    info = GObject.Property(type=CmbPropertyInfo, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self, **kwargs):
         self._init = True
@@ -38,11 +38,10 @@ class CmbProperty(CmbBaseProperty):
 
     @GObject.Property(type=str)
     def value(self):
-        c = self.project.db.execute("SELECT value FROM object_property WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id=?;",
-                                    (self.ui_id,
-                                     self.object_id,
-                                     self.owner_id,
-                                     self.property_id))
+        c = self.project.db.execute(
+            "SELECT value FROM object_property WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id=?;",
+            (self.ui_id, self.object_id, self.owner_id, self.property_id),
+        )
         row = c.fetchone()
         return row[0] if row is not None else self.info.default_value
 
@@ -51,22 +50,29 @@ class CmbProperty(CmbBaseProperty):
         c = self.project.db.cursor()
 
         if value is None or value == self.info.default_value or (self.info.is_object and value == 0):
-            c.execute("DELETE FROM object_property WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id=?;",
-                      (self.ui_id, self.object_id, self.owner_id, self.property_id))
+            c.execute(
+                "DELETE FROM object_property WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id=?;",
+                (self.ui_id, self.object_id, self.owner_id, self.property_id),
+            )
         else:
             # Do not use REPLACE INTO, to make sure both INSERT and UPDATE triggers are used
-            count = self.db_get("SELECT count(value) FROM object_property WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id=?;",
-                                (self.ui_id, self.object_id, self.owner_id, self.property_id))
+            count = self.db_get(
+                "SELECT count(value) FROM object_property WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id=?;",
+                (self.ui_id, self.object_id, self.owner_id, self.property_id),
+            )
 
             if count:
-                c.execute("UPDATE object_property SET value=? WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id=?;",
-                          (value, self.ui_id, self.object_id, self.owner_id, self.property_id))
+                c.execute(
+                    "UPDATE object_property SET value=? WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id=?;",
+                    (value, self.ui_id, self.object_id, self.owner_id, self.property_id),
+                )
             else:
-                c.execute("INSERT INTO object_property (ui_id, object_id, owner_id, property_id, value) VALUES (?, ?, ?, ?, ?);",
-                          (self.ui_id, self.object_id, self.owner_id, self.property_id, value))
+                c.execute(
+                    "INSERT INTO object_property (ui_id, object_id, owner_id, property_id, value) VALUES (?, ?, ?, ?, ?);",
+                    (self.ui_id, self.object_id, self.owner_id, self.property_id, value),
+                )
 
         if self._init == False:
             self.object._property_changed(self)
 
         c.close()
-

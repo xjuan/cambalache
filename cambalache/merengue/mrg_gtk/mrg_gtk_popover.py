@@ -28,8 +28,7 @@ from .mrg_gtk_widget import MrgGtkWidget
 
 
 class MrgGtkPopover(MrgGtkWidget):
-    object = GObject.Property(type=Gtk.Popover,
-                              flags=GObject.ParamFlags.READWRITE)
+    object = GObject.Property(type=Gtk.Popover, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         self.window = None
@@ -38,10 +37,10 @@ class MrgGtkPopover(MrgGtkWidget):
         super().__init__(**kwargs)
 
         if Gtk.MAJOR_VERSION == 4:
-            self.property_ignore_list.add('autohide')
+            self.property_ignore_list.add("autohide")
         else:
-            self.property_ignore_list.add('modal')
-            self.property_ignore_list.add('relative_to')
+            self.property_ignore_list.add("modal")
+            self.property_ignore_list.add("relative_to")
 
     def __ensure_popup(self):
         if self.object is None:
@@ -77,24 +76,19 @@ class MrgGtkPopover(MrgGtkWidget):
             return
 
         if self.window is None:
-            self.__button = Gtk.MenuButton(visible=True,
-                                           halign=Gtk.Align.CENTER,
-                                           valign=Gtk.Align.CENTER,
-                                           receives_default=False)
+            self.__button = Gtk.MenuButton(
+                visible=True, halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER, receives_default=False
+            )
 
-            self.window = Gtk.Window(title='Popover Preview Window',
-                                     deletable=False,
-                                     width_request=320,
-                                     height_request=240)
+            self.window = Gtk.Window(title="Popover Preview Window", deletable=False, width_request=320, height_request=240)
 
             self.window.set_default_size(640, 480)
 
             if Gtk.MAJOR_VERSION == 4:
-                self.__button.set_icon_name('open-menu-symbolic')
+                self.__button.set_icon_name("open-menu-symbolic")
                 self.window.set_child(self.__button)
             else:
-                image = Gtk.Image(visible=True,
-                                  icon_name='open-menu-symbolic')
+                image = Gtk.Image(visible=True, icon_name="open-menu-symbolic")
                 self.__button.add(image)
                 self.window.add(self.__button)
 

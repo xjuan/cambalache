@@ -26,7 +26,7 @@ from gi.repository import GObject
 
 
 class CmbBase(GObject.GObject):
-    project = GObject.Property(type=GObject.GObject, flags = GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    project = GObject.Property(type=GObject.GObject, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -38,4 +38,4 @@ class CmbBase(GObject.GObject):
         return row[0] if row is not None else None
 
     def db_set(self, query, pk, value):
-        self.project.db.execute(query, (value, ) + pk)
+        self.project.db.execute(query, (value,) + pk)

@@ -24,16 +24,16 @@
 import os
 import gi
 
-gi.require_version('Gtk', '3.0')
+gi.require_version("Gtk", "3.0")
 from gi.repository import GObject, Gio, Gtk, GtkSource
 
 from .cmb_css import CmbCSS
 from .cmb_property_controls import *
 
 
-@Gtk.Template(resource_path='/ar/xjuan/Cambalache/cmb_fragment_editor.ui')
+@Gtk.Template(resource_path="/ar/xjuan/Cambalache/cmb_fragment_editor.ui")
 class CmbFragmentEditor(Gtk.Box):
-    __gtype_name__ = 'CmbFragmentEditor'
+    __gtype_name__ = "CmbFragmentEditor"
 
     view = Gtk.Template.Child()
 
@@ -61,9 +61,11 @@ class CmbFragmentEditor(Gtk.Box):
         if obj is None:
             return
 
-        binding = GObject.Object.bind_property(obj, 'custom-fragment',
-                                               self.view, 'text',
-                                               GObject.BindingFlags.SYNC_CREATE |
-                                               GObject.BindingFlags.BIDIRECTIONAL)
+        binding = GObject.Object.bind_property(
+            obj,
+            "custom-fragment",
+            self.view,
+            "text",
+            GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
+        )
         self.__binding = binding
-

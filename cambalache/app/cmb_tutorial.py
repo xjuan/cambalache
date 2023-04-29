@@ -24,52 +24,58 @@
 from .cmb_tutor import CmbTutorPosition
 
 intro = [
-    (_('Hi, I will show you around Cambalache'),
-     'intro_button', 5),
-
-    (_('You can open a project'),  'open_button', 3),
-    (_('find recently used'), 'recent_button', 2,),
-    (_('or create a new one'), 'new_button', 4),
-
-    (_('Common actions like Undo'), 'undo_button', 4),
-    (_('Redo'), 'redo_button', 2),
-    (_('Add new UI file'), 'add_button', 3),
-    (_('and Save are directly accessible in the headerbar'), 'save_button', 6),
-    (_('just like Save As'), 'save_as_button', 2),
-    (_('and the main menu'), 'menu_button', 3),
-
-    (_('Create a project to continue'), 'intro_button', 2, 'add-project'),
-    (_('Great!'), 'intro_button', 2),
-
-    (_('This is the project workspace, where you can see and select the widgets to edit'),
-     'view', 6, None, CmbTutorPosition.CENTER),
-    (_('Project tree, with multiple UI support'),
-     'tree_view', 4, None, CmbTutorPosition.CENTER),
-    (_('Class selector bar'), 'type_chooser_box', 3, ),
-    (_('And the object editor'),
-      'editor_stack', 3, None, CmbTutorPosition.CENTER),
-
-    (_('You can search all supported classes here'),
-      'type_chooser_all', 4, 'show-type-popover', CmbTutorPosition.LEFT),
-    (_('or investigate what is in each group'),
-      'type_chooser_gtk', 4, 'show-type-popover-gtk', CmbTutorPosition.LEFT),
-
-    (_('Now let\'s add a new UI file'), 'add_button', 5, 'add-ui'),
-
-    (_('Good, now try to create a window'), 'intro_button', 4, 'add-window'),
-    (_('Excellent!'), 'intro_button', 2),
-
-    (_('BTW, did you know you can double click on any placeholder to create widgets?'),
-      'intro_button', 5),
-    (_('Try adding a grid'), 'intro_button', 3, 'add-grid'),
-    (_('and a button'), 'intro_button', 3, 'add-button'),
-
-    (_('Quite easy! Isn\'t it?'), 'intro_button', 3),
-
-    (_('Once you finish, you can export all UI files to xml here'),
-      'export_all', 5, 'main-menu', CmbTutorPosition.LEFT),
-
-    (_('That is all for now.\nIf you find Cambalache usefull please consider donating'),
-      'donate', 7, 'donate', CmbTutorPosition.LEFT),
-    (_('Have a nice day!'), 'intro_button', 3, 'intro-end'),
+    (_("Hi, I will show you around Cambalache"), "intro_button", 5),
+    (_("You can open a project"), "open_button", 3),
+    (
+        _("find recently used"),
+        "recent_button",
+        2,
+    ),
+    (_("or create a new one"), "new_button", 4),
+    (_("Common actions like Undo"), "undo_button", 4),
+    (_("Redo"), "redo_button", 2),
+    (_("Add new UI file"), "add_button", 3),
+    (_("and Save are directly accessible in the headerbar"), "save_button", 6),
+    (_("just like Save As"), "save_as_button", 2),
+    (_("and the main menu"), "menu_button", 3),
+    (_("Create a project to continue"), "intro_button", 2, "add-project"),
+    (_("Great!"), "intro_button", 2),
+    (
+        _("This is the project workspace, where you can see and select the widgets to edit"),
+        "view",
+        6,
+        None,
+        CmbTutorPosition.CENTER,
+    ),
+    (_("Project tree, with multiple UI support"), "tree_view", 4, None, CmbTutorPosition.CENTER),
+    (
+        _("Class selector bar"),
+        "type_chooser_box",
+        3,
+    ),
+    (_("And the object editor"), "editor_stack", 3, None, CmbTutorPosition.CENTER),
+    (_("You can search all supported classes here"), "type_chooser_all", 4, "show-type-popover", CmbTutorPosition.LEFT),
+    (_("or investigate what is in each group"), "type_chooser_gtk", 4, "show-type-popover-gtk", CmbTutorPosition.LEFT),
+    (_("Now let's add a new UI file"), "add_button", 5, "add-ui"),
+    (_("Good, now try to create a window"), "intro_button", 4, "add-window"),
+    (_("Excellent!"), "intro_button", 2),
+    (_("BTW, did you know you can double click on any placeholder to create widgets?"), "intro_button", 5),
+    (_("Try adding a grid"), "intro_button", 3, "add-grid"),
+    (_("and a button"), "intro_button", 3, "add-button"),
+    (_("Quite easy! Isn't it?"), "intro_button", 3),
+    (
+        _("Once you finish, you can export all UI files to xml here"),
+        "export_all",
+        5,
+        "main-menu",
+        CmbTutorPosition.LEFT,
+    ),
+    (
+        _("That is all for now.\nIf you find Cambalache usefull please consider donating"),
+        "donate",
+        7,
+        "donate",
+        CmbTutorPosition.LEFT,
+    ),
+    (_("Have a nice day!"), "intro_button", 3, "intro-end"),
 ]

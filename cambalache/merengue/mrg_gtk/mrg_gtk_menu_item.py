@@ -32,4 +32,3 @@ class MrgGtkMenuItem(MrgGtkWidget):
     # Disable GtkBin Controller (We do not want placeholders)
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-

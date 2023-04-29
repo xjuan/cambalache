@@ -36,9 +36,9 @@ class MrgGtkGrid(MrgGtkWidget):
         super().__init__(**kwargs)
 
         if Gtk.MAJOR_VERSION == 4:
-            self._packing = ['column', 'row', 'column-span', 'row-span']
+            self._packing = ["column", "row", "column-span", "row-span"]
         else:
-            self._packing = ['left-attach', 'top-attach', 'width', 'height']
+            self._packing = ["left-attach", "top-attach", "width", "height"]
 
         self.width = None
         self.height = None
@@ -114,8 +114,8 @@ class MrgGtkGrid(MrgGtkWidget):
         width_np, height_np = self.__get_size(ignore_placeholders=True)
 
         if mod:
-            height = max(height-1, height_np)
+            height = max(height - 1, height_np)
         else:
-            width = max(width-1, width_np)
+            width = max(width - 1, width_np)
 
         self.__ensure_placeholders(max(width, 1), max(height, 1))

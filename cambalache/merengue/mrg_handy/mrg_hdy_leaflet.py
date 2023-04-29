@@ -28,8 +28,7 @@ from .mrg_container import MrgContainer
 
 
 class MrgHdyLeaflet(MrgContainer):
-    object = GObject.Property(type=Handy.Leaflet,
-                              flags=GObject.ParamFlags.READWRITE)
+    object = GObject.Property(type=Handy.Leaflet, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

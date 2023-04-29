@@ -31,8 +31,7 @@ logger = getLogger(__name__)
 
 
 class MrgGtkWidget(MrgController):
-    object = GObject.Property(type=Gtk.Widget,
-                              flags=GObject.ParamFlags.READWRITE)
+    object = GObject.Property(type=Gtk.Widget, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         self.window = None
@@ -41,7 +40,7 @@ class MrgGtkWidget(MrgController):
         super().__init__(**kwargs)
 
         # Make sure all widget are always visible
-        self.property_ignore_list.add('visible')
+        self.property_ignore_list.add("visible")
 
         self.child_property_ignore_list = set()
 
@@ -49,7 +48,7 @@ class MrgGtkWidget(MrgController):
 
         # Make sure show_all() always works
         if Gtk.MAJOR_VERSION == 3:
-            self.property_ignore_list.add('no-show-all')
+            self.property_ignore_list.add("no-show-all")
 
     def object_changed(self, old, new):
         super().object_changed(old, new)
@@ -101,9 +100,9 @@ class MrgGtkWidget(MrgController):
             return
 
         if self.selected:
-            self.object.get_style_context().add_class('merengue_selected')
+            self.object.get_style_context().add_class("merengue_selected")
         else:
-            self.object.get_style_context().remove_class('merengue_selected')
+            self.object.get_style_context().remove_class("merengue_selected")
 
         # Update toplevel backdrop state
         if Gtk.MAJOR_VERSION == 4:
@@ -167,33 +166,37 @@ class MrgGtkWidget(MrgController):
         if Gtk.MAJOR_VERSION == 3:
             self.object.remove(child)
         else:
-            logger.warning('Not implemented')
+            logger.warning("Not implemented")
 
     def placeholder_selected(self, placeholder):
         position = self.get_child_position(placeholder)
         child_type = self.get_child_type(placeholder)
         layout = self.get_child_layout(placeholder, {})
-        utils.write_command('placeholder_selected',
-                            args={
-                                'ui_id': self.ui_id,
-                                'object_id': self.object_id,
-                                'position': position,
-                                'child_type': child_type,
-                                'layout': layout
-                            })
+        utils.write_command(
+            "placeholder_selected",
+            args={
+                "ui_id": self.ui_id,
+                "object_id": self.object_id,
+                "position": position,
+                "child_type": child_type,
+                "layout": layout,
+            },
+        )
 
     def placeholder_activated(self, placeholder):
         position = self.get_child_position(placeholder)
         child_type = self.get_child_type(placeholder)
         layout = self.get_child_layout(placeholder, {})
-        utils.write_command('placeholder_activated',
-                            args={
-                                'ui_id': self.ui_id,
-                                'object_id': self.object_id,
-                                'position': position,
-                                'child_type': child_type,
-                                'layout': layout
-                            })
+        utils.write_command(
+            "placeholder_activated",
+            args={
+                "ui_id": self.ui_id,
+                "object_id": self.object_id,
+                "position": position,
+                "child_type": child_type,
+                "layout": layout,
+            },
+        )
 
     def add_placeholder(self, mod):
         pass
@@ -239,4 +242,3 @@ class MrgGtkWidget(MrgController):
                 return None
 
         return retval
-        

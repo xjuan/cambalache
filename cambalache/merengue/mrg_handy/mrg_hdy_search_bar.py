@@ -29,8 +29,7 @@ from merengue.mrg_gtk import MrgGtkBin
 
 
 class MrgHdySearchBar(MrgGtkBin):
-    object = GObject.Property(type=Handy.SearchBar,
-                              flags=GObject.ParamFlags.READWRITE)
+    object = GObject.Property(type=Handy.SearchBar, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -50,7 +49,7 @@ class MrgHdySearchBar(MrgGtkBin):
         for child in box.get_children():
             name = utils.object_get_builder_id(child)
 
-            if name in ['start', 'end']:
+            if name in ["start", "end"]:
                 continue
 
             return [child]

@@ -28,7 +28,7 @@ from merengue import utils, MrgPlaceholder
 preselected_widget = None
 
 
-class FindInContainerData():
+class FindInContainerData:
     def __init__(self, toplevel, x, y):
         self.toplevel = toplevel
         self.x = x
@@ -38,8 +38,7 @@ class FindInContainerData():
 
 
 class MrgSelection(GObject.GObject):
-    app = GObject.Property(type=GObject.GObject,
-                           flags=GObject.ParamFlags.READWRITE)
+    app = GObject.Property(type=GObject.GObject, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         self._container = None
@@ -57,8 +56,8 @@ class MrgSelection(GObject.GObject):
 
         if self._container:
             self.gesture = utils.gesture_click_new(self._container, propagation_phase=Gtk.PropagationPhase.CAPTURE)
-            self.gesture.connect('pressed', self.__on_gesture_button_pressed)
-            self.gesture.connect('released', self.__on_gesture_button_released)
+            self.gesture.connect("pressed", self.__on_gesture_button_pressed)
+            self.gesture.connect("released", self.__on_gesture_button_released)
         else:
             self.gesture = None
 
@@ -101,7 +100,7 @@ class MrgSelection(GObject.GObject):
             return
 
         # Select widget on button release only if its preselected
-        utils.write_command('selection_changed', args={ 'selection': [object_id] })
+        utils.write_command("selection_changed", args={"selection": [object_id]})
         controller.selected = True
         gesture.set_state(Gtk.EventSequenceState.CLAIMED)
 
@@ -110,9 +109,9 @@ class MrgSelection(GObject.GObject):
             return True
 
         object_id = utils.object_get_builder_id(obj)
-        return object_id is not None and object_id.startswith('__cmb__')
+        return object_id is not None and object_id.startswith("__cmb__")
 
-    def _find_first_child_inside_container (self, widget, data):
+    def _find_first_child_inside_container(self, widget, data):
         if data.child is not None or not widget.get_mapped():
             return
 
@@ -132,7 +131,6 @@ class MrgSelection(GObject.GObject):
 
             if data.child is None and from_ui:
                 data.child = widget
-
 
     def get_child_at_position(self, widget, x, y):
         if Gtk.MAJOR_VERSION == 4:
@@ -158,4 +156,3 @@ class MrgSelection(GObject.GObject):
                 return widget
 
         return None
-

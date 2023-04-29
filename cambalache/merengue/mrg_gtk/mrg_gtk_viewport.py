@@ -27,9 +27,7 @@ from .mrg_gtk_bin import MrgGtkBin
 
 
 class MrgGtkViewport(MrgGtkBin):
-    object = GObject.Property(type=Gtk.Viewport,
-                              flags=GObject.ParamFlags.READWRITE)
+    object = GObject.Property(type=Gtk.Viewport, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-

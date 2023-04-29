@@ -38,11 +38,7 @@ class MrgGtkCenterBox(MrgGtkWidget):
         super().__init__(**kwargs)
 
     def __get_children(self):
-        return [
-            self.object.get_start_widget(),
-            self.object.get_center_widget(),
-            self.object.get_end_widget()
-        ]
+        return [self.object.get_start_widget(), self.object.get_center_widget(), self.object.get_end_widget()]
 
     def add(self, child):
         if self.object is None:
@@ -52,11 +48,11 @@ class MrgGtkCenterBox(MrgGtkWidget):
         start, center, end = self.__get_children()
 
         if start == child:
-            return 'start'
+            return "start"
         elif center == child:
-            return 'center'
+            return "center"
         elif end == child:
-            return 'end'
+            return "end"
 
     def __ensure_placeholders(self):
         if self.object is None:
@@ -87,4 +83,3 @@ class MrgGtkCenterBox(MrgGtkWidget):
             self.object.set_center_widget(None)
         elif end == child:
             self.object.set_end_widget(None)
-
