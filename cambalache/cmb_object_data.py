@@ -21,10 +21,7 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-import gi
-
-gi.require_version("Gtk", "3.0")
-from gi.repository import GObject, Gtk
+from gi.repository import GObject
 
 from .cmb_objects_base import CmbBaseObjectData
 from .cmb_type_info import CmbTypeDataInfo

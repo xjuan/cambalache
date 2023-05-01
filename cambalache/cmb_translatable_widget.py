@@ -21,10 +21,6 @@
 #   Philipp Unger <philipp.unger.1988@gmail.com>
 #
 
-import os
-import gi
-
-gi.require_version("Gtk", "3.0")
 from gi.repository import GObject, Gtk
 
 

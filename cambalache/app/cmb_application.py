@@ -23,15 +23,11 @@
 
 import os
 import sys
-import gi
 
-gi.require_version("Gdk", "3.0")
-gi.require_version("Gtk", "3.0")
 from gi.repository import GLib, Gdk, Gtk, Gio
 
-from cambalache import *
-
 from .cmb_window import CmbWindow
+from cambalache import CmbProject, config, _
 
 basedir = os.path.dirname(__file__) or "."
 
@@ -200,7 +196,7 @@ class CmbApplication(Gtk.Application):
 
     def do_handle_local_options(self, options):
         if options.contains("version"):
-            print(VERSION)
+            print(config.VERSION)
             return 0
 
         if options.contains("export-all"):

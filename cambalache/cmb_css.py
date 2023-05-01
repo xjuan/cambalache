@@ -22,10 +22,9 @@
 #
 
 import os
-import gi
 from gi.repository import GObject, Gio
-
 from .cmb_objects_base import CmbBaseCSS
+from cambalache import _
 
 
 class CmbCSS(CmbBaseCSS):

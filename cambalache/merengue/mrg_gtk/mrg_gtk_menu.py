@@ -20,7 +20,6 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-import gi
 from gi.repository import GObject, Gdk, Gtk
 
 from .mrg_selection import MrgSelection

@@ -23,9 +23,6 @@
 # Based on glade-intro.c (C) 2017-2018 Juan Pablo Ugarte
 #
 
-import gi
-
-gi.require_version("Gtk", "3.0")
 from gi.repository import GObject, GLib, Gdk, Gtk
 from enum import Enum
 from collections import namedtuple

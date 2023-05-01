@@ -22,6 +22,7 @@
 #
 
 from .cmb_tutor import CmbTutorPosition
+from cambalache import _
 
 intro = [
     (_("Hi, I will show you around Cambalache"), "intro_button", 5),

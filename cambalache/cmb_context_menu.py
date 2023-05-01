@@ -22,10 +22,9 @@
 #
 
 import os
-import gi
 
-gi.require_version("Gtk", "3.0")
 from gi.repository import GObject, GLib, Gdk, Gtk
+from cambalache import _
 
 
 @Gtk.Template(resource_path="/ar/xjuan/Cambalache/cmb_context_menu.ui")

@@ -21,10 +21,6 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-import io
-import gi
-
-gi.require_version("Gtk", "3.0")
 from gi.repository import GObject, Gtk
 
 

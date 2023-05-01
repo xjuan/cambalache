@@ -21,14 +21,8 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-import os
-import gi
-
-gi.require_version("Gtk", "3.0")
-from gi.repository import GObject, Gio, Gtk, GtkSource
-
+from gi.repository import GObject, Gtk
 from .cmb_css import CmbCSS
-from .cmb_property_controls import *
 
 
 @Gtk.Template(resource_path="/ar/xjuan/Cambalache/cmb_css_editor.ui")

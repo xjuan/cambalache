@@ -23,9 +23,10 @@
 
 import sys
 import json
+import ctypes
 
-import gi
-from gi.repository import GLib, Gdk, Gtk
+from ctypes.util import find_library
+from gi.repository import Gdk, Gtk
 
 
 def write_command(command, payload=None, args=None):
@@ -93,8 +94,6 @@ def scroll_controller_new(widget, **kwargs):
 #
 # CTYPES HACKS
 #
-import ctypes
-from ctypes.util import find_library
 
 # Python object size, needed to calculate GObject pointer
 object_size = sys.getsizeof(object())

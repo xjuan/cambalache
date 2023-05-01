@@ -21,15 +21,12 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-import gi
-import traceback
-
-gi.require_version("Gtk", "3.0")
-from gi.repository import GLib, GObject, Gtk
+from gi.repository import GObject, Gtk
 
 from .cmb_type_info import CmbTypeDataInfo
 from .cmb_object_data import CmbObjectData
-from .cmb_property_controls import *
+from .cmb_property_controls import cmb_create_editor
+from cambalache import _
 
 
 @Gtk.Template(resource_path="/ar/xjuan/Cambalache/cmb_object_data_editor.ui")

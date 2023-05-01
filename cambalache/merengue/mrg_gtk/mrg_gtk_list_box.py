@@ -20,8 +20,7 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-import gi
-from gi.repository import GObject, Gdk, Gtk
+from gi.repository import GObject, Gtk
 
 from .mrg_gtk_box import MrgGtkBox
 from merengue import MrgPlaceholder, utils

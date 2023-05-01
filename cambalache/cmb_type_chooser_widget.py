@@ -21,13 +21,11 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-import gi
-
-gi.require_version("Gtk", "3.0")
 from gi.repository import GObject, Gtk
 
 from .cmb_project import CmbProject
 from .cmb_type_info import CmbTypeInfo
+from cambalache import _
 
 
 @Gtk.Template(resource_path="/ar/xjuan/Cambalache/cmb_type_chooser_widget.ui")

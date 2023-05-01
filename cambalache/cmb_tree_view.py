@@ -21,16 +21,11 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-import os
-import gi
+from gi.repository import Gdk, Gtk
 
-gi.require_version("Gtk", "3.0")
-from gi.repository import GObject, Gdk, Gtk
-
-from .cmb_ui import CmbUI
-from .cmb_css import CmbCSS
 from .cmb_object import CmbObject
 from .cmb_context_menu import CmbContextMenu
+from cambalache import _
 
 
 class CmbTreeView(Gtk.TreeView):

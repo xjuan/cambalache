@@ -21,10 +21,7 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-import gi
-
-gi.require_version("Gtk", "3.0")
-from gi.repository import GObject, Gtk
+from gi.repository import GObject
 
 from .cmb_objects_base import CmbBaseObject, CmbSignal
 from .cmb_property import CmbProperty
@@ -32,7 +29,7 @@ from .cmb_layout_property import CmbLayoutProperty
 from .cmb_object_data import CmbObjectData
 from .cmb_type_info import CmbTypeInfo
 from .cmb_ui import CmbUI
-from cambalache import getLogger
+from cambalache import getLogger, _
 
 logger = getLogger(__name__)
 
@@ -243,7 +240,10 @@ class CmbObject(CmbBaseObject):
         try:
             c = self.project.db.cursor()
             c.execute(
-                "INSERT INTO object_signal (ui_id, object_id, owner_id, signal_id, handler, detail, user_data, swap, after) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);",
+                """
+                INSERT INTO object_signal (ui_id, object_id, owner_id, signal_id, handler, detail, user_data, swap, after)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+                """,
                 (self.ui_id, self.object_id, owner_id, signal_id, handler, detail, user_data, swap, after),
             )
             signal_pk = c.lastrowid
@@ -276,9 +276,8 @@ class CmbObject(CmbBaseObject):
             self.project.db.execute("DELETE FROM object_signal WHERE signal_pk=?;", (signal.signal_pk,))
             self.project.db.commit()
         except Exception as e:
-            logger.warning(
-                f"Error removing signal handler {signal.owner_id}:{signal.signal_id} {signal.handler} from object {self.ui_id}.{{self.object_id}} {e}"
-            )
+            handler = f"{signal.owner_id}:{signal.signal_id} {signal.handler}"
+            logger.warning(f"Error removing signal handler {handler} from object {self.ui_id}.{{self.object_id}} {e}")
             return False
         else:
             self._remove_signal(signal)
@@ -338,7 +337,7 @@ class CmbObject(CmbBaseObject):
 
     def reorder_child(self, child, position):
         if child is None:
-            logger.warning(f"child has to be a CmbObject")
+            logger.warning("child has to be a CmbObject")
             return
 
         if self.ui_id != child.ui_id or self.object_id != child.parent_id:
@@ -357,10 +356,11 @@ class CmbObject(CmbBaseObject):
         for row in c.execute(
             """
             SELECT object_id, position
-                FROM object
-                WHERE ui_id=? AND parent_id=? AND internal IS NULL AND object_id!=?
-                    AND object_id NOT IN (SELECT inline_object_id FROM object_property WHERE inline_object_id IS NOT NULL AND ui_id=? AND object_id=?)
-                ORDER BY position;""",
+            FROM object
+            WHERE ui_id=? AND parent_id=? AND internal IS NULL AND object_id!=? AND object_id NOT IN
+                 (SELECT inline_object_id FROM object_property WHERE inline_object_id IS NOT NULL AND ui_id=? AND object_id=?)
+            ORDER BY position;
+            """,
             (self.ui_id, self.object_id, child.object_id, self.ui_id, self.object_id),
         ):
             child_id, child_position = row

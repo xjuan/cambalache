@@ -26,20 +26,27 @@ import logging
 import locale
 import builtins
 
-# Ensure _() builtin
-if "_" not in builtins.__dict__:
-    builtins.__dict__["_"] = locale.gettext
-
-if "N_" not in builtins.__dict__:
-    builtins.__dict__["N_"] = lambda s, p, n: _(p) if n > 1 else _(s)
-
-from .config import *
+from . import config
 
 gi.require_version("Gdk", "3.0")
 gi.require_version("Gtk", "3.0")
+gi.require_version("GtkSource", "4")
+gi.require_version("WebKit2", "4.1")
+
+# Ensure _() builtin
+if "_" not in builtins.__dict__:
+    _ = locale.gettext
+
+if "N_" not in builtins.__dict__:
+
+    def N_(s, p, n):
+        return _(p) if n > 1 else _(s)
+
+
+# noqa: E402,E401
 from gi.repository import Gio, Gdk, Gtk
 
-resource = Gio.Resource.load(os.path.join(pkgdatadir, "cambalache.gresource"))
+resource = Gio.Resource.load(os.path.join(config.pkgdatadir, "cambalache.gresource"))
 resource._register()
 
 provider = Gtk.CssProvider()

@@ -98,7 +98,7 @@ class MrgApplication(Gtk.Application):
     def update_ui(self, ui_id, dirname=None, toplevels=[], selection=[], payload=None):
         self.clear_all()
 
-        if payload == None:
+        if payload is None:
             return
 
         self.ui_id = ui_id
@@ -193,8 +193,6 @@ class MrgApplication(Gtk.Application):
             parent = parent.props.parent
 
     def set_selection(self, ui_id, selection):
-        length = len(selection)
-
         # Gtk 3: Ungrab pointer everytime we switch selection just in case
         # there is a broken grab (Fix issue #101)
         if Gtk.MAJOR_VERSION == 3 and self.default_seat_pointer:

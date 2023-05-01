@@ -25,15 +25,11 @@ import os
 import sys
 import sqlite3
 import ast
-import gi
 
 from lxml import etree
 from lxml.builder import E
-
-gi.require_version("Gtk", "3.0")
-from gi.repository import Gio, GLib, GObject, Gtk
-from .config import *
-from cambalache import getLogger
+from gi.repository import Gio, GObject, Gtk
+from cambalache import config, getLogger, _
 from . import cmb_db_migration
 
 logger = getLogger(__name__)
@@ -48,21 +44,21 @@ BASE_SQL = _get_text_resource("db/cmb_base.sql")
 PROJECT_SQL = _get_text_resource("db/cmb_project.sql")
 HISTORY_SQL = _get_text_resource("db/cmb_history.sql")
 
-GOBJECT_XML = os.path.join(catalogsdir, "gobject-2.0.xml")
-GIO_XML = os.path.join(catalogsdir, "gio-2.0.xml")
-GDKPIXBUF_XML = os.path.join(catalogsdir, "gdkpixbuf-2.0.xml")
-PANGO_XML = os.path.join(catalogsdir, "pango-1.0.xml")
-GDK3_XML = os.path.join(catalogsdir, "gdk-3.0.xml")
-GDK4_XML = os.path.join(catalogsdir, "gdk-4.0.xml")
-GSK4_XML = os.path.join(catalogsdir, "gsk-4.0.xml")
-GTK3_XML = os.path.join(catalogsdir, "gtk+-3.0.xml")
-GTK4_XML = os.path.join(catalogsdir, "gtk-4.0.xml")
+GOBJECT_XML = os.path.join(config.catalogsdir, "gobject-2.0.xml")
+GIO_XML = os.path.join(config.catalogsdir, "gio-2.0.xml")
+GDKPIXBUF_XML = os.path.join(config.catalogsdir, "gdkpixbuf-2.0.xml")
+PANGO_XML = os.path.join(config.catalogsdir, "pango-1.0.xml")
+GDK3_XML = os.path.join(config.catalogsdir, "gdk-3.0.xml")
+GDK4_XML = os.path.join(config.catalogsdir, "gdk-4.0.xml")
+GSK4_XML = os.path.join(config.catalogsdir, "gsk-4.0.xml")
+GTK3_XML = os.path.join(config.catalogsdir, "gtk+-3.0.xml")
+GTK4_XML = os.path.join(config.catalogsdir, "gtk-4.0.xml")
 
-WEBKIT2GTK_4_1_XML = os.path.join(catalogsdir, "webkit2gtk-4.1.xml")
-WEBKITGTK_6_0_XML = os.path.join(catalogsdir, "webkitgtk-6.0.xml")
+WEBKIT2GTK_4_1_XML = os.path.join(config.catalogsdir, "webkit2gtk-4.1.xml")
+WEBKITGTK_6_0_XML = os.path.join(config.catalogsdir, "webkitgtk-6.0.xml")
 
-LIBHANDY_XML = os.path.join(catalogsdir, "libhandy-1.xml")
-LIBADWAITA_XML = os.path.join(catalogsdir, "libadwaita-1.xml")
+LIBHANDY_XML = os.path.join(config.catalogsdir, "libhandy-1.xml")
+LIBADWAITA_XML = os.path.join(config.catalogsdir, "libadwaita-1.xml")
 
 
 class CmbDB(GObject.GObject):
@@ -71,7 +67,7 @@ class CmbDB(GObject.GObject):
     target_tk = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self, **kwargs):
-        self.version = self.__parse_version(FILE_FORMAT_VERSION)
+        self.version = self.__parse_version(config.FILE_FORMAT_VERSION)
 
         self.type_info = None
 
@@ -143,8 +139,6 @@ class CmbDB(GObject.GObject):
         return conn
 
     def __create_support_table(self, c, table):
-        _table = table.replace("_", "-")
-
         # Create a history table to store data for INSERT and DELETE commands
         c.executescript(
             f"""
@@ -178,10 +172,9 @@ class CmbDB(GObject.GObject):
 
         for row in c.execute(f"PRAGMA table_info({table});"):
             col = row[1]
-            col_type = row[2]
             pk = row[5]
 
-            if columns == None:
+            if columns is None:
                 columns = col
                 old_values = "OLD." + col
                 new_values = "NEW." + col
@@ -252,7 +245,7 @@ class CmbDB(GObject.GObject):
 
         pkcolumns_values = None
         for col in pk_columns:
-            if pkcolumns_values == None:
+            if pkcolumns_values is None:
                 pkcolumns_values = "NEW." + col
             else:
                 pkcolumns_values += ", NEW." + col
@@ -377,7 +370,7 @@ class CmbDB(GObject.GObject):
                     retval = get_target_from_line(line, "project")
                     break
             f.close()
-        except:
+        except Exception:
             pass
 
         return retval
@@ -487,7 +480,7 @@ class CmbDB(GObject.GObject):
         namespace = root.get("namespace", None)
         prefix = root.get("prefix", None)
         targets = root.get("targets", "")
-        depends = root.get("depends", "")
+        # depends = root.get("depends", "")
 
         c = self.conn.cursor()
 
@@ -582,7 +575,7 @@ class CmbDB(GObject.GObject):
         self.conn.commit()
         c = self.conn.cursor()
 
-        project = E("cambalache-project", version=FILE_FORMAT_VERSION, target_tk=self.target_tk)
+        project = E("cambalache-project", version=config.FILE_FORMAT_VERSION, target_tk=self.target_tk)
 
         for table in self.__tables:
             data = _dump_table(c, table)
@@ -965,7 +958,7 @@ class CmbDB(GObject.GObject):
 
         for prop in layout.iterchildren():
             if prop.tag != "property":
-                self.__unknown_tag(prop, owner_id, prop.tag)
+                self.__unknown_tag(prop, parent_id, prop.tag)
                 continue
 
             name, translatable, context, comments = self.__node_get(prop, "name", ["translatable", "context", "comments"])
@@ -1087,7 +1080,7 @@ class CmbDB(GObject.GObject):
         # Insert object
         try:
             object_id = self.add_object(ui_id, klass, name, parent_id, internal_child, child_type, comment)
-        except:
+        except Exception:
             logger.warning(f"XML:{node.sourceline} - Error importing {klass}")
             return
 
@@ -1631,7 +1624,7 @@ class CmbDB(GObject.GObject):
             return
         try:
             root = etree.fromstring(f"<root>{custom_fragment}</root>")
-        except:
+        except Exception:
             pass
         else:
             node.append(etree.Comment(" Custom fragments "))
@@ -1642,7 +1635,7 @@ class CmbDB(GObject.GObject):
         c = self.conn.cursor()
 
         node = E.interface()
-        node.addprevious(etree.Comment(f" Created with Cambalache {VERSION} "))
+        node.addprevious(etree.Comment(f" Created with Cambalache {config.VERSION} "))
 
         c.execute("SELECT comment, template_id, custom_fragment FROM ui WHERE ui_id=?;", (ui_id,))
         row = c.fetchone()
@@ -1764,7 +1757,7 @@ class CmbDB(GObject.GObject):
                 if len(tokens) == 2 and tokens[0] == object_id_base:
                     try:
                         max_index = max(max_index, int(tokens[1]))
-                    except:
+                    except Exception:
                         pass
                 elif row[0] == object_id_base:
                     max_index = 1

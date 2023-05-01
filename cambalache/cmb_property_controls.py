@@ -22,11 +22,8 @@
 #
 
 import os
-import gi
 import math
 
-gi.require_version("Gtk", "3.0")
-gi.require_version("GtkSource", "4")
 from gi.repository import GLib, GObject, Gdk, Gtk, Pango, GdkPixbuf, GtkSource
 
 from .cmb_object import CmbObject
@@ -36,6 +33,7 @@ from .cmb_translatable_popover import CmbTranslatablePopover
 from .cmb_type_chooser_popover import CmbTypeChooserPopover
 from .cmb_property import CmbProperty
 from .icon_naming_spec import standard_icon_names, standard_icon_context
+from cambalache import _
 
 
 def unset_scroll_event(widget):
@@ -303,7 +301,6 @@ class CmbFlagsEntry(Gtk.Entry):
             tokens = [t.strip() for t in value.split("|")]
 
             for row in self.info.flags:
-                flag = row[self.text_column]
                 flag_id = row[self.id_column]
                 flag_name = row[0]
                 flag_nick = row[1]
@@ -932,7 +929,7 @@ def cmb_create_editor(project, type_id, prop=None):
     elif type_id == "GFile":
         editor = CmbFileEntry(hexpand=True, dirname=get_dirname())
     elif type_id == "CmbIconName":
-        editor = CmbIconNameEntry(hexpand=True, placeholder_text=f"<Icon Name>")
+        editor = CmbIconNameEntry(hexpand=True, placeholder_text="<Icon Name>")
     elif info:
         if info.is_object:
             # TODO: replace prop with project and is_inline
@@ -944,7 +941,7 @@ def cmb_create_editor(project, type_id, prop=None):
 
     if editor is None:
         editor = CmbEntry(hexpand=True, placeholder_text=f"<{type_id}>")
-        if translatable == True:
+        if translatable:
             editor.make_translatable(target=prop)
 
     editor.show()

@@ -21,7 +21,6 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-import gi
 from gi.repository import GObject
 
 from .cmb_objects_base import CmbBaseLayoutProperty, CmbPropertyInfo
@@ -39,7 +38,11 @@ class CmbLayoutProperty(CmbBaseLayoutProperty):
     @GObject.Property(type=str)
     def value(self):
         c = self.project.db.execute(
-            "SELECT value FROM object_layout_property WHERE ui_id=? AND object_id=? AND child_id=? AND owner_id=? AND property_id=?;",
+            """
+            SELECT value
+            FROM object_layout_property
+            WHERE ui_id=? AND object_id=? AND child_id=? AND owner_id=? AND property_id=?;
+            """,
             (self.ui_id, self.object_id, self.child_id, self.owner_id, self.property_id),
         )
         row = c.fetchone()
@@ -51,25 +54,39 @@ class CmbLayoutProperty(CmbBaseLayoutProperty):
 
         if value is None or value == self.info.default_value:
             c.execute(
-                "DELETE FROM object_layout_property WHERE ui_id=? AND object_id=? AND child_id=? AND owner_id=? AND property_id=?;",
+                """
+                DELETE FROM object_layout_property
+                WHERE ui_id=? AND object_id=? AND child_id=? AND owner_id=? AND property_id=?;
+                """,
                 (self.ui_id, self.object_id, self.child_id, self.owner_id, self.property_id),
             )
             value = None
         else:
             # Do not use REPLACE INTO, to make sure both INSERT and UPDATE triggers are used
             count = self.db_get(
-                "SELECT count(value) FROM object_layout_property WHERE ui_id=? AND object_id=? AND child_id=? AND owner_id=? AND property_id=?;",
+                """
+                SELECT count(value)
+                FROM object_layout_property
+                WHERE ui_id=? AND object_id=? AND child_id=? AND owner_id=? AND property_id=?;
+                """,
                 (self.ui_id, self.object_id, self.child_id, self.owner_id, self.property_id),
             )
 
             if count:
                 c.execute(
-                    "UPDATE object_layout_property SET value=? WHERE ui_id=? AND object_id=? AND child_id=? AND owner_id=? AND property_id=?;",
+                    """
+                    UPDATE object_layout_property
+                    SET value=?
+                    WHERE ui_id=? AND object_id=? AND child_id=? AND owner_id=? AND property_id=?;
+                    """,
                     (value, self.ui_id, self.object_id, self.child_id, self.owner_id, self.property_id),
                 )
             else:
                 c.execute(
-                    "INSERT INTO object_layout_property (ui_id, object_id, child_id, owner_id, property_id, value) VALUES (?, ?, ?, ?, ?, ?);",
+                    """
+                    INSERT INTO object_layout_property (ui_id, object_id, child_id, owner_id, property_id, value)
+                    VALUES (?, ?, ?, ?, ?, ?);
+                    """,
                     (self.ui_id, self.object_id, self.child_id, self.owner_id, self.property_id, value),
                 )
 

@@ -21,11 +21,10 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-import gi
 from gi.repository import GObject
 
 from .cmb_objects_base import CmbBaseUI
-from cambalache import getLogger
+from cambalache import getLogger, _
 
 logger = getLogger(__name__)
 

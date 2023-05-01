@@ -20,8 +20,7 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-import gi
-from gi.repository import GObject, Gdk, Gtk
+from gi.repository import GObject, Gtk
 
 from .mrg_gtk_widget import MrgGtkWidget
 from merengue import MrgPlaceholder
@@ -75,7 +74,7 @@ class MrgGtkNotebook(MrgGtkWidget):
             try:
                 old.disconnect_by_func(self.__on_object_page_notify)
                 old.disconnect_by_func(self.__on_object_map)
-            except:
+            except Exception:
                 pass
 
         self.__ensure_placeholders()

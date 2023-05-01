@@ -39,7 +39,6 @@ def get_supporters(filename):
         reader = csv.DictReader(f)
         for row in reader:
             name = row["Name"]
-            tier = row["Tier"].lower()
             lifetime = float(row["Lifetime Amount"])
 
             if lifetime > 0:

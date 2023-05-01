@@ -21,15 +21,12 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-import gi
-import math
-
-gi.require_version("Gtk", "3.0")
-from gi.repository import GLib, GObject, Gtk
+from gi.repository import GObject, Gtk
 
 from .cmb_object import CmbObject
 from .cmb_object_data_editor import CmbObjectDataEditor
-from .cmb_property_controls import *
+from .cmb_property_controls import CmbEntry, CmbChildTypeComboBox, cmb_create_editor
+from cambalache import _
 
 
 class CmbObjectEditor(Gtk.Box):

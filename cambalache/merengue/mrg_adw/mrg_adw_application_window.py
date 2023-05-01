@@ -20,8 +20,6 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-import gi
-
 from gi.repository import GObject, Adw
 from .mrg_adw_window import MrgAdwWindow
 

@@ -21,7 +21,6 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-import gi
 from gi.repository import GObject, CambalachePrivate
 from . import utils
 from merengue import getLogger

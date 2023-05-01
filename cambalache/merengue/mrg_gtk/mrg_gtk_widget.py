@@ -20,8 +20,7 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-import gi
-from gi.repository import GObject, Gdk, Gtk, CambalachePrivate
+from gi.repository import GObject, Gtk, CambalachePrivate
 
 from .mrg_selection import MrgSelection
 

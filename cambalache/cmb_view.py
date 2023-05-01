@@ -22,21 +22,17 @@
 #
 
 import os
-import gi
 import json
 import socket
 import time
 
-gi.require_version("Gtk", "3.0")
-gi.require_version("WebKit2", "4.1")
-from gi.repository import GObject, GLib, Gio, Gdk, Gtk, WebKit2
+from gi.repository import GObject, GLib, Gtk, WebKit2
 
 from . import config
 from .cmb_ui import CmbUI
 from .cmb_object import CmbObject
-from .cmb_project import CmbProject
 from .cmb_context_menu import CmbContextMenu
-from cambalache import getLogger
+from cambalache import getLogger, _
 
 logger = getLogger(__name__)
 
@@ -526,7 +522,7 @@ window.setupDocument = function (document) {
         self.__project.set_selection(objects)
 
     def __load_namespaces(self):
-        if self.project == None:
+        if self.project is None:
             return
 
         for id in self.project.library_info:
@@ -614,7 +610,7 @@ window.setupDocument = function (document) {
             return GLib.SOURCE_REMOVE
 
         status, retval, length, terminator = self.__broadwayd.stdout.read_line()
-        path = retval.replace("Listening on ", "").strip()
+        # path = retval.replace("Listening on ", "").strip()
 
         # Run view process
         if self.__project.target_tk == "gtk+-3.0":
@@ -627,7 +623,7 @@ window.setupDocument = function (document) {
             [version],
             {
                 "GDK_BACKEND": "broadway",
-                #'GTK_DEBUG': 'interactive',
+                # 'GTK_DEBUG': 'interactive',
                 "BROADWAY_DISPLAY": f":{display}",
             },
         )

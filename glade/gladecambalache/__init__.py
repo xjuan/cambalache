@@ -1,13 +1,13 @@
 import os
 import sys
-import gi
 
 from gi.repository import GObject
 
 basedir = os.path.dirname(__file__) or "."
 sys.path.append(os.path.join(basedir, "../../"))
 
-from cambalache import *
+from cambalache import CmbProject, CmbView, CmbTreeView, CmbUIEditor, CmbObjectEditor, CmbSignalEditor  # noqa: E402
+from cambalache import CmbTypeChooser, CmbTypeChooserPopover, CmbTypeChooserWidget  # noqa: E402
 
 # Ensure types that we are going to use in Glade
 GObject.type_ensure(CmbProject)

@@ -22,7 +22,6 @@
 #
 
 import os
-import gi
 from gi.repository import GObject, Gio, Gdk, Gtk
 
 from merengue import getLogger
@@ -54,7 +53,7 @@ class MrgCssProvider(Gtk.CssProvider):
 
         try:
             self.load_from_path(self.filename)
-        except:
+        except Exception:
             pass
 
     def __update(self):
@@ -73,7 +72,7 @@ class MrgCssProvider(Gtk.CssProvider):
     def load(self):
         try:
             self.load_from_path(self.filename)
-        except Exception as e:
+        except Exception:
             # TODO: return exception to main app to show the user
             pass
 

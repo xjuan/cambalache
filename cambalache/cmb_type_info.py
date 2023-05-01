@@ -21,9 +21,6 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-import gi
-
-gi.require_version("Gtk", "3.0")
 from gi.repository import GObject, Gtk
 
 from .cmb_objects_base import (
@@ -111,7 +108,7 @@ class CmbTypeInfo(CmbBaseTypeInfo):
         retval = []
 
         c = self.project.db.cursor()
-        for row in c.execute(f"SELECT iface_id FROM type_iface WHERE type_id=? ORDER BY iface_id;", (self.type_id,)):
+        for row in c.execute("SELECT iface_id FROM type_iface WHERE type_id=? ORDER BY iface_id;", (self.type_id,)):
             retval.append(row[0])
 
         c.close()

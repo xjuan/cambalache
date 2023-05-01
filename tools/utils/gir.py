@@ -21,7 +21,6 @@
 #
 
 import gi
-import sqlite3
 import importlib
 
 # We need to use lxml to get access to nsmap
@@ -464,7 +463,7 @@ class GirData:
                 continue
 
             if types is None or name in types:
-                data = self._get_type_data(child, name, not name in skip_types)
+                data = self._get_type_data(child, name, name not in skip_types)
                 if name and data is not None:
                     retval[name] = data
 
@@ -519,11 +518,6 @@ class GirData:
                 continue
 
             if types is None or name in types:
-                if name.startswith(self.prefix):
-                    iface = getattr(self.mod, name[len(self.prefix) :], None)
-                else:
-                    iface = getattr(self.mod, name, None)
-
                 # NOTE: this method is needed because
                 # g_object_interface_list_properties bindings do not work
                 props = CmbUtils.get_iface_properties(name)
@@ -558,19 +552,19 @@ class GirData:
 
         def db_insert_enum_flags(conn, name, data):
             parent = data.get("parent", None)
-            conn.execute(f"INSERT INTO type (library_id, type_id, parent_id) VALUES (?, ?, ?);", (self.lib, name, parent))
+            conn.execute("INSERT INTO type (library_id, type_id, parent_id) VALUES (?, ?, ?);", (self.lib, name, parent))
 
             members = data.get("members", [])
             for member in members:
                 m = members[member]
                 conn.execute(
-                    f"INSERT INTO type_{parent} (type_id, name, value, nick, doc) VALUES (?, ?, ?, ?, ?);",
+                    "INSERT INTO type_{parent} (type_id, name, value, nick, doc) VALUES (?, ?, ?, ?, ?);",
                     (name, member, m["value"], m["nick"], m["doc"]),
                 )
 
         def db_insert_iface(conn, name, data):
             parent = data.get("parent", None)
-            conn.execute(f"INSERT INTO type (library_id, type_id, parent_id) VALUES (?, ?, ?);", (self.lib, name, parent))
+            conn.execute("INSERT INTO type (library_id, type_id, parent_id) VALUES (?, ?, ?);", (self.lib, name, parent))
 
         def db_insert_type(conn, name, data):
             parent = data.get("parent", None)
@@ -579,7 +573,10 @@ class GirData:
                 parent = "object"
 
             conn.execute(
-                f"INSERT INTO type (library_id, type_id, parent_id, version, deprecated_version, abstract, derivable, layout) VALUES (?, ?, ?, ?, ?, ?, ?, ?);",
+                """
+                INSERT INTO type (library_id, type_id, parent_id, version, deprecated_version, abstract, derivable, layout)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+                """,
                 (
                     self.lib,
                     name,
@@ -609,7 +606,11 @@ class GirData:
                     continue
 
                 conn.execute(
-                    f"INSERT INTO property (owner_id, property_id, type_id, is_object, construct_only, default_value, minimum, maximum, version, deprecated_version) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+                    """
+                    INSERT INTO property (owner_id, property_id, type_id, is_object, construct_only, default_value, minimum,
+                                          maximum, version, deprecated_version)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                    """,
                     (
                         name,
                         prop,
@@ -628,16 +629,16 @@ class GirData:
             for signal in signals:
                 s = signals[signal]
                 conn.execute(
-                    f"INSERT INTO signal (owner_id, signal_id, version, deprecated_version, detailed) VALUES (?, ?, ?, ?, ?);",
+                    "INSERT INTO signal (owner_id, signal_id, version, deprecated_version, detailed) VALUES (?, ?, ?, ?, ?);",
                     (name, signal, clean_ver(s["version"]), clean_ver(s["deprecated_version"]), s["detailed"]),
                 )
 
             for iface in data.get("interfaces", []):
-                conn.execute(f"INSERT INTO type_iface (type_id, iface_id) VALUES (?, ?);", (name, iface))
+                conn.execute("INSERT INTO type_iface (type_id, iface_id) VALUES (?, ?);", (name, iface))
 
         # Import library
         conn.execute(
-            f"INSERT INTO library (library_id, version, namespace, prefix, shared_library) VALUES (?, ?, ?, ?, ?);",
+            "INSERT INTO library (library_id, version, namespace, prefix, shared_library) VALUES (?, ?, ?, ?, ?);",
             (self.lib, self.version, self.name, self.prefix, self.shared_library),
         )
 
@@ -672,10 +673,15 @@ class GirData:
         # Get versions from all types, properties and signal of this library
         versions = [(mod_major, mod_minor)]
         for row in conn.execute(
-            f"""
-            SELECT version FROM type WHERE version IS NOT NULL AND library_id=? UNION
-            SELECT p.version FROM property AS p, type AS t WHERE p.version IS NOT NULL AND p.owner_id = t.type_id AND t.library_id=? UNION
-            SELECT s.version FROM signal AS s, type AS t WHERE s.version IS NOT NULL AND s.owner_id = t.type_id AND t.library_id=?;""",
+            """
+            SELECT version FROM type WHERE version IS NOT NULL AND library_id=?
+            UNION
+            SELECT p.version
+            FROM property AS p, type AS t WHERE p.version IS NOT NULL AND p.owner_id = t.type_id AND t.library_id=?
+            UNION
+            SELECT s.version
+            FROM signal AS s, type AS t WHERE s.version IS NOT NULL AND s.owner_id = t.type_id AND t.library_id=?;
+            """,
             (self.lib, self.lib, self.lib),
         ):
             major, minor = major_minor_from_string(row[0])
@@ -687,4 +693,4 @@ class GirData:
 
         # Save target versions
         for major, minor in versions:
-            conn.execute(f"INSERT INTO library_version (library_id, version) VALUES (?, ?);", (self.lib, f"{major}.{minor}"))
+            conn.execute("INSERT INTO library_version (library_id, version) VALUES (?, ?);", (self.lib, f"{major}.{minor}"))

@@ -21,6 +21,7 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
+from cambalache import _
 
 # Icon Naming Specification: http://standards.freedesktop.org/icon-naming-spec
 

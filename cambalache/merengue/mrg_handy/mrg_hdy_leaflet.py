@@ -20,8 +20,6 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-import gi
-
 from gi.repository import GObject, Handy
 
 from .mrg_container import MrgContainer

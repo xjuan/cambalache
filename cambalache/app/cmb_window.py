@@ -22,18 +22,15 @@
 #
 
 import os
-import sys
-import gi
 import traceback
 import locale
 import tempfile
 
-gi.require_version("Gtk", "3.0")
 from gi.repository import GLib, GObject, Gio, Gdk, Gtk, Pango
-
-from cambalache import *
 from .cmb_tutor import CmbTutor, CmbTutorState
 from . import cmb_tutorial
+
+from cambalache import CmbProject, CmbUI, CmbCSS, CmbObject, CmbTypeChooserPopover, getLogger, config, _
 
 logger = getLogger(__name__)
 
@@ -363,7 +360,7 @@ class CmbWindow(Gtk.ApplicationWindow):
         return True
 
     @Gtk.Template.Callback("on_css_editor_remove_ui")
-    def __on_ui_editor_remove_ui(self, editor):
+    def __on_css_editor_remove_ui(self, editor):
         self.__remove_object_with_confirmation(editor.object)
         return True
 
@@ -651,7 +648,8 @@ class CmbWindow(Gtk.ApplicationWindow):
                 else:
                     unsupported_feature = msg[0]
                     text = _(
-                        "Cambalache encounter {unsupported_feature}\nYour file will be exported as '{name}.cmb.ui' to avoid data loss."
+                        "Cambalache encounter {unsupported_feature}\n"
+                        "Your file will be exported as '{name}.cmb.ui' to avoid data loss."
                     ).format(unsupported_feature=unsupported_feature, name=name)
 
                 self.present_message_to_user(
@@ -962,7 +960,7 @@ class CmbWindow(Gtk.ApplicationWindow):
             self.disconnect_by_func(self.__on_project_notify)
             self.project.disconnect_by_func(self.__on_ui_added)
             self.project.disconnect_by_func(self.__on_object_added)
-        except:
+        except Exception:
             pass
         self.tutor = None
 

@@ -21,8 +21,6 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-import gi
-import sys
 import inspect
 from gi.repository import GObject
 
@@ -65,7 +63,7 @@ class MrgControllerRegistry(GObject.GObject):
             klass = self.registry.get(gtype, None)
             try:
                 gtype = GObject.type_parent(gtype)
-            except:
+            except Exception:
                 gtype = None
                 break
 

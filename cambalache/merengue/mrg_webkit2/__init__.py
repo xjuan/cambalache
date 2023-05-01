@@ -20,12 +20,9 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-import gi
-
 from gi.repository import GObject
 
 from .mrg_webkit_web_view import MrgWebKitWebView
-
 from .mrg_webkit_web_view import MrgDummyWebView
 from .mrg_webkit_web_view import MrgDummyWebViewProxy
 

@@ -22,12 +22,9 @@
 #
 
 import os
-import sys
-import gi
 import time
 
-gi.require_version("Gtk", "3.0")
-from gi.repository import Gio, GLib, GObject, Gtk
+from gi.repository import GObject, Gtk
 
 from lxml import etree
 
@@ -41,9 +38,7 @@ from .cmb_layout_property import CmbLayoutProperty
 from .cmb_library_info import CmbLibraryInfo
 from .cmb_type_info import CmbTypeInfo
 from .cmb_objects_base import CmbSignal
-from .cmb_list_store import CmbListStore
-from .config import *
-from cambalache import getLogger
+from cambalache import getLogger, _, N_
 
 logger = getLogger(__name__)
 
@@ -270,7 +265,6 @@ class CmbProject(Gtk.TreeStore):
 
             # Populate tree view
             for row in rows:
-                css_id = row[0]
                 self.__add_css(False, *row)
 
         c.close()
@@ -358,7 +352,7 @@ class CmbProject(Gtk.TreeStore):
 
         # Remove old UI
         if overwrite:
-            c.execute("DELETE FROM ui WHERE filename=?;", (filename,))
+            self.db.execute("DELETE FROM ui WHERE filename=?;", (filename,))
 
         # Import file
         dirname = os.path.dirname(self.filename if self.filename else filename)
@@ -371,8 +365,8 @@ class CmbProject(Gtk.TreeStore):
 
         self.history_pop()
 
-        logger.info("Import took: {import_end - start}")
-        logger.info("UI update: {time.monotonic() - import_end}")
+        logger.info(f"Import took: {import_end - start}")
+        logger.info(f"UI update: {time.monotonic() - import_end}")
 
         # Get parsing errors
         msgs, detail_msg = self.__get_import_errors()
@@ -421,7 +415,7 @@ class CmbProject(Gtk.TreeStore):
     def __selection_remove(self, obj):
         try:
             self.__selection.remove(obj)
-        except:
+        except Exception:
             pass
         else:
             self.emit("selection-changed")
@@ -477,7 +471,7 @@ class CmbProject(Gtk.TreeStore):
             ui_id = self.db.add_ui(basename, relpath, requirements)
             self.db.commit()
             self.history_pop()
-        except:
+        except Exception:
             return None
         else:
             return self.__add_ui(True, ui_id, None, basename, relpath, None, None, None, None, None, None, None)
@@ -497,7 +491,7 @@ class CmbProject(Gtk.TreeStore):
             self.history_pop()
             self.db.commit()
             self.__remove_ui(ui)
-        except:
+        except Exception:
             pass
 
     def get_ui_list(self):
@@ -529,7 +523,7 @@ class CmbProject(Gtk.TreeStore):
             css_id = self.db.add_css(relpath)
             self.db.commit()
             self.history_pop()
-        except:
+        except Exception:
             return None
         else:
             return self.__add_css(True, css_id, relpath)
@@ -602,7 +596,8 @@ class CmbProject(Gtk.TreeStore):
             return False
 
         if parent_info.is_a("GtkWidget"):
-            # In Gtk 3 only GtkWidget can be a child on Gtk 4 on the other hand there are types that can have GObjects as children
+            # In Gtk 3 only GtkWidget can be a child
+            # on Gtk 4 on the other hand there are types that can have GObjects as children
             if self.target_tk == "gtk+-3.0" and not obj_info.is_a("GtkWidget"):
                 return False
 
@@ -1125,7 +1120,7 @@ class CmbProject(Gtk.TreeStore):
             try:
                 position = self.iter_nth_child(parent, obj.position)
                 self.move_before(iter, position)
-            except:
+            except Exception:
                 pos = self.iter_n_children()
                 position = self.iter_nth_child(parent, pos)
                 self.move_after(iter, position)
@@ -1258,7 +1253,7 @@ class CmbProject(Gtk.TreeStore):
 
             self.history_pop()
             self.db.commit()
-        except:
+        except Exception:
             pass
         else:
             for obj in selection:
@@ -1279,7 +1274,7 @@ class CmbProject(Gtk.TreeStore):
     def __get_object_from_path(self, path):
         try:
             iter = self.get_iter(path)
-        except:
+        except Exception:
             return None
 
         return self[iter][0] if iter else None

@@ -21,7 +21,6 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-import gi
 from gi.repository import GObject
 
 from .cmb_objects_base import CmbBaseProperty, CmbPropertyInfo
@@ -72,7 +71,7 @@ class CmbProperty(CmbBaseProperty):
                     (self.ui_id, self.object_id, self.owner_id, self.property_id, value),
                 )
 
-        if self._init == False:
+        if self._init is False:
             self.object._property_changed(self)
 
         c.close()

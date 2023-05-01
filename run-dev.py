@@ -26,13 +26,13 @@ import sys
 import stat
 import signal
 import locale
+import xml.etree.ElementTree as ET
 
 # Set GSchema dir before loading GLib
 os.environ["GSETTINGS_SCHEMA_DIR"] = "data"
 os.environ["XDG_DATA_DIRS"] = os.getenv("XDG_DATA_DIRS", "/usr/local/share/:/usr/share/") + ":data"
 
-import xml.etree.ElementTree as ET
-from gi.repository import GLib
+from gi.repository import GLib  # noqa: E402
 
 basedir = os.path.dirname(__file__)
 sys.path.insert(1, basedir)
@@ -227,9 +227,11 @@ def compile_private():
             f"cc -shared -o {privatedir}/libcambalacheprivate-{v}.so {privatedir}/cmb_private.o `pkg-config {pkg} --libs`"
         )
         os.system(
-            f"g-ir-scanner -i Gtk-{v}.0 -n CambalachePrivate --nsversion={v}.0 \
-                   --identifier-prefix=cmb_private -L {privatedir} -l cambalacheprivate-{v} --symbol-prefix=cmb_private --identifier-prefix=CmbPrivate \
-                   {srcdir}/*.c {srcdir}/*.h --warn-all -o {privatedir}/CambalachePrivate-{v}.0.gir"
+            f"""
+            g-ir-scanner -i Gtk-{v}.0 -n CambalachePrivate --nsversion={v}.0 --identifier-prefix=cmb_private -L {privatedir}
+                         -l cambalacheprivate-{v} --symbol-prefix=cmb_private --identifier-prefix=CmbPrivate
+                         {srcdir}/*.c {srcdir}/*.h --warn-all -o {privatedir}/CambalachePrivate-{v}.0.gir
+            """
         )
         os.system(f"g-ir-compiler {privatedir}/CambalachePrivate-{v}.0.gir --output={typelib}")
 

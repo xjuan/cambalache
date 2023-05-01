@@ -21,7 +21,6 @@
 #
 
 import os
-import sys
 import ast
 import sqlite3
 import argparse
@@ -39,8 +38,6 @@ class CambalacheDb:
 
         # Create DB file
         self.conn = sqlite3.connect(":memory:")
-
-        dirname = os.path.dirname(__file__) or "."
 
         # Create DB tables
         with open("../cambalache/db/cmb_base.sql", "r") as sql:
@@ -252,7 +249,10 @@ class CambalacheDb:
                         is_inline_object = None
 
                     c.execute(
-                        "UPDATE property SET translatable=?, save_always=?, is_inline_object=?, is_position=? WHERE owner_id=? AND property_id=?;",
+                        """
+                        UPDATE property SET translatable=?, save_always=?, is_inline_object=?, is_position=?q
+                        WHERE owner_id=? AND property_id=?;
+                        """,
                         (translatable, save_always, is_inline_object, is_position, owner_id, property_id),
                     )
 

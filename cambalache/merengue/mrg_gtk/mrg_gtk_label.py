@@ -20,11 +20,10 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-import gi
 from gi.repository import GObject, Gtk
 
 from .mrg_gtk_widget import MrgGtkWidget
-from merengue import getLogger, utils
+from merengue import getLogger
 
 logger = getLogger(__name__)
 

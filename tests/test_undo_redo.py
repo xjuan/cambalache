@@ -3,7 +3,7 @@ Test Undo/Redo API
 """
 import os
 
-from cambalache import CmbProject, config
+from cambalache import CmbProject
 
 
 def undo_test(target_tk, filename, name):
