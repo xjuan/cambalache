@@ -90,6 +90,12 @@ subdir('cambalache')
 subdir('catalogs')
 subdir('po')
 
+# Post Install deps
+find_program('update-mime-database', required: true)
+find_program('gtk-update-icon-cache', required: true)
+find_program('update-desktop-database', required: true)
+find_program('glib-compile-schemas', required: true)
+
 meson.add_install_script('postinstall.py')
 
 test('Running PyTest',
