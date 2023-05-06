@@ -1330,10 +1330,9 @@ class CmbDB(GObject.GObject):
         info = self.type_info.get(type_id, None)
 
         # Check if this is a custom template object
-        # For custom templates we simply export the template object instead
-        # this way we do not really need to instantiate a real type with a
-        # template
-        if info.library_id is None and info.parent_id is not None:
+        # We do not export object templates in merengue mode, this way we do not really need to instantiate a real type
+        # in the workspace
+        if merengue and info.library_id is None and info.parent_id is not None:
             # Keep real merengue id
             name = f"__cmb__{ui_id}.{object_id}"
 
@@ -1351,16 +1350,14 @@ class CmbDB(GObject.GObject):
             # Use template info and object_id from now on
             info = self.type_info.get(type_id, None)
 
-            # From now own all output should be production since there is nothing
-            # to edit in a template instance
-            merengue = False
-
             obj = E.object()
             node_set(obj, "class", type_id)
 
             if not ignore_id:
                 node_set(obj, "id", name)
 
+            # From now own all output should be without an ID, because we do not want so select internal widget from
+            # the template
             ignore_id = True
         else:
             if not merengue and template_id == object_id:
@@ -1373,10 +1370,12 @@ class CmbDB(GObject.GObject):
                 if merengue:
                     workspace_type = info.workspace_type
                     node_set(obj, "class", workspace_type if workspace_type else type_id)
-                    node_set(obj, "id", f"__cmb__{ui_id}.{object_id}")
+                    if not ignore_id:
+                        node_set(obj, "id", f"__cmb__{ui_id}.{object_id}")
                 else:
                     node_set(obj, "class", type_id)
-                    node_set(obj, "id", name)
+                    if not ignore_id:
+                        node_set(obj, "id", name)
 
         # Create class hierarchy list
         hierarchy = [type_id] + info.hierarchy if info else [type_id]
