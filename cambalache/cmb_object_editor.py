@@ -37,6 +37,7 @@ class CmbObjectEditor(Gtk.Box):
     def __init__(self, **kwargs):
         self.__object = None
         self.__id_label = None
+        self.__template_switch = None
         self.__labels = {}
 
         super().__init__(**kwargs)
@@ -72,13 +73,15 @@ class CmbObjectEditor(Gtk.Box):
                 tooltip_text = _("{type} is not derivable.").format(type=self.__object.info.type_id)
 
             label = Gtk.Label(label=_("Template"), halign=Gtk.Align.START, tooltip_text=tooltip_text, sensitive=derivable)
-            switch = Gtk.Switch(active=is_template, halign=Gtk.Align.START, tooltip_text=tooltip_text, sensitive=derivable)
+            self.__template_switch = Gtk.Switch(
+                active=is_template, halign=Gtk.Align.START, tooltip_text=tooltip_text, sensitive=derivable
+            )
 
-            switch.connect("notify::active", self.__on_template_switch_notify)
+            self.__template_switch.connect("notify::active", self.__on_template_switch_notify)
             self.__update_template_label()
 
             grid.attach(label, 0, 1, 1, 1)
-            grid.attach(switch, 1, 1, 1, 1)
+            grid.attach(self.__template_switch, 1, 1, 1, 1)
 
         return grid
 
@@ -239,6 +242,10 @@ class CmbObjectEditor(Gtk.Box):
         else:
             label.get_style_context().remove_class("modified")
 
+    def __on_object_ui_notify(self, obj, pspec):
+        if pspec.name == "template-id" and self.__template_switch:
+            self.__template_switch.set_active(obj.props.template_id != 0)
+
     @GObject.Property(type=CmbObject)
     def object(self):
         return self.__object
@@ -249,12 +256,14 @@ class CmbObjectEditor(Gtk.Box):
             return
 
         if self.__object:
+            self.__object.ui.disconnect_by_func(self.__on_object_ui_notify)
             self.__object.disconnect_by_func(self.__on_property_changed)
             self.__object.disconnect_by_func(self.__on_layout_property_changed)
 
         self.__object = obj
 
         if obj:
+            self.__object.ui.connect("notify", self.__on_object_ui_notify)
             self.__object.connect("property-changed", self.__on_property_changed)
             self.__object.connect("layout-property-changed", self.__on_layout_property_changed)
 
