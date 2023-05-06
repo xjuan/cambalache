@@ -25,7 +25,9 @@ from gi.repository import GObject, Gtk
 
 from .cmb_project import CmbProject
 from .cmb_type_info import CmbTypeInfo
-from cambalache import _
+from cambalache import getLogger, _
+
+logger = getLogger(__name__)
 
 
 @Gtk.Template(resource_path="/ar/xjuan/Cambalache/cmb_type_chooser_widget.ui")
@@ -103,7 +105,11 @@ class CmbTypeChooserWidget(Gtk.Box):
         infos = []
 
         for key in project.type_info:
-            infos.append(project.type_info[key])
+            # Ignore types with no name, just in case
+            if key:
+                infos.append(project.type_info[key])
+            else:
+                logger.warning("Tried to create a TypeInfo without a name")
 
         infos = sorted(infos, key=lambda i: (order.get(i.category, 99), i.type_id))
         show_categories = self.show_categories

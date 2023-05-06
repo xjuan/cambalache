@@ -1055,6 +1055,10 @@ class CmbProject(Gtk.TreeStore):
             c = self.db.execute("SELECT type_id, name FROM object WHERE ui_id=? AND object_id=?;", (ui.ui_id, ui.template_id))
             parent_id, type_id = c.fetchone()
 
+            # Ignore templates without a name set
+            if type_id is None:
+                return
+
             if template_info is None:
                 info = CmbTypeInfo(
                     project=self,
