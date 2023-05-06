@@ -63,6 +63,7 @@ END;
 CREATE TRIGGER on_ui_template_id_update_add_type AFTER UPDATE OF template_id ON ui
 WHEN
   NEW.template_id IS NOT NULL AND
+  NEW.template_id IS NOT OLD.template_id AND
   (SELECT name FROM object WHERE ui_id=NEW.ui_id AND object_id=NEW.template_id) IS NOT NULL
 BEGIN
   INSERT INTO type (type_id, parent_id)
