@@ -3,7 +3,6 @@
   <!-- interface-name layout.ui -->
   <requires lib="gtk" version="4.0"/>
   <object class="GtkBox">
-    <property name="orientation">vertical</property>
     <child>
       <object class="GtkLabel">
         <property name="label">Hola Mundo</property>

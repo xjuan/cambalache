@@ -5,7 +5,6 @@
   <template class="MyWindow" parent="GtkWindow">
     <child>
       <object class="GtkBox">
-        <property name="orientation">vertical</property>
         <child>
           <object class="GtkLabel">
             <property name="label">Hola</property>
