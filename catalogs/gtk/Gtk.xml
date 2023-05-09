@@ -455,7 +455,8 @@
 
     <GtkStackPage target='Gtk-4.0'>
       <properties>
-        <property id="child" is-inline-object="True"/>
+        <property id="child" is-inline-object="True" required="True"
+                  workspace-default="&lt;object class=&quot;GtkLabel&quot;&gt;&lt;property name=&quot;label&quot;&gt;Empty Page&lt;/property&gt;&lt;/object&gt;"/>
         <property id="icon-name" type="CmbIconName"/>
       </properties>
     </GtkStackPage>
