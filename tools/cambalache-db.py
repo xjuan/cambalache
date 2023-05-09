@@ -248,12 +248,25 @@ class CambalacheDb:
                     else:
                         is_inline_object = None
 
+                    required = get_bool(prop, "required")
+                    workspace_default = prop.get("workspace-default", None)
+
                     c.execute(
                         """
-                        UPDATE property SET translatable=?, save_always=?, is_inline_object=?, is_position=?q
+                        UPDATE property
+                        SET translatable=?, save_always=?, is_inline_object=?, is_position=?, required=?, workspace_default=?
                         WHERE owner_id=? AND property_id=?;
                         """,
-                        (translatable, save_always, is_inline_object, is_position, owner_id, property_id),
+                        (
+                            translatable,
+                            save_always,
+                            is_inline_object,
+                            is_position,
+                            required,
+                            workspace_default,
+                            owner_id,
+                            property_id,
+                        ),
                     )
 
                     # Force a different type (For Icon names stock ids etc)

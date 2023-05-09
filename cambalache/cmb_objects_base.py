@@ -84,6 +84,10 @@ class CmbPropertyInfo(CmbBase):
     is_position = GObject.Property(
         type=bool, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY, default=False
     )
+    required = GObject.Property(
+        type=bool, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY, default=False
+    )
+    workspace_default = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -106,6 +110,8 @@ class CmbPropertyInfo(CmbBase):
         translatable,
         is_inline_object,
         is_position,
+        required,
+        workspace_default,
     ):
         return cls(
             project=project,
@@ -123,6 +129,8 @@ class CmbPropertyInfo(CmbBase):
             translatable=translatable,
             is_inline_object=is_inline_object,
             is_position=is_position,
+            required=required,
+            workspace_default=workspace_default,
         )
 
 

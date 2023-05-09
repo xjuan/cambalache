@@ -56,6 +56,9 @@ cmb_utils_get_iface_properties(const gchar *name)
   GType gtype = g_type_from_name(name);
   gpointer iface = NULL;
 
+  if (gtype == G_TYPE_INVALID)
+    return NULL;
+
   g_type_ensure(gtype);
   iface = g_type_default_interface_ref(gtype);
 

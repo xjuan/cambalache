@@ -558,7 +558,7 @@ class GirData:
             for member in members:
                 m = members[member]
                 conn.execute(
-                    "INSERT INTO type_{parent} (type_id, name, value, nick, doc) VALUES (?, ?, ?, ?, ?);",
+                    f"INSERT INTO type_{parent} (type_id, name, value, nick, doc) VALUES (?, ?, ?, ?, ?);",
                     (name, member, m["value"], m["nick"], m["doc"]),
                 )
 

@@ -1383,17 +1383,17 @@ class CmbDB(GObject.GObject):
         # SQL placeholder for every class in the list
         placeholders = ",".join((["?"] * len(hierarchy)))
 
-        # Properties + save_always default values
+        # Properties + required + save_always default values
         for row in c.execute(
             f"""
             SELECT op.value, op.property_id, op.inline_object_id, op.comment, op.translatable, op.translation_context,
-                   op.translation_comments, p.is_object, p.is_inline_object
+                   op.translation_comments, p.is_object, p.is_inline_object, NULL, NULL
             FROM object_property AS op, property AS p
             WHERE op.ui_id=? AND op.object_id=? AND p.owner_id = op.owner_id AND p.property_id = op.property_id
             UNION
-            SELECT default_value, property_id, null, null, null, null, null, is_object, is_inline_object
+            SELECT default_value, property_id, NULL, NULL, NULL, NULL, NULL, is_object, is_inline_object, required, workspace_default
             FROM property
-            WHERE save_always=1 AND owner_id IN ({placeholders}) AND
+            WHERE (required=1 OR save_always=1) AND owner_id IN ({placeholders}) AND
                   property_id NOT IN (SELECT property_id FROM object_property WHERE ui_id=? AND object_id=?)
             ORDER BY op.property_id
             """,
@@ -1409,9 +1409,16 @@ class CmbDB(GObject.GObject):
                 translation_comments,
                 is_object,
                 is_inline_object,
+                required,
+                workspace_default,
             ) = row
 
-            if is_object:
+            if required and workspace_default:
+                if is_object and is_inline_object:
+                    value = etree.fromstring(workspace_default)
+                else:
+                    value = workspace_default
+            elif is_object:
                 # Ignore references to object in template mode since the object
                 # could not exists in this UI
                 if ignore_id:

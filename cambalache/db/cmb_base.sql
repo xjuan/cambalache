@@ -198,6 +198,8 @@ CREATE TABLE IF NOT EXISTS property (
   translatable BOOLEAN CHECK (type_id IN (NULL, 'gchararray')),
   is_inline_object BOOLEAN DEFAULT 0,
   is_position BOOLEAN DEFAULT 0,
+  required BOOLEAN DEFAULT 0,
+  workspace_default TEXT,
   PRIMARY KEY(owner_id, property_id)
 ) WITHOUT ROWID;
 
