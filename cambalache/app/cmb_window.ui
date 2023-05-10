@@ -828,6 +828,18 @@ Author: Juan Pablo Ugarte <juanpablougarte@gmail.com>
                               </packing>
                             </child>
                             <child>
+                              <object class="CmbUIRequiresEditor" id="ui_requires_editor">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="orientation">vertical</property>
+                              </object>
+                              <packing>
+                                <property name="name">requires</property>
+                                <property name="title" translatable="yes">Requires</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
                               <object class="CmbFragmentEditor" id="ui_fragment_editor">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
@@ -836,7 +848,7 @@ Author: Juan Pablo Ugarte <juanpablougarte@gmail.com>
                               <packing>
                                 <property name="name">fragment</property>
                                 <property name="title" translatable="no">&lt;/&gt;</property>
-                                <property name="position">1</property>
+                                <property name="position">2</property>
                               </packing>
                             </child>
                           </object>

@@ -84,6 +84,7 @@ from .cmb_tree_view import CmbTreeView
 from .cmb_object_editor import CmbObjectEditor
 from .cmb_signal_editor import CmbSignalEditor
 from .cmb_ui_editor import CmbUIEditor
+from .cmb_ui_requires_editor import CmbUIRequiresEditor
 from .cmb_css_editor import CmbCSSEditor
 from .cmb_fragment_editor import CmbFragmentEditor
 from .cmb_type_chooser import CmbTypeChooser

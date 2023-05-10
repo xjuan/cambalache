@@ -47,6 +47,30 @@ class CmbUI(CmbBaseUI):
     def __on_notify(self, obj, pspec):
         self.project._ui_changed(self, pspec.name)
 
+    def list_libraries(self):
+        retval = {}
+
+        for row in self.project.db.execute(
+            """
+            SELECT DISTINCT t.library_id, NULL FROM object AS o, type AS t WHERE o.ui_id=? AND o.type_id = t.type_id
+            UNION
+            SELECT library_id, version FROM ui_library WHERE ui_id=?
+            """,
+            (self.ui_id, self.ui_id)
+        ).fetchall():
+            library_id, version = row
+
+            versions = []
+            for row in self.project.db.execute(
+                "SELECT version FROM library_version WHERE library_id=? ORDER BY version;",
+                (library_id, )
+            ).fetchall():
+                versions.append(row[0])
+
+            retval[library_id] = { "target": version, "versions": versions }
+
+        return retval
+
     def get_library(self, library_id):
         c = self.project.db.execute("SELECT version FROM ui_library WHERE ui_id=? AND library_id=?;", (self.ui_id, library_id))
         row = c.fetchone()
@@ -66,7 +90,7 @@ class CmbUI(CmbBaseUI):
 
                 if count:
                     c.execute(
-                        "UPDATE ui_library SET version=?, comment=? WHERE ui_id=?, library_id=?;",
+                        "UPDATE ui_library SET version=?, comment=? WHERE ui_id=? AND library_id=?;",
                         (str(version), comment, self.ui_id, library_id),
                     )
                 else:
