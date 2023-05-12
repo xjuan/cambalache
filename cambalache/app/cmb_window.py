@@ -39,7 +39,7 @@ logger = getLogger(__name__)
 class CmbWindow(Gtk.ApplicationWindow):
     __gtype_name__ = "CmbWindow"
 
-    __gsignals__ = {"open-project": (GObject.SIGNAL_RUN_FIRST, None, (str, str, str))}
+    __gsignals__ = {"open-project": (GObject.SignalFlags.RUN_FIRST, None, (str, str, str))}
 
     open_filter = Gtk.Template.Child()
     import_filter = Gtk.Template.Child()

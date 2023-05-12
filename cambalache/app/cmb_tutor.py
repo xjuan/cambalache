@@ -46,8 +46,8 @@ ScriptNode = namedtuple("ScriptNode", "widget text delay name position")
 
 class CmbTutor(GObject.GObject):
     __gsignals__ = {
-        "show-node": (GObject.SIGNAL_RUN_LAST, None, (str, Gtk.Widget)),
-        "hide-node": (GObject.SIGNAL_RUN_LAST, None, (str, Gtk.Widget)),
+        "show-node": (GObject.SignalFlags.RUN_LAST, None, (str, Gtk.Widget)),
+        "hide-node": (GObject.SignalFlags.RUN_LAST, None, (str, Gtk.Widget)),
     }
 
     window = GObject.Property(type=Gtk.Window, flags=GObject.ParamFlags.READWRITE)
