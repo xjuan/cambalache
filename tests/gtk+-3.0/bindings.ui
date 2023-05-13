@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<interface>
+  <!-- interface-name bindings.ui -->
+  <requires lib="gtk+" version="3.24"/>
+  <object class="GtkWindow" id="window">
+    <!-- Test binding property -->
+    <property name="title" bind-source="entry" bind-property="text" bind-flags="G_BINDING_SYNC_CREATE"/>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="GtkLabel">
+            <!-- Test a bind to a property defined in a parent class -->
+            <property name="label" bind-source="searchentry" bind-property="text" bind-flags="G_BINDING_SYNC_CREATE"/>
+          </object>
+        </child>
+        <child>
+          <object class="GtkEntry" id="entry">
+            <property name="text">Foo</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkSearchEntry" id="searchentry">
+            <property name="text">bar</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>
