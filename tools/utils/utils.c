@@ -20,6 +20,17 @@
 
 #include <utils.h>
 
+static GType
+_builder_get_type_from_name(const gchar *name)
+{
+  GtkBuilder *builder = gtk_builder_new ();
+  GType gtype = gtk_builder_get_type_from_name(builder, name);
+
+  g_object_unref(builder);
+
+  return gtype;
+}
+
 /**
  * cmb_utils_get_class_properties:
  * @name: Class name
@@ -31,11 +42,9 @@
 GParamSpec **
 cmb_utils_get_class_properties(const gchar *name)
 {
-  GtkBuilder *builder = gtk_builder_new ();
-  GType gtype = gtk_builder_get_type_from_name(builder, name);
+  GType gtype = _builder_get_type_from_name(name);
   gpointer oclass = NULL;
 
-  g_object_unref(builder);
   oclass = g_type_class_ref(gtype);
 
   return g_object_class_list_properties(oclass, NULL);
@@ -53,7 +62,7 @@ cmb_utils_get_class_properties(const gchar *name)
 GParamSpec **
 cmb_utils_get_iface_properties(const gchar *name)
 {
-  GType gtype = g_type_from_name(name);
+  GType gtype = _builder_get_type_from_name(name);
   gpointer iface = NULL;
 
   if (gtype == G_TYPE_INVALID)
