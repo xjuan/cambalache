@@ -134,6 +134,18 @@
       </properties>
     </AdwWindowTitle>
 
+    <AdwWindow>
+      <properties>
+        <property id="content" is-inline-object="True"/>
+      </properties>
+    </AdwWindow>
+
+    <AdwApplicationWindow>
+      <properties>
+        <property id="content" is-inline-object="True"/>
+      </properties>
+    </AdwApplicationWindow>
+
   </types>
 
   <categories>
