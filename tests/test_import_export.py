@@ -90,6 +90,10 @@ def test_gtk3_custom_fragment():
     assert_original_and_exported("gtk+-3.0", "custom_fragment.ui")
 
 
+def test_gtk3_bindings():
+    assert_original_and_exported("gtk+-3.0", "bindings.ui")
+
+
 #
 # Gtk 4.0 Tests
 #
@@ -147,3 +151,7 @@ def test_gtk4_filefilter():
 
 def test_gtk4_custom_fragment():
     assert_original_and_exported("gtk-4.0", "custom_fragment.ui")
+
+
+def test_gtk4_bindings():
+    assert_original_and_exported("gtk-4.0", "bindings.ui")
