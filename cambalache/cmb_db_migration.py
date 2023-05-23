@@ -1,7 +1,7 @@
 #
 # CmbDBmigration - Cambalache DataBase Migration functions
 #
-# Copyright (C) 2021  Juan Pablo Ugarte
+# Copyright (C) 2021-2023  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -84,5 +84,13 @@ def ensure_columns_for_0_11_2(table, data):
     if table in ["object", "ui"]:
         # Append custom_text column
         return [row + (None,) for row in data]
+
+    return data
+
+
+def ensure_columns_for_0_11_4(table, data):
+    if table == "object_property":
+        # Append bind_[source_id owner_id property_id flags] column
+        return [row + (None, None, None, None) for row in data]
 
     return data

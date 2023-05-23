@@ -435,6 +435,10 @@ class CmbBaseProperty(CmbBase):
         translation_context,
         translation_comments,
         inline_object_id,
+        bind_source_id,
+        bind_owner_id,
+        bind_property_id,
+        bind_flags,
     ):
         return cls(project=project, ui_id=ui_id, object_id=object_id, owner_id=owner_id, property_id=property_id)
 
@@ -579,6 +583,106 @@ class CmbBaseProperty(CmbBase):
     def _set_inline_object_id(self, value):
         self.db_set(
             "UPDATE object_property SET inline_object_id=? WHERE (ui_id, object_id, owner_id, property_id) IS (?, ?, ?, ?);",
+            (
+                self.ui_id,
+                self.object_id,
+                self.owner_id,
+                self.property_id,
+            ),
+            value,
+        )
+
+    @GObject.Property(type=int)
+    def bind_source_id(self):
+        return self.db_get(
+            "SELECT bind_source_id FROM object_property WHERE (ui_id, object_id, owner_id, property_id) IS (?, ?, ?, ?);",
+            (
+                self.ui_id,
+                self.object_id,
+                self.owner_id,
+                self.property_id,
+            ),
+        )
+
+    @bind_source_id.setter
+    def _set_bind_source_id(self, value):
+        self.db_set(
+            "UPDATE object_property SET bind_source_id=? WHERE (ui_id, object_id, owner_id, property_id) IS (?, ?, ?, ?);",
+            (
+                self.ui_id,
+                self.object_id,
+                self.owner_id,
+                self.property_id,
+            ),
+            value,
+        )
+
+    @GObject.Property(type=str)
+    def bind_owner_id(self):
+        return self.db_get(
+            "SELECT bind_owner_id FROM object_property WHERE (ui_id, object_id, owner_id, property_id) IS (?, ?, ?, ?);",
+            (
+                self.ui_id,
+                self.object_id,
+                self.owner_id,
+                self.property_id,
+            ),
+        )
+
+    @bind_owner_id.setter
+    def _set_bind_owner_id(self, value):
+        self.db_set(
+            "UPDATE object_property SET bind_owner_id=? WHERE (ui_id, object_id, owner_id, property_id) IS (?, ?, ?, ?);",
+            (
+                self.ui_id,
+                self.object_id,
+                self.owner_id,
+                self.property_id,
+            ),
+            value,
+        )
+
+    @GObject.Property(type=str)
+    def bind_property_id(self):
+        return self.db_get(
+            "SELECT bind_property_id FROM object_property WHERE (ui_id, object_id, owner_id, property_id) IS (?, ?, ?, ?);",
+            (
+                self.ui_id,
+                self.object_id,
+                self.owner_id,
+                self.property_id,
+            ),
+        )
+
+    @bind_property_id.setter
+    def _set_bind_property_id(self, value):
+        self.db_set(
+            "UPDATE object_property SET bind_property_id=? WHERE (ui_id, object_id, owner_id, property_id) IS (?, ?, ?, ?);",
+            (
+                self.ui_id,
+                self.object_id,
+                self.owner_id,
+                self.property_id,
+            ),
+            value,
+        )
+
+    @GObject.Property(type=str)
+    def bind_flags(self):
+        return self.db_get(
+            "SELECT bind_flags FROM object_property WHERE (ui_id, object_id, owner_id, property_id) IS (?, ?, ?, ?);",
+            (
+                self.ui_id,
+                self.object_id,
+                self.owner_id,
+                self.property_id,
+            ),
+        )
+
+    @bind_flags.setter
+    def _set_bind_flags(self, value):
+        self.db_set(
+            "UPDATE object_property SET bind_flags=? WHERE (ui_id, object_id, owner_id, property_id) IS (?, ?, ?, ?);",
             (
                 self.ui_id,
                 self.object_id,

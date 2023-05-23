@@ -410,6 +410,9 @@ class CmbDB(GObject.GObject):
         if version < (0, 11, 2):
             return cmb_db_migration.ensure_columns_for_0_11_2(table, data)
 
+        if version < (0, 11, 4):
+            return cmb_db_migration.ensure_columns_for_0_11_4(table, data)
+
         return data
 
     def __migrate_table_data(self, c, version, table, data):
@@ -806,7 +809,9 @@ class CmbDB(GObject.GObject):
         return pinfo
 
     def __import_property(self, c, info, ui_id, object_id, prop, object_id_map=None):
-        name, translatable, context, comments = self.__node_get(prop, "name", ["translatable", "context", "comments"])
+        name, translatable, context, comments, bind_source_id, bind_property_id, bind_flags = self.__node_get(
+            prop, "name", ["translatable", "context", "comments", "bind-source", "bind-property", "bind-flags"]
+        )
 
         property_id = name.replace("_", "-")
         comment = self.__node_get_comment(prop)
@@ -840,8 +845,8 @@ class CmbDB(GObject.GObject):
                 """
                 INSERT INTO object_property
                   (ui_id, object_id, owner_id, property_id, value, translatable, comment, translation_context,
-                   translation_comments, inline_object_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                   translation_comments, inline_object_id, bind_source_id, bind_property_id, bind_flags)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
                 """,
                 (
                     ui_id,
@@ -854,6 +859,9 @@ class CmbDB(GObject.GObject):
                     context,
                     comments,
                     inline_object_id,
+                    bind_source_id,
+                    bind_property_id,
+                    bind_flags,
                 ),
             )
         except Exception as e:
@@ -1182,6 +1190,7 @@ class CmbDB(GObject.GObject):
         return (None, None, None)
 
     def __fix_object_references(self, ui_id):
+        # Fix properties value that refer to an object
         self.conn.execute(
             """
             UPDATE object_property AS op SET value=o.object_id
@@ -1193,8 +1202,47 @@ class CmbDB(GObject.GObject):
             (ui_id,),
         )
 
+        # Fix bind source and set bind owner to the object type
+        self.conn.execute(
+            """
+            UPDATE object_property AS op
+            SET bind_source_id=o.object_id, bind_owner_id=o.type_id
+            FROM object AS o
+            WHERE op.ui_id=? AND bind_source_id IS NOT NULL AND o.ui_id = op.ui_id AND o.name = op.bind_source_id;
+            """,
+            (ui_id,),
+        )
+
+        # Fix bind owner (Owner needs to point to the right parent class)
+        self.conn.execute(
+            """
+            WITH RECURSIVE ancestor(type_id, generation, parent_id) AS (
+              SELECT type_id, 1, parent_id FROM type
+                WHERE parent_id IS NOT NULL AND
+                      parent_id != 'interface' AND
+                      parent_id != 'enum' AND
+                      parent_id != 'flags'
+              UNION ALL
+              SELECT ancestor.type_id, generation + 1, type.parent_id
+                FROM type JOIN ancestor ON type.type_id = ancestor.parent_id
+                WHERE type.parent_id IS NOT NULL
+            )
+            UPDATE object_property AS op
+            SET bind_owner_id=p.owner_id
+            FROM property AS p, ancestor AS a
+            WHERE op.ui_id=? AND
+                op.bind_owner_id IS NOT NULL AND
+                op.bind_property_id = p.property_id AND
+                op.bind_owner_id = a.type_id AND
+                p.owner_id = a.parent_id
+            """,
+            (ui_id,),
+        )
+
     def import_file(self, filename, projectdir="."):
         custom_fragments = []
+
+        self.foreign_keys = False
 
         # Clear parsing errors
         self.errors = {}
@@ -1310,6 +1358,8 @@ class CmbDB(GObject.GObject):
         self.conn.commit()
         c.close()
 
+        self.foreign_keys = True
+
         return ui_id
 
     def __node_add_comment(self, node, comment):
@@ -1387,11 +1437,14 @@ class CmbDB(GObject.GObject):
         for row in c.execute(
             f"""
             SELECT op.value, op.property_id, op.inline_object_id, op.comment, op.translatable, op.translation_context,
-                   op.translation_comments, p.is_object, p.is_inline_object, NULL, NULL
+                   op.translation_comments, p.is_object, p.is_inline_object,
+                   op.bind_source_id, op.bind_owner_id, op.bind_property_id, op.bind_flags,
+                   NULL, NULL
             FROM object_property AS op, property AS p
             WHERE op.ui_id=? AND op.object_id=? AND p.owner_id = op.owner_id AND p.property_id = op.property_id
             UNION
-            SELECT default_value, property_id, NULL, NULL, NULL, NULL, NULL, is_object, is_inline_object, required, workspace_default
+            SELECT default_value, property_id, NULL, NULL, NULL, NULL, NULL,  is_object, is_inline_object,
+                   NULL, NULL, NULL, NULL, required, workspace_default
             FROM property
             WHERE (required=1 OR save_always=1) AND owner_id IN ({placeholders}) AND
                   property_id NOT IN (SELECT property_id FROM object_property WHERE ui_id=? AND object_id=?)
@@ -1409,6 +1462,10 @@ class CmbDB(GObject.GObject):
                 translation_comments,
                 is_object,
                 is_inline_object,
+                bind_source_id,
+                bind_owner_id,
+                bind_property_id,
+                bind_flags,
                 required,
                 workspace_default,
             ) = row
@@ -1442,12 +1499,30 @@ class CmbDB(GObject.GObject):
             else:
                 value = val
 
-            node = E.property(value, name=property_id)
+            node = E.property(name=property_id)
+            if value:
+                if isinstance(value, str):
+                    node.text = value
+                elif isinstance(value, etree.Element):
+                    node.append(value)
 
             if translatable:
                 node_set(node, "translatable", "yes")
                 node_set(node, "context", translation_context)
                 node_set(node, "comments", translation_comments)
+
+            if bind_source_id and bind_owner_id and bind_property_id:
+                if merengue:
+                    bind_source = f"__cmb__{ui_id}.{bind_source_id}"
+                else:
+                    cc.execute("SELECT name FROM object WHERE ui_id=? AND object_id=?;", (ui_id, bind_source_id))
+                    row = cc.fetchone()
+                    bind_source = row[0] if row else None
+
+                if bind_source:
+                    node_set(node, "bind-source", bind_source)
+                    node_set(node, "bind-property", bind_property_id)
+                    node_set(node, "bind-flags", bind_flags)
 
             obj.append(node)
             self.__node_add_comment(node, comment)
