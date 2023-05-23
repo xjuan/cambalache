@@ -41,6 +41,7 @@ install_data([
     'cmb_objects_base.py',
     'cmb_project.py',
     'cmb_property.py',
+    'cmb_property_label.py',
     'cmb_property_controls.py',
     'cmb_signal_editor.py',
     'cmb_translatable_popover.py',
