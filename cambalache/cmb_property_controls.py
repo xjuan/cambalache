@@ -235,6 +235,9 @@ class CmbFlagsEntry(Gtk.Entry):
     value_column = GObject.Property(type=int, default=2, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self, **kwargs):
+        self.flags = {}
+        self._checks = {}
+
         super().__init__(**kwargs)
 
         self.props.editable = False
@@ -245,8 +248,6 @@ class CmbFlagsEntry(Gtk.Entry):
         self.__init_popover()
 
     def __init_popover(self):
-        self.flags = {}
-        self._checks = {}
         self._popover = Gtk.Popover(relative_to=self)
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         box.pack_start(Gtk.Label(label=f"<b>{self.info.type_id}</b>", use_markup=True), False, True, 4)
@@ -380,6 +381,10 @@ class CmbObjectChooser(Gtk.Entry):
         super().__init__(**kwargs)
         self.connect("notify::text", self.__on_text_notify)
 
+        if self.prop is None:
+            self.props.placeholder_text = "<GObject>"
+            return
+
         if self.prop.info.is_inline_object:
             self.connect("icon-press", self.__on_icon_pressed)
             self.parent.connect("property-changed", lambda o, p: self.__update_icons())
@@ -388,7 +393,7 @@ class CmbObjectChooser(Gtk.Entry):
             self.props.placeholder_text = f"<{self.prop.info.type_id}>"
 
     def __on_text_notify(self, obj, pspec):
-        if self.prop.inline_object_id:
+        if self.prop and self.prop.inline_object_id:
             return
 
         obj = self.parent.project.get_object_by_name(self.parent.ui_id, self.props.text)
