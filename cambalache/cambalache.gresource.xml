@@ -15,5 +15,7 @@
     <file>cmb_signal_editor.ui</file>
     <file>cmb_translatable_widget.ui</file>
     <file>cambalache.css</file>
+    <file>icons/scalable/actions/bind-symbolic.svg</file>
+    <file>icons/scalable/actions/binded-symbolic.svg</file>
   </gresource>
 </gresources>

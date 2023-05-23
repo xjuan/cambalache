@@ -52,6 +52,7 @@ resource._register()
 provider = Gtk.CssProvider()
 provider.load_from_resource("/ar/xjuan/Cambalache/cambalache.css")
 Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+Gtk.IconTheme.get_default().add_resource_path("/ar/xjuan/Cambalache/icons")
 
 
 def getLogger(name):
@@ -73,6 +74,7 @@ from .cmb_object import CmbObject
 
 # from .cmb_object_data import CmbObjectData
 from .cmb_property import CmbProperty
+from .cmb_property_label import CmbPropertyLabel
 from .cmb_layout_property import CmbLayoutProperty
 from .cmb_type_info import CmbTypeInfo
 from .cmb_project import CmbProject
