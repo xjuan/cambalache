@@ -1470,9 +1470,12 @@ class CmbDB(GObject.GObject):
                 workspace_default,
             ) = row
 
+            value = None
+            value_node = None
+
             if required and workspace_default:
                 if is_object and is_inline_object:
-                    value = etree.fromstring(workspace_default)
+                    value_node = etree.fromstring(workspace_default)
                 else:
                     value = workspace_default
             elif is_object:
@@ -1486,7 +1489,7 @@ class CmbDB(GObject.GObject):
                     continue
 
                 if inline_object_id and is_inline_object:
-                    value = self.__export_object(ui_id, inline_object_id, merengue=merengue, ignore_id=ignore_id)
+                    value_node = self.__export_object(ui_id, inline_object_id, merengue=merengue, ignore_id=ignore_id)
                 else:
                     if merengue:
                         value = f"__cmb__{ui_id}.{val}"
@@ -1500,11 +1503,10 @@ class CmbDB(GObject.GObject):
                 value = val
 
             node = E.property(name=property_id)
-            if value:
-                if isinstance(value, str):
-                    node.text = value
-                elif isinstance(value, etree.Element):
-                    node.append(value)
+            if value is not None:
+                node.text = value
+            elif value_node is not None:
+                node.append(value_node)
 
             if translatable:
                 node_set(node, "translatable", "yes")
