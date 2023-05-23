@@ -46,32 +46,100 @@ class CmbProperty(CmbBaseProperty):
 
     @value.setter
     def _set_value(self, value):
+        self.__update_values(value, self.bind_property)
+
+    def __update_values(self, value, bind_property):
         c = self.project.db.cursor()
 
-        if value is None or value == self.info.default_value or (self.info.is_object and value == 0):
+        bind_source_id, bind_owner_id, bind_property_id = (None, None, None)
+        if bind_property:
+            bind_source_id = bind_property.object.object_id
+            bind_owner_id = bind_property.owner_id
+            bind_property_id = bind_property.property_id
+
+        if (
+            value is None or value == self.info.default_value or (self.info.is_object and value == 0)
+        ) and bind_property is None:
             c.execute(
                 "DELETE FROM object_property WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id=?;",
                 (self.ui_id, self.object_id, self.owner_id, self.property_id),
             )
         else:
+            if (
+                value is None
+                and bind_source_id == self.bind_source_id
+                and bind_owner_id == self.bind_owner_id
+                and bind_property_id == self.bind_property_id
+            ):
+                return
+
             # Do not use REPLACE INTO, to make sure both INSERT and UPDATE triggers are used
             count = self.db_get(
-                "SELECT count(value) FROM object_property WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id=?;",
+                "SELECT count(ui_id) FROM object_property WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id=?;",
                 (self.ui_id, self.object_id, self.owner_id, self.property_id),
             )
 
             if count:
                 c.execute(
-                    "UPDATE object_property SET value=? WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id=?;",
-                    (value, self.ui_id, self.object_id, self.owner_id, self.property_id),
+                    """
+                    UPDATE object_property
+                    SET value=?, bind_source_id=?, bind_owner_id=?, bind_property_id=?
+                    WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id=?;
+                    """,
+                    (
+                        value,
+                        bind_source_id,
+                        bind_owner_id,
+                        bind_property_id,
+                        self.ui_id,
+                        self.object_id,
+                        self.owner_id,
+                        self.property_id,
+                    ),
                 )
             else:
                 c.execute(
-                    "INSERT INTO object_property (ui_id, object_id, owner_id, property_id, value) VALUES (?, ?, ?, ?, ?);",
-                    (self.ui_id, self.object_id, self.owner_id, self.property_id, value),
+                    """
+                    INSERT INTO object_property
+                        (ui_id, object_id, owner_id, property_id, value, bind_source_id, bind_owner_id, bind_property_id)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+                    """,
+                    (
+                        self.ui_id,
+                        self.object_id,
+                        self.owner_id,
+                        self.property_id,
+                        value,
+                        bind_source_id,
+                        bind_owner_id,
+                        bind_property_id,
+                    ),
                 )
 
         if self._init is False:
             self.object._property_changed(self)
 
         c.close()
+
+    @GObject.Property(type=CmbBaseProperty)
+    def bind_property(self):
+        c = self.project.db.cursor()
+        row = c.execute(
+            """
+            SELECT bind_source_id, bind_property_id
+            FROM object_property
+            WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id=?;
+            """,
+            (self.ui_id, self.object_id, self.owner_id, self.property_id),
+        ).fetchone()
+
+        if row:
+            bind_source_id, bind_property_id = row
+            source = self.project.get_object_by_id(self.ui_id, bind_source_id) if bind_property_id else None
+            return source.properties_dict.get(bind_property_id, None) if source else None
+
+        return None
+
+    @bind_property.setter
+    def _set_bind_property(self, bind_property):
+        self.__update_values(self.value, bind_property)
