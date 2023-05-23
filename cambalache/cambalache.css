@@ -38,11 +38,24 @@ popover.cmb-icon-chooser iconview:not(:selected) {
   background-color: unset;
 }
 
-button.hidden {
+button.hidden,
+CmbPropertyLabel.hidden > box > image {
   opacity: 0;
   transition: opacity 200ms ease-in-out 0;
 }
 
-button.hidden:hover {
+button.hidden:hover,
+CmbPropertyLabel.hidden:hover > box > image  {
   opacity: 1;
+}
+
+CmbPropertyLabel {
+  min-width:unset;
+  min-height: unset;
+  padding: unset;
+  margin: unset;
+  border: unset;
+  background: unset;
+  box-shadow: unset;
+  outline: unset;
 }

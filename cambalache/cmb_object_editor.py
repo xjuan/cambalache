@@ -26,6 +26,7 @@ from gi.repository import GObject, Gtk
 from .cmb_object import CmbObject
 from .cmb_object_data_editor import CmbObjectDataEditor
 from .cmb_property_controls import CmbEntry, CmbChildTypeComboBox, cmb_create_editor
+from .cmb_property_label import CmbPropertyLabel
 from cambalache import _
 
 
@@ -38,7 +39,6 @@ class CmbObjectEditor(Gtk.Box):
         self.__object = None
         self.__id_label = None
         self.__template_switch = None
-        self.__labels = {}
 
         super().__init__(**kwargs)
 
@@ -121,8 +121,6 @@ class CmbObjectEditor(Gtk.Box):
         return box
 
     def __update_view(self):
-        self.__labels = {}
-
         for child in self.get_children():
             self.remove(child)
 
@@ -156,7 +154,7 @@ class CmbObjectEditor(Gtk.Box):
             i = 0
 
             # Grid for all properties and custom data editors
-            grid = Gtk.Grid(hexpand=True, margin_start=16, row_spacing=4, column_spacing=4)
+            grid = Gtk.Grid(hexpand=True, row_spacing=4, column_spacing=4)
 
             # Properties
             properties = self.__object.layout_dict if self.layout else self.__object.properties_dict
@@ -179,13 +177,9 @@ class CmbObjectEditor(Gtk.Box):
                     GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
                 )
 
-                label = Gtk.Label(label=prop.property_id, xalign=0)
+                label = CmbPropertyLabel(prop=prop)
 
                 # Keep a dict of labels
-                self.__labels[prop.property_id] = label
-
-                # Update labe status
-                self.__update_property_label(prop)
 
                 grid.attach(label, 0, i, 1, 1)
                 grid.attach(editor, 1, i, 1, 1)
@@ -225,23 +219,6 @@ class CmbObjectEditor(Gtk.Box):
 
         self.show_all()
 
-    def __on_property_changed(self, obj, prop):
-        self.__update_property_label(prop)
-
-    def __on_layout_property_changed(self, obj, child, prop):
-        self.__update_property_label(prop)
-
-    def __update_property_label(self, prop):
-        label = self.__labels.get(prop.property_id, None)
-
-        if label is None:
-            return
-
-        if prop.value != prop.info.default_value:
-            label.get_style_context().add_class("modified")
-        else:
-            label.get_style_context().remove_class("modified")
-
     def __on_object_ui_notify(self, obj, pspec):
         if pspec.name == "template-id" and self.__template_switch:
             self.__template_switch.set_active(obj.props.template_id != 0)
@@ -257,15 +234,11 @@ class CmbObjectEditor(Gtk.Box):
 
         if self.__object:
             self.__object.ui.disconnect_by_func(self.__on_object_ui_notify)
-            self.__object.disconnect_by_func(self.__on_property_changed)
-            self.__object.disconnect_by_func(self.__on_layout_property_changed)
 
         self.__object = obj
 
         if obj:
             self.__object.ui.connect("notify", self.__on_object_ui_notify)
-            self.__object.connect("property-changed", self.__on_property_changed)
-            self.__object.connect("layout-property-changed", self.__on_layout_property_changed)
 
         self.__update_view()
 
