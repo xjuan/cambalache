@@ -47,7 +47,7 @@ class CmbApplication(Gtk.Application):
         self.add_window(window)
         return window
 
-    def open(self, path, target_tk=None, uiname=None):
+    def open_project(self, path, target_tk=None, uiname=None):
         window = None
 
         for win in self.get_windows():
@@ -77,7 +77,7 @@ class CmbApplication(Gtk.Application):
                 content_type, uncertain = Gio.content_type_guess(path, data)
 
             if content_type == "application/x-cambalache-project":
-                self.open(path)
+                self.open_project(path)
             elif content_type in ["application/x-gtk-builder", "application/x-glade"]:
                 self.import_file(path)
 
@@ -95,13 +95,13 @@ class CmbApplication(Gtk.Application):
 
     def do_activate(self):
         if self.props.active_window is None:
-            self.open(None)
+            self.open_project(None)
 
     def __on_open_project(self, window, filename, target_tk, uiname):
         if window.project is None:
             window.open_project(filename, target_tk, uiname)
         else:
-            self.open(filename, target_tk, uiname)
+            self.open_project(filename, target_tk, uiname)
 
     def __check_can_quit(self, windows):
         unsaved_windows = []
