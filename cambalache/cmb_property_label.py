@@ -25,39 +25,60 @@ from gi.repository import GObject, Gtk
 
 from .cmb_object import CmbObject
 from .cmb_property import CmbProperty
+from .cmb_layout_property import CmbLayoutProperty
 from .cmb_objects_base import CmbPropertyInfo
 from .cmb_property_controls import CmbObjectChooser, CmbFlagsEntry, unset_scroll_event
 
 
 class CmbPropertyLabel(Gtk.Button):
     prop = GObject.Property(type=CmbProperty, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    layout_prop = GObject.Property(
+        type=CmbLayoutProperty, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY
+    )
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
         self.props.relief = Gtk.ReliefStyle.NONE
-        self.bind_icon = Gtk.Image(icon_size=Gtk.IconSize.MENU, visible=True)
-        self.label = Gtk.Label(label=self.prop.property_id, xalign=0, visible=True)
 
+        if not self.prop and not self.layout_prop:
+            raise Exception("CmbPropertyLabel requires prop or layout_prop to be set")
+            return
+
+        self.label = Gtk.Label(xalign=0, visible=True)
         box = Gtk.Box(visible=True)
-        box.add(self.bind_icon)
+
+        # Update label status
+        if self.prop:
+            self.bind_icon = Gtk.Image(icon_size=Gtk.IconSize.MENU, visible=True)
+            box.add(self.bind_icon)
+
+            self.label.props.label = self.prop.property_id
+
+            self.__update_property_label()
+            self.prop.connect("notify::value", lambda o, p: self.__update_property_label())
+            self.connect("clicked", self.__on_bind_button_clicked)
+
+        if self.layout_prop:
+            self.bind_icon = None
+            self.label.props.label = self.layout_prop.property_id
+            self.__update_layout_property_label()
+            self.layout_prop.connect("notify::value", lambda o, p: self.__update_layout_property_label())
+
         box.add(self.label)
         self.add(box)
 
-        # Update label status
-        self.__update_property_label()
-        self.prop.connect("notify::value", self.__on_property_notify)
-
-        self.connect("clicked", self.__on_bind_button_clicked)
-
-    def __on_property_notify(self, obj, pspec):
-        self.__update_property_label()
-
-    def __update_property_label(self):
-        if self.prop.value != self.prop.info.default_value:
+    def __update_label(self, prop):
+        if prop.value != prop.info.default_value:
             self.label.get_style_context().add_class("modified")
         else:
             self.label.get_style_context().remove_class("modified")
+
+    def __update_layout_property_label(self):
+        self.__update_label(self.layout_prop)
+
+    def __update_property_label(self):
+        self.__update_label(self.prop)
 
         if self.prop.bind_property_id:
             self.bind_icon.props.icon_name = "binded-symbolic"
@@ -203,7 +224,7 @@ class CmbPropertyChooser(Gtk.ComboBoxText):
                         compatible = GObject.Value.type_compatible(gtype_id, gtarget_id)
                         if not compatible:
                             compatible = GObject.Value.type_transformable(gtype_id, gtarget_id)
-                except Exception as e: # noqa F841
+                except Exception as e:  # noqa F841
                     self.append(prop.property_id, prop.property_id + "*")
                     continue
 

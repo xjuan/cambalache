@@ -177,7 +177,10 @@ class CmbObjectEditor(Gtk.Box):
                     GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
                 )
 
-                label = CmbPropertyLabel(prop=prop)
+                if self.layout:
+                    label = CmbPropertyLabel(layout_prop=prop)
+                else:
+                    label = CmbPropertyLabel(prop=prop)
 
                 # Keep a dict of labels
 
