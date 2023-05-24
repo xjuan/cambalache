@@ -77,3 +77,9 @@ class CmbTypeChooser(Gtk.Box):
             self.emit("chooser-popup", obj)
         else:
             self.emit("chooser-popdown", obj)
+
+    def select_type_id(self, type_id):
+        info = self.project.type_info.get(type_id, None)
+        if info:
+            self.selected_type = info
+            self.emit("type-selected", info)
