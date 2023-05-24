@@ -4,6 +4,7 @@
 .lib
 .lc_messages
 .vscode
+.env.local
 build
 repo
 cambalache.flatpak

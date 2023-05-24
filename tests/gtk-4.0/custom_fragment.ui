@@ -11,7 +11,7 @@
           <any tag="is allowed"/>
           <even>
             <if it="breaks">
-               <gtkbuilder/>
+              <gtkbuilder/>
             </if>
           </even>
         </mycustomtag>
