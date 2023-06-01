@@ -27,7 +27,7 @@ import time
 import cairo
 import struct
 
-from gi.repository import GLib
+from gi.repository import GLib, Gtk
 
 
 # Based on Gtk sources gtk-reftest.c
@@ -66,9 +66,9 @@ def surface_write_ppm(surface, path):
         fd.close()
 
 
-def mean_squared_error(window, original_path, ignore_color=None):
+def window_screenshot(window):
     if window is None:
-        return
+        return None
 
     # Wait for window to finish drawing
     wait_for_drawing(window)
@@ -84,23 +84,21 @@ def mean_squared_error(window, original_path, ignore_color=None):
 
     surface.flush()
 
-    # Write window surface as original if file is not found and return
-    if not os.path.exists(original_path):
-        surface.write_to_png(original_path)
-        return (None, None, None, None, None)
+    return surface
 
-    # Read original image
-    original = cairo.ImageSurface.create_from_png(original_path)
-    original_data = original.get_data()
 
-    # Read screenshot image
-    # NOTE: Saving or Loading the image as PNG slightly changes the pixel values (premultiplication, etc)
-    # So in order to avoid any difference we always compare data processed in exactly the same way
+def image_reload_as_png(surface):
     screenshot_png_bytes = io.BytesIO()
     surface.write_to_png(screenshot_png_bytes)
     screenshot_png_bytes.seek(0)
-    screenshot = cairo.ImageSurface.create_from_png(screenshot_png_bytes)
+    return cairo.ImageSurface.create_from_png(screenshot_png_bytes)
+
+
+def mean_squared_error(original, screenshot, ignore_color=None):
+    original_data = original.get_data()
     screenshot_data = screenshot.get_data()
+
+    n = original.get_width() * original.get_height()
 
     if len(original_data) != len(screenshot_data):
         raise ValueError("Screenshot has different size")
@@ -125,7 +123,7 @@ def mean_squared_error(window, original_path, ignore_color=None):
 
     total = 0.2126 * red + 0.7152 * green + 0.0722 * blue
 
-    return red / n, green / n, blue / n, total / n, surface
+    return red / n, green / n, blue / n, total / n
 
 
 def wait_for_file(path, seconds):
@@ -137,3 +135,29 @@ def wait_for_file(path, seconds):
             return True
 
     return False
+
+
+def process_all_pending_gtk_events():
+    while Gtk.events_pending():
+        Gtk.main_iteration_do(False)
+
+
+def find_by_buildable_id(widget, name):
+    retval = None
+
+    if isinstance(widget, Gtk.Buildable) and Gtk.Buildable.get_name(widget) == name:
+        return widget
+
+    if not isinstance(widget, Gtk.Container):
+        return None
+
+    for child in widget.get_children():
+        if isinstance(child, Gtk.Container):
+            retval = find_by_buildable_id(child, name)
+            if retval:
+                return retval
+
+        if isinstance(child, Gtk.Buildable) and Gtk.Buildable.get_name(child) == name:
+            return child
+
+    return retval
