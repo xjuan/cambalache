@@ -703,7 +703,7 @@ Author: Juan Pablo Ugarte <juanpablougarte@gmail.com>
                             <property name="can-focus">False</property>
                             <property name="halign">center</property>
                             <property name="border-width">4</property>
-                            <property name="stack">property_stack</property>
+                            <property name="stack">object_stack</property>
                             <style>
                               <class name="compact"/>
                             </style>
@@ -715,7 +715,7 @@ Author: Juan Pablo Ugarte <juanpablougarte@gmail.com>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkStack" id="property_stack">
+                          <object class="GtkStack" id="object_stack">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <property name="transition-type">crossfade</property>
