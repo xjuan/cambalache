@@ -283,11 +283,18 @@ merenguedir = '{cambalachedir}'
 """,
     )
 
+    coverage_bin = GLib.find_program_in_path("python3-coverage")
+
     # Create merengue bin script
+    if coverage_bin and os.getenv("COVERAGE_PROCESS_START", None):
+        merengue_shebang = coverage_bin + " run"
+    else:
+        merengue_shebang = GLib.find_program_in_path("python3")
+
     configure_file(
         os.path.join(cambalachedir, "merengue", "merengue.in"),
         os.path.join(cambalachedir, "merengue", "merengue"),
-        {"PYTHON": GLib.find_program_in_path("python3"), "merenguedir": cambalachedir},
+        {"PYTHON": merengue_shebang, "merenguedir": cambalachedir},
     )
     os.chmod(os.path.join(cambalachedir, "merengue", "merengue"), stat.S_IREAD | stat.S_IWRITE | stat.S_IEXEC)
 

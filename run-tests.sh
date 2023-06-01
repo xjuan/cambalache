@@ -15,9 +15,20 @@ source .env.local
 
 # Do not store settings
 export GSETTINGS_BACKEND=memory
+export COVERAGE_PROCESS_START=$BASEDIR/pyproject.toml
+
+# Init dev
+python3 -c "from tests.cmb_init_dev import cmb_init_dev; cmb_init_dev()"
 
 #Run tests
-python3 -m pytest $@
+if command -v python3-coverage &> /dev/null
+then
+  python3-coverage run -m pytest $@
+  python3-coverage combine
+  python3-coverage report -m
+else
+  pytest $@
+fi
 
 # Close Weston
 kill -9 $COMPOSITOR_PID

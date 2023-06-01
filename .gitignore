@@ -5,6 +5,7 @@
 .lc_messages
 .vscode
 .env.local
+.coverage*
 build
 repo
 cambalache.flatpak
