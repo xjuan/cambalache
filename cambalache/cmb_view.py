@@ -25,6 +25,7 @@ import os
 import json
 import socket
 import time
+import warnings
 
 from gi.repository import GObject, GLib, Gtk, WebKit2
 
@@ -102,7 +103,7 @@ class CmbProcess(GObject.Object):
         self.stdin = GLib.IOChannel.unix_new(stdin)
         self.stdout = GLib.IOChannel.unix_new(stdout)
 
-        self.stdout.add_watch(GLib.IOCondition.IN | GLib.IOCondition.HUP, self.__on_stdout)
+        GLib.io_add_watch(self.stdout, GLib.PRIORITY_DEFAULT_IDLE, GLib.IOCondition.IN | GLib.IOCondition.HUP, self.__on_stdout)
 
         GLib.child_watch_add(GLib.PRIORITY_DEFAULT_IDLE, pid, self.__on_exit, None)
 
@@ -170,15 +171,22 @@ class CmbView(Gtk.Stack):
 
     def do_destroy(self):
         if self.__merengue:
-            self.__merengue.stop()
+            self.__merengue_command("quit")
 
         if self.__broadwayd:
             self.__broadwayd.stop()
 
+    def __evaluate_js(self, script):
+        self.webview.evaluate_javascript(script, -1, None, None, None, None, None, None)
+
     def __update_webview_bg(self):
         context = self.get_style_context()
-        bg = context.get_background_color(Gtk.StateFlags.NORMAL)
-        self.webview.run_javascript(f"document.body.style.background = '{bg.to_string()}';")
+
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore",category=DeprecationWarning)
+            bg = context.get_background_color(Gtk.StateFlags.NORMAL)
+
+        self.__evaluate_js(f"document.body.style.background = '{bg.to_string()}';")
 
     def __on_load_changed(self, webview, event):
         if event != WebKit2.LoadEvent.FINISHED:
@@ -186,10 +194,9 @@ class CmbView(Gtk.Stack):
 
         self.__update_webview_bg()
 
-        # Disable aler() function used when broadwayd get disconnected
+        # Disable alert() function used when broadwayd get disconnected
         # Monkey patch setupDocument() to avoid disabling document.oncontextmenu
-        webview.run_javascript(
-            """
+        self.__evaluate_js("""
 window.alert = function (message) {
     console.log (message);
 }
@@ -201,9 +208,7 @@ window.setupDocument = function (document) {
     merengueSetupDocument(document);
     document.oncontextmenu = cb;
 }
-""",
-            None,
-            None,
+"""
         )
 
     def __merengue_command(self, command, payload=None, args=None):
