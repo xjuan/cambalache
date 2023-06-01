@@ -313,6 +313,8 @@ class MrgApplication(Gtk.Application):
             self.remove_css_provider(**args)
         elif command == "update_css_provider":
             self.update_css_provider(**args)
+        elif command == "quit":
+            self.quit()
         else:
             logger.warning(f"Unknown command {command}")
 
