@@ -72,7 +72,7 @@ class CmbProcess(GObject.Object):
                 GLib.spawn_close_pid(self.pid)
                 os.kill(self.pid, 9)
             except Exception as e:
-                logger.warning(f"Error stoping {self.file} {e}")
+                logger.warning(f"Error stopping {self.file} {e}")
 
             self.pid = 0
 
@@ -80,14 +80,9 @@ class CmbProcess(GObject.Object):
         if self.file is None or self.pid > 0:
             return
 
-        envp = []
-        for var in os.environ:
-            # Ignore vars in custom environment
-            if var in env:
-                continue
-            val = os.environ.get(var)
-            envp.append(f"{var}={val}")
+        envp = [f"{var}={val}" for var, val in os.environ.items() if var not in env]
 
+        # Append extra vars
         for var in env:
             envp.append(f"{var}={env[var]}")
 
@@ -183,7 +178,7 @@ class CmbView(Gtk.Stack):
         context = self.get_style_context()
 
         with warnings.catch_warnings():
-            warnings.filterwarnings("ignore",category=DeprecationWarning)
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
             bg = context.get_background_color(Gtk.StateFlags.NORMAL)
 
         self.__evaluate_js(f"document.body.style.background = '{bg.to_string()}';")
@@ -196,7 +191,8 @@ class CmbView(Gtk.Stack):
 
         # Disable alert() function used when broadwayd get disconnected
         # Monkey patch setupDocument() to avoid disabling document.oncontextmenu
-        self.__evaluate_js("""
+        self.__evaluate_js(
+            """
 window.alert = function (message) {
     console.log (message);
 }
@@ -624,9 +620,12 @@ window.setupDocument = function (document) {
             version = "4.0"
 
         display = self.__port - 8080
+
+        env = json.loads(os.environ.get("MERENGUE_DEV_ENV", "{}"))
         self.__merengue.run(
             [version],
-            {
+            env
+            | {
                 "GDK_BACKEND": "broadway",
                 # 'GTK_DEBUG': 'interactive',
                 "BROADWAY_DISPLAY": f":{display}",
