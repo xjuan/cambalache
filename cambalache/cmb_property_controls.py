@@ -504,6 +504,7 @@ class CmbToplevelChooser(Gtk.ComboBox):
 
     def __on_object_notify(self, obj, pspec):
         self.props.model = None
+        self.filter = None
 
         if self.object is None:
             return
@@ -512,10 +513,12 @@ class CmbToplevelChooser(Gtk.ComboBox):
         iter = project.get_iter_from_object(self.object)
         path = project.get_path(iter)
 
+        # Create filter and set visible function before using it
         self.filter = project.filter_new(path)
-
-        self.props.model = self.filter
         self.filter.set_visible_func(self.__filter_func)
+
+        # Use filter as model
+        self.props.model = self.filter
 
     def __on_changed(self, combo):
         self.notify("cmb-value")

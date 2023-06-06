@@ -1053,7 +1053,12 @@ class CmbProject(Gtk.TreeStore):
 
         if ui.template_id:
             c = self.db.execute("SELECT type_id, name FROM object WHERE ui_id=? AND object_id=?;", (ui.ui_id, ui.template_id))
-            parent_id, type_id = c.fetchone()
+            row = c.fetchone()
+
+            if row is None:
+                return
+
+            parent_id, type_id = row
 
             # Ignore templates without a name set
             if type_id is None:
