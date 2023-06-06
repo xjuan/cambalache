@@ -1,3 +1,5 @@
+#!/usr/bin/pytest
+
 """
 Test project export xml for Merengue
 """

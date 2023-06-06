@@ -1,5 +1,7 @@
+#!/usr/bin/pytest
+
 """
-Test CmbObject API
+Test Project Catalogs API
 """
 
 from cambalache import CmbProject

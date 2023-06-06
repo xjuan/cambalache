@@ -1,3 +1,5 @@
+#!/usr/bin/pytest
+
 """
 import .ui files into cambalache and export to compare results
 """

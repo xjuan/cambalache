@@ -21,9 +21,7 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-import os
 import io
-import time
 import cairo
 import struct
 
@@ -75,7 +73,6 @@ def window_screenshot(window):
 
     w = window.get_allocated_width()
     h = window.get_allocated_height()
-    n = w * h
 
     # Draw widget to cairo surface
     surface = cairo.ImageSurface(cairo.FORMAT_RGB24, w, h)
@@ -126,17 +123,6 @@ def mean_squared_error(original, screenshot, ignore_color=None):
     return red / n, green / n, blue / n, total / n
 
 
-def wait_for_file(path, seconds):
-    i = 0
-    while not os.path.exists(path):
-        time.sleep(0.1)
-        i += 1
-        if i >= seconds * 10:
-            return True
-
-    return False
-
-
 def process_all_pending_gtk_events():
     while Gtk.events_pending():
         Gtk.main_iteration_do(False)
@@ -161,3 +147,33 @@ def find_by_buildable_id(widget, name):
             return child
 
     return retval
+
+
+def cmb_create_app():
+    from cambalache.app import CmbApplication
+
+    app = CmbApplication()
+    app.register()
+    app.activate()
+
+    window = None
+
+    # Spin until we get the main window
+    while Gtk.events_pending() and not window:
+        Gtk.main_iteration_do(False)
+
+        # Get window if any
+        windows = app.get_windows()
+        if len(windows):
+            window = windows[0]
+
+    return app, window
+
+
+def cmb_destroy_app(app, window):
+    window.activate_action("close", None)
+    process_all_pending_gtk_events()
+    window.destroy()
+    app.quit()
+
+    process_all_pending_gtk_events()

@@ -1,3 +1,5 @@
+#!/usr/bin/pytest
+
 """
 Test Undo/Redo API
 """

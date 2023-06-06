@@ -1,3 +1,4 @@
+#!/usr/bin/pytest
 #
 # GUI Unit Tests
 #
@@ -22,68 +23,28 @@
 #
 
 import os
-import gi
-import time
 import cairo
 
-gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk
 from . import utils
 
+basedir = os.path.dirname(__file__)
 
-basedir = os.path.join(os.path.dirname(__file__))
 
 # Global GtkApplication and CmbWindow
 app = None
 window = None
 
-def create_app():
-    global app, window
-
-    # load module that setup everything locally to run cambalache
-    from cambalache.app import CmbApplication
-
-    app = CmbApplication()
-    app.register()
-    app.activate()
-
-    # Spin until we get the main window
-    while Gtk.events_pending() and not window:
-        Gtk.main_iteration_do(False)
-
-        # Get window if any
-        windows = app.get_windows()
-        if len(windows):
-            window = windows[0]
-
-
-def destroy_app():
-    global app, window
-
-    window.activate_action("close", None)
-    utils.process_all_pending_gtk_events()
-    window.destroy()
-    app.quit()
-
-    utils.process_all_pending_gtk_events()
-
-    app = None
-    window = None
-
 
 def setup_module(module):
-    wayland_display = os.environ.get("WAYLAND_DISPLAY", None)
-
-    # Wait for compositor to startup
-    if utils.wait_for_file(wayland_display, 2):
-        assert False
-        return
-
-    create_app()
+    global app, window
+    app, window = utils.cmb_create_app()
 
 
 def teardown_module(module):
-    destroy_app()
+    global app, window
+    utils.cmb_destroy_app(app, window)
+    app = None
+    window = None
 
 
 def window_assert_screenshot(original_basename, target=None, ui_basename=None):
@@ -119,7 +80,7 @@ def window_assert_screenshot(original_basename, target=None, ui_basename=None):
     screenshot = utils.image_reload_as_png(screenshot)
 
     # Get MSE
-    ignore_color = (0xf5, 0x00, 0xf5)
+    ignore_color = (0xF5, 0x00, 0xF5)
     r, g, b, total = utils.mean_squared_error(original, screenshot, ignore_color)
 
     assert r is not None
@@ -140,7 +101,7 @@ def window_activate_action(action_name):
 
 def window_button_clicked(button_name):
     button = utils.find_by_buildable_id(window, button_name)
-    assert(button)
+    assert button
     button.clicked()
     utils.process_all_pending_gtk_events()
     return button
@@ -148,7 +109,7 @@ def window_button_clicked(button_name):
 
 def window_entry_set_text(entry_name, text):
     entry = utils.find_by_buildable_id(window, entry_name)
-    assert(entry)
+    assert entry
     entry.set_text(text)
     utils.process_all_pending_gtk_events()
     return entry
@@ -156,7 +117,7 @@ def window_entry_set_text(entry_name, text):
 
 def window_stack_set_page(stack_name, page):
     stack = utils.find_by_buildable_id(window, stack_name)
-    assert(stack)
+    assert stack
 
     stack.set_visible_child_name(page)
     utils.process_all_pending_gtk_events()
@@ -166,7 +127,7 @@ def window_stack_set_page(stack_name, page):
 
 def window_widget_grab_focus(widget):
     widget = utils.find_by_buildable_id(window, widget)
-    assert(widget)
+    assert widget
     widget.grab_focus()
 
 
@@ -247,6 +208,7 @@ def _test_cmb_window_object_stack_fragment(target):
     window_stack_set_page("object_stack", "fragment")
     window_assert_screenshot("cambalache_object_stack_fragment.png", target)
 
+
 # Common Tests
 def test_cmb_window():
     window_assert_screenshot("cambalache.png")
@@ -289,7 +251,7 @@ def test_cmb_window_close():
     app.open_project(None)
 
     windows = app.get_windows()
-    assert(len(windows))
+    assert len(windows)
 
     window = windows[0]
 

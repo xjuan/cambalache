@@ -1,6 +1,5 @@
-"""
-Test CmbObject API
-"""
+#!/usr/bin/pytest
+
 import os
 
 from cambalache import CmbProject, config

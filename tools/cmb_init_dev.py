@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 #
 # Cambalache UI Maker developer mode
 #
@@ -41,6 +42,14 @@ os.environ["GI_TYPELIB_PATH"] = privatedir
 os.environ["LD_LIBRARY_PATH"] = privatedir
 os.environ["GSETTINGS_SCHEMA_DIR"] = datadir
 os.environ["XDG_DATA_DIRS"] = xdgdatadir
+os.environ[
+    "MERENGUE_DEV_ENV"
+] = f"""{{
+    "GI_TYPELIB_PATH": "{privatedir}",
+    "LD_LIBRARY_PATH": "{privatedir}",
+    "GSETTINGS_SCHEMA_DIR": "{datadir}",
+    "XDG_DATA_DIRS": "{xdgdatadir}"
+}}"""
 
 from gi.repository import GLib  # noqa: E402
 
@@ -149,11 +158,12 @@ def configure_file(input_file, output_file, config):
 
 def create_catalogs_dir():
     def link_plugin(filename):
+        fullpath = os.path.join(basedir, filename)
         basename = os.path.basename(filename)
         link = os.path.join(catalogsdir, basename)
         if not os.path.islink(link):
             print(f"Setting up {basename} catalog link")
-            os.symlink(os.path.abspath(filename), os.path.abspath(link))
+            os.symlink(os.path.abspath(fullpath), os.path.abspath(link))
 
     if not os.path.exists(catalogsdir):
         GLib.mkdir_with_parents(catalogsdir, 0o700)
@@ -254,15 +264,6 @@ def cmb_init_dev():
 
     check_init_locale()
 
-    dev_config(
-        os.path.join(basedir, ".env.local"),
-        f"""export GI_TYPELIB_PATH="{privatedir}"
-export LD_LIBRARY_PATH="{privatedir}"
-export GSETTINGS_SCHEMA_DIR="{datadir}"
-export XDG_DATA_DIRS="{xdgdatadir}"
-""",
-    )
-
     # Create config files pointing to source directories
     dev_config(
         os.path.join(cambalachedir, "config.py"),
@@ -325,8 +326,3 @@ merenguedir = '{cambalachedir}'
 
 if __name__ == "__main__":
     cmb_init_dev()
-
-    from cambalache.app import CmbApplication
-
-    app = CmbApplication()
-    app.run(sys.argv)

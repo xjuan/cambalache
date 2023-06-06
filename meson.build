@@ -51,9 +51,9 @@ foreach mod_ver: modules
 
     if mod.startswith('gi.repository.')
         mod = mod.split('.')[2]
-        m = run_command('python3', '-c', gi_check_py.format(mod, gi_req), check: false)
+        m = run_command(python_bin, '-c', gi_check_py.format(mod, gi_req), check: false)
     else
-        m = run_command('python3', '-c', 'import @0@\nprint(@0@.__version__)'.format(mod), check: false)
+        m = run_command(python_bin, '-c', 'import @0@\nprint(@0@.__version__)'.format(mod), check: false)
     endif
 
     ver = m.stdout().strip()
@@ -89,6 +89,7 @@ subdir('data')
 subdir('cambalache')
 subdir('catalogs')
 subdir('po')
+subdir('tests')
 
 # Post Install deps
 find_program('update-mime-database', required: true)
@@ -97,8 +98,3 @@ find_program('update-desktop-database', required: true)
 find_program('glib-compile-schemas', required: true)
 
 meson.add_install_script('postinstall.py')
-
-test('Running PyTest',
-     python_bin, args : ['-m', 'pytest'],
-     workdir: meson.current_source_dir())
-
