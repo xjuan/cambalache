@@ -40,7 +40,7 @@ CATALOG_FILES = \
 
 all: ${CATALOG_FILES}
 
-glib/gobject-2.0.xml:
+glib/gobject-2.0.xml: glib/GObject.xml
 	${CAMBALACHE_DB} \
 		--gir /usr/share/gir-1.0/GObject-2.0.gir \
 		--types GObject GBinding GBindingFlags \
@@ -49,10 +49,11 @@ glib/gobject-2.0.xml:
 		--skip-types GBinding \
 		--output $@
 
-glib/gio-2.0.xml:
+glib/gio-2.0.xml: glib/Gio.xml
 	${CAMBALACHE_DB} \
 		--gir /usr/share/gir-1.0/Gio-2.0.gir \
-		--types GFile \
+		--types GFile GListStore GListModel \
+		--extra-data glib/Gio.xml \
 		--exclude-objects \
 		--output $@
 

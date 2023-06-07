@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <!DOCTYPE cambalache-catalog SYSTEM "cambalache-catalog.dtd">
-<cambalache-catalog name="gio" namespace="Gio" prefix="G" version="2.0" targets="2.0">
+<cambalache-catalog name="gio" namespace="Gio" prefix="G" version="2.0" targets="2.0,2.44">
   <type>
 	("GAppInfoCreateFlags","flags","gio",None,None,None,None,None,None,None),
 	("GApplicationFlags","flags","gio",None,None,None,None,None,None,None),
@@ -47,6 +47,8 @@
 	("GIOErrorEnum","enum","gio",None,None,None,None,None,None,None),
 	("GIOModuleScopeFlags","enum","gio",None,None,None,None,None,None,None),
 	("GIOStreamSpliceFlags","flags","gio",None,None,None,None,None,None,None),
+	("GListModel","interface","gio",None,None,None,None,None,None,None),
+	("GListStore","GObject","gio","2.44",None,None,1,None,"model",None),
 	("GMemoryMonitorWarningLevel","enum","gio",None,None,None,None,None,None,None),
 	("GMountMountFlags","flags","gio",None,None,None,None,None,None,None),
 	("GMountOperationResult","enum","gio",None,None,None,None,None,None,None),
@@ -86,6 +88,9 @@
 	("GUnixSocketAddressType","enum","gio",None,None,None,None,None,None,None),
 	("GZlibCompressorFormat","enum","gio",None,None,None,None,None,None,None)
   </type>
+  <type_iface>
+	("GListStore","GListModel")
+  </type_iface>
   <type_enum>
 	("GBusType","G_BUS_TYPE_NONE","none",None,"Not a message bus."),
 	("GBusType","G_BUS_TYPE_SESSION","session",2,"The login session message bus."),
@@ -522,4 +527,10 @@
 	("GTlsPasswordFlags","G_TLS_PASSWORD_PKCS11_USER","pkcs11-user",16,"For PKCS #11, the user PIN is required. Since: 2.70."),
 	("GTlsPasswordFlags","G_TLS_PASSWORD_RETRY","retry",2,"The password was wrong, and the user should retry.")
   </type_flags>
+  <property>
+	("GListStore","item-type","gtype",None,1,None,None,None,None,"2.44",None,None,None,None,None,None)
+  </property>
+  <signal>
+	("GListModel","items-changed","2.44",None,None)
+  </signal>
 </cambalache-catalog>

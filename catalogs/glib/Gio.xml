@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!--
+ Gio Extra meta data
+
+ Copyright (C) 2023  Juan Pablo Ugarte
+-->
+<meta>
+  <categories>
+    <category name="model">
+      <GListStore/>
+    </category>
+
+  </categories>
+</meta>
