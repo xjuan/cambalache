@@ -225,6 +225,13 @@ class CambalacheDb:
         for klass in types:
             owner_id = klass.tag
 
+            if check_target(klass):
+                continue
+
+            row = c.execute("SELECT type_id FROM type WHERE type_id=?;", (owner_id, )).fetchone()
+            if row is None:
+                continue
+
             workspace_type = klass.get("workspace-type", None)
 
             c.execute("UPDATE type SET workspace_type=? WHERE type_id=?;", (workspace_type, owner_id))
