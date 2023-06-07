@@ -2,7 +2,7 @@
 <!--
  Gtk Extra meta data
 
- Copyright (C) 2021  Juan Pablo Ugarte
+ Copyright (C) 2021-2023  Juan Pablo Ugarte
 -->
 <meta>
   <types>
@@ -20,54 +20,54 @@
 
     <GtkBoxLayoutChild>
       <properties>
-        <property id="position" target="Gtk-3.0" is-position="True"/>
+        <property id="position" target="Gtk+-3.0" is-position="True"/>
       </properties>
     </GtkBoxLayoutChild>
 
     <GtkHeaderBarLayoutChild>
       <properties>
-        <property id="position" target="Gtk-3.0" is-position="True"/>
+        <property id="position" target="Gtk+-3.0" is-position="True"/>
       </properties>
     </GtkHeaderBarLayoutChild>
 
     <GtkNotebookLayoutChild>
       <properties>
-        <property id="position" target="Gtk-3.0" is-position="True"/>
+        <property id="position" target="Gtk+-3.0" is-position="True"/>
       </properties>
     </GtkNotebookLayoutChild>
 
     <GtkActionBarLayoutChild>
       <properties>
-        <property id="position" target="Gtk-3.0" is-position="True"/>
+        <property id="position" target="Gtk+-3.0" is-position="True"/>
       </properties>
     </GtkActionBarLayoutChild>
 
     <GtkPopoverMenuBarLayoutChild>
       <properties>
-        <property id="position" target="Gtk-3.0" is-position="True"/>
+        <property id="position" target="Gtk+-3.0" is-position="True"/>
       </properties>
     </GtkPopoverMenuBarLayoutChild>
 
     <GtkStackLayoutChild>
       <properties>
-        <property id="position" target="Gtk-3.0" is-position="True"/>
+        <property id="position" target="Gtk+-3.0" is-position="True"/>
       </properties>
     </GtkStackLayoutChild>
 
     <GtkToolItemGroupLayoutChild>
       <properties>
-        <property id="position" target="Gtk-3.0" is-position="True"/>
+        <property id="position" target="Gtk+-3.0" is-position="True"/>
       </properties>
     </GtkToolItemGroupLayoutChild>
 
     <GtkPopoverMenuLayoutChild>
       <properties>
-        <property id="position" target="Gtk-3.0" is-position="True"/>
+        <property id="position" target="Gtk+-3.0" is-position="True"/>
       </properties>
     </GtkPopoverMenuLayoutChild>
 
     <GtkGridLayoutChild>
-      <properties target="Gtk-3.0">
+      <properties target="Gtk+-3.0">
         <property id="left-attach" save-always="True"/>
         <property id="top-attach" save-always="True"/>
       </properties>
@@ -88,7 +88,7 @@
     <GtkListStore>
       <data>
         <columns>
-          <column type="type"/>
+          <column type="gtype"/>
         </columns>
         <data>
           <row>
@@ -101,7 +101,7 @@
     <GtkTreeStore>
       <data>
         <columns>
-          <column type="type"/>
+          <column type="gtype"/>
         </columns>
       </data>
     </GtkTreeStore>
@@ -117,7 +117,7 @@
       </children-types>
     </GtkWindow>
 
-    <GtkMenuItem target="Gtk-3.0">
+    <GtkMenuItem target="Gtk+-3.0">
       <properties>
         <property id="label" translatable="True"/>
       </properties>
@@ -126,7 +126,7 @@
       </children-types>
     </GtkMenuItem>
 
-    <GtkMenuToolButton target="Gtk-3.0">
+    <GtkMenuToolButton target="Gtk+-3.0">
       <children-types>
         <type max-children="1">menu</type>
       </children-types>
@@ -138,7 +138,7 @@
       </properties>
     </GtkToolItemGroup>
 
-    <GtkToolButton target="Gtk-3.0">
+    <GtkToolButton target="Gtk+-3.0">
       <properties>
         <property id="label" translatable="True"/>
         <property id="icon-name" type="CmbIconName"/>
@@ -180,6 +180,14 @@
       </data>
     </GtkComboBoxText>
 
+    <GtkStringList target="Gtk-4.0">
+      <data>
+        <items>
+          <item translatable="gboolean" context="gchararray" comments="gchararray">gchararray</item>
+        </items>
+      </data>
+    </GtkStringList>
+
     <GtkSizeGroup>
       <data>
         <widgets>
@@ -205,7 +213,7 @@
       <properties>
         <property id="label" translatable="True"/>
         <property id="child" is-inline-object="True"/>
-        <property target="Gtk-3.0" id="icon-name" type="CmbIconName"/>
+        <property target="Gtk+-3.0" id="icon-name" type="CmbIconName"/>
       </properties>
     </GtkButton>
 
@@ -298,7 +306,7 @@
         <property id="label" translatable="True"/>
         <property id="short-label" translatable="True"/>
         <property id="tooltip" translatable="True"/>
-        <property target="Gtk-3.0" id="icon-name" type="CmbIconName"/>
+        <property target="Gtk+-3.0" id="icon-name" type="CmbIconName"/>
       </properties>
     </GtkAction>
 
@@ -308,7 +316,7 @@
       </properties>
     </GtkTreeViewColumn>
 
-    <GtkStatusIcon target="Gtk-3.0">
+    <GtkStatusIcon target="Gtk+-3.0">
       <properties>
         <property id="title" translatable="True"/>
         <property id="tooltip-text" translatable="True"/>
@@ -521,13 +529,13 @@
       </properties>
     </GtkImage>
 
-    <GtkNumerableIcon target="Gtk-3.0">
+    <GtkNumerableIcon target="Gtk+-3.0">
       <properties>
         <property id="background-icon-name" type="CmbIconName"/>
       </properties>
     </GtkNumerableIcon>
 
-    <GtkStackLayoutChild target="Gtk-3.0">
+    <GtkStackLayoutChild target="Gtk+-3.0">
       <properties>
         <property id="icon-name" type="CmbIconName"/>
       </properties>
@@ -691,6 +699,7 @@
       <GtkTextTag/>
       <GtkTextTagTable/>
       <GtkSizeGroup/>
+      <GtkStringList/>
       <GtkWindowGroup/>
       <GtkAccelGroup/>
       <GtkAdjustment/>
