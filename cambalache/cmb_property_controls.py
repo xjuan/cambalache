@@ -939,7 +939,7 @@ def cmb_create_editor(project, type_id, prop=None):
     elif type_id == "CmbIconName":
         editor = CmbIconNameEntry(hexpand=True, placeholder_text="<Icon Name>")
     elif info:
-        if info.is_object:
+        if info.is_object or info.parent_id == "interface":
             # TODO: replace prop with project and is_inline
             editor = CmbObjectChooser(parent=prop.object, prop=prop)
         if info.parent_id == "enum":
