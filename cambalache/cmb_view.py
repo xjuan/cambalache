@@ -273,27 +273,24 @@ window.setupDocument = function (document) {
             },
         )
 
+    def __on_changed(self, project):
+        self.__update_view()
+
     def __on_ui_changed(self, project, ui, field):
         if field in ["custom-fragment", "filename"]:
-            self.__update_view()
             self.__merengue_update_ui(ui.ui_id)
 
     def __on_object_added(self, project, obj):
-        self.__update_view()
         self.__merengue_update_ui(obj.ui_id)
 
     def __on_object_removed(self, project, obj):
-        self.__update_view()
         self.__merengue_update_ui(obj.ui_id)
 
     def __on_object_changed(self, project, obj, field):
         if field in ["type", "position", "custom-fragment"]:
-            self.__update_view()
             self.__merengue_update_ui(obj.ui_id)
 
     def __on_object_property_changed(self, project, obj, prop):
-        self.__update_view()
-
         if obj.info.workspace_type is None and prop.info.construct_only:
             self.__merengue_update_ui(obj.ui_id)
             return
@@ -310,7 +307,6 @@ window.setupDocument = function (document) {
         )
 
     def __on_object_layout_property_changed(self, project, obj, child, prop):
-        self.__update_view()
         self.__merengue_command(
             "object_layout_property_changed",
             args={
@@ -344,14 +340,12 @@ window.setupDocument = function (document) {
 
             if self.__ui_id != ui_id:
                 self.__ui_id = ui_id
-                self.__update_view()
                 self.__merengue_update_ui(ui_id)
 
             objects = self.__get_selection_objects(selection, ui_id)
             self.__merengue_command("selection_changed", args={"ui_id": ui_id, "selection": objects})
         else:
             self.__ui_id = 0
-            self.__update_view()
             self.__merengue_update_ui(0)
 
     def __on_css_added(self, project, obj):
@@ -389,6 +383,7 @@ window.setupDocument = function (document) {
     @project.setter
     def _set_project(self, project):
         if self.__project is not None:
+            self.__project.disconnect_by_func(self.__on_changed)
             self.__project.disconnect_by_func(self.__on_ui_changed)
             self.__project.disconnect_by_func(self.__on_object_added)
             self.__project.disconnect_by_func(self.__on_object_removed)
@@ -408,6 +403,7 @@ window.setupDocument = function (document) {
         self.__update_view()
 
         if project is not None:
+            project.connect("changed", self.__on_changed)
             project.connect("ui-changed", self.__on_ui_changed)
             project.connect("object-added", self.__on_object_added)
             project.connect("object-removed", self.__on_object_removed)
