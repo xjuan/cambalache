@@ -189,29 +189,37 @@ class CmbPropertyChooser(Gtk.ComboBoxText):
 
         target_info = self.target_info
         target_type = target_info.type_id
-        target_type_info = self.object.project.type_info.get(target_info.type_id, None)
+        target_type_info = self.object.project.type_info.get(target_type, None)
         target_is_object = target_info.is_object
+        target_is_iface = target_type_info.parent_id == "interface" if target_type_info else False
 
-        for prop in self.object.properties:
+        for prop in sorted(self.object.properties, key=lambda p: p.property_id):
             info = prop.info
 
             # Ignore construct only properties
             if info.construct_only:
                 continue
 
-            if target_is_object:
-                # Ignore non object properties
-                if not info.is_object:
-                    continue
+            source_type_info = self.object.project.type_info.get(info.type_id, None)
+            source_is_object = info.is_object
+            source_is_iface = source_type_info.parent_id == "interface" if source_type_info else False
 
-                source_type_info = self.object.project.type_info.get(info.type_id, None)
+            if target_is_object or target_is_iface:
+                # Ignore non object properties
+                if not source_is_object and not source_is_iface:
+                    continue
 
                 # Ignore object properties of a different type
                 if source_type_info and not source_type_info.is_a(target_info.type_id):
                     continue
+            elif source_is_object or source_is_iface:
+                continue
 
             # Enums and Flags has to be the same type
-            if target_type_info and target_type_info.parent_type in ["flags", "enum"] and info.type_id != target_type:
+            if target_type_info and target_type_info.parent_id in ["flags", "enum"] and info.type_id != target_type:
+                continue
+
+            if source_type_info and source_type_info.parent_id in ["flags", "enum"] and info.type_id != target_type:
                 continue
 
             compatible = info.type_id == target_type
