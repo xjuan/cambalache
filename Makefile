@@ -4,7 +4,13 @@ repo: ar.xjuan.Cambalache.json
 cambalache.flatpak: repo
 	flatpak build-bundle repo cambalache.flatpak ar.xjuan.Cambalache
 
+.PHONY: install clean veryclean
+
 install: cambalache.flatpak
 	flatpak install --user cambalache.flatpak
 
-.PHONY: install
+clean:
+	rm -rf repo cambalache.flatpak
+
+veryclean: clean
+	rm -rf .flatpak-builder
