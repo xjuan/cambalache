@@ -59,3 +59,44 @@ CmbPropertyLabel {
   box-shadow: unset;
   outline: unset;
 }
+
+/*
+  WIP: Compact mode for low resolution displays
+  TODO: add class and set class depending on screen size
+*/
+CmbWindow {
+  font-size: 80%
+}
+
+CmbWindow button,
+CmbWindow spinbutton,
+CmbWindow switch {
+  min-width: 12px;
+  min-height: 18px;
+}
+
+CmbWindow switch > slider {
+  min-width: 12px;
+  min-height: 16px;
+}
+
+CmbWindow entry {
+  min-height: 24px;
+}
+
+
+CmbWindow headerbar {
+  min-height: 36px
+}
+
+CmbWindow headerbar button {
+  min-width: 14px;
+  min-height: 16px;
+  padding: 4px 6px;
+}
+
+CmbWindow button image,
+CmbWindow spinbutton,
+CmbWindow entry image {
+  -gtk-icon-transform: scale(0.8);
+}
