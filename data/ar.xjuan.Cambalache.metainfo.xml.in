@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
-  <id>ar.xjuan.Cambalache.desktop</id>
+  <id>ar.xjuan.Cambalache</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>LGPL-2.1</project_license>
   <name>Cambalache</name>
