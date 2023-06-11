@@ -15,6 +15,19 @@
       </children-types>
     </AdwHeaderBar>
 
+    <AdwFlap>
+      <properties>
+        <property id="flap" is-inline-object="True"/>
+        <property id="content" is-inline-object="True"/>
+        <property id="separator" is-inline-object="True"/>
+      </properties>
+      <children-types>
+        <type max-children="1" linked-property-id="flap">flap</type>
+        <type max-children="1" linked-property-id="content">content</type>
+        <type max-children="1" linked-property-id="separator">separator</type>
+      </children-types>
+    </AdwFlap>
+
     <AdwActionRow>
       <properties>
         <property id="icon-name" type="CmbIconName"/>

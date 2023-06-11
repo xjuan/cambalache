@@ -315,6 +315,9 @@
 	("AdwTabViewShortcuts","ADW_TAB_VIEW_SHORTCUT_NONE","none",None,"No shortcuts")
   </type_flags>
   <type_child_type>
+	("AdwFlap","content",1,"content"),
+	("AdwFlap","flap",1,"flap"),
+	("AdwFlap","separator",1,"separator"),
 	("AdwHeaderBar","end",None,None),
 	("AdwHeaderBar","start",None,None),
 	("AdwHeaderBar","title",1,"title-widget")
@@ -396,8 +399,8 @@
 	("AdwExpanderRow","subtitle","gchararray",None,None,None,"",None,None,None,None,1,None,None,None,None),
 	("AdwExpanderRow","subtitle-lines","gint",None,None,None,"0","0","2147483647","1.3",None,None,None,None,None,None),
 	("AdwExpanderRow","title-lines","gint",None,None,None,"0","0","2147483647","1.3",None,None,None,None,None,None),
-	("AdwFlap","content","GtkWidget",1,None,None,None,None,None,None,None,None,None,None,None,None),
-	("AdwFlap","flap","GtkWidget",1,None,None,None,None,None,None,None,None,None,None,None,None),
+	("AdwFlap","content","GtkWidget",1,None,None,None,None,None,None,None,None,1,None,None,None),
+	("AdwFlap","flap","GtkWidget",1,None,None,None,None,None,None,None,None,1,None,None,None),
 	("AdwFlap","flap-position","GtkPackType",None,None,None,"start",None,None,None,None,None,None,None,None,None),
 	("AdwFlap","fold-duration","guint",None,None,None,"250","0","2147483647",None,None,None,None,None,None,None),
 	("AdwFlap","fold-policy","AdwFlapFoldPolicy",None,None,None,"auto",None,None,None,None,None,None,None,None,None),
@@ -405,7 +408,7 @@
 	("AdwFlap","locked","gboolean",None,None,None,"False",None,None,None,None,None,None,None,None,None),
 	("AdwFlap","modal","gboolean",None,None,None,"True",None,None,None,None,None,None,None,None,None),
 	("AdwFlap","reveal-flap","gboolean",None,None,None,"True",None,None,None,None,None,None,None,None,None),
-	("AdwFlap","separator","GtkWidget",1,None,None,None,None,None,None,None,None,None,None,None,None),
+	("AdwFlap","separator","GtkWidget",1,None,None,None,None,None,None,None,None,1,None,None,None),
 	("AdwFlap","swipe-to-close","gboolean",None,None,None,"True",None,None,None,None,None,None,None,None,None),
 	("AdwFlap","swipe-to-open","gboolean",None,None,None,"True",None,None,None,None,None,None,None,None,None),
 	("AdwFlap","transition-type","AdwFlapTransitionType",None,None,None,"over",None,None,None,None,None,None,None,None,None),
