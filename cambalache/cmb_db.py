@@ -1,7 +1,7 @@
 #
 # CmbDB - Cambalache DataBase
 #
-# Copyright (C) 2021  Juan Pablo Ugarte
+# Copyright (C) 2021-2023  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -174,23 +174,17 @@ class CmbDB(GObject.GObject):
             col = row[1]
             pk = row[5]
 
-            if columns is None:
-                columns = col
-                old_values = "OLD." + col
-                new_values = "NEW." + col
-            else:
-                columns += ", " + col
-                old_values += ", OLD." + col
-                new_values += ", NEW." + col
-
             all_columns.append(col)
             if pk:
                 pk_columns.append(col)
             else:
                 non_pk_columns.append(col)
 
+        columns = ", ".join(all_columns)
         pkcolumns = ", ".join(pk_columns)
         nonpkcolumns = ", ".join(non_pk_columns)
+        old_values = ", ".join([f"OLD.{c}" for c in all_columns])
+        new_values = ", ".join([f"NEW.{c}" for c in all_columns])
 
         command = {
             "PK": f"SELECT {pkcolumns} FROM history_{table} WHERE history_id=?;",
@@ -243,15 +237,10 @@ class CmbDB(GObject.GObject):
             """
         )
 
-        pkcolumns_values = None
-        for col in pk_columns:
-            if pkcolumns_values is None:
-                pkcolumns_values = "NEW." + col
-            else:
-                pkcolumns_values += ", NEW." + col
-
         if len(pk_columns) == 0:
             return
+
+        pkcolumns_values = ", ".join([f"NEW.{c}" for c in pk_columns])
 
         # UPDATE Trigger for each non PK column
         for column in non_pk_columns:
