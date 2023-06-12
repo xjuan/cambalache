@@ -1,7 +1,7 @@
 #
 # Cambalache Object Data wrapper
 #
-# Copyright (C) 2022  Juan Pablo Ugarte
+# Copyright (C) 2022-2023  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -63,6 +63,7 @@ class CmbObjectData(CmbBaseObjectData):
             self.parent = self.object.data_dict.get(f"{self.owner_id}.{self.parent_id}", None)
 
         self.__populate_children()
+        self.connect("notify", self._on_notify)
 
     def __str__(self):
         return f"CmbObjectData<{self.owner_id}:{self.info.key}> obj={self.ui_id}:{self.object_id} data={self.data_id}:{self.id}"
@@ -78,12 +79,16 @@ class CmbObjectData(CmbBaseObjectData):
         row = c.fetchone()
         return row[0] if row is not None else None
 
-    def __arg_changed(self, key):
+    def _on_notify(self, obj, pspec):
+        if pspec.name in ["value"]:
+            self.project._object_data_changed(self)
+
+    def _arg_changed(self, key):
         self.emit("arg-changed", key)
         self.project._object_data_arg_changed(self, key)
 
     def set_arg(self, key, value):
-        # Prenvent potential infinite recursion
+        # Prevent potential infinite recursion
         val = self.get_arg(key)
         if val == value:
             return
@@ -126,7 +131,7 @@ class CmbObjectData(CmbBaseObjectData):
                         (self.ui_id, self.object_id, self.owner_id, self.data_id, self.id, key, str(value)),
                     )
 
-            self.__arg_changed(key)
+            self._arg_changed(key)
         except Exception as e:
             logger.warning(f"{self} Error setting arg {key}={value}: {e}")
 
