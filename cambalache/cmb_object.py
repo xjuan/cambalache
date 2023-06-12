@@ -407,3 +407,6 @@ class CmbObject(CmbBaseObject):
             prop = self.properties_dict[prop_id]
             prop.notify("value")
             self._property_changed(prop)
+
+    def get_display_name(self):
+        return self.name if self.name is not None else self.type_id
