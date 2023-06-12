@@ -53,6 +53,13 @@ flatpak-builder --force-clean --repo=repo build ar.xjuan.Cambalache.json
 flatpak build-bundle repo cambalache.flatpak ar.xjuan.Cambalache
 flatpak install --user cambalache.flatpak
 ```
+Or if you have `make` installed in your host
+
+```
+make install
+```
+
+Will create the flatpak repository, then the bundle and install it
 
 ## Flathub
 
@@ -91,7 +98,7 @@ Instructions to run Cambalache in MS Windows are [here](README_MS_Windows.md)
 
 ## Contributing
 
-If you are interested in contributing you can open and issue [here](https://gitlab.gnome.org/jpu/cambalache/-/issues)
+If you are interested in contributing you can open an issue [here](https://gitlab.gnome.org/jpu/cambalache/-/issues)
 and/or a merge request [here](https://gitlab.gnome.org/jpu/cambalache/-/merge_requests)
 
 ## Contact

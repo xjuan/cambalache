@@ -1,4 +1,4 @@
-repo: ar.xjuan.Cambalache.json
+repo: ar.xjuan.Cambalache.json .git/objects
 	flatpak-builder --force-clean --repo=repo build ar.xjuan.Cambalache.json
 
 cambalache.flatpak: repo
