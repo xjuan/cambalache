@@ -318,6 +318,9 @@ window.setupDocument = function (document) {
             },
         )
 
+    def __on_object_property_binding_changed(self, project, obj, prop):
+        self.__merengue_update_ui(obj.ui_id)
+
     def __get_selection_objects(self, selection, ui_id):
         objects = []
 
@@ -376,6 +379,18 @@ window.setupDocument = function (document) {
 
         self.__merengue_command("update_css_provider", args={"css_id": obj.css_id, "field": field, "value": value})
 
+    def __on_object_data_changed(self, project, data):
+        self.__merengue_update_ui(data.ui_id)
+
+    def __on_object_data_removed(self, project, obj, data):
+        self.__merengue_update_ui(data.ui_id)
+
+    def __on_object_data_data_removed(self, project, parent, data):
+        self.__merengue_update_ui(data.ui_id)
+
+    def __on_object_data_arg_changed(self, project, data, value):
+        self.__merengue_update_ui(data.ui_id)
+
     @GObject.Property(type=GObject.GObject)
     def project(self):
         return self.__project
@@ -390,6 +405,11 @@ window.setupDocument = function (document) {
             self.__project.disconnect_by_func(self.__on_object_changed)
             self.__project.disconnect_by_func(self.__on_object_property_changed)
             self.__project.disconnect_by_func(self.__on_object_layout_property_changed)
+            self.__project.disconnect_by_func(self.__on_object_property_binding_changed)
+            self.__project.disconnect_by_func(self.__on_object_data_changed)
+            self.__project.disconnect_by_func(self.__on_object_data_removed)
+            self.__project.disconnect_by_func(self.__on_object_data_data_removed)
+            self.__project.disconnect_by_func(self.__on_object_data_arg_changed)
             self.__project.disconnect_by_func(self.__on_project_selection_changed)
             self.__merengue.disconnect_by_func(self.__on_merengue_stdout)
             self.__project.disconnect_by_func(self.__on_css_added)
@@ -410,6 +430,11 @@ window.setupDocument = function (document) {
             project.connect("object-changed", self.__on_object_changed)
             project.connect("object-property-changed", self.__on_object_property_changed)
             project.connect("object-layout-property-changed", self.__on_object_layout_property_changed)
+            project.connect("object-property-binding-changed", self.__on_object_property_binding_changed)
+            project.connect("object-data-changed", self.__on_object_data_changed)
+            project.connect("object-data-removed", self.__on_object_data_removed)
+            project.connect("object-data-data-removed", self.__on_object_data_data_removed)
+            project.connect("object-data-arg-changed", self.__on_object_data_arg_changed)
             project.connect("selection-changed", self.__on_project_selection_changed)
             project.connect("css-added", self.__on_css_added)
             project.connect("css-removed", self.__on_css_removed)
