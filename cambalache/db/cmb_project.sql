@@ -177,6 +177,15 @@ BEGIN
   UPDATE ui SET template_id=NULL WHERE ui_id=OLD.ui_id AND template_id=OLD.object_id;
 END;
 
+CREATE TRIGGER on_object_before_delete BEFORE DELETE ON object
+BEGIN
+/*
+  Clear any property binding reference, We can not set ON DELETE SET NULL
+  because object_property.ui_id can not be NULL
+ */
+  UPDATE object_property SET bind_source_id=NULL WHERE ui_id=OLD.ui_id AND bind_source_id=OLD.object_id;
+END;
+
 
 /* Object Property
  *
@@ -202,7 +211,7 @@ CREATE TABLE object_property (
   FOREIGN KEY(ui_id, object_id) REFERENCES object(ui_id, object_id) ON DELETE CASCADE,
   FOREIGN KEY(ui_id, inline_object_id) REFERENCES object(ui_id, object_id) ON DELETE CASCADE,
   FOREIGN KEY(owner_id, property_id) REFERENCES property,
-  FOREIGN KEY(ui_id, bind_source_id) REFERENCES object(ui_id, object_id) ON DELETE SET NULL,
+  FOREIGN KEY(ui_id, bind_source_id) REFERENCES object(ui_id, object_id),
   FOREIGN KEY(bind_owner_id, bind_property_id) REFERENCES property(owner_id, property_id) ON DELETE SET NULL
 ) WITHOUT ROWID;
 
