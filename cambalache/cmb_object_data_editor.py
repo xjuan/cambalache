@@ -1,7 +1,7 @@
 #
 # CmbObjectDataEditor - Cambalache Object Data Editor
 #
-# Copyright (C) 2022  Juan Pablo Ugarte
+# Copyright (C) 2022-2023  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -110,12 +110,12 @@ class CmbObjectDataEditor(Gtk.Box):
             self.__data.disconnect_by_func(self.__on_data_data_removed)
             self.__data.disconnect_by_func(self.__on_data_arg_changed)
 
-        self.__data = value
-
         # Clear old editors
         for editor in self.__editors:
             self.grid.remove(editor)
         self.__editors = []
+
+        self.__data = value
 
         if self.__data:
             self.__data.connect("data-added", self.__on_data_data_added)
@@ -127,10 +127,8 @@ class CmbObjectDataEditor(Gtk.Box):
             return
 
         editor = self.__arg_editors.get(key, None)
-        val = self.data.get_arg(key)
-
-        if val and editor:
-            editor.cmb_value = val
+        if editor:
+            editor.cmb_value = self.data.get_arg(key)
 
     def __on_data_data_added(self, parent, data):
         self.__add_data_editor(data)
