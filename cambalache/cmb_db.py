@@ -1807,6 +1807,9 @@ class CmbDB(GObject.GObject):
         c.close()
 
     def clipboard_paste(self, ui_id, parent_id):
+        foreign_keys = self.foreign_keys
+        self.foreign_keys = False
+
         c = self.conn.cursor()
         object_id_map = {}
         retval = {}
@@ -1859,6 +1862,8 @@ class CmbDB(GObject.GObject):
             retval[object_id] = tuple([x[0] for x in c.fetchall()])
 
         self.__fix_object_references(ui_id)
+
+        self.foreign_keys = foreign_keys
 
         c.close()
         return retval
