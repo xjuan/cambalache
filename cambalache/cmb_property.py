@@ -143,3 +143,4 @@ class CmbProperty(CmbBaseProperty):
     @bind_property.setter
     def _set_bind_property(self, bind_property):
         self.__update_values(self.value, bind_property)
+        self.project._object_property_binding_changed(self.object, self)

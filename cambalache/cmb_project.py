@@ -1,7 +1,7 @@
 #
 # CmbProject - Cambalache Project
 #
-# Copyright (C) 2020-2022  Juan Pablo Ugarte
+# Copyright (C) 2020-2023  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -63,10 +63,12 @@ class CmbProject(Gtk.TreeStore):
             None,
             (CmbObject, CmbObject, CmbLayoutProperty),
         ),
+        "object-property-binding-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, CmbProperty)),
         "object-signal-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, CmbSignal)),
         "object-signal-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, CmbSignal)),
         "object-data-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, CmbObjectData)),
         "object-data-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, CmbObjectData)),
+        "object-data-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObjectData, )),
         "object-data-data-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbObjectData, CmbObjectData)),
         "object-data-data-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObjectData, CmbObjectData)),
         "object-data-arg-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObjectData, str)),
@@ -715,15 +717,15 @@ class CmbProject(Gtk.TreeStore):
         return self.get_value(_iter, 0) if _iter else None
 
     def __undo_redo_property_notify(self, obj, layout, prop, owner_id, property_id):
-        # FIXME:use a dict instead of walking the array
-        properties = obj.layout if layout else obj.properties
-        for p in properties:
-            if p.owner_id == owner_id and p.property_id == property_id:
-                p.notify(prop)
-                if layout:
-                    obj._layout_property_changed(p)
-                else:
-                    obj._property_changed(p)
+        properties = obj.layout_dict if layout else obj.properties_dict
+        p = properties.get(property_id, None)
+
+        if p and p.owner_id == owner_id and p.property_id == property_id:
+            p.notify(prop)
+            if layout:
+                obj._layout_property_changed(p)
+            else:
+                obj._property_changed(p)
 
     def __get_history_command(self, history_index):
         c = self.db.cursor()
@@ -788,6 +790,19 @@ class CmbProject(Gtk.TreeStore):
                 self.__undo_redo_property_notify(child, True, column, pk[3], pk[4])
             elif table == "object_signal":
                 pass
+            elif table == "object_data":
+                obj = self.get_object_by_id(pk[0], pk[1])
+                if obj:
+                    data = obj.data_dict.get(f"{pk[2]}.{pk[4]}", None)
+                    if data:
+                        data.notify(column)
+            elif table == "object_data_arg":
+                obj = self.get_object_by_id(pk[0], pk[1])
+                if obj:
+                    data = obj.data_dict.get(f"{pk[2]}.{pk[4]}", None)
+                    if data:
+                        data._arg_changed(pk[5])
+                        data.notify(column)
             elif table == "ui":
                 obj = self.get_object_by_id(pk[0])
                 if obj:
@@ -826,7 +841,7 @@ class CmbProject(Gtk.TreeStore):
                         self.__add_object(True, *row)
                     elif table == "css":
                         self.__add_css(True, *row)
-            elif table in ["object_signal", "object_data"]:
+            elif table in ["object_signal", "object_data", "object_data_arg"]:
                 c.execute(commands["COUNT"], (self.history_index,))
                 count = c.fetchone()
 
@@ -859,6 +874,12 @@ class CmbProject(Gtk.TreeStore):
                             parent._add_child(row[2], row[3], row[4])
                         else:
                             obj._add_data(row[2], row[3], row[4])
+                elif table == "object_data_arg":
+                    obj = self.get_object_by_id(pk[0], pk[1])
+                    if obj:
+                        data = obj.data_dict.get(f"{pk[2]}.{pk[4]}", None)
+                        if data:
+                            data._arg_changed(pk[5])
             elif table == "css_ui":
                 obj = self.get_css_by_id(pk[0])
                 if obj:
@@ -902,6 +923,11 @@ class CmbProject(Gtk.TreeStore):
 
     def get_undo_redo_msg(self):
         c = self.db.cursor()
+
+        def get_type_data_name(owner_id, data_id):
+            c.execute("SELECT key FROM type_data WHERE owner_id=? AND data_id=?;", (owner_id, data_id))
+            row = c.fetchone()
+            return f"{owner_id}:{row[0]}" if row else f"{owner_id}:{data_id}"
 
         def get_msg_vars(table, column, index):
             retval = {"ui": "", "css": "", "obj": "", "prop": "", "value": "", "field": column}
@@ -952,7 +978,12 @@ class CmbProject(Gtk.TreeStore):
                 elif table == "object_signal":
                     retval["signal"] = data[4]
                 elif table == "object_data":
-                    retval["data"] = f"{data[2]}:{data[3]}"
+                    retval["data"] = get_type_data_name(data[2], data[3])
+                    retval["value"] = data[5]
+                elif table == "object_data_arg":
+                    data_name = get_type_data_name(data[2], data[3])
+                    retval["data"] = f"{data_name} {data[5]}"
+                    retval["value"] = data[6]
 
             return retval
 
@@ -1003,8 +1034,13 @@ class CmbProject(Gtk.TreeStore):
                         "UPDATE": _("Update {signal} signal of {obj}"),
                     },
                     "object_data": {
-                        "INSERT": _("Add {data} to {obj}"),
-                        "DELETE": _("Remove {data} from {obj}"),
+                        "INSERT": _("Add {data}={value} to {obj}"),
+                        "DELETE": _("Remove {data}={value} from {obj}"),
+                        "UPDATE": _("Update {data} of {obj} to {value}"),
+                    },
+                    "object_data_arg": {
+                        "INSERT": _("Add {data}={value} to {obj}"),
+                        "DELETE": _("Remove {data}={value} from {obj}"),
                         "UPDATE": _("Update {data} of {obj} to {value}"),
                     },
                 }
@@ -1154,6 +1190,9 @@ class CmbProject(Gtk.TreeStore):
     def _object_layout_property_changed(self, obj, child, prop):
         self.emit("object-layout-property-changed", obj, child, prop)
 
+    def _object_property_binding_changed(self, obj, prop):
+        self.emit("object-property-binding-changed", obj, prop)
+
     def _object_signal_removed(self, obj, signal):
         self.emit("object-signal-removed", obj, signal)
 
@@ -1174,6 +1213,9 @@ class CmbProject(Gtk.TreeStore):
 
     def _object_data_added(self, obj, data):
         self.emit("object-data-added", obj, data)
+
+    def _object_data_changed(self, data):
+        self.emit("object-data-changed", data)
 
     def _css_changed(self, obj, field):
         iter = self.get_iter_from_object(obj)
@@ -1219,9 +1261,8 @@ class CmbProject(Gtk.TreeStore):
         obj = self.__selection[0]
         ui_id = obj.ui_id
         parent_id = obj.object_id if isinstance(obj, CmbObject) else None
-        name = obj.name if obj.name is not None else obj.type_id
 
-        self.history_push(_("Paste clipboard to {name}").format(name=name))
+        self.history_push(_("Paste clipboard to {name}").format(name=obj.get_display_name()))
 
         new_objects = self.db.clipboard_paste(ui_id, parent_id)
 
@@ -1322,6 +1363,9 @@ class CmbProject(Gtk.TreeStore):
     def do_object_layout_property_changed(self, obj, child, prop):
         self.emit("changed")
 
+    def do_object_property_binding_changed(self, obj, prop):
+        self.emit("changed")
+
     def do_object_signal_added(self, obj, signal):
         self.emit("changed")
 
@@ -1332,6 +1376,9 @@ class CmbProject(Gtk.TreeStore):
         self.emit("changed")
 
     def do_object_data_removed(self, obj, data):
+        self.emit("changed")
+
+    def do_object_data_changed(self, data):
         self.emit("changed")
 
     def do_object_data_data_added(self, parent, data):
