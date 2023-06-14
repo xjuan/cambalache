@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import sys
 from tools.cmb_init_dev import cmb_init_dev
 
 if __name__ == "__main__":
@@ -8,4 +9,4 @@ if __name__ == "__main__":
     from cambalache.app import CmbApplication
 
     app = CmbApplication()
-    app.run()
+    app.run(sys.argv)
