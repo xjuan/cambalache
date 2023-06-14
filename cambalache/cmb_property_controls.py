@@ -938,6 +938,8 @@ def cmb_create_editor(project, type_id, prop=None):
         editor = CmbFileEntry(hexpand=True, dirname=get_dirname())
     elif type_id == "CmbIconName":
         editor = CmbIconNameEntry(hexpand=True, placeholder_text="<Icon Name>")
+    elif type_id in ["GtkShortcutTrigger", "GtkShortcutAction"]:
+        editor = CmbEntry(hexpand=True, placeholder_text=f"<{type_id}>")
     elif info:
         if info.is_object or info.parent_id == "interface":
             # TODO: replace prop with project and is_inline
