@@ -38,6 +38,7 @@ from .cmb_layout_property import CmbLayoutProperty
 from .cmb_library_info import CmbLibraryInfo
 from .cmb_type_info import CmbTypeInfo
 from .cmb_objects_base import CmbSignal
+from . import constants
 from cambalache import getLogger, _, N_
 
 logger = getLogger(__name__)
@@ -591,6 +592,9 @@ class CmbProject(Gtk.TreeStore):
         return obj
 
     def _check_can_add(self, obj_type, parent_type):
+        if constants.EXTERNAL_TYPE in [obj_type, parent_type]:
+            return False
+
         obj_info = self.type_info.get(obj_type, None)
         parent_info = self.type_info.get(parent_type, None)
 

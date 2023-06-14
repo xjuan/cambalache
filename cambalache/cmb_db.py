@@ -30,7 +30,7 @@ from lxml import etree
 from lxml.builder import E
 from gi.repository import Gio, GObject, Gtk
 from cambalache import config, getLogger, _
-from . import cmb_db_migration
+from . import cmb_db_migration, constants
 
 logger = getLogger(__name__)
 
@@ -309,6 +309,9 @@ class CmbDB(GObject.GObject):
     def __init_data(self):
         if self.target_tk not in ["gtk+-3.0", "gtk-4.0"]:
             raise Exception(f"Unknown target tk {self.target_tk}")
+
+        # Add special type for external object references. See gtk_builder_expose_object()
+        self.execute(f"INSERT INTO type (type_id, parent_id) VALUES ('{constants.EXTERNAL_TYPE}', 'object');")
 
         # Add GObject and Gio data
         self.load_catalog(GOBJECT_XML)
@@ -750,7 +753,7 @@ class CmbDB(GObject.GObject):
         if name not in errors:
             errors[name] = []
 
-        # Add unknown tag occurence
+        # Add unknown tag occurrence
         errors[name].append(node.sourceline)
 
     def __unknown_tag(self, node, owner, name):
@@ -1169,16 +1172,34 @@ class CmbDB(GObject.GObject):
             elif lib == "gtk+" and version.startswith("3."):
                 return (lib, "3.0", False)
 
-        # Infer target by looking for layout/packing tags
-        if root.find(".//layout") is not None:
-            return ("gtk", "4.0", True)
+        # Infer target by looking for exclusive tags
+        for element in root.iter():
+            if element.tag in ["layout", "binding", "lookup"] or \
+               element.tag == 'object' and  element.get("class", "").startswith("Adw"):
+                return ("gtk", "4.0", True)
 
-        if root.find(".//packing") is not None:
-            return ("gtk+", "3.0", True)
+            if element.tag in ["packing"] or \
+               element.tag == 'object' and  element.get("class", "").startswith("Hdy"):
+                return ("gtk+", "3.0", True)
 
         return (None, None, None)
 
     def __fix_object_references(self, ui_id):
+        # Find all object references to external objects
+        for row in self.conn.execute(
+            """
+            SELECT DISTINCT op.value
+            FROM object_property AS op, property AS p
+            WHERE op.value IS NOT NULL AND op.ui_id=? AND p.is_object AND
+                  op.owner_id = p.owner_id AND op.property_id = p.property_id
+            EXCEPT
+            SELECT name FROM object WHERE name IS NOT NULL;
+            """,
+            (ui_id,),
+        ):
+            # And create an object for each one so that references to external objects work
+            self.add_object(ui_id, constants.EXTERNAL_TYPE, name=row[0])
+
         # Fix properties value that refer to an object
         self.conn.execute(
             """
@@ -1244,12 +1265,9 @@ class CmbDB(GObject.GObject):
         target_tk = self.target_tk
         lib, ver, inferred = CmbDB._get_target_from_node(root)
 
-        if (target_tk == "gtk-4.0" and lib != "gtk") or (target_tk == "gtk+-3.0" and lib != "gtk+"):
+        if lib is not None and (target_tk == "gtk-4.0" and lib != "gtk") or (target_tk == "gtk+-3.0" and lib != "gtk+"):
             # Translators: This text will be used in the next two string as {convert}
             convert = _("\nUse gtk4-builder-tool first to convert file.") if target_tk == "gtk-4.0" else ""
-
-            if lib is None:
-                raise Exception(_("Can not recognize file format"))
 
             if inferred:
                 # Translators: {convert} will be replaced with the gtk4-builder-tool string
@@ -1473,14 +1491,17 @@ class CmbDB(GObject.GObject):
                 if ignore_id:
                     continue
 
-                # Ignore object properties with 0/null ID
-                if val is not None and int(val) == 0:
+                # Ignore object properties with 0/null ID or unknown object references
+                if val is not None and val.isnumeric() and int(val) == 0:
                     continue
 
                 if inline_object_id and is_inline_object:
                     value_node = self.__export_object(ui_id, inline_object_id, merengue=merengue, ignore_id=ignore_id)
                 else:
                     if merengue:
+                        # Ignore properties that reference an unknown object
+                        if val is None:
+                            continue
                         value = f"__cmb__{ui_id}.{val}"
                     else:
                         cc.execute("SELECT name FROM object WHERE ui_id=? AND object_id=?;", (ui_id, val))
@@ -1752,8 +1773,13 @@ class CmbDB(GObject.GObject):
                 req = E.requires(lib=library_id, version=version)
                 node.append(req)
 
-        # Iterate over toplovel objects
-        for row in c.execute("SELECT object_id, comment FROM object WHERE parent_id IS NULL AND ui_id=?;", (ui_id,)):
+        # Iterate over toplevel objects
+        for row in c.execute(
+            f"""
+            SELECT object_id, comment
+            FROM object
+            WHERE parent_id IS NULL AND type_id != '{constants.EXTERNAL_TYPE}' AND ui_id=?;
+            """, (ui_id,)):
             object_id, comment = row
             child = self.__export_object(ui_id, object_id, merengue=merengue, template_id=template_id)
             node.append(child)

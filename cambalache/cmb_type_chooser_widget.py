@@ -25,6 +25,7 @@ from gi.repository import GObject, Gtk
 
 from .cmb_project import CmbProject
 from .cmb_type_info import CmbTypeInfo
+from . import constants
 from cambalache import getLogger, _
 
 logger = getLogger(__name__)
@@ -116,14 +117,20 @@ class CmbTypeChooserWidget(Gtk.Box):
         last_category = None
 
         for i in infos:
+            if not self.__type_info_should_append(i):
+                continue
+
             # Append category
             if show_categories and last_category != i.category:
                 last_category = i.category
                 category = categories.get(i.category, _("Others"))
                 store.append([f"<i>▾ {category}</i>", "", None, False])
 
-            if self.__type_info_should_append(i):
-                self.__store_append_info(store, i)
+            self.__store_append_info(store, i)
+
+        # Special case External object type
+        if show_categories or self.uncategorized_only:
+             self.__store_append_info(store, project.type_info[constants.EXTERNAL_TYPE])
 
         return store
 
