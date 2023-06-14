@@ -705,8 +705,11 @@ class CmbProject(Gtk.TreeStore):
         return self.get_object_by_key(f"{ui_id}.{row[0]}") if row else None
 
     def get_ui_by_filename(self, filename):
-        dirname = os.path.dirname(self.filename)
-        relpath = os.path.relpath(filename, dirname)
+        relpath = filename
+
+        if self.filename:
+            dirname = os.path.dirname(self.filename)
+            relpath = os.path.relpath(filename, dirname)
 
         c = self.db.execute("SELECT ui_id FROM ui WHERE filename=?;", (relpath,))
         row = c.fetchone()
