@@ -30,7 +30,7 @@ from gi.repository import GLib, GObject, Gio, Gdk, Gtk, Pango
 from .cmb_tutor import CmbTutor, CmbTutorState
 from . import cmb_tutorial
 
-from cambalache import CmbProject, CmbUI, CmbCSS, CmbObject, CmbTypeChooserPopover, getLogger, config, _
+from cambalache import CmbProject, CmbUI, CmbCSS, CmbObject, CmbTypeChooserPopover, getLogger, constants, config, _
 
 logger = getLogger(__name__)
 
@@ -504,9 +504,11 @@ class CmbWindow(Gtk.ApplicationWindow):
             obj = None
 
         self.object_editor.object = obj
-        self.object_layout_editor.object = obj
-        self.signal_editor.object = obj
-        self.fragment_editor.object = obj
+
+        is_not_external = obj.type_id != constants.EXTERNAL_TYPE if obj else True
+        for editor in [self.object_layout_editor, self.signal_editor, self.fragment_editor]:
+            editor.object = obj
+            editor.props.visible = is_not_external
 
         self.__update_action_add_object()
 

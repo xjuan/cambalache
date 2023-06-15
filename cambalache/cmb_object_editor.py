@@ -28,9 +28,10 @@ from .cmb_object_data_editor import CmbObjectDataEditor
 from .cmb_property_controls import CmbEntry, CmbChildTypeComboBox, cmb_create_editor
 from .cmb_property_label import CmbPropertyLabel
 from cambalache import _
+from . import constants
 
 
-class CmbObjectEditor(Gtk.Box):
+class CmbObjectEditor(Gtk.ScrolledWindow):
     __gtype_name__ = "CmbObjectEditor"
 
     layout = GObject.Property(type=bool, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY, default=False)
@@ -42,7 +43,10 @@ class CmbObjectEditor(Gtk.Box):
 
         super().__init__(**kwargs)
 
-        self.props.orientation = Gtk.Orientation.VERTICAL
+        self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, visible=True)
+        viewport = Gtk.Viewport(visible=True, shadow_type=Gtk.ShadowType.NONE)
+        viewport.add(self.box)
+        self.add(viewport)
 
     def __create_id_editor(self):
         grid = Gtk.Grid(hexpand=True, row_spacing=4, column_spacing=4)
@@ -121,24 +125,38 @@ class CmbObjectEditor(Gtk.Box):
         return box
 
     def __update_view(self):
-        for child in self.get_children():
-            self.remove(child)
+        for child in self.box.get_children():
+            self.box.remove(child)
 
         if self.__object is None:
             return
 
+        is_external = self.__object.type_id == constants.EXTERNAL_TYPE
         parent = self.__object.parent
 
         if self.layout:
-            if parent is None:
+            if parent is None or is_external:
                 return
 
             # Child Type input
             if parent.info.has_child_types():
-                self.add(self.__create_child_type_editor())
+                self.box.add(self.__create_child_type_editor())
         else:
             # ID
-            self.add(self.__create_id_editor())
+            self.box.add(self.__create_id_editor())
+
+        if is_external:
+            label = Gtk.Label(
+                label=_("This object will not be exported, it is only used to make a reference to it. \
+It has to be exposed by your application with GtkBuilder expose_object method."),
+                halign=Gtk.Align.START,
+                margin_top=8,
+                xalign=0,
+                wrap=True,
+            )
+            self.box.add(label)
+            self.show_all()
+            return
 
         info = parent.info if self.layout and parent else self.__object.info
         for owner_id in [info.type_id] + info.hierarchy:
@@ -217,8 +235,8 @@ class CmbObjectEditor(Gtk.Box):
             revealer = Gtk.Revealer(reveal_child=True)
             expander.connect("notify::expanded", self.__on_expander_expanded, revealer)
             revealer.add(grid)
-            self.add(expander)
-            self.add(revealer)
+            self.box.add(expander)
+            self.box.add(revealer)
 
         self.show_all()
 

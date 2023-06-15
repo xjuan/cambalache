@@ -25,6 +25,9 @@ CmbView {
   background-color: @theme_base_color;
 }
 
+CmbObjectEditor viewport {
+  margin: 0 4px;
+}
 
 CmbObjectEditor label.modified {
   font-style: italic;
