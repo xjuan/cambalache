@@ -2,7 +2,7 @@
 <!--
  Adwaita Extra meta data
 
- Copyright (C) 2022  Juan Pablo Ugarte
+ Copyright (C) 2022-2023  Juan Pablo Ugarte
 -->
 <meta>
   <types>
@@ -16,11 +16,6 @@
     </AdwHeaderBar>
 
     <AdwFlap>
-      <properties>
-        <property id="flap" is-inline-object="True"/>
-        <property id="content" is-inline-object="True"/>
-        <property id="separator" is-inline-object="True"/>
-      </properties>
       <children-types>
         <type max-children="1" linked-property-id="flap">flap</type>
         <type max-children="1" linked-property-id="content">content</type>
@@ -55,18 +50,6 @@
       </properties>
     </AdwExpanderRow>
 
-    <AdwLeafletPage>
-      <properties>
-        <property id="child" is-inline-object="True"/>
-      </properties>
-    </AdwLeafletPage>
-
-    <AdwSqueezerPage>
-      <properties>
-        <property id="child" is-inline-object="True"/>
-      </properties>
-    </AdwSqueezerPage>
-
     <AdwPreferencesPage>
       <properties>
         <property id="icon-name" type="CmbIconName"/>
@@ -89,7 +72,6 @@
 
     <AdwStatusPage>
       <properties>
-        <property id="child" is-inline-object="True"/>
         <property id="icon-name" type="CmbIconName"/>
         <property id="description" translatable="True"/>
         <property id="title" translatable="True"/>
@@ -98,7 +80,6 @@
 
     <AdwViewStackPage>
       <properties>
-        <property id="child" is-inline-object="True"/>
         <property id="icon-name" type="CmbIconName"/>
         <property id="title" translatable="True"/>
       </properties>
@@ -113,7 +94,6 @@
 
     <AdwTabPage>
       <properties>
-        <property id="child" is-inline-object="True"/>
         <property id="title" translatable="True"/>
         <property id="tooltip" translatable="True"/>
       </properties>
@@ -146,18 +126,6 @@
         <property id="title" translatable="True"/>
       </properties>
     </AdwWindowTitle>
-
-    <AdwWindow>
-      <properties>
-        <property id="content" is-inline-object="True"/>
-      </properties>
-    </AdwWindow>
-
-    <AdwApplicationWindow>
-      <properties>
-        <property id="content" is-inline-object="True"/>
-      </properties>
-    </AdwApplicationWindow>
 
   </types>
 

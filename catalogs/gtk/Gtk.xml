@@ -108,9 +108,12 @@
 
     <GtkWindow>
       <properties>
-        <property id="title" translatable="True"/>
-        <property id="child" is-inline-object="True"/>
+        <property id="application" disable-inline-object="True"/>
+        <property id="default-widget" disable-inline-object="True"/>
+        <property id="focus-widget" disable-inline-object="True"/>
         <property id="icon-name" type="CmbIconName"/>
+        <property id="title" translatable="True"/>
+        <property id="transient-for" disable-inline-object="True"/>
       </properties>
       <children-types>
         <type max-children="1">titlebar</type>
@@ -212,7 +215,6 @@
     <GtkButton>
       <properties>
         <property id="label" translatable="True"/>
-        <property id="child" is-inline-object="True"/>
         <property target="Gtk+-3.0" id="icon-name" type="CmbIconName"/>
       </properties>
     </GtkButton>
@@ -244,8 +246,6 @@
     <GtkComboBox>
       <properties>
         <property id="tearoff-title" translatable="True"/>
-        <property id="child" is-inline-object="True"/>
-        <!-- FIXME ><property id="model" is-inline-object="True"/> -->
       </properties>
     </GtkComboBox>
 
@@ -356,62 +356,17 @@
       </properties>
     </GtkShortcutsShortcut>
 
-    <GtkAspectFrame>
-      <properties>
-        <property id="child" is-inline-object="True"/>
-      </properties>
-    </GtkAspectFrame>
-
-    <GtkAssistantPage>
-      <properties>
-        <property id="child" is-inline-object="True"/>
-      </properties>
-    </GtkAssistantPage>
-
-    <GtkDragIcon>
-      <properties>
-        <property id="child" is-inline-object="True"/>
-      </properties>
-    </GtkDragIcon>
-
     <GtkExpander>
-      <properties>
-        <property id="child" is-inline-object="True"/>
-      </properties>
       <children-types>
         <type max-children="1">label</type>
       </children-types>
     </GtkExpander>
 
-
-    <GtkFlowBoxChild>
-      <properties>
-        <property id="child" is-inline-object="True"/>
-      </properties>
-    </GtkFlowBoxChild>
-
-
     <GtkFrame>
-      <properties>
-        <property id="child" is-inline-object="True"/>
-      </properties>
       <children-types>
         <type max-children="1">label</type>
       </children-types>
     </GtkFrame>
-
-
-    <GtkListBoxRow>
-      <properties>
-        <property id="child" is-inline-object="True"/>
-      </properties>
-    </GtkListBoxRow>
-
-    <GtkListItem>
-      <properties>
-        <property id="child" is-inline-object="True"/>
-      </properties>
-    </GtkListItem>
 
     <GtkNotebook>
       <children-types>
@@ -421,71 +376,19 @@
       </children-types>
     </GtkNotebook>
 
-    <GtkNotebookPage target="Gtk-4.0">
-      <properties>
-        <property id="child" is-inline-object="True"/>
-        <property id="tab" is-inline-object="True"/>
-      </properties>
-    </GtkNotebookPage>
-
     <GtkOverlay>
-      <properties>
-        <property id="child" is-inline-object="True"/>
-      </properties>
       <children-types>
         <type>overlay</type>
       </children-types>
     </GtkOverlay>
 
-    <GtkPopover>
-      <properties>
-        <property id="child" is-inline-object="True"/>
-      </properties>
-    </GtkPopover>
-
-    <GtkRevealer>
-      <properties>
-        <property id="child" is-inline-object="True"/>
-      </properties>
-    </GtkRevealer>
-
-    <GtkScrolledWindow>
-      <properties>
-        <property id="child" is-inline-object="True"/>
-      </properties>
-    </GtkScrolledWindow>
-
-    <GtkSearchBar>
-      <properties>
-        <property id="child" is-inline-object="True"/>
-      </properties>
-    </GtkSearchBar>
-
     <GtkStackPage target='Gtk-4.0'>
       <properties>
-        <property id="child" is-inline-object="True" required="True"
+        <property id="child" required="True"
                   workspace-default="&lt;object class=&quot;GtkLabel&quot;&gt;&lt;property name=&quot;label&quot;&gt;Empty Page&lt;/property&gt;&lt;/object&gt;"/>
         <property id="icon-name" type="CmbIconName"/>
       </properties>
     </GtkStackPage>
-
-    <GtkTreeExpander>
-      <properties>
-        <property id="child" is-inline-object="True"/>
-      </properties>
-    </GtkTreeExpander>
-
-    <GtkViewport>
-      <properties>
-        <property id="child" is-inline-object="True"/>
-      </properties>
-    </GtkViewport>
-
-    <GtkWindowHandle>
-      <properties>
-        <property id="child" is-inline-object="True"/>
-      </properties>
-    </GtkWindowHandle>
 
     <GtkHeaderBar>
       <children-types target="Gtk-4.0">
@@ -552,13 +455,6 @@
         <property target="Gtk-4.0" id="icon-name" type="CmbIconName"/>
       </properties>
     </GtkMenuButton>
-
-    <GtkPaned>
-      <properties>
-        <property id="start-child" is-inline-object="True"/>
-        <property id="end-child" is-inline-object="True"/>
-      </properties>
-    </GtkPaned>
 
     <GtkFileFilter>
       <data target="Gtk+-3.0">

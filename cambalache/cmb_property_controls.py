@@ -385,7 +385,9 @@ class CmbObjectChooser(Gtk.Entry):
             self.props.placeholder_text = "<GObject>"
             return
 
-        if self.prop.info.is_inline_object:
+        self.__is_inline_object = self.prop.project.target_tk == "gtk-4.0" and not self.prop.info.disable_inline_object
+
+        if self.__is_inline_object:
             self.connect("icon-press", self.__on_icon_pressed)
             self.parent.connect("property-changed", lambda o, p: self.__update_icons())
             self.__update_icons()
@@ -418,7 +420,7 @@ class CmbObjectChooser(Gtk.Entry):
             self.props.text = ""
 
     def __update_icons(self):
-        if not self.prop.info.is_inline_object:
+        if not self.__is_inline_object:
             return
 
         if self.prop.inline_object_id:

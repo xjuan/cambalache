@@ -213,8 +213,8 @@ class CambalacheDb:
         )
 
     def populate_types(self, c, types):
-        def get_bool(node, prop):
-            val = node.get(prop, "false")
+        def get_bool(node, prop, default="false"):
+            val = node.get(prop, default)
             return 1 if val.lower() in ["true", "yes", "1", "t", "y"] else 0
 
         def check_target(node):
@@ -251,9 +251,9 @@ class CambalacheDb:
                     type_id = prop.get("type", None)
 
                     if self.lib.target_tk == "Gtk-4.0":
-                        is_inline_object = get_bool(prop, "is-inline-object")
+                        disable_inline_object = get_bool(prop, "disable-inline-object")
                     else:
-                        is_inline_object = None
+                        disable_inline_object = None
 
                     required = get_bool(prop, "required")
                     workspace_default = prop.get("workspace-default", None)
@@ -261,13 +261,13 @@ class CambalacheDb:
                     c.execute(
                         """
                         UPDATE property
-                        SET translatable=?, save_always=?, is_inline_object=?, is_position=?, required=?, workspace_default=?
+                        SET translatable=?, save_always=?, disable_inline_object=?, is_position=?, required=?, workspace_default=?
                         WHERE owner_id=? AND property_id=?;
                         """,
                         (
                             translatable,
                             save_always,
-                            is_inline_object,
+                            disable_inline_object,
                             is_position,
                             required,
                             workspace_default,

@@ -78,7 +78,7 @@ class CmbPropertyInfo(CmbBase):
     translatable = GObject.Property(
         type=bool, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY, default=False
     )
-    is_inline_object = GObject.Property(
+    disable_inline_object = GObject.Property(
         type=bool, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY, default=False
     )
     is_position = GObject.Property(
@@ -108,7 +108,7 @@ class CmbPropertyInfo(CmbBase):
         version,
         deprecated_version,
         translatable,
-        is_inline_object,
+        disable_inline_object,
         is_position,
         required,
         workspace_default,
@@ -127,7 +127,7 @@ class CmbPropertyInfo(CmbBase):
             version=version,
             deprecated_version=deprecated_version,
             translatable=translatable,
-            is_inline_object=is_inline_object,
+            disable_inline_object=disable_inline_object,
             is_position=is_position,
             required=required,
             workspace_default=workspace_default,

@@ -196,7 +196,7 @@ CREATE TABLE IF NOT EXISTS property (
   version TEXT,
   deprecated_version TEXT,
   translatable BOOLEAN CHECK (type_id IN (NULL, 'gchararray')),
-  is_inline_object BOOLEAN DEFAULT 0,
+  disable_inline_object BOOLEAN DEFAULT 0,
   is_position BOOLEAN DEFAULT 0,
   required BOOLEAN DEFAULT 0,
   workspace_default TEXT,

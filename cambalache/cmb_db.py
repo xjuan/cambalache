@@ -822,7 +822,11 @@ class CmbDB(GObject.GObject):
         inline_object_id = None
 
         # GtkBuilder in Gtk4 supports defining an object in a property
-        if self.target_tk == "gtk-4.0" and pinfo.is_object and pinfo.is_inline_object:
+        if self.target_tk == "gtk-4.0" and pinfo.is_object:
+            if pinfo.disable_inline_object:
+                self.__collect_error("not-inline-object", prop, property_id)
+                return
+
             obj_node = prop.find("object")
             if obj_node is not None:
                 inline_object_id = self.__import_object(ui_id, obj_node, object_id)
@@ -1444,13 +1448,13 @@ class CmbDB(GObject.GObject):
         for row in c.execute(
             f"""
             SELECT op.value, op.property_id, op.inline_object_id, op.comment, op.translatable, op.translation_context,
-                   op.translation_comments, p.is_object, p.is_inline_object,
+                   op.translation_comments, p.is_object, p.disable_inline_object,
                    op.bind_source_id, op.bind_owner_id, op.bind_property_id, op.bind_flags,
                    NULL, NULL
             FROM object_property AS op, property AS p
             WHERE op.ui_id=? AND op.object_id=? AND p.owner_id = op.owner_id AND p.property_id = op.property_id
             UNION
-            SELECT default_value, property_id, NULL, NULL, NULL, NULL, NULL,  is_object, is_inline_object,
+            SELECT default_value, property_id, NULL, NULL, NULL, NULL, NULL,  is_object, disable_inline_object,
                    NULL, NULL, NULL, NULL, required, workspace_default
             FROM property
             WHERE (required=1 OR save_always=1) AND owner_id IN ({placeholders}) AND
@@ -1468,7 +1472,7 @@ class CmbDB(GObject.GObject):
                 translation_context,
                 translation_comments,
                 is_object,
-                is_inline_object,
+                disable_inline_object,
                 bind_source_id,
                 bind_owner_id,
                 bind_property_id,
@@ -1479,6 +1483,8 @@ class CmbDB(GObject.GObject):
 
             value = None
             value_node = None
+
+            is_inline_object = not disable_inline_object and self.target_tk == "gtk-4.0"
 
             if required and workspace_default:
                 if is_object and is_inline_object:
