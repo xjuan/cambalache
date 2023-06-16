@@ -20,6 +20,52 @@
     </p>
   </description>
   <releases>
+    <release date="2023-06-16" version="0.12.0">
+      <description>
+        <p>New Features release!</p>
+        <ul>
+          <li>User Templates: use your templates anywhere in your project</li>
+          <li>Workspace CSS support: see your CSS changes live</li>
+          <li>GtkBuildable Custom Tags: support for styles, items, etc</li>
+          <li>Property Bindings: bind your property to any source property</li>
+          <li>XML Fragments: add any xml to any object or UI as a fallback</li>
+          <li>Preview mode: hide placeholders in workspace</li>
+          <li>WebKit support: new widget catalog available</li>
+          <li>External objects references support</li>
+          <li>Add support for GdkPixbuf, GListModel and GListStore types</li>
+          <li>Add missing child type attributes to Gtk4 GtkActionBar (B. Teeuwen)</li>
+          <li>Added French Translation (rene-coty)</li>
+        </ul>
+      </description>
+      <issues>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/121">Issue #121 "Adding handy fails silently without libhandy installed"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/113">Issue #113 "Add button/toggle to disable the placeholders and make the window look like it would look as an app"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/123">Issue #123 "Export should be more user-friendly"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/130">Issue #130 "GtkAboutDialog missing properties"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/135">Issue #135 "List of string properties that should be translatable in Adw"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/136">Issue #136 "Can't build via Flatpak"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/138">Issue #138 "libadwaita widgets aren't categorized"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/122">Issue #122 "Handy widgets not correctly categorized."</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/96">Issue #96 "Window resize itself when cut content of notebook tab and go to first tab"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/101">Issue #101 "Right clicking after deselcting button, brokes mouse input"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/120">Issue #120 "Box doesn't remove empty space"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/147">Issue #147 "The "Close" button doesn't close the "About" dialog."</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/146">Issue #146 "Scrolling a properties pane conflicts with mousewheel handling of property widgets"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/143">Issue #143 "Support for nested files"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/148">Issue #148 "bug: preview display"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/156">Issue #156 "GDK_BACKEND leaks to workspace process"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/154">Issue #154 "GtkPaned: for properties to be set consistently, need to use start-child and end-child instead of child</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/160">Issue #160 "Faster prototyping"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/166">Issue #166 "Allow external Widget or/and from another ui template"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/163">Issue #163 "Add named object to Gtk.Stack"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/170">Issue #170 "Support for actions (GtkActionable, menu models)"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/169">Issue #169 "[main] GtkOrientable is missing in GtkBox properties (maybe in others too)"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/167">Issue #167 "Gtk*Selection models are missing the model property"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/168">Issue #168 "Is there a way to add string items to a GtkStringList?"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/171">Issue #171 "Extended support for inline objects"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/172">Issue #172 "Certain Adw widgets are not availabe (AdwEntryRow)"</issue>
+      </issues>
+    </release>
     <release date="2022-06-16" version="0.10.2">
       <description>
         <p>New bugfix release!</p>

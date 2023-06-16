@@ -2,19 +2,21 @@
 
 Many thanks to all the people that suppport the project
 
- -  Willo Vincent
  -  Stephan McCormick
- -  Patrick Griffis
+ -  Willo Vincent
  -  Javier Jardón
  -  Sonny Piers
+ -  Patrick Griffis
+ -  David
+ -  Luis Barron
+ -  Michel Fodje
  -  Platon workaccount
+ -  Aemilia Scott
  -  Felipe Borges
  -  Johannes Deutsch
- -  David
- -  Michel Fodje
- -  Vincent Bermel
- -  Aemilia Scott
+ -  Jonathan K.
  -  Patrick
+ -  2 kojix
  -  Coleman 
  -  Shogo Takata
- -  Jonathan K.
+ -  Muasim
