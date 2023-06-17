@@ -1,6 +1,6 @@
 project(
     'cambalache', 'c',
-    version: '0.12.0',
+    version: '0.12.1',
     meson_version: '>= 0.50.0'
 )
 

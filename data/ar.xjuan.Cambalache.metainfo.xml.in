@@ -20,6 +20,23 @@
     </p>
   </description>
   <releases>
+    <release date="2023-06-17" version="0.12.1">
+      <description>
+        <p>Hotfix release!</p>
+        <ul>
+          <li>Fix issue opening projects created with older versions.</li>
+          <li>Features from stable release:</li>
+          <li>User Templates: use your templates anywhere in your project</li>
+          <li>Workspace CSS support: see your CSS changes live</li>
+          <li>GtkBuildable Custom Tags: support for styles, items, etc</li>
+          <li>Property Bindings: bind your property to any source property</li>
+          <li>XML Fragments: add any xml to any object or UI as a fallback</li>
+        </ul>
+      </description>
+      <issues>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/173">Issue #173 "Cambalache 0.12.0 can't open 0.10.3 project"</issue>
+      </issues>
+    </release>
     <release date="2023-06-16" version="0.12.0">
       <description>
         <p>New Features release!</p>
