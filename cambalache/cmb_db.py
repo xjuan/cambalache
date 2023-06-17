@@ -394,16 +394,16 @@ class CmbDB(GObject.GObject):
             return data
 
         if version < (0, 7, 5):
-            return cmb_db_migration.ensure_columns_for_0_7_5(table, data)
+            data = cmb_db_migration.ensure_columns_for_0_7_5(table, data)
 
         if version < (0, 9, 0):
-            return cmb_db_migration.ensure_columns_for_0_9_0(table, data)
+            data = cmb_db_migration.ensure_columns_for_0_9_0(table, data)
 
         if version < (0, 11, 2):
-            return cmb_db_migration.ensure_columns_for_0_11_2(table, data)
+            data = cmb_db_migration.ensure_columns_for_0_11_2(table, data)
 
         if version < (0, 11, 4):
-            return cmb_db_migration.ensure_columns_for_0_11_4(table, data)
+            data = cmb_db_migration.ensure_columns_for_0_11_4(table, data)
 
         return data
 
@@ -423,7 +423,7 @@ class CmbDB(GObject.GObject):
         if len(data) == 0:
             return
 
-        # Ensure table data has the right ammount of columns
+        # Ensure table data has the right amount of columns
         data = self.__ensure_table_data_columns(version, table, data)
 
         # Load table data
