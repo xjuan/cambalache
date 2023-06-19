@@ -769,7 +769,7 @@ Author: Juan Pablo Ugarte <juanpablougarte@gmail.com>
                               </object>
                               <packing>
                                 <property name="name">fragment</property>
-                                <property name="title" translatable="yes">&lt;/&gt;</property>
+                                <property name="title" translatable="no">&lt;/&gt;</property>
                                 <property name="position">3</property>
                               </packing>
                             </child>
@@ -835,7 +835,7 @@ Author: Juan Pablo Ugarte <juanpablougarte@gmail.com>
                               </object>
                               <packing>
                                 <property name="name">fragment</property>
-                                <property name="title" translatable="yes">&lt;/&gt;</property>
+                                <property name="title" translatable="no">&lt;/&gt;</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
