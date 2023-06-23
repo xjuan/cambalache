@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
+<cambalache-project version="0.10.3" target_tk="gtk+-3.0">
+  <ui>
+	(1,None,"test_format.ui","test_format.ui",None,None,None,None,None,None)
+  </ui>
+  <object>
+	(1,1,"GtkWindow",None,None,None,None,None,None),
+	(1,2,"GtkGrid",None,1,None,None,None,-1),
+	(1,3,"GtkLabel",None,2,None,None,None,None),
+	(1,4,"GtkEntry",None,2,None,None,None,1),
+	(1,5,"GtkButton",None,2,None,None,None,4),
+	(1,6,"GtkEntryBuffer","abuffer",None,None,None,None,None)
+  </object>
+  <object_property>
+	(1,3,"GtkLabel","label","hello world",None,None,None,None,None),
+	(1,4,"GtkEntry","max-width-chars","21",None,None,None,None,None),
+	(1,4,"GtkEntry","placeholder-text","Hola Mundo",None,None,None,None,None),
+	(1,5,"GtkButton","label","button",None,None,None,None,None),
+	(1,6,"GtkEntryBuffer","text","lorem ipsum",None,None,None,None,None)
+  </object_property>
+  <object_layout_property>
+	(1,2,3,"GtkGridLayoutChild","height","1",None,None,None,None),
+	(1,2,3,"GtkGridLayoutChild","left-attach","0",None,None,None,None),
+	(1,2,3,"GtkGridLayoutChild","top-attach","0",None,None,None,None),
+	(1,2,3,"GtkGridLayoutChild","width","1",None,None,None,None),
+	(1,2,4,"GtkGridLayoutChild","height","1",None,None,None,None),
+	(1,2,4,"GtkGridLayoutChild","left-attach","1",None,None,None,None),
+	(1,2,4,"GtkGridLayoutChild","top-attach","1",None,None,None,None),
+	(1,2,4,"GtkGridLayoutChild","width","1",None,None,None,None),
+	(1,2,5,"GtkGridLayoutChild","height","1",None,None,None,None),
+	(1,2,5,"GtkGridLayoutChild","left-attach","2",None,None,None,None),
+	(1,2,5,"GtkGridLayoutChild","top-attach","2",None,None,None,None),
+	(1,2,5,"GtkGridLayoutChild","width","1",None,None,None,None)
+  </object_layout_property>
+  <object_signal>
+	(1,1,5,"GtkButton","clicked","on_button_clicked",None,None,None,None,None)
+  </object_signal>
+</cambalache-project>
