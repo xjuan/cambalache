@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<interface>
+  <!-- interface-name menu.ui -->
+  <requires lib="gtk+" version="3.0"/>
+  <menu id="menu">
+    <section>
+      <item>
+        <attribute name="action">app.incendio</attribute>
+        <attribute name="label" translatable="yes">Incendio</attribute>
+      </item>
+    </section>
+    <section>
+      <attribute name="label" translatable="yes">Defensive Charms</attribute>
+      <item>
+        <attribute name="action">app.expelliarmus</attribute>
+        <attribute name="icon">/usr/share/my-app/poof!.png</attribute>
+        <attribute name="label" translatable="yes">Expelliarmus</attribute>
+      </item>
+    </section>
+  </menu>
+</interface>

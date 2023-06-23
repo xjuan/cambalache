@@ -96,6 +96,10 @@ def test_gtk3_bindings():
     assert_original_and_exported("gtk+-3.0", "bindings.ui")
 
 
+def test_gtk3_menu():
+    assert_original_and_exported("gtk+-3.0", "menu.ui")
+
+
 #
 # Gtk 4.0 Tests
 #
