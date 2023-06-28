@@ -89,6 +89,20 @@ class CmbObjectEditor(Gtk.ScrolledWindow):
 
         return grid
 
+    def __on_shortcut_button_clicked(self, button, type_id):
+        obj = self.__object
+        obj.project.add_object(obj.ui_id, type_id, parent_id=obj.object_id)
+
+    def __create_child_shortcuts(self, info):
+        box = Gtk.FlowBox(visible=True, hexpand=True)
+
+        for type_id in info.child_type_shortcuts:
+            button = Gtk.Button(label=type_id, visible=True)
+            button.connect("clicked", self.__on_shortcut_button_clicked, type_id)
+            box.add(button)
+
+        return box
+
     def __update_template_label(self):
         istmpl = self.__object.ui.template_id == self.__object.object_id
         self.__id_label.props.label = _("Type Name") if istmpl else _("Object Id")
@@ -147,8 +161,10 @@ class CmbObjectEditor(Gtk.ScrolledWindow):
 
         if is_external:
             label = Gtk.Label(
-                label=_("This object will not be exported, it is only used to make a reference to it. \
-It has to be exposed by your application with GtkBuilder expose_object method."),
+                label=_(
+                    "This object will not be exported, it is only used to make a reference to it. \
+It has to be exposed by your application with GtkBuilder expose_object method."
+                ),
                 halign=Gtk.Align.START,
                 margin_top=8,
                 xalign=0,
@@ -173,6 +189,14 @@ It has to be exposed by your application with GtkBuilder expose_object method.")
 
             # Grid for all properties and custom data editors
             grid = Gtk.Grid(hexpand=True, row_spacing=4, column_spacing=4)
+
+            # Add shortcuts
+            if not self.layout and len(info.child_type_shortcuts):
+                label = Gtk.Label(label=_("Add"), xalign=1, visible=True)
+                shortcuts = self.__create_child_shortcuts(info)
+                grid.attach(label, 0, i, 1, 1)
+                grid.attach(shortcuts, 1, i, 1, 1)
+                i += 1
 
             # Properties
             properties = self.__object.layout_dict if self.layout else self.__object.properties_dict
