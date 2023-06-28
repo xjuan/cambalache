@@ -155,6 +155,19 @@ CREATE TABLE IF NOT EXISTS type_data_arg (
 ) WITHOUT ROWID;
 
 
+/* Type Child constraints
+ *
+ */
+CREATE TABLE IF NOT EXISTS type_child_constraint (
+  type_id TEXT REFERENCES type ON UPDATE CASCADE,
+  child_type_id TEXT REFERENCES type ON UPDATE CASCADE,
+  allowed BOOLEAN DEFAULT 1,
+  shortcut BOOLEAN,
+  PRIMARY KEY(type_id, child_type_id)
+) WITHOUT ROWID;
+
+
+
 /* Type Tree
  *
  * VIEW of ancestors and ifaces by type

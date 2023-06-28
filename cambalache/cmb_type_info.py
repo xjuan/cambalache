@@ -58,6 +58,7 @@ class CmbTypeInfo(CmbBaseTypeInfo):
         self.properties = self.__init_properties_signals(CmbPropertyInfo, "property")
         self.signals = self.__init_properties_signals(CmbSignalInfo, "signal")
         self.data = self.__init_data()
+        self.child_constraint, self.child_type_shortcuts = self.__init_child_constraint()
 
         if self.parent_id == "enum":
             self.enum = self.__init_enum_flags("enum")
@@ -161,6 +162,22 @@ class CmbTypeInfo(CmbBaseTypeInfo):
 
         c.close()
         return retval
+
+    def __init_child_constraint(self):
+        retval = {}
+        shortcuts = []
+
+        c = self.project.db.cursor()
+        for row in c.execute(
+            "SELECT child_type_id, allowed, shortcut FROM type_child_constraint WHERE type_id=?;", (self.type_id,)
+        ):
+            child_type_id, allowed, shortcut = row
+            retval[child_type_id] = allowed
+            if shortcut:
+                shortcuts.append(child_type_id)
+
+        c.close()
+        return retval, shortcuts
 
     def __init_child_type(self):
         retval = {}
