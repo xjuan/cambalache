@@ -52,7 +52,7 @@ glib/gobject-2.0.xml: glib/GObject.xml
 glib/gio-2.0.xml: glib/Gio.xml
 	${CAMBALACHE_DB} \
 		--gir /usr/share/gir-1.0/Gio-2.0.gir \
-		--types GFile GListStore GListModel \
+		--types GFile GListStore GListModel GMenuModel \
 		--extra-data glib/Gio.xml \
 		--exclude-objects \
 		--output $@

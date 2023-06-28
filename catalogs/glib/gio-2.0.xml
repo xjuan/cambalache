@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <!DOCTYPE cambalache-catalog SYSTEM "cambalache-catalog.dtd">
-<cambalache-catalog name="gio" namespace="Gio" prefix="G" version="2.0" targets="2.0,2.44">
+<cambalache-catalog name="gio" namespace="Gio" prefix="G" version="2.0" targets="2.0,2.32,2.44">
   <type>
 	("GAppInfoCreateFlags","flags","gio",None,None,None,None,None,None,None),
 	("GApplicationFlags","flags","gio",None,None,None,None,None,None,None),
@@ -50,6 +50,7 @@
 	("GListModel","interface","gio",None,None,None,None,None,None,None),
 	("GListStore","GObject","gio","2.44",None,None,1,None,"model",None),
 	("GMemoryMonitorWarningLevel","enum","gio",None,None,None,None,None,None,None),
+	("GMenuModel","GObject","gio","2.32",None,1,1,None,None,None),
 	("GMountMountFlags","flags","gio",None,None,None,None,None,None,None),
 	("GMountOperationResult","enum","gio",None,None,None,None,None,None,None),
 	("GMountUnmountFlags","flags","gio",None,None,None,None,None,None,None),
@@ -531,6 +532,7 @@
 	("GListStore","item-type","gtype",None,1,None,None,None,None,"2.44",None,None,None,None,None,None)
   </property>
   <signal>
-	("GListModel","items-changed","2.44",None,None)
+	("GListModel","items-changed","2.44",None,None),
+	("GMenuModel","items-changed",None,None,None)
   </signal>
 </cambalache-catalog>
