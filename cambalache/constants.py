@@ -23,3 +23,8 @@
 # This is the name used for external objects references. See gtk_builder_expose_object()
 # It is not a valid GType name on purpose since it will never be exported.
 EXTERNAL_TYPE = "(external)"
+
+GMENU_TYPE = "(menu)"
+GMENU_SECTION_TYPE = "(section)"
+GMENU_SUBMENU_TYPE = "(submenu)"
+GMENU_ITEM_TYPE = "(item)"

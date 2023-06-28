@@ -144,7 +144,7 @@ class CmbDB(GObject.GObject):
             f"""
             CREATE TABLE history_{table} AS SELECT * FROM {table} WHERE 0;
             ALTER TABLE history_{table} ADD COLUMN history_old BOOLEAN;
-            ALTER TABLE history_{table} ADD COLUMN history_id INTERGER REFERENCES history ON DELETE CASCADE;
+            ALTER TABLE history_{table} ADD COLUMN history_id INTEGER REFERENCES history ON DELETE CASCADE;
             CREATE INDEX history_{table}_history_id_fk ON history_{table} (history_id);
             """
         )
@@ -306,15 +306,51 @@ class CmbDB(GObject.GObject):
         self.conn.commit()
         c.close()
 
+    def __init_builtin_types(self):
+        # Builtin types depends on GtkBuilder so assign them to gtk lib
+        lib = "gtk+" if self.target_tk == "gtk+-3.0" else "gtk"
+
+        # Add GMenu related types
+        for gtype, category in [
+            (constants.GMENU_TYPE, "model"),
+            (constants.GMENU_SECTION_TYPE, "hidden"),
+            (constants.GMENU_SUBMENU_TYPE, "hidden"),
+            (constants.GMENU_ITEM_TYPE, "hidden"),
+        ]:
+            self.execute(
+                "INSERT INTO type (type_id, parent_id, library_id, category) VALUES (?, 'GObject', ?, ?);",
+                (gtype, lib, category),
+            )
+
+        # menu is a GMenuModel
+        self.execute("INSERT INTO type_iface (type_id, iface_id) VALUES (?, ?);", (constants.GMENU_TYPE, "GMenuModel"))
+
+        # Add properties
+        for values in [
+            (constants.GMENU_SECTION_TYPE, "label", "gchararray", True),
+            (constants.GMENU_SUBMENU_TYPE, "label", "gchararray", True),
+            (constants.GMENU_ITEM_TYPE, "label", "gchararray", True),
+            (constants.GMENU_ITEM_TYPE, "action", "gchararray", False),
+            (constants.GMENU_ITEM_TYPE, "icon", "CmbIconName", False),
+        ]:
+            self.execute("INSERT INTO property (owner_id, property_id, type_id, translatable) VALUES (?, ?, ?, ?);", values)
+
+        # Add constraints
+        for gtype in [constants.GMENU_TYPE, constants.GMENU_SECTION_TYPE, constants.GMENU_SUBMENU_TYPE]:
+            for child_type in [constants.GMENU_SECTION_TYPE, constants.GMENU_SUBMENU_TYPE, constants.GMENU_ITEM_TYPE]:
+                self.execute("INSERT INTO type_child_constraint VALUES (?, ?, 1, 1);", (gtype, child_type))
+
     def __init_data(self):
         if self.target_tk not in ["gtk+-3.0", "gtk-4.0"]:
             raise Exception(f"Unknown target tk {self.target_tk}")
 
         # Add special type for external object references. See gtk_builder_expose_object()
-        self.execute(f"INSERT INTO type (type_id, parent_id) VALUES ('{constants.EXTERNAL_TYPE}', 'object');")
+        self.execute("INSERT INTO type (type_id, parent_id) VALUES (?, 'object');", (constants.EXTERNAL_TYPE,))
 
-        # Add GObject and Gio data
+        # Add GObject
         self.load_catalog(GOBJECT_XML)
+
+        # Add Gio data
         self.load_catalog(GIO_XML)
 
         # Add GdkPixbuf and Pango data
@@ -335,6 +371,9 @@ class CmbDB(GObject.GObject):
             # FIXME: this should be optional
             self.load_catalog(WEBKITGTK_6_0_XML)
             self.load_catalog(LIBADWAITA_XML)
+
+        # Add builtins, (menu depends on gio)
+        self.__init_builtin_types()
 
         # TODO: Load all libraries that depend on self.target_tk
 
@@ -1058,10 +1097,65 @@ class CmbDB(GObject.GObject):
 
         c.close()
 
+    def __import_menu(self, ui_id, node, parent_id, object_id_map=None):
+        name, = self.__node_get(node, ["id"])
+        comment = self.__node_get_comment(node)
+
+        tag = node.tag
+
+        if tag == 'menu':
+            klass = constants.GMENU_TYPE
+        elif tag == 'submenu':
+            klass = constants.GMENU_SUBMENU_TYPE
+        elif tag == 'section':
+            klass = constants.GMENU_SECTION_TYPE
+        elif tag == 'item':
+            klass = constants.GMENU_ITEM_TYPE
+        else:
+            self.__collect_error("unknown-tag", node, tag)
+            return
+
+        info = self.type_info.get(klass, None)
+
+        if not info:
+            logger.warning(f"Error importing menu: {klass} not found")
+            return
+
+        # Need to remap object ids on paste
+        if object_id_map:
+            name = object_id_map.get(name, name)
+
+        # Insert menu
+        try:
+            menu_id = self.add_object(ui_id, klass, name, parent_id, None, None, comment)
+        except Exception:
+            logger.warning(f"XML:{node.sourceline} - Error importing menu")
+            return
+
+        c = self.conn.cursor()
+
+        for child in node.iterchildren():
+            if child.tag in ["submenu", "section", "item"]:
+                self.__import_menu(ui_id, child, menu_id, object_id_map=object_id_map)
+            elif child.tag == "attribute":
+                if klass == constants.GMENU_TYPE:
+                    logger.warning(f"XML:{node.sourceline} - Ignoring attribute")
+                    continue
+                self.__import_property(c, info, ui_id, menu_id, child, object_id_map=object_id_map)
+            else:
+                self.__collect_error("unknown-tag", node, child.tag)
+
+        c.close()
+
+        return menu_id
+
     def __import_object(
         self, ui_id, node, parent_id, internal_child=None, child_type=None, is_template=False, object_id_map=None
     ):
         custom_fragments = []
+
+        if node.tag == "menu":
+            return self.__import_menu(ui_id, node, parent_id, object_id_map=object_id_map)
 
         is_template = node.tag == "template"
 
@@ -1178,12 +1272,14 @@ class CmbDB(GObject.GObject):
 
         # Infer target by looking for exclusive tags
         for element in root.iter():
-            if element.tag in ["layout", "binding", "lookup"] or \
-               element.tag == 'object' and  element.get("class", "").startswith("Adw"):
+            if (
+                element.tag in ["layout", "binding", "lookup"]
+                or element.tag == "object"
+                and element.get("class", "").startswith("Adw")
+            ):
                 return ("gtk", "4.0", True)
 
-            if element.tag in ["packing"] or \
-               element.tag == 'object' and  element.get("class", "").startswith("Hdy"):
+            if element.tag in ["packing"] or element.tag == "object" and element.get("class", "").startswith("Hdy"):
                 return ("gtk+", "3.0", True)
 
         return (None, None, None)
@@ -1330,6 +1426,8 @@ class CmbDB(GObject.GObject):
                 self.__import_object(ui_id, child, None)
             elif child.tag == "template":
                 self.__import_object(ui_id, child, None)
+            elif child.tag == "menu":
+                self.__import_menu(ui_id, child, None)
             elif child.tag == "requires":
                 pass
             elif child.tag is etree.Comment:
@@ -1377,16 +1475,88 @@ class CmbDB(GObject.GObject):
         if comment:
             node.addprevious(etree.Comment(comment))
 
-    def __export_object(self, ui_id, object_id, merengue=False, template_id=None, ignore_id=False):
-        def node_set(node, attr, val):
-            if val is not None:
-                node.set(attr, str(val))
+    def __node_set(self, node, attr, val):
+        if val is not None:
+            node.set(attr, str(val))
 
+    def __export_menu(self, ui_id, object_id, merengue=False, ignore_id=False):
+        c = self.conn.cursor()
+
+        c.execute("SELECT type_id, name, custom_fragment FROM object WHERE ui_id=? AND object_id=?;", (ui_id, object_id))
+        type_id, name, custom_fragment = c.fetchone()
+
+        if type_id == constants.GMENU_TYPE:
+            obj = E.menu()
+            # Only menu has id
+            self.__node_set(obj, "id", f"__cmb__{ui_id}.{object_id}" if merengue else name)
+        elif type_id == constants.GMENU_SECTION_TYPE:
+            obj = E.section()
+        elif type_id == constants.GMENU_SUBMENU_TYPE:
+            obj = E.submenu()
+        elif type_id == constants.GMENU_ITEM_TYPE:
+            obj = E.item()
+
+        # Properties
+        for row in c.execute(
+            f"""
+            SELECT value, property_id, comment, translatable, translation_context, translation_comments
+            FROM object_property
+            WHERE ui_id=? AND object_id=?
+            ORDER BY property_id
+            """,
+            (ui_id, object_id),
+        ):
+            (
+                value,
+                property_id,
+                comment,
+                translatable,
+                translation_context,
+                translation_comments,
+            ) = row
+            node = E.attribute(name=property_id)
+            if value is not None:
+                node.text = value
+
+            if translatable:
+                self.__node_set(node, "translatable", "yes")
+                self.__node_set(node, "context", translation_context)
+                self.__node_set(node, "comments", translation_comments)
+
+            obj.append(node)
+
+        # Children
+        for row in c.execute(
+            """
+            SELECT object_id, comment
+            FROM object
+            WHERE ui_id=? AND parent_id=?
+            ORDER BY position;
+            """,
+            (ui_id, object_id),
+        ):
+            child_id, comment = row
+            child_obj = self.__export_menu(ui_id, child_id, merengue=merengue, ignore_id=ignore_id)
+            self.__node_add_comment(child_obj, comment)
+            obj.append(child_obj)
+
+        # Dump custom fragments
+        self.__export_custom_fragment(obj, custom_fragment)
+
+        c.close()
+
+        return obj
+
+    def __export_object(self, ui_id, object_id, merengue=False, template_id=None, ignore_id=False):
         c = self.conn.cursor()
         cc = self.conn.cursor()
 
         c.execute("SELECT type_id, name, custom_fragment FROM object WHERE ui_id=? AND object_id=?;", (ui_id, object_id))
         type_id, name, custom_fragment = c.fetchone()
+
+        # Special case <menu>
+        if type_id == constants.GMENU_TYPE:
+            return self.__export_menu(ui_id, object_id, merengue=merengue, ignore_id=ignore_id)
 
         info = self.type_info.get(type_id, None)
 
@@ -1412,10 +1582,10 @@ class CmbDB(GObject.GObject):
             info = self.type_info.get(type_id, None)
 
             obj = E.object()
-            node_set(obj, "class", type_id)
+            self.__node_set(obj, "class", type_id)
 
             if not ignore_id:
-                node_set(obj, "id", name)
+                self.__node_set(obj, "id", name)
 
             # From now own all output should be without an ID, because we do not want so select internal widget from
             # the template
@@ -1423,20 +1593,20 @@ class CmbDB(GObject.GObject):
         else:
             if not merengue and template_id == object_id:
                 obj = E.template()
-                node_set(obj, "class", name)
-                node_set(obj, "parent", type_id)
+                self.__node_set(obj, "class", name)
+                self.__node_set(obj, "parent", type_id)
             else:
                 obj = E.object()
 
                 if merengue:
                     workspace_type = info.workspace_type
-                    node_set(obj, "class", workspace_type if workspace_type else type_id)
+                    self.__node_set(obj, "class", workspace_type if workspace_type else type_id)
                     if not ignore_id:
-                        node_set(obj, "id", f"__cmb__{ui_id}.{object_id}")
+                        self.__node_set(obj, "id", f"__cmb__{ui_id}.{object_id}")
                 else:
-                    node_set(obj, "class", type_id)
+                    self.__node_set(obj, "class", type_id)
                     if not ignore_id:
-                        node_set(obj, "id", name)
+                        self.__node_set(obj, "id", name)
 
         # Create class hierarchy list
         hierarchy = [type_id] + info.hierarchy if info else [type_id]
@@ -1525,9 +1695,9 @@ class CmbDB(GObject.GObject):
                 node.append(value_node)
 
             if translatable:
-                node_set(node, "translatable", "yes")
-                node_set(node, "context", translation_context)
-                node_set(node, "comments", translation_comments)
+                self.__node_set(node, "translatable", "yes")
+                self.__node_set(node, "context", translation_context)
+                self.__node_set(node, "comments", translation_comments)
 
             if bind_source_id and bind_owner_id and bind_property_id:
                 if merengue:
@@ -1538,9 +1708,9 @@ class CmbDB(GObject.GObject):
                     bind_source = row[0] if row else None
 
                 if bind_source:
-                    node_set(node, "bind-source", bind_source)
-                    node_set(node, "bind-property", bind_property_id)
-                    node_set(node, "bind-flags", bind_flags)
+                    self.__node_set(node, "bind-source", bind_source)
+                    self.__node_set(node, "bind-property", bind_property_id)
+                    self.__node_set(node, "bind-flags", bind_flags)
 
             obj.append(node)
             self.__node_add_comment(node, comment)
@@ -1563,11 +1733,11 @@ class CmbDB(GObject.GObject):
                 signal_id, handler, detail, data, swap, after, comment = row
                 name = f"{signal_id}::{detail}" if detail is not None else signal_id
                 node = E.signal(name=name, handler=handler)
-                node_set(node, "object", data)
+                self.__node_set(node, "object", data)
                 if swap:
-                    node_set(node, "swapped", "yes")
+                    self.__node_set(node, "swapped", "yes")
                 if after:
-                    node_set(node, "after", "yes")
+                    self.__node_set(node, "after", "yes")
                 obj.append(node)
                 self.__node_add_comment(node, comment)
 
@@ -1610,8 +1780,8 @@ class CmbDB(GObject.GObject):
 
             child_obj = self.__export_object(ui_id, child_id, merengue=merengue, ignore_id=ignore_id)
             child = E.child(child_obj)
-            node_set(child, "internal-child", internal)
-            node_set(child, "type", ctype)
+            self.__node_set(child, "internal-child", internal)
+            self.__node_set(child, "type", ctype)
             self.__node_add_comment(child_obj, comment)
 
             obj.append(child)
@@ -1707,8 +1877,9 @@ class CmbDB(GObject.GObject):
         # Iterate over all hierarchy extra data
         export_type_data(type_id, info, obj)
         for parent in info.hierarchy:
-            pinfo = self.type_info[parent]
-            export_type_data(parent, pinfo, obj)
+            pinfo = self.type_info.get(parent, None)
+            if pinfo:
+                export_type_data(parent, pinfo, obj)
 
         # Dump custom fragments
         self.__export_custom_fragment(obj, custom_fragment)
@@ -1785,7 +1956,9 @@ class CmbDB(GObject.GObject):
             SELECT object_id, comment
             FROM object
             WHERE parent_id IS NULL AND type_id != '{constants.EXTERNAL_TYPE}' AND ui_id=?;
-            """, (ui_id,)):
+            """,
+            (ui_id,),
+        ):
             object_id, comment = row
             child = self.__export_object(ui_id, object_id, merengue=merengue, template_id=template_id)
             node.append(child)
