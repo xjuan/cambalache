@@ -30,7 +30,7 @@ from lxml import etree
 from lxml.builder import E
 from gi.repository import Gio, GObject, Gtk
 from cambalache import config, getLogger, _
-from . import cmb_db_migration, constants
+from . import cmb_db_migration, constants, utils
 
 logger = getLogger(__name__)
 
@@ -132,7 +132,7 @@ class CmbDB(GObject.GObject):
     def __sqlite_connect(self, path):
         conn = sqlite3.connect(path)
 
-        conn.create_function("VERSION_CMP", 2, sqlite_version_cmp)
+        conn.create_collation("version", sqlite_version_cmp)
         conn.create_aggregate("MAX_VERSION", 1, MaxVersion)
         conn.create_function("CMB_PRINT", 1, cmb_print)
 
@@ -426,7 +426,7 @@ class CmbDB(GObject.GObject):
         if version is None:
             return (0, 0, 0)
 
-        return parse_version(version)
+        return utils.parse_version(version)
 
     def __ensure_table_data_columns(self, version, table, data):
         if version is None:
@@ -2079,29 +2079,9 @@ class CmbDB(GObject.GObject):
 
 # Function used in SQLite
 
-
-def parse_version(version):
-    return tuple([int(x) for x in version.split(".")])
-
-
-def version_cmp(a, b):
-    an = len(a)
-    bn = len(a)
-
-    for i in range(0, max(an, bn)):
-        val_a = a[i] if i < an else 0
-        val_b = b[i] if i < bn else 0
-        retval = val_a - val_b
-
-        if retval != 0:
-            return retval
-
-    return 0
-
-
 # Compares two version strings
 def sqlite_version_cmp(a, b):
-    return version_cmp(parse_version(a), parse_version(b))
+    return utils.version_cmp(utils.parse_version(a), utils.parse_version(b))
 
 
 # Aggregate class to get the MAX version
@@ -2111,9 +2091,9 @@ class MaxVersion:
         self.max_ver_str = None
 
     def step(self, value):
-        ver = parse_version(value)
+        ver = utils.parse_version(value)
 
-        if self.max_ver is None or version_cmp(self.max_ver, ver) < 0:
+        if self.max_ver is None or utils.version_cmp(self.max_ver, ver) < 0:
             self.max_ver = ver
             self.max_ver_str = value
 

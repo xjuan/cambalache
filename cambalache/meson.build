@@ -56,6 +56,7 @@ install_data([
     'cmb_view.py',
     'constants.py',
     'icon_naming_spec.py',
+    'utils.py',
     '__init__.py'
     ],
     install_dir: moduledir)
