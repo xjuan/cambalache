@@ -30,6 +30,10 @@ logger = getLogger(__name__)
 
 
 class CmbUI(CmbBaseUI):
+    __gsignals__ = {
+        "library-changed": (GObject.SignalFlags.RUN_FIRST, None, (str, )),
+    }
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -52,7 +56,9 @@ class CmbUI(CmbBaseUI):
 
         for row in self.project.db.execute(
             """
-            SELECT DISTINCT t.library_id, NULL FROM object AS o, type AS t WHERE o.ui_id=? AND o.type_id = t.type_id
+            SELECT DISTINCT t.library_id, NULL
+            FROM object AS o, type AS t
+            WHERE t.library_id IS NOT NULL AND o.ui_id=? AND o.type_id = t.type_id
             UNION
             SELECT library_id, version FROM ui_library WHERE ui_id=?
             """,
@@ -62,7 +68,7 @@ class CmbUI(CmbBaseUI):
 
             versions = []
             for row in self.project.db.execute(
-                "SELECT version FROM library_version WHERE library_id=? ORDER BY version;",
+                "SELECT version FROM library_version WHERE library_id=? ORDER BY version COLLATE version DESC;",
                 (library_id, )
             ).fetchall():
                 versions.append(row[0])
@@ -75,6 +81,10 @@ class CmbUI(CmbBaseUI):
         c = self.project.db.execute("SELECT version FROM ui_library WHERE ui_id=? AND library_id=?;", (self.ui_id, library_id))
         row = c.fetchone()
         return row[0] if row is not None else None
+
+    def _library_changed(self, lib):
+        self.emit("library-changed", lib)
+        self.project._ui_library_changed(self, lib)
 
     def set_library(self, library_id, version, comment=None):
         c = self.project.db.cursor()
@@ -99,6 +109,7 @@ class CmbUI(CmbBaseUI):
                         (self.ui_id, library_id, str(version), comment),
                     )
 
+            self._library_changed(library_id)
         except Exception as e:
             logger.warning(f"{self} Error setting library {library_id}={version}: {e}")
 
