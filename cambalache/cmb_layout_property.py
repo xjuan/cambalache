@@ -35,6 +35,9 @@ class CmbLayoutProperty(CmbBaseLayoutProperty):
         super().__init__(**kwargs)
         self.__on_init = False
 
+        owner_info = self.project.type_info.get(self.info.owner_id, None)
+        self.library_id = owner_info.library_id
+
     @GObject.Property(type=str)
     def value(self):
         c = self.project.db.execute(

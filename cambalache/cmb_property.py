@@ -24,6 +24,7 @@
 from gi.repository import GObject
 
 from .cmb_objects_base import CmbBaseProperty, CmbPropertyInfo
+from . import utils
 
 
 class CmbProperty(CmbBaseProperty):
@@ -34,6 +35,9 @@ class CmbProperty(CmbBaseProperty):
         self._init = True
         super().__init__(**kwargs)
         self._init = False
+
+        owner_info = self.project.type_info.get(self.info.owner_id, None)
+        self.library_id = owner_info.library_id
 
     @GObject.Property(type=str)
     def value(self):
