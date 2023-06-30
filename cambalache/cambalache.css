@@ -29,10 +29,6 @@ CmbObjectEditor viewport {
   margin: 0 4px;
 }
 
-CmbObjectEditor label.modified {
-  font-style: italic;
-}
-
 CmbWindow stackswitcher.compact > button {
   min-width: unset;
 }
@@ -61,4 +57,12 @@ CmbPropertyLabel {
   background: unset;
   box-shadow: unset;
   outline: unset;
+}
+
+CmbPropertyLabel.modified > box > label {
+  font-style: italic;
+}
+
+CmbPropertyLabel.warning > box > label {
+  text-decoration: underline wavy @warning_color;
 }

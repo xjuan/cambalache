@@ -28,9 +28,12 @@ from .cmb_property import CmbProperty
 from .cmb_layout_property import CmbLayoutProperty
 from .cmb_objects_base import CmbPropertyInfo
 from .cmb_property_controls import CmbObjectChooser, CmbFlagsEntry, unset_scroll_event
+from . import utils
 
 
 class CmbPropertyLabel(Gtk.Button):
+    __gtype_name__ = "CmbPropertyLabel"
+
     prop = GObject.Property(type=CmbProperty, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
     layout_prop = GObject.Property(
         type=CmbLayoutProperty, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY
@@ -69,10 +72,29 @@ class CmbPropertyLabel(Gtk.Button):
         self.add(box)
 
     def __update_label(self, prop):
+        style = self.get_style_context()
+
         if prop.value != prop.info.default_value:
-            self.label.get_style_context().add_class("modified")
+            style.add_class("modified")
         else:
-            self.label.get_style_context().remove_class("modified")
+            style.remove_class("modified")
+
+        target = prop.object.ui.get_library(prop.library_id)
+        if target is None:
+            target = prop.project.get_library_latest(prop.library_id)
+
+        version = prop.info.version
+        deprecated_version = prop.info.deprecated_version
+
+        if target:
+            if version and utils.version_cmp_str(target, version) < 0:
+                self.set_tooltip_text(f"UI targets {target} but this was introduced in {version}")
+                style.add_class("warning")
+            elif deprecated_version and utils.version_cmp_str(target, deprecated_version) >= 0:
+                self.set_tooltip_text(f"UI targets {target} but this was deprecated in {deprecated_version}")
+                style.add_class("warning")
+            else:
+                style.remove_class("warning")
 
     def __update_layout_property_label(self):
         self.__update_label(self.layout_prop)
