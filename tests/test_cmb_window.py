@@ -142,6 +142,12 @@ def window_add_object(klass, obj_id, ui_id=1):
     project.set_selection([obj])
 
 
+def select_object(obj_id=None, ui_id=1):
+    project = window.project
+    obj = project.get_object_by_id(ui_id, obj_id)
+    project.set_selection([obj])
+
+
 # TESTS
 def _test_new_button(target):
     # New project view
@@ -177,6 +183,19 @@ def _test_cmb_window_ui_stack_fragment(target):
 
     window_stack_set_page("ui_stack", "fragment")
     window_assert_screenshot("cambalache_ui_stack_fragment.png", target)
+
+
+def _test_cmb_window_ui_stack_requires(target):
+    ui = window.project.get_object_by_id(1)
+    select_object(ui_id=1)
+
+    if target == "gtk+-3.0":
+        ui.set_library("gtk+", "3.8")
+    else:
+        ui.set_library("gtk", "4.2")
+
+    window_stack_set_page("ui_stack", "requires")
+    window_assert_screenshot("cambalache_ui_stack_requires.png", target)
 
 
 def _test_cmb_window_add_window(target):
@@ -243,6 +262,10 @@ def test_gtk3_cmb_window_object_stack_fragment():
     _test_cmb_window_object_stack_fragment("gtk+-3.0")
 
 
+def test_gtk3_cmb_window_ui_stack_requires():
+    _test_cmb_window_ui_stack_requires("gtk+-3.0")
+
+
 # Reset UI to start with the same tests for Gtk 4
 def test_cmb_window_close():
     global window
@@ -285,3 +308,9 @@ def test_gtk4_cmb_window_object_stack_signals():
 
 def test_gtk4_cmb_window_object_stack_fragment():
     _test_cmb_window_object_stack_fragment("gtk-4.0")
+
+
+def test_gtk4_cmb_window_ui_stack_requires():
+    _test_cmb_window_ui_stack_requires("gtk-4.0")
+
+
