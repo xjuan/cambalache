@@ -52,6 +52,7 @@ class CmbProject(Gtk.TreeStore):
         "ui-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbUI,)),
         "ui-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbUI,)),
         "ui-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbUI, str)),
+        "ui-library-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbUI, str)),
         "css-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbCSS,)),
         "css-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbCSS,)),
         "css-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbCSS, str)),
@@ -814,6 +815,10 @@ class CmbProject(Gtk.TreeStore):
                 obj = self.get_object_by_id(pk[0])
                 if obj:
                     obj.notify(column)
+            elif table == "ui_library":
+                ui = self.get_object_by_id(pk[0])
+                if ui:
+                    ui._library_changed(pk[1])
             elif table == "css":
                 obj = self.get_css_by_id(pk[0])
                 if obj:
@@ -891,6 +896,10 @@ class CmbProject(Gtk.TreeStore):
                 obj = self.get_css_by_id(pk[0])
                 if obj:
                     obj.notify("provider-for")
+            elif table == "ui_library":
+                ui = self.get_object_by_id(pk[0])
+                if ui:
+                    ui._library_changed(pk[1])
 
         c.close()
 
@@ -947,7 +956,15 @@ class CmbProject(Gtk.TreeStore):
                 return retval
 
             if table == "ui":
-                retval["ui"] = data[3]
+                ui_id = data[0]
+                ui = self.get_object_by_id(ui_id)
+                retval["ui"] = ui.get_display_name()
+            elif table == "ui_library":
+                ui_id = data[0]
+                ui = self.get_object_by_id(ui_id)
+                retval["ui"] = ui.get_display_name()
+                retval["lib"] = data[1]
+                retval["version"] = data[2]
             elif table == "css":
                 retval["css"] = data[1]
             elif table == "css_ui":
@@ -1010,6 +1027,11 @@ class CmbProject(Gtk.TreeStore):
                         "INSERT": _("Create UI {ui}"),
                         "DELETE": _("Remove UI {ui}"),
                         "UPDATE": _("Update {field} of UI {ui}"),
+                    },
+                    "ui_library": {
+                        "INSERT": _("Set {ui} {lib} to {version}"),
+                        "DELETE": _("Remove {ui} {lib}"),
+                        "UPDATE": _("Update {lib} of UI {ui} to {version}"),
                     },
                     "css": {
                         "INSERT": _("Add CSS provider {css}"),
@@ -1159,6 +1181,9 @@ class CmbProject(Gtk.TreeStore):
         self.row_changed(path, iter)
 
         self.emit("ui-changed", ui, field)
+
+    def _ui_library_changed(self, ui, lib):
+        self.emit("ui-library-changed", ui, lib)
 
     def _object_changed(self, obj, field):
         iter = self.get_iter_from_object(obj)
@@ -1319,6 +1344,11 @@ class CmbProject(Gtk.TreeStore):
     def clipboard_count(self):
         return len(self.db.clipboard)
 
+    def get_library_latest(self, library_id):
+        c = self.db.execute("SELECT MAX_VERSION(version) FROM library_version WHERE library_id=?;", (library_id, ))
+        row = c.fetchone()
+        return row[0] if row is not None else None
+
     @staticmethod
     def get_target_from_ui_file(filename):
         tree = etree.parse(filename)
@@ -1344,6 +1374,9 @@ class CmbProject(Gtk.TreeStore):
         self.emit("changed")
 
     def do_ui_changed(self, ui, field):
+        self.emit("changed")
+
+    def do_ui_library_changed(self, ui, lib):
         self.emit("changed")
 
     def do_css_added(self, css):
