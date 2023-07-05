@@ -197,12 +197,7 @@ class CmbProject(Gtk.TreeStore):
         return {"names": columns, "types": types, "pks": pks}
 
     def __init_type_info(self, c):
-        for row in c.execute(
-            """SELECT * FROM type
-                                  WHERE
-                                    parent_id IS NOT NULL
-                                  ORDER BY type_id;"""
-        ):
+        for row in c.execute("SELECT * FROM type WHERE parent_id IS NOT NULL ORDER BY type_id;"):
             type_id = row[0]
             self.type_info[type_id] = CmbTypeInfo.from_row(self, *row)
 
@@ -213,10 +208,11 @@ class CmbProject(Gtk.TreeStore):
 
     def __init_library_info(self, c):
         for row in c.execute(
-            """SELECT * FROM library
-                                  WHERE
-                                    library_id NOT IN ('gobject', 'pango', 'gdkpixbuf', 'gio', 'gdk', 'gtk', 'gtk+')
-                                  ORDER BY library_id;"""
+            """
+            SELECT * FROM library
+            WHERE library_id NOT IN ('gobject', 'pango', 'gdkpixbuf', 'gio', 'gdk', 'gtk', 'gtk+')
+            ORDER BY library_id;
+            """
         ):
             library_id = row[0]
             self.library_info[library_id] = CmbLibraryInfo.from_row(self, *row)
