@@ -37,12 +37,18 @@ class CmbTypeDataArgInfo(CmbBaseTypeDataArgInfo):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
+    def __str__(self):
+        return f"CmbTypeDataArgInfo<{self.owner_id}>::{self.key}"
+
 
 class CmbTypeDataInfo(CmbBaseTypeDataInfo):
     def __init__(self, **kwargs):
         self.args = {}
         self.children = {}
         super().__init__(**kwargs)
+
+    def __str__(self):
+        return f"CmbTypeDataArgInfo<{self.owner_id}>::{self.key}"
 
 
 class CmbTypeInfo(CmbBaseTypeInfo):
@@ -70,6 +76,9 @@ class CmbTypeInfo(CmbBaseTypeInfo):
         self.is_object = self.is_a("GObject")
 
         self.instantiable = self.is_object and not self.abstract
+
+    def __str__(self):
+        return f"CmbTypeInfo<{self.type_id}>"
 
     def __init_hierarchy(self):
         retval = []
