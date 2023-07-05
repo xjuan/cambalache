@@ -229,6 +229,7 @@ class CmbObjectDataEditor(Gtk.Box):
             return
 
         info = self.data.info if self.data else self.info
+        project = self.__object.project
 
         if info is None:
             return
@@ -254,7 +255,7 @@ class CmbObjectDataEditor(Gtk.Box):
 
         # Value
         if info.type_id:
-            editor = cmb_create_editor(self.data.project, info.type_id)
+            editor = cmb_create_editor(project, info.type_id)
             self.__value_editor = editor
 
             if self.data:
@@ -274,7 +275,7 @@ class CmbObjectDataEditor(Gtk.Box):
         for arg in info.args:
             arg_info = info.args[arg]
 
-            editor = cmb_create_editor(self.data.project, arg_info.type_id)
+            editor = cmb_create_editor(project, arg_info.type_id)
             self.__arg_editors[arg_info.key] = editor
 
             # Initialize value
