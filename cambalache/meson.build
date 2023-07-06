@@ -53,6 +53,7 @@ install_data([
     'cmb_type_info.py',
     'cmb_ui.py',
     'cmb_ui_editor.py',
+    'cmb_ui_requires_editor.py',
     'cmb_view.py',
     'constants.py',
     'icon_naming_spec.py',
