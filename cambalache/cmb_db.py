@@ -1581,32 +1581,26 @@ class CmbDB(GObject.GObject):
             # Use template info and object_id from now on
             info = self.type_info.get(type_id, None)
 
-            obj = E.object()
-            self.__node_set(obj, "class", type_id)
-
-            if not ignore_id:
-                self.__node_set(obj, "id", name)
-
             # From now own all output should be without an ID, because we do not want so select internal widget from
             # the template
             ignore_id = True
-        else:
-            if not merengue and template_id == object_id:
-                obj = E.template()
-                self.__node_set(obj, "class", name)
-                self.__node_set(obj, "parent", type_id)
-            else:
-                obj = E.object()
 
-                if merengue:
-                    workspace_type = info.workspace_type
-                    self.__node_set(obj, "class", workspace_type if workspace_type else type_id)
-                    if not ignore_id:
-                        self.__node_set(obj, "id", f"__cmb__{ui_id}.{object_id}")
-                else:
-                    self.__node_set(obj, "class", type_id)
-                    if not ignore_id:
-                        self.__node_set(obj, "id", name)
+        if not merengue and template_id == object_id:
+            obj = E.template()
+            self.__node_set(obj, "class", name)
+            self.__node_set(obj, "parent", type_id)
+        else:
+            obj = E.object()
+
+            if merengue:
+                workspace_type = info.workspace_type
+                self.__node_set(obj, "class", workspace_type if workspace_type else type_id)
+                if not ignore_id:
+                    self.__node_set(obj, "id", f"__cmb__{ui_id}.{object_id}")
+            else:
+                self.__node_set(obj, "class", type_id)
+                if not ignore_id:
+                    self.__node_set(obj, "id", name)
 
         # Create class hierarchy list
         hierarchy = [type_id] + info.hierarchy if info else [type_id]
@@ -1662,17 +1656,15 @@ class CmbDB(GObject.GObject):
                 else:
                     value = workspace_default
             elif is_object:
-                # Ignore references to object in template mode since the object
-                # could not exists in this UI
-                if ignore_id:
-                    continue
-
                 # Ignore object properties with 0/null ID or unknown object references
                 if val is not None and val.isnumeric() and int(val) == 0:
                     continue
 
                 if inline_object_id and is_inline_object:
                     value_node = self.__export_object(ui_id, inline_object_id, merengue=merengue, ignore_id=ignore_id)
+                elif ignore_id:
+                    # Ignore references to object in template mode since the object could not exists in this UI
+                    continue
                 else:
                     if merengue:
                         # Ignore properties that reference an unknown object
