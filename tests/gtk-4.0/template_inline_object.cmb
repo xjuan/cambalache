@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
+<cambalache-project version="0.12.0" target_tk="gtk-4.0">
+  <ui>
+	(1,None,"template_inline_object.ui","template_inline_object.ui",None,None,None,None,None,None,None),
+	(2,1,None,"my-window.ui",None,None,None,None,None,None,None)
+  </ui>
+  <object>
+	(1,1,"MyWindow",None,None,None,None,None,None,None),
+	(2,1,"GtkWindow","MyWindow",None,None,None,None,None,None),
+	(2,2,"GtkBox",None,1,None,None,None,None,None),
+	(2,3,"GtkLabel",None,2,None,None,None,1,None)
+  </object>
+  <object_property>
+	(1,1,"GtkWindow","title","This window should have a label inside a inline box as child",None,None,None,None,None,None,None,None,None),
+	(2,1,"GtkWindow","child",None,None,None,None,None,2,None,None,None,None),
+	(2,3,"GtkLabel","label","a label inside an inline object",None,None,None,None,None,None,None,None,None)
+  </object_property>
+</cambalache-project>

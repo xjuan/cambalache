@@ -9,6 +9,31 @@ from gi.repository import GObject, Gtk
 from lxml import etree
 
 
+basedir = os.path.dirname(__file__)
+
+
+def xml_check_object_ws_properties(xml, object_query, ws_properties):
+    # Parse xml
+    root = etree.fromstring(xml.encode())
+
+    # Find object node
+    obj_node = root.find(object_query)
+    assert obj_node is not None
+
+    for property_id, value, exp in ws_properties:
+        # Look for a property node with name==property_id
+        prop = obj_node.find(f'property[@name="{property_id}"]')
+        assert prop is not None
+
+        # Check value
+        if value:
+            assert prop.text == value
+
+        # Check property xpath expression
+        if exp:
+            assert len(prop.xpath(exp)) > 0
+
+
 def cmb_workspace_default_test(target_tk, type_class, ws_properties):
     """
     Check type_class has ws_properties by default
@@ -28,25 +53,7 @@ def cmb_workspace_default_test(target_tk, type_class, ws_properties):
     # Check export worked
     assert str_exported is not None
 
-    # Parse results
-    root = etree.fromstring(str_exported.encode())
-
-    # Find object node
-    obj_node = root.find(f"object[@class='{type_class}']")
-    assert obj_node is not None
-
-    for property_id, value, exp in ws_properties:
-        # Look for a property node with name==property_id
-        prop = obj_node.find(f'property[@name="{property_id}"]')
-        assert prop is not None
-
-        # Check value
-        if value:
-            assert prop.text == value
-
-        # Check property xpath expression
-        if exp:
-            assert len(prop.xpath(exp)) > 0
+    xml_check_object_ws_properties(str_exported, f"object[@class='{type_class}']", ws_properties)
 
 
 def test_object_id():
@@ -94,7 +101,7 @@ def test_no_signals():
     """
     Make sure merengue output does not have signals declaration to avoid GtkBuilder errors not finding the callbacks
     """
-    path = os.path.join(os.path.dirname(__file__), "gtk+-3.0", "signals.ui")
+    path = os.path.join(basedir, "gtk+-3.0", "signals.ui")
 
     project = CmbProject(target_tk="gtk+-3.0")
     ui_id = project.db.import_file(path)
@@ -111,3 +118,25 @@ def test_gtk4_stack_page_workspace_default():
         "GtkStackPage",
         [("child", None, "object[@class='GtkLabel']/property[@name='label' and text()='Empty Page']")],
     )
+
+
+def test_gtk4_template_inline_object():
+    project = CmbProject(filename=os.path.join(basedir, "gtk-4.0", "template_inline_object.cmb"))
+
+    # Export UI file in merengue mode (Workspace)
+    str_exported = project.db.tostring(1, merengue=True)
+
+    # Check export worked
+    assert str_exported is not None
+
+    # Parse xml
+    root = etree.fromstring(str_exported.encode())
+
+    # Find object node
+    label = root.find("object[@class='GtkWindow']/property/object[@class='GtkBox']/child/object[@class='GtkLabel']")
+    assert label is not None
+
+    label_property = label.find("property[@name='label']")
+    assert label_property is not None
+
+    assert label_property.text == "a label inside an inline object"
