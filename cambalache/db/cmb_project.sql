@@ -283,6 +283,9 @@ CREATE TABLE object_data (
   value TEXT,
   parent_id INTEGER,
   comment TEXT,
+  translatable BOOLEAN,
+  translation_context TEXT,
+  translation_comments TEXT,
   PRIMARY KEY(ui_id, object_id, owner_id, data_id, id),
   FOREIGN KEY(ui_id, object_id) REFERENCES object ON DELETE CASCADE,
   FOREIGN KEY(owner_id, data_id) REFERENCES type_data

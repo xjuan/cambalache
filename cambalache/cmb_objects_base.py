@@ -219,13 +219,24 @@ class CmbBaseTypeDataInfo(CmbBase):
     parent_id = GObject.Property(type=int, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
     key = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
     type_id = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    translatable = GObject.Property(
+        type=bool, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY, default=False
+    )
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     @classmethod
-    def from_row(cls, project, owner_id, data_id, parent_id, key, type_id):
-        return cls(project=project, owner_id=owner_id, data_id=data_id, parent_id=parent_id, key=key, type_id=type_id)
+    def from_row(cls, project, owner_id, data_id, parent_id, key, type_id, translatable):
+        return cls(
+            project=project,
+            owner_id=owner_id,
+            data_id=data_id,
+            parent_id=parent_id,
+            key=key,
+            type_id=type_id,
+            translatable=translatable,
+        )
 
 
 class CmbBaseTypeDataArgInfo(CmbBase):
@@ -1150,7 +1161,21 @@ class CmbBaseObjectData(CmbBase):
         super().__init__(**kwargs)
 
     @classmethod
-    def from_row(cls, project, ui_id, object_id, owner_id, data_id, id, value, parent_id, comment):
+    def from_row(
+        cls,
+        project,
+        ui_id,
+        object_id,
+        owner_id,
+        data_id,
+        id,
+        value,
+        parent_id,
+        comment,
+        translatable,
+        translation_context,
+        translation_comments,
+    ):
         return cls(project=project, ui_id=ui_id, object_id=object_id, owner_id=owner_id, data_id=data_id, id=id)
 
     @GObject.Property(type=str)
@@ -1224,6 +1249,87 @@ class CmbBaseObjectData(CmbBase):
     def _set_comment(self, value):
         self.db_set(
             "UPDATE object_data SET comment=? WHERE (ui_id, object_id, owner_id, data_id, id) IS (?, ?, ?, ?, ?);",
+            (
+                self.ui_id,
+                self.object_id,
+                self.owner_id,
+                self.data_id,
+                self.id,
+            ),
+            value,
+        )
+
+    @GObject.Property(type=bool, default=False)
+    def translatable(self):
+        return self.db_get(
+            "SELECT translatable FROM object_data WHERE (ui_id, object_id, owner_id, data_id, id) IS (?, ?, ?, ?, ?);",
+            (
+                self.ui_id,
+                self.object_id,
+                self.owner_id,
+                self.data_id,
+                self.id,
+            ),
+        )
+
+    @translatable.setter
+    def _set_translatable(self, value):
+        self.db_set(
+            "UPDATE object_data SET translatable=? WHERE (ui_id, object_id, owner_id, data_id, id) IS (?, ?, ?, ?, ?);",
+            (
+                self.ui_id,
+                self.object_id,
+                self.owner_id,
+                self.data_id,
+                self.id,
+            ),
+            value,
+        )
+
+    @GObject.Property(type=str)
+    def translation_context(self):
+        return self.db_get(
+            "SELECT translation_context FROM object_data WHERE (ui_id, object_id, owner_id, data_id, id) IS (?, ?, ?, ?, ?);",
+            (
+                self.ui_id,
+                self.object_id,
+                self.owner_id,
+                self.data_id,
+                self.id,
+            ),
+        )
+
+    @translation_context.setter
+    def _set_translation_context(self, value):
+        self.db_set(
+            "UPDATE object_data SET translation_context=? WHERE (ui_id, object_id, owner_id, data_id, id) IS (?, ?, ?, ?, ?);",
+            (
+                self.ui_id,
+                self.object_id,
+                self.owner_id,
+                self.data_id,
+                self.id,
+            ),
+            value,
+        )
+
+    @GObject.Property(type=str)
+    def translation_comments(self):
+        return self.db_get(
+            "SELECT translation_comments FROM object_data WHERE (ui_id, object_id, owner_id, data_id, id) IS (?, ?, ?, ?, ?);",
+            (
+                self.ui_id,
+                self.object_id,
+                self.owner_id,
+                self.data_id,
+                self.id,
+            ),
+        )
+
+    @translation_comments.setter
+    def _set_translation_comments(self, value):
+        self.db_set(
+            "UPDATE object_data SET translation_comments=? WHERE (ui_id, object_id, owner_id, data_id, id) IS (?, ?, ?, ?, ?);",
             (
                 self.ui_id,
                 self.object_id,

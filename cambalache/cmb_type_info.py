@@ -32,6 +32,14 @@ from .cmb_objects_base import (
     CmbSignalInfo,
 )
 
+from .constants import (
+    EXTERNAL_TYPE,
+    GMENU_TYPE,
+    GMENU_SECTION_TYPE,
+    GMENU_SUBMENU_TYPE,
+    GMENU_ITEM_TYPE
+)
+
 
 class CmbTypeDataArgInfo(CmbBaseTypeDataArgInfo):
     def __init__(self, **kwargs):
@@ -76,6 +84,9 @@ class CmbTypeInfo(CmbBaseTypeInfo):
         self.is_object = self.is_a("GObject")
 
         self.instantiable = self.is_object and not self.abstract
+
+        self.is_menu_builtin = self.type_id in [GMENU_TYPE, GMENU_SECTION_TYPE, GMENU_SUBMENU_TYPE, GMENU_ITEM_TYPE]
+        self.is_builtin = self.is_menu_builtin or self.type_id in [EXTERNAL_TYPE]
 
     def __str__(self):
         return f"CmbTypeInfo<{self.type_id}>"
@@ -134,11 +145,11 @@ class CmbTypeInfo(CmbBaseTypeInfo):
         c.close()
         return retval
 
-    def __type_get_data(self, owner_id, data_id, parent_id, key, type_id):
+    def __type_get_data(self, owner_id, data_id, parent_id, key, type_id, translatable):
         args = {}
         children = {}
         parent_id = parent_id if parent_id is not None else 0
-        retval = CmbTypeDataInfo.from_row(self, owner_id, data_id, parent_id, key, type_id)
+        retval = CmbTypeDataInfo.from_row(self, owner_id, data_id, parent_id, key, type_id, translatable)
 
         c = self.project.db.cursor()
 

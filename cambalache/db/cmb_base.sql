@@ -127,8 +127,8 @@ CREATE TABLE IF NOT EXISTS type_flags (
 
 /* Type Data
  *
- * This table allow us to store extra data for each type in a hierachical way.
- * It does not have any particular restrictions which means it is responsability
+ * This table allow us to store extra data for each type in a hierarchical way.
+ * It does not have any particular restrictions which means it is responsibility
  * of the editor to create a valid structure.
  */
 CREATE TABLE IF NOT EXISTS type_data (
@@ -137,6 +137,7 @@ CREATE TABLE IF NOT EXISTS type_data (
   parent_id INTEGER,
   key TEXT NOT NULL,
   type_id TEXT REFERENCES type ON UPDATE CASCADE,
+  translatable BOOLEAN CHECK (type_id IN (NULL, 'gchararray')),
   PRIMARY KEY(owner_id, data_id),
   FOREIGN KEY(owner_id, parent_id) REFERENCES type_data(owner_id, data_id)
 ) WITHOUT ROWID;

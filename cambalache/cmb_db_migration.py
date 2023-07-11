@@ -94,3 +94,11 @@ def ensure_columns_for_0_11_4(table, data):
         return [row + (None, None, None, None) for row in data]
 
     return data
+
+
+def ensure_columns_for_0_13_1(table, data):
+    if table == "object_data":
+        # Append translatable, translation_context, translation_comments columns
+        return [row + (None, None, None) for row in data]
+
+    return data

@@ -31,6 +31,15 @@ from lxml.builder import E
 from utils import gir
 
 
+# Global XML name space
+nsmap = {}
+
+
+# Helper function to get a namespaced attribute
+def ns(namespace, name):
+    return f"{{{nsmap[namespace]}}}{name}"
+
+
 class CambalacheDb:
     def __init__(self, dependencies=None, external_catalogs=[]):
         self.lib = None
@@ -187,9 +196,16 @@ class CambalacheDb:
         )
         data_id = c.fetchone()[0]
 
+        translatable = None
+        translatable_attr = node.get(ns("Cmb", "translatable"))
+
+        if translatable_attr:
+            translatable = type_id == "gchararray" and translatable_attr == "True"
+            del node.attrib[ns("Cmb", "translatable")]
+
         c.execute(
-            "INSERT INTO type_data (owner_id, data_id, parent_id, key, type_id) VALUES (?, ?, ?, ?, ?);",
-            (owner_id, data_id, parent_id, key, type_id),
+            "INSERT INTO type_data (owner_id, data_id, parent_id, key, type_id, translatable) VALUES (?, ?, ?, ?, ?, ?);",
+            (owner_id, data_id, parent_id, key, type_id, translatable),
         )
 
         for attr in node.keys():
@@ -311,6 +327,9 @@ class CambalacheDb:
 
         tree = etree.parse(filename)
         root = tree.getroot()
+
+        global nsmap
+        nsmap = root.nsmap
 
         c = self.conn.cursor()
 
