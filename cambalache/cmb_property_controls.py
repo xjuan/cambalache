@@ -543,8 +543,9 @@ class CmbToplevelChooser(Gtk.ComboBox):
             return
 
         iter = self.object.project.get_iter_from_object_id(self.object.ui_id, value)
-        valid, filter_iter = self.filter.convert_child_iter_to_iter(iter)
-        self.set_active_iter(filter_iter if valid else None)
+        if iter:
+            valid, filter_iter = self.filter.convert_child_iter_to_iter(iter)
+            self.set_active_iter(filter_iter if valid else None)
 
 
 class CmbChildTypeComboBox(Gtk.ComboBox):
