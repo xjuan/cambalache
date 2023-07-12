@@ -38,6 +38,7 @@ class CmbPropertyLabel(Gtk.Button):
     layout_prop = GObject.Property(
         type=CmbLayoutProperty, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY
     )
+    bindable = GObject.Property(type=bool, default=True, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -60,7 +61,9 @@ class CmbPropertyLabel(Gtk.Button):
 
             self.__update_property_label()
             self.prop.connect("notify::value", lambda o, p: self.__update_property_label())
-            self.connect("clicked", self.__on_bind_button_clicked)
+
+            if self.bindable:
+                self.connect("clicked", self.__on_bind_button_clicked)
 
         if self.layout_prop:
             self.bind_icon = None
@@ -101,6 +104,9 @@ class CmbPropertyLabel(Gtk.Button):
 
     def __update_property_label(self):
         self.__update_label(self.prop)
+
+        if not self.bindable:
+            return
 
         if self.prop.bind_property_id:
             self.bind_icon.props.icon_name = "binded-symbolic"
