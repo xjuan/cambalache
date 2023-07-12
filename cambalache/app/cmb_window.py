@@ -658,15 +658,15 @@ class CmbWindow(Gtk.ApplicationWindow):
                     ).format(unsupported_feature=unsupported_feature, name=name)
 
                 self.present_message_to_user(
-                    _("Error importing {filename}").format(
-                        filename=os.path.basename(filename), secondary_text=text, details=unsupported_features_list
-                    )
+                    _("Error importing {filename}").format(filename=os.path.basename(filename)),
+                    secondary_text=text,
+                    details=unsupported_features_list,
                 )
         except Exception as e:
             filename = os.path.basename(filename)
             logger.warning(f"Error loading {filename} {traceback.format_exc()}")
             self.present_message_to_user(
-                _("Error importing {filename}").format(filename=os.path.basename(filename), secondary_text=str(e))
+                _("Error importing {filename}").format(filename=os.path.basename(filename)), secondary_text=str(e)
             )
 
     def open_project(self, filename, target_tk=None, uiname=None):
