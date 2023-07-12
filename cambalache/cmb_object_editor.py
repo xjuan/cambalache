@@ -28,7 +28,7 @@ from .cmb_object_data_editor import CmbObjectDataEditor
 from .cmb_property_controls import CmbEntry, CmbChildTypeComboBox, cmb_create_editor
 from .cmb_property_label import CmbPropertyLabel
 from cambalache import _
-from . import constants
+from .constants import EXTERNAL_TYPE
 
 
 class CmbObjectEditor(Gtk.ScrolledWindow):
@@ -145,11 +145,12 @@ class CmbObjectEditor(Gtk.ScrolledWindow):
         if self.__object is None:
             return
 
-        is_external = self.__object.type_id == constants.EXTERNAL_TYPE
-        parent = self.__object.parent
+        obj = self.__object
+        parent = obj.parent
+        is_builtin = obj.info.is_builtin
 
         if self.layout:
-            if parent is None or is_external:
+            if parent is None or is_builtin:
                 return
 
             # Child Type input
@@ -159,7 +160,7 @@ class CmbObjectEditor(Gtk.ScrolledWindow):
             # ID
             self.box.add(self.__create_id_editor())
 
-        if is_external:
+        if obj.type_id == EXTERNAL_TYPE:
             label = Gtk.Label(
                 label=_(
                     "This object will not be exported, it is only used to make a reference to it. \
@@ -174,12 +175,12 @@ It has to be exposed by your application with GtkBuilder expose_object method."
             self.show_all()
             return
 
-        info = parent.info if self.layout and parent else self.__object.info
+        info = parent.info if self.layout and parent else obj.info
         for owner_id in [info.type_id] + info.hierarchy:
             if self.layout:
                 owner_id = f"{owner_id}LayoutChild"
 
-            info = self.__object.project.type_info.get(owner_id, None)
+            info = obj.project.type_info.get(owner_id, None)
 
             if info is None:
                 continue
@@ -199,7 +200,7 @@ It has to be exposed by your application with GtkBuilder expose_object method."
                 i += 1
 
             # Properties
-            properties = self.__object.layout_dict if self.layout else self.__object.properties_dict
+            properties = obj.layout_dict if self.layout else obj.properties_dict
             for property_id in info.properties:
                 prop = properties.get(property_id, None)
 
@@ -222,7 +223,7 @@ It has to be exposed by your application with GtkBuilder expose_object method."
                 if self.layout:
                     label = CmbPropertyLabel(layout_prop=prop)
                 else:
-                    label = CmbPropertyLabel(prop=prop)
+                    label = CmbPropertyLabel(prop=prop, bindable=not is_builtin)
 
                 # Keep a dict of labels
 
@@ -234,7 +235,7 @@ It has to be exposed by your application with GtkBuilder expose_object method."
                 data = None
 
                 # Find data
-                for d in self.__object.data:
+                for d in obj.data:
                     if d.info.key == data_key:
                         data = d
                         break
@@ -242,7 +243,7 @@ It has to be exposed by your application with GtkBuilder expose_object method."
                 editor = CmbObjectDataEditor(
                     visible=True,
                     hexpand=True,
-                    object=self.__object,
+                    object=obj,
                     data=data,
                     info=None if data else info.data[data_key],
                 )
