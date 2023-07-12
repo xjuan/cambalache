@@ -854,7 +854,7 @@ class CmbSourceView(GtkSource.View):
 
 
 # Functions
-def cmb_create_editor(project, type_id, prop=None):
+def cmb_create_editor(project, type_id, prop=None, data=None):
     def get_min_max_for_type(type_id):
         if type_id == "gchar":
             return (GLib.MININT8, GLib.MAXINT8)
@@ -885,10 +885,13 @@ def cmb_create_editor(project, type_id, prop=None):
 
     editor = None
     info = project.type_info.get(type_id, None)
-    translatable = False
 
     if prop:
-        translatable = prop.translatable
+        translatable = prop.info.translatable
+    elif data:
+        translatable = data.info.translatable
+    else:
+        translatable = False
 
     if type_id == "gboolean":
         editor = CmbSwitch()
@@ -954,7 +957,9 @@ def cmb_create_editor(project, type_id, prop=None):
     if editor is None:
         editor = CmbEntry(hexpand=True, placeholder_text=f"<{type_id}>")
         if translatable:
-            editor.make_translatable(target=prop)
+            target = prop if prop else data
+            if target:
+                editor.make_translatable(target=target)
 
     editor.show()
 
