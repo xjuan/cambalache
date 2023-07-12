@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<interface>
+  <!-- interface-name string_list.ui -->
+  <requires lib="gtk" version="4.8"/>
+  <object class="GtkStringList" id="list1">
+    <property name="strings">a
+b
+c</property>
+  </object>
+  <object class="GtkStringList" id="list2">
+    <items>
+      <item>foo</item>
+      <item translatable="yes" context="bar of Foobar" comments="Translation of custom data test">bar</item>
+    </items>
+  </object>
+  <object class="GtkStringList" id="list3">
+    <property name="strings">A
+B
+C</property>
+    <items>
+      <item>D</item>
+      <item>E</item>
+      <item>F</item>
+    </items>
+  </object>
+</interface>

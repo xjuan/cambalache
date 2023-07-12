@@ -161,3 +161,11 @@ def test_gtk4_custom_fragment():
 
 def test_gtk4_bindings():
     assert_original_and_exported("gtk-4.0", "bindings.ui")
+
+
+def test_gtk4_menu():
+    assert_original_and_exported("gtk-4.0", "menu.ui")
+
+
+def test_gtk4_string_list():
+    assert_original_and_exported("gtk-4.0", "string_list.ui")

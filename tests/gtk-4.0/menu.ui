@@ -2,20 +2,49 @@
 <interface>
   <!-- interface-name menu.ui -->
   <requires lib="gio" version="2.44"/>
-  <requires lib="gtk+" version="3.24"/>
-  <menu id="gear_menu">
+  <requires lib="gtk" version="4.0"/>
+  <menu id="gear_menu_model">
     <section>
       <item>
         <attribute name="action">win.busy</attribute>
         <attribute name="label" translatable="yes">Get Busy</attribute>
       </item>
-      <item>
-        <attribute name="action">win.dark</attribute>
-        <attribute name="label" translatable="yes">Dark Theme</attribute>
-      </item>
+      <submenu>
+        <attribute name="label" translatable="yes">Style</attribute>
+        <section>
+          <item>
+            <attribute name="action">win.theme</attribute>
+            <attribute name="label" translatable="yes">Current</attribute>
+            <attribute name="target">current</attribute>
+          </item>
+          <item>
+            <attribute name="action">win.theme</attribute>
+            <attribute name="label" translatable="yes">Default</attribute>
+            <attribute name="target">default</attribute>
+          </item>
+          <item>
+            <attribute name="action">win.theme</attribute>
+            <attribute name="label" translatable="yes">Dark</attribute>
+            <attribute name="target">dark</attribute>
+          </item>
+          <item>
+            <attribute name="action">win.theme</attribute>
+            <attribute name="label" translatable="yes">Highcontrast</attribute>
+            <attribute name="target">hc</attribute>
+          </item>
+          <item>
+            <attribute name="action">win.theme</attribute>
+            <attribute name="label" translatable="yes">Highcontrast inverse</attribute>
+            <attribute name="target">hc-dark</attribute>
+          </item>
+        </section>
+      </submenu>
       <item>
         <attribute name="action">win.transition</attribute>
-        <attribute name="label" translatable="yes">Slide Pages</attribute>
+        <attribute name="label" translatable="yes">Transition Pages</attribute>
+      </item>
+      <item>
+        <attribute name="custom">transition-speed</attribute>
       </item>
     </section>
     <section>
@@ -24,7 +53,7 @@
         <attribute name="label" translatable="yes">_Inspector</attribute>
       </item>
       <item>
-        <attribute name="action">win.show-help-overlay</attribute>
+        <attribute name="action">app.shortcuts</attribute>
         <attribute name="label" translatable="yes">_Keyboard Shortcuts</attribute>
       </item>
       <item>
@@ -37,12 +66,12 @@
     <section>
       <item>
         <attribute name="action">app.main</attribute>
-        <attribute name="label" translatable="yes">Steak</attribute>
+        <attribute name="label" translatable="yes">_Steak</attribute>
         <attribute name="target">steak</attribute>
       </item>
       <item>
         <attribute name="action">app.main</attribute>
-        <attribute name="label" translatable="yes">Pizza</attribute>
+        <attribute name="label" translatable="yes">_Pizza</attribute>
         <attribute name="target">pizza</attribute>
       </item>
     </section>
