@@ -508,10 +508,10 @@ class CmbWindow(Gtk.ApplicationWindow):
 
         self.object_editor.object = obj
 
-        is_not_external = obj.type_id != constants.EXTERNAL_TYPE if obj else True
+        is_not_builtin = not obj.info.is_builtin if obj else True
         for editor in [self.object_layout_editor, self.signal_editor, self.fragment_editor]:
             editor.object = obj
-            editor.props.visible = is_not_external
+            editor.props.visible = is_not_builtin
 
         self.__update_action_add_object()
 
