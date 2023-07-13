@@ -4,6 +4,7 @@ extend-ignore = E203
 per-file-ignores =
     cambalache/__init__.py:F401,E402
     cambalache/app/__init__.py:F401,E402
+    cambalache/control/__init__.py:F401,E402
     cambalache/merengue/__init__.py:F401,E402
     cambalache/merengue/mrg_adw/__init__.py:F401,E402
     cambalache/merengue/mrg_handy/__init__.py:F401,E402

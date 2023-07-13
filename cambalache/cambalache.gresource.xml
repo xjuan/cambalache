@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
   <gresource prefix="/ar/xjuan/Cambalache">
+    <file>control/cmb_translatable_widget.ui</file>
     <file>db/cmb_base.sql</file>
     <file>db/cmb_project.sql</file>
     <file>db/cmb_history.sql</file>
@@ -13,7 +14,6 @@
     <file>cmb_fragment_editor.ui</file>
     <file>cmb_object_data_editor.ui</file>
     <file>cmb_signal_editor.ui</file>
-    <file>cmb_translatable_widget.ui</file>
     <file>cambalache.css</file>
     <file>icons/scalable/actions/bind-symbolic.svg</file>
     <file>icons/scalable/actions/binded-symbolic.svg</file>

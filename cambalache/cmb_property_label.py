@@ -27,7 +27,7 @@ from .cmb_object import CmbObject
 from .cmb_property import CmbProperty
 from .cmb_layout_property import CmbLayoutProperty
 from .cmb_objects_base import CmbPropertyInfo
-from .cmb_property_controls import CmbObjectChooser, CmbFlagsEntry, unset_scroll_event
+from .control import CmbObjectChooser, CmbFlagsEntry
 from . import utils
 
 
@@ -202,7 +202,7 @@ class CmbPropertyChooser(Gtk.ComboBoxText):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        unset_scroll_event(self)
+        utils.unset_scroll_event(self)
         self.__populate()
         self.connect("notify::object", self.__on_object_notify)
 

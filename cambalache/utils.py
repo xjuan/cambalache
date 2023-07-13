@@ -1,5 +1,5 @@
 #
-# uitls - Cambalache utilities
+# utils - Cambalache utilities
 #
 # Copyright (C) 2023  Juan Pablo Ugarte
 #
@@ -20,6 +20,9 @@
 # Authors:
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
+
+from gi.repository import Gdk, Gtk
+
 
 def parse_version(version):
     return tuple([int(x) for x in version.split(".")])
@@ -42,3 +45,15 @@ def version_cmp(a, b):
 
 def version_cmp_str(a, b):
     return version_cmp(parse_version(a), parse_version(b))
+
+
+def unset_scroll_event(widget):
+    def ignore_scroll_event(widget, event):
+        Gtk.propagate_event(widget.get_parent(), event)
+        return True
+
+    events = widget.get_events()
+    widget.set_events(events & ~(Gdk.EventMask.SCROLL_MASK | Gdk.EventMask.SMOOTH_SCROLL_MASK))
+
+    if isinstance(widget, Gtk.ComboBox):
+        widget.connect("scroll-event", ignore_scroll_event)

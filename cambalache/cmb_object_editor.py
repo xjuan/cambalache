@@ -25,7 +25,7 @@ from gi.repository import GObject, Gtk
 
 from .cmb_object import CmbObject
 from .cmb_object_data_editor import CmbObjectDataEditor
-from .cmb_property_controls import CmbEntry, CmbChildTypeComboBox, cmb_create_editor
+from .control import CmbEntry, CmbChildTypeComboBox, cmb_create_editor
 from .cmb_property_label import CmbPropertyLabel
 from cambalache import _
 from .constants import EXTERNAL_TYPE

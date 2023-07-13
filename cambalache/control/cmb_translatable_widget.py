@@ -24,7 +24,7 @@
 from gi.repository import GObject, Gtk
 
 
-@Gtk.Template(resource_path="/ar/xjuan/Cambalache/cmb_translatable_widget.ui")
+@Gtk.Template(resource_path="/ar/xjuan/Cambalache/control/cmb_translatable_widget.ui")
 class CmbTranslatableWidget(Gtk.Box):
     __gtype_name__ = "CmbTranslatableWidget"
 
