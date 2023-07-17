@@ -10,6 +10,7 @@ per-file-ignores =
     cambalache/merengue/mrg_handy/__init__.py:F401,E402
     cambalache/merengue/mrg_webkit2/__init__.py:F401,E402
     cambalache/merengue/mrg_gtk/__init__.py:F401,E402
+    glade/gladecambalache/__init__.py:F401,E402
 exclude =
   .flatpak-builder
   build

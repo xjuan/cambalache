@@ -108,4 +108,3 @@ class CmbUIRequiresEditor(Gtk.Grid):
         combo.connect("changed", self.__on_combobox_changed, library_id)
 
         return combo
-        

@@ -30,7 +30,7 @@ from gi.repository import GLib, GObject, Gio, Gdk, Gtk, Pango
 from .cmb_tutor import CmbTutor, CmbTutorState
 from . import cmb_tutorial
 
-from cambalache import CmbProject, CmbUI, CmbCSS, CmbObject, CmbTypeChooserPopover, getLogger, constants, config, _
+from cambalache import CmbProject, CmbUI, CmbCSS, CmbObject, CmbTypeChooserPopover, getLogger, config, _
 
 logger = getLogger(__name__)
 

@@ -24,7 +24,6 @@
 from gi.repository import GObject
 
 from .cmb_objects_base import CmbBaseProperty, CmbPropertyInfo
-from . import utils
 
 
 class CmbProperty(CmbBaseProperty):

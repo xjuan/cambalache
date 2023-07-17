@@ -31,7 +31,7 @@ logger = getLogger(__name__)
 
 class CmbUI(CmbBaseUI):
     __gsignals__ = {
-        "library-changed": (GObject.SignalFlags.RUN_FIRST, None, (str, )),
+        "library-changed": (GObject.SignalFlags.RUN_FIRST, None, (str,)),
     }
 
     def __init__(self, **kwargs):
@@ -62,18 +62,17 @@ class CmbUI(CmbBaseUI):
             UNION
             SELECT library_id, version FROM ui_library WHERE ui_id=?
             """,
-            (self.ui_id, self.ui_id)
+            (self.ui_id, self.ui_id),
         ).fetchall():
             library_id, version = row
 
             versions = []
             for row in self.project.db.execute(
-                "SELECT version FROM library_version WHERE library_id=? ORDER BY version COLLATE version DESC;",
-                (library_id, )
+                "SELECT version FROM library_version WHERE library_id=? ORDER BY version COLLATE version DESC;", (library_id,)
             ).fetchall():
                 versions.append(row[0])
 
-            retval[library_id] = { "target": version, "versions": versions }
+            retval[library_id] = {"target": version, "versions": versions}
 
         return retval
 

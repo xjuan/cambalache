@@ -80,12 +80,7 @@ class GirData:
         }
 
         # GtkBuilder native object types
-        self.builder_native_object_types = [
-            "GdkPixbuf",
-            "GFile",
-            "GtkShortcutTrigger",
-            "GtkShortcutAction"
-        ]
+        self.builder_native_object_types = ["GdkPixbuf", "GFile", "GtkShortcutTrigger", "GtkShortcutAction"]
 
         tree = etree.parse(gir_file)
         root = tree.getroot()

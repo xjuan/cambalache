@@ -312,5 +312,3 @@ def test_gtk4_cmb_window_object_stack_fragment():
 
 def test_gtk4_cmb_window_ui_stack_requires():
     _test_cmb_window_ui_stack_requires("gtk-4.0")
-
-

@@ -31,13 +31,7 @@ from lxml.builder import E
 from gi.repository import Gio, GObject, Gtk
 from cambalache import config, getLogger, _
 from . import cmb_db_migration, utils
-from .constants import (
-    EXTERNAL_TYPE,
-    GMENU_TYPE,
-    GMENU_SECTION_TYPE,
-    GMENU_SUBMENU_TYPE,
-    GMENU_ITEM_TYPE
-)
+from .constants import EXTERNAL_TYPE, GMENU_TYPE, GMENU_SECTION_TYPE, GMENU_SUBMENU_TYPE, GMENU_ITEM_TYPE
 
 logger = getLogger(__name__)
 
@@ -356,10 +350,11 @@ class CmbDB(GObject.GObject):
                 (?, 1, 3, 'attribute', 'gchararray', True),
                 (?, 2, 4, 'link', null, null);
                 """,
-                (gtype, gtype, gtype, gtype))
+                (gtype, gtype, gtype, gtype),
+            )
 
             self.execute(
-                f"""
+                """
                 INSERT INTO type_data_arg (owner_id, data_id, key, type_id)
                 VALUES
                 (?, 1, 'name', 'gchararray'),
@@ -367,7 +362,8 @@ class CmbDB(GObject.GObject):
                 (?, 2, 'id', 'gchararray'),
                 (?, 2, 'name', 'gchararray');
                 """,
-                (gtype, gtype, gtype, gtype))
+                (gtype, gtype, gtype, gtype),
+            )
 
     def __init_data(self):
         if self.target_tk not in ["gtk+-3.0", "gtk-4.0"]:
@@ -1075,7 +1071,19 @@ class CmbDB(GObject.GObject):
                     f"XML:{prop.sourceline} - Can not import object {object_id} {owner_id}:{property_id} layout property: {e}"
                 )
 
-    def object_add_data(self, ui_id, object_id, owner_id, data_id, value=None, parent_id=None, comment=None, translatable=None, context=None, comments=None):
+    def object_add_data(
+        self,
+        ui_id,
+        object_id,
+        owner_id,
+        data_id,
+        value=None,
+        parent_id=None,
+        comment=None,
+        translatable=None,
+        context=None,
+        comments=None,
+    ):
         c = self.conn.cursor()
 
         c.execute(
@@ -1090,7 +1098,10 @@ class CmbDB(GObject.GObject):
 
         c.execute(
             """
-            INSERT INTO object_data (ui_id, object_id, owner_id, data_id, id, value, parent_id, comment, translatable, translation_context, translation_comments)
+            INSERT INTO object_data (
+                ui_id, object_id, owner_id, data_id, id, value, parent_id, comment,
+                translatable, translation_context, translation_comments
+            )
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
             """,
             (ui_id, object_id, owner_id, data_id, id, value, parent_id, comment, translatable, context, comments),
@@ -1120,7 +1131,9 @@ class CmbDB(GObject.GObject):
         else:
             translatable, context, comments = (None, None, None)
 
-        id = self.object_add_data(ui_id, object_id, owner_id, data_id, value, parent_id, comment, translatable, context, comments)
+        id = self.object_add_data(
+            ui_id, object_id, owner_id, data_id, value, parent_id, comment, translatable, context, comments
+        )
 
         for key in taginfo.args:
             val = ntag.get(key, None)
@@ -1135,18 +1148,18 @@ class CmbDB(GObject.GObject):
         c.close()
 
     def __import_menu(self, ui_id, node, parent_id, object_id_map=None):
-        name, = self.__node_get(node, ["id"])
+        (name,) = self.__node_get(node, ["id"])
         comment = self.__node_get_comment(node)
 
         tag = node.tag
 
-        if tag == 'menu':
+        if tag == "menu":
             klass = GMENU_TYPE
-        elif tag == 'submenu':
+        elif tag == "submenu":
             klass = GMENU_SUBMENU_TYPE
-        elif tag == 'section':
+        elif tag == "section":
             klass = GMENU_SECTION_TYPE
-        elif tag == 'item':
+        elif tag == "item":
             klass = GMENU_ITEM_TYPE
         else:
             self.__collect_error("unknown-tag", node, tag)
@@ -1190,7 +1203,9 @@ class CmbDB(GObject.GObject):
                     self.__import_property(c, info, ui_id, menu_id, child, object_id_map=object_id_map)
                 else:
                     if attributes_id is None:
-                        attributes_id = self.object_add_data(ui_id, menu_id, info.type_id, attributes_info.data_id, None, None, None)
+                        attributes_id = self.object_add_data(
+                            ui_id, menu_id, info.type_id, attributes_info.data_id, None, None, None
+                        )
 
                     # This is a custom attribute, store as object data
                     taginfo = attributes_info.children["attribute"]
@@ -1557,7 +1572,7 @@ class CmbDB(GObject.GObject):
 
         # Properties
         for row in c.execute(
-            f"""
+            """
             SELECT value, property_id, comment, translatable, translation_context, translation_comments
             FROM object_property
             WHERE ui_id=? AND object_id=?
@@ -1593,7 +1608,7 @@ class CmbDB(GObject.GObject):
                 "SELECT id FROM object_data WHERE ui_id=? AND object_id=? AND owner_id=? AND data_id=?;",
                 (ui_id, object_id, type_id, taginfo.data_id),
             ):
-                id, = row
+                (id,) = row
 
                 for child in taginfo.children:
                     self.__export_object_data(ui_id, object_id, type_id, child, taginfo.children[child], obj, id)
@@ -1661,7 +1676,7 @@ class CmbDB(GObject.GObject):
         c.close()
         cc.close()
 
-    def __export_type_data(self, ui_id, object_id,  owner_id, info, node):
+    def __export_type_data(self, ui_id, object_id, owner_id, info, node):
         if len(info.data.keys()) == 0:
             return
 
@@ -2148,6 +2163,7 @@ class CmbDB(GObject.GObject):
 
 
 # Function used in SQLite
+
 
 # Compares two version strings
 def sqlite_version_cmp(a, b):

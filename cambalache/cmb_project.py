@@ -70,7 +70,7 @@ class CmbProject(Gtk.TreeStore):
         "object-signal-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, CmbSignal)),
         "object-data-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, CmbObjectData)),
         "object-data-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, CmbObjectData)),
-        "object-data-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObjectData, )),
+        "object-data-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObjectData,)),
         "object-data-data-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbObjectData, CmbObjectData)),
         "object-data-data-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObjectData, CmbObjectData)),
         "object-data-arg-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObjectData, str)),
@@ -1341,7 +1341,7 @@ class CmbProject(Gtk.TreeStore):
         return len(self.db.clipboard)
 
     def get_library_latest(self, library_id):
-        c = self.db.execute("SELECT MAX_VERSION(version) FROM library_version WHERE library_id=?;", (library_id, ))
+        c = self.db.execute("SELECT MAX_VERSION(version) FROM library_version WHERE library_id=?;", (library_id,))
         row = c.fetchone()
         return row[0] if row is not None else None
 

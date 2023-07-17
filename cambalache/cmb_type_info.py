@@ -32,13 +32,7 @@ from .cmb_objects_base import (
     CmbSignalInfo,
 )
 
-from .constants import (
-    EXTERNAL_TYPE,
-    GMENU_TYPE,
-    GMENU_SECTION_TYPE,
-    GMENU_SUBMENU_TYPE,
-    GMENU_ITEM_TYPE
-)
+from .constants import EXTERNAL_TYPE, GMENU_TYPE, GMENU_SECTION_TYPE, GMENU_SUBMENU_TYPE, GMENU_ITEM_TYPE
 
 
 class CmbTypeDataArgInfo(CmbBaseTypeDataArgInfo):

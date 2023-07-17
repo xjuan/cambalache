@@ -244,7 +244,7 @@ class CambalacheDb:
             if check_target(klass):
                 continue
 
-            row = c.execute("SELECT type_id FROM type WHERE type_id=?;", (owner_id, )).fetchone()
+            row = c.execute("SELECT type_id FROM type WHERE type_id=?;", (owner_id,)).fetchone()
             if row is None:
                 continue
 
@@ -277,7 +277,8 @@ class CambalacheDb:
                     c.execute(
                         """
                         UPDATE property
-                        SET translatable=?, save_always=?, disable_inline_object=?, is_position=?, required=?, workspace_default=?
+                        SET translatable=?, save_always=?, disable_inline_object=?, is_position=?, required=?,
+                            workspace_default=?
                         WHERE owner_id=? AND property_id=?;
                         """,
                         (
