@@ -116,3 +116,9 @@ class CmbUI(CmbBaseUI):
 
     def get_display_name(self):
         return self.filename if self.filename else _("Unnamed {ui_id}").format(ui_id=self.ui_id)
+
+    def get_target(self, library_id):
+        target = self.get_library(library_id)
+        if target is None:
+            target = self.project.get_library_latest(library_id)
+        return target
