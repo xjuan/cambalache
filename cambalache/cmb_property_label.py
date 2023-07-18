@@ -82,14 +82,11 @@ class CmbPropertyLabel(Gtk.Button):
         else:
             style.remove_class("modified")
 
-        target = prop.object.ui.get_library(prop.library_id)
-        if target is None:
-            target = prop.project.get_library_latest(prop.library_id)
-
-        version = prop.info.version
-        deprecated_version = prop.info.deprecated_version
-
+        target = prop.object.ui.get_target(prop.library_id)
         if target:
+            version = prop.info.version
+            deprecated_version = prop.info.deprecated_version
+
             if version and utils.version_cmp_str(target, version) < 0:
                 self.set_tooltip_text(f"UI targets {target} but this was introduced in {version}")
                 style.add_class("warning")
