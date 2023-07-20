@@ -11,6 +11,7 @@ fileformatversion = '0.13.1'
 python = import('python')
 python_bin = python.find_installation('python3')
 pkgdatadir = join_paths(get_option('prefix'), get_option('datadir'), 'cambalache')
+modulesdir = join_paths(get_option('prefix'), python_bin.get_install_dir())
 catalogsdir = join_paths(pkgdatadir, 'catalogs')
 localedir = join_paths(get_option('prefix'), get_option('localedir'))
 gnome = import('gnome')
@@ -97,4 +98,4 @@ find_program('gtk-update-icon-cache', required: true)
 find_program('update-desktop-database', required: true)
 find_program('glib-compile-schemas', required: true)
 
-meson.add_install_script('postinstall.py')
+meson.add_install_script('postinstall.py', modulesdir)

@@ -1,4 +1,4 @@
-moduledir = join_paths(get_option('prefix'), python_bin.get_install_dir(), 'cambalache')
+moduledir = join_paths(modulesdir, 'cambalache')
 merenguedir = join_paths(moduledir, 'priv')
 
 gnome.compile_resources('cambalache',

@@ -1,4 +1,4 @@
-moduledir = join_paths(get_option('prefix'), python_bin.get_install_dir(), 'cambalache', 'control')
+moduledir = join_paths(modulesdir, 'cambalache', 'control')
 
 
 install_data([

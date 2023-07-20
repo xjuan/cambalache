@@ -1,4 +1,4 @@
-moduledir = join_paths(get_option('prefix'), python_bin.get_install_dir(), 'cambalache', 'app')
+moduledir = join_paths(modulesdir, 'cambalache', 'app')
 
 gnome.compile_resources('app',
   'app.gresource.xml',

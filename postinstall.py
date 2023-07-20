@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import sys
+import compileall
 from os import environ, path
 from subprocess import call
 
@@ -20,3 +22,7 @@ if not destdir:
 
     print("Compiling GSettings schemas...")
     call(["glib-compile-schemas", path.join(datadir, "glib-2.0", "schemas")])
+
+
+# Pre compile all .py files
+compileall.compile_dir(sys.argv[1], force=True)
