@@ -45,6 +45,9 @@ class CmbIconNameEntry(CmbEntry):
     COL_STANDARD_SYMBOLIC = 5
     COL_PIXBUF = 6
 
+    # Model, store it in a Python class variable to share between all instances
+    icon_model = None
+
     def __init__(self, **kwargs):
         self._filters = {}
 
@@ -55,20 +58,18 @@ class CmbIconNameEntry(CmbEntry):
         self.props.secondary_icon_name = "document-edit-symbolic"
         self.connect("icon-press", self.__on_icon_pressed)
 
-        # Model, store it in a Python variable to make sure we hold a reference
-        # icon-name markup context standard symbolic standard_symbolic pixbuf
-        self.__model = Gtk.ListStore(str, str, str, bool, bool, bool, GdkPixbuf.Pixbuf)
+        CmbIconNameEntry.ensure_icon_model()
 
         # Completion
         self.__completion = Gtk.EntryCompletion()
-        self.__completion.props.model = self.__model
+        self.__completion.props.model = self.icon_model
         self.__completion.props.text_column = self.COL_ICON_NAME
         self.__completion.props.inline_completion = True
         self.__completion.props.inline_selection = True
         self.__completion.props.popup_set_width = True
         self.props.completion = self.__completion
 
-        self.__completion.set_match_func(lambda o, key, iter, d: key in self.__model[iter][0], None)
+        self.__completion.set_match_func(lambda o, key, iter, d: key in self.icon_model[iter][0], None)
 
         # Icon
         renderer_text = Gtk.CellRendererPixbuf(xpad=4)
@@ -80,12 +81,15 @@ class CmbIconNameEntry(CmbEntry):
         self.__completion.pack_start(renderer_text, False)
         self.__completion.add_attribute(renderer_text, "markup", 1)
 
-        self.__populate_model()
+    @classmethod
+    def ensure_icon_model(cls):
+        if cls.icon_model:
+            return
 
-    def __populate_model(self):
+        # icon-name markup context standard symbolic standard_symbolic pixbuf
+        cls.icon_model = Gtk.ListStore(str, str, str, bool, bool, bool, GdkPixbuf.Pixbuf)
+
         iconlist = []
-
-        self.__model.clear()
 
         theme = Gtk.IconTheme.get_default()
 
@@ -105,13 +109,14 @@ class CmbIconNameEntry(CmbEntry):
 
             standard_symbolic = symbolic and icon.removesuffix("-symbolic") in standard_icon_names
 
-            iter = self.__model.append(
+            iter = cls.icon_model.append(
                 [icon, icon if standard else f"<i>{icon}</i>", context, standard, symbolic, standard_symbolic, None]
             )
-            info.load_icon_async(None, self.__load_icon_finish, iter)
+            info.load_icon_async(None, cls.__load_icon_finish, iter)
 
-    def __load_icon_finish(self, info, res, data):
-        self.__model[data][6] = info.load_icon_finish(res)
+    @classmethod
+    def __load_icon_finish(cls, info, res, data):
+        cls.icon_model[data][6] = info.load_icon_finish(res)
 
     def __model_filter_func(self, model, iter, data):
         if self.standard_only and self.symbolic_only:
@@ -162,7 +167,7 @@ class CmbIconNameEntry(CmbEntry):
             filter = self._filters.get(context, None)
 
             if filter is None:
-                self._filters[context] = Gtk.TreeModelFilter(child_model=self.__model)
+                self._filters[context] = Gtk.TreeModelFilter(child_model=self.icon_model)
                 filter = self._filters[context]
                 filter.set_visible_func(self.__model_filter_func, data=context)
                 filter.refilter()
