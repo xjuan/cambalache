@@ -1137,6 +1137,8 @@ class CmbProject(Gtk.TreeStore):
                     project=self,
                     type_id=type_id,
                     parent_id=parent_id,
+                    # NOTE: we assume it is derivable
+                    derivable=1,
                     library_id=None,
                     version=None,
                     deprecated_version=None,

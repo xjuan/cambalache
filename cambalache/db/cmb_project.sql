@@ -138,7 +138,7 @@ WHEN
   NEW.name IS NOT NULL AND
   NEW.object_id IS (SELECT template_id FROM ui WHERE ui_id=NEW.ui_id)
 BEGIN
-  INSERT INTO type(type_id, parent_id) VALUES (NEW.name, NEW.type_id);
+  INSERT INTO type(type_id, parent_id, derivable) VALUES (NEW.name, NEW.type_id, 1);
 END;
 
 CREATE TRIGGER on_object_name_update_rename_type AFTER UPDATE OF name ON object
@@ -165,7 +165,7 @@ WHEN
   NEW.name IS NOT NULL AND
   NEW.object_id IS (SELECT template_id FROM ui WHERE ui_id=NEW.ui_id)
 BEGIN
-  INSERT INTO type(type_id, parent_id) VALUES (NEW.name, NEW.type_id);
+  INSERT INTO type(type_id, parent_id, derivable) VALUES (NEW.name, NEW.type_id, 1);
 END;
 
 CREATE TRIGGER on_object_delete_remove_type AFTER DELETE ON object
