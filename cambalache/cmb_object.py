@@ -55,6 +55,7 @@ class CmbObject(CmbBaseObject):
         self.data = []
         self.data_dict = {}
         self.position_layout_property = None
+        self.inline_property_id = None
 
         super().__init__(**kwargs)
 

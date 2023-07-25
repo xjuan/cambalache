@@ -121,7 +121,7 @@ class CmbProject(Gtk.TreeStore):
 
         # Use a TreeStore to hold object tree instead of using SQL for every
         # TreeStore call
-        self.set_column_types([GObject.GObject, str])
+        self.set_column_types([GObject.GObject])
 
         # DataModel is only used internally
         self.db = CmbDB(target_tk=self.target_tk)
@@ -454,7 +454,7 @@ class CmbProject(Gtk.TreeStore):
     ):
         ui = CmbUI(project=self, ui_id=ui_id)
 
-        self.__object_id[ui_id] = self.append(None, [ui, None])
+        self.__object_id[ui_id] = self.append(None, [ui])
 
         self.__update_template_type_info(ui)
 
@@ -508,7 +508,7 @@ class CmbProject(Gtk.TreeStore):
     def __add_css(self, emit, css_id, filename=None, priority=None, is_global=None):
         css = CmbCSS(project=self, css_id=css_id)
 
-        self.__css_id[css_id] = self.append(None, [css, None])
+        self.__css_id[css_id] = self.append(None, [css])
 
         if emit:
             self.emit("css-added", css)
@@ -562,17 +562,17 @@ class CmbProject(Gtk.TreeStore):
 
         if parent_id:
             parent = self.__object_id.get(f"{ui_id}.{parent_id}", None)
+
+            # Set which parent property makes a reference to this inline object
+            row = self.db.execute(
+                "SELECT property_id FROM object_property WHERE ui_id=? AND inline_object_id=?;",
+                (ui_id, object_id)
+            ).fetchone()
+            obj.inline_property_id = row[0] if row else None
         else:
             parent = self.__object_id.get(ui_id, None)
 
-        row = self.db.execute(
-            "SELECT property_id FROM object_property WHERE ui_id=? AND inline_object_id=?;",
-            (ui_id, object_id)
-        ).fetchone()
-
-        property_id = row[0] if row else None
-
-        self.__object_id[f"{ui_id}.{object_id}"] = self.insert(parent, obj.position, [obj, property_id])
+        self.__object_id[f"{ui_id}.{object_id}"] = self.insert(parent, obj.position, [obj])
 
     def __add_object(
         self,

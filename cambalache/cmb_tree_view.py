@@ -87,9 +87,9 @@ class CmbTreeView(Gtk.TreeView):
 
     def __name_cell_data_func(self, column, cell, model, iter_, data):
         obj = model.get_value(iter_, 0)
-        inline_prop = model.get_value(iter_, 1)
 
         if type(obj) == CmbObject:
+            inline_prop = obj.inline_property_id
             inline_prop = f"<b>{inline_prop}</b> " if inline_prop else ""
             name = f"{obj.name} " if obj.name else ""
             extra = _("(template)") if not obj.parent_id and obj.ui.template_id == obj.object_id else obj.type_id
