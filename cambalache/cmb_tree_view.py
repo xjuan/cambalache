@@ -21,7 +21,7 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-from gi.repository import Gdk, Gtk
+from gi.repository import Gdk, Gtk, Pango
 
 from .cmb_object import CmbObject
 from .cmb_context_menu import CmbContextMenu
@@ -33,6 +33,7 @@ class CmbTreeView(Gtk.TreeView):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.props.has_tooltip = True
 
         self._project = None
         self._selection = self.get_selection()
@@ -87,26 +88,35 @@ class CmbTreeView(Gtk.TreeView):
 
     def __name_cell_data_func(self, column, cell, model, iter_, data):
         obj = model.get_value(iter_, 0)
+        msg = None
 
         if type(obj) == CmbObject:
             inline_prop = obj.inline_property_id
             inline_prop = f"<b>{inline_prop}</b> " if inline_prop else ""
             name = f"{obj.name} " if obj.name else ""
             extra = _("(template)") if not obj.parent_id and obj.ui.template_id == obj.object_id else obj.type_id
+            msg = obj.version_warning
+
             text = f"{inline_prop}{name}<i>{extra}</i>"
         else:
             text = f"<b>{obj.get_display_name()}</b>"
 
         cell.set_property("markup", text)
+        cell.set_property("underline", Pango.Underline.ERROR if msg else Pango.Underline.NONE)
+
+    def __on_project_ui_library_changed(self, project, ui, library_id):
+        self.queue_draw()
 
     def __on_model_notify(self, treeview, pspec):
         if self._project is not None:
             self._project.disconnect_by_func(self.__on_project_selection_changed)
+            self._project.disconnect_by_func(self.__on_project_ui_library_changed)
 
         self._project = self.props.model
 
         if self._project:
             self._project.connect("selection-changed", self.__on_project_selection_changed)
+            self._project.connect("ui-library-changed", self.__on_project_ui_library_changed)
 
     def __on_row_activated(self, view, path, column):
         if self.row_expanded(path):
@@ -144,3 +154,19 @@ class CmbTreeView(Gtk.TreeView):
         if _iter is not None:
             obj = project.get_value(_iter, 0)
             project.set_selection([obj])
+
+    def do_query_tooltip(self, x, y, keyboard_mode, tooltip):
+        retval, xx, yy, model, path, iter_ = self.get_tooltip_context(x, y, keyboard_mode)
+
+        if not retval:
+            return False
+
+        obj = model.get_value(iter_, 0)
+
+        if type(obj) == CmbObject:
+            msg = obj.version_warning
+            if msg:
+                tooltip.set_text(msg)
+                return True
+
+        return False
