@@ -82,19 +82,13 @@ class CmbPropertyLabel(Gtk.Button):
         else:
             style.remove_class("modified")
 
-        target = prop.object.ui.get_target(prop.library_id)
-        if target:
-            version = prop.info.version
-            deprecated_version = prop.info.deprecated_version
+        msg = prop.version_warning
+        self.set_tooltip_text(msg)
 
-            if version and utils.version_cmp_str(target, version) < 0:
-                self.set_tooltip_text(f"UI targets {target} but this was introduced in {version}")
-                style.add_class("warning")
-            elif deprecated_version and utils.version_cmp_str(target, deprecated_version) >= 0:
-                self.set_tooltip_text(f"UI targets {target} but this was deprecated in {deprecated_version}")
-                style.add_class("warning")
-            else:
-                style.remove_class("warning")
+        if msg:
+            style.add_class("warning")
+        else:
+            style.remove_class("warning")
 
     def __update_layout_property_label(self):
         self.__update_label(self.layout_prop)
