@@ -72,7 +72,7 @@ intro = [
         CmbTutorPosition.LEFT,
     ),
     (
-        _("That is all for now.\nIf you find Cambalache usefull please consider donating"),
+        _("That is all for now.\nIf you find Cambalache useful please consider donating"),
         "donate",
         7,
         "donate",

@@ -36,7 +36,7 @@ from gi.repository import GLib
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print(f"Ussage: {sys.argv[0]} gtkversion", file=sys.stderr)
+        print(f"Usage: {sys.argv[0]} gtkversion", file=sys.stderr)
         exit()
 
     version = sys.argv[1]
