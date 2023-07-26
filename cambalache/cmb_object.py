@@ -29,6 +29,7 @@ from .cmb_layout_property import CmbLayoutProperty
 from .cmb_object_data import CmbObjectData
 from .cmb_type_info import CmbTypeInfo
 from .cmb_ui import CmbUI
+from . import utils
 from cambalache import getLogger, _
 
 logger = getLogger(__name__)
@@ -56,6 +57,7 @@ class CmbObject(CmbBaseObject):
         self.data_dict = {}
         self.position_layout_property = None
         self.inline_property_id = None
+        self.version_warning = None
 
         super().__init__(**kwargs)
 
@@ -71,6 +73,8 @@ class CmbObject(CmbBaseObject):
         self.__populate_layout_properties()
         self.__populate_signals()
         self.__populate_data()
+        self.__update_version_warning()
+        self.ui.connect("library-changed", self._on_ui_library_changed)
 
     def __str__(self):
         return f"CmbObject<{self.type_id}> {self.ui_id}:{self.object_id}"
@@ -411,3 +415,16 @@ class CmbObject(CmbBaseObject):
 
     def get_display_name(self):
         return self.name if self.name is not None else self.type_id
+
+    def __update_version_warning(self):
+        target = self.ui.get_target(self.info.library_id)
+        self.version_warning = utils.get_version_warning(target, self.info.version, self.info.deprecated_version, self.type_id)
+
+    def _on_ui_library_changed(self, ui, library_id):
+        self.__update_version_warning()
+
+        # Update properties directly, to avoid having to connect too many times to this signal
+        for props in [self.properties, self.layout]:
+            for prop in props:
+                if prop.library_id == library_id:
+                    prop._update_version_warning()

@@ -57,3 +57,15 @@ def unset_scroll_event(widget):
 
     if isinstance(widget, Gtk.ComboBox):
         widget.connect("scroll-event", ignore_scroll_event)
+
+
+def get_version_warning(target, version, deprecated_version, this):
+    if not target:
+        return None
+
+    if version and version_cmp_str(target, version) < 0:
+        return f"UI targets {target} but {this} was introduced in {version}"
+    elif deprecated_version and version_cmp_str(target, deprecated_version) >= 0:
+        return f"UI targets {target} but {this} was deprecated in {deprecated_version}"
+
+    return None

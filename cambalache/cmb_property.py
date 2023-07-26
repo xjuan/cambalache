@@ -24,6 +24,7 @@
 from gi.repository import GObject
 
 from .cmb_objects_base import CmbBaseProperty, CmbPropertyInfo
+from . import utils
 
 
 class CmbProperty(CmbBaseProperty):
@@ -34,9 +35,14 @@ class CmbProperty(CmbBaseProperty):
         self._init = True
         super().__init__(**kwargs)
         self._init = False
+        self.version_warning = None
 
         owner_info = self.project.type_info.get(self.info.owner_id, None)
         self.library_id = owner_info.library_id
+        self._update_version_warning()
+
+    def __str__(self):
+        return f"CmbProperty<{self.object.type_id} {self.info.owner_id}:{self.property_id}>"
 
     @GObject.Property(type=str)
     def value(self):
@@ -147,3 +153,7 @@ class CmbProperty(CmbBaseProperty):
     def _set_bind_property(self, bind_property):
         self.__update_values(self.value, bind_property)
         self.project._object_property_binding_changed(self.object, self)
+
+    def _update_version_warning(self):
+        target = self.object.ui.get_target(self.library_id)
+        self.version_warning = utils.get_version_warning(target, self.info.version, self.info.deprecated_version, self.property_id)
