@@ -1,7 +1,7 @@
 #
 # CmbSignalEditor - Cambalache Signal Editor
 #
-# Copyright (C) 2021  Juan Pablo Ugarte
+# Copyright (C) 2021-2023  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -21,9 +21,10 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-from gi.repository import GObject, Gtk
+from gi.repository import GObject, Gtk, Pango
 
 from .cmb_object import CmbObject
+from . import utils
 
 from enum import Enum
 
@@ -38,6 +39,7 @@ class Col(Enum):
     SWAP = 6
     AFTER = 7
     INFO = 8
+    WARNING_MESSAGE = 9
 
 
 @Gtk.Template(resource_path="/ar/xjuan/Cambalache/cmb_signal_editor.ui")
@@ -67,7 +69,6 @@ class CmbSignalEditor(Gtk.Box):
         self.user_data_column.set_cell_data_func(self.user_data, self.__data_func, Col.USER_DATA.value)
         self.swap_column.set_cell_data_func(self.swap, self.__data_func, Col.SWAP.value)
         self.after_column.set_cell_data_func(self.after, self.__data_func, Col.AFTER.value)
-
     @GObject.Property(type=CmbObject)
     def object(self):
         return self._object
@@ -177,6 +178,7 @@ class CmbSignalEditor(Gtk.Box):
                                 signal.swap,
                                 signal.after,
                                 child[Col.INFO.value],
+                                None
                             ),
                         )
                 break
@@ -188,19 +190,22 @@ class CmbSignalEditor(Gtk.Box):
                     self.treestore.remove(child.iter)
                     return
 
-    def __populate_from_type(self, info):
+    def __populate_from_type(self, info, target):
         if len(info.signals) == 0:
             return None
 
-        parent = self.treestore.append(None, (None, info.type_id, info.type_id, None, None, None, False, False, None))
+        parent = self.treestore.append(None, (None, info.type_id, info.type_id, None, None, None, False, False, None, None))
         for signal_id in info.signals:
             signal = info.signals[signal_id]
-            self.treestore.append(parent, (None, info.type_id, signal.signal_id, None, None, None, False, False, signal))
+            msg = utils.get_version_warning(target, signal.version, signal.deprecated_version, signal.signal_id)
+            self.treestore.append(parent, (None, info.type_id, signal.signal_id, None, None, None, False, False, signal, msg))
         return parent
 
     def __populate_treestore(self):
+        target = self._object.ui.get_target(self._object.info.library_id)
+
         # Populate object type signals
-        parent = self.__populate_from_type(self._object.info)
+        parent = self.__populate_from_type(self._object.info, target)
 
         # Expand object type signals
         if parent:
@@ -210,7 +215,7 @@ class CmbSignalEditor(Gtk.Box):
         for type_id in self._object.info.hierarchy:
             info = self._object.project.type_info.get(type_id, None)
             if info:
-                self.__populate_from_type(info)
+                self.__populate_from_type(info, target)
 
         # Populate object signals
         for signal in self._object.signals:
@@ -219,6 +224,7 @@ class CmbSignalEditor(Gtk.Box):
     def __signal_id_data_func(self, tree_column, cell, tree_model, iter_, column):
         info = tree_model[iter_][Col.INFO.value]
         signal_id = tree_model[iter_][Col.SIGNAL_ID.value]
+        warning = tree_model[iter_][Col.WARNING_MESSAGE.value]
 
         if info is not None and info.detailed:
             detail = tree_model[iter_][Col.DETAIL.value]
@@ -229,6 +235,8 @@ class CmbSignalEditor(Gtk.Box):
         else:
             cell.props.editable = False
             cell.props.text = signal_id
+
+        cell.props.underline = Pango.Underline.ERROR if warning else Pango.Underline.NONE
 
     def __data_func(self, tree_column, cell, tree_model, iter_, column):
         info = tree_model[iter_][Col.INFO.value]
