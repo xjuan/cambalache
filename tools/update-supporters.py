@@ -54,7 +54,7 @@ def save_supporters(fd, supporters, prefix):
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        print(f"Ussage: {sys.argv[0]} input.csv output.md")
+        print(f"Usage: {sys.argv[0]} input.csv output.md")
         exit()
 
     supporters = get_supporters(sys.argv[1])
