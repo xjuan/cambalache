@@ -11,14 +11,21 @@ from lxml import etree
 
 basedir = os.path.dirname(__file__)
 
+def xml_get_node(xml, node_query):
+    assert xml is not None
+    assert node_query is not None
 
-def xml_check_object_ws_properties(xml, object_query, ws_properties):
     # Parse xml
     root = etree.fromstring(xml.encode())
 
-    # Find object node
-    obj_node = root.find(object_query)
-    assert obj_node is not None
+    # Find node
+    nodes = root.xpath(node_query)
+    return nodes[0] if nodes and len(nodes) else None
+
+
+def xml_check_object_ws_properties(xml, object_query, ws_properties=[]):
+    obj_node = xml_get_node(xml, object_query)
+    assert(obj_node is not None)
 
     for property_id, value, exp in ws_properties:
         # Look for a property node with name==property_id
@@ -95,6 +102,51 @@ def test_object_id():
         gobject = builder.get_object(f"__cmb__{ui.ui_id}.{obj.object_id}")
         assert gobject is not None
         assert GObject.type_name(type(gobject)) == obj.type_id
+
+
+def test_template():
+    """
+    Make sure merengue output has object ids in the form __cmb__{ui_id}.{object_id}
+    """
+    project = CmbProject(target_tk="gtk-4.0")
+
+    # Add an UI
+    ui = project.add_ui("template.ui")
+
+    # GtkWindow
+    win = project.add_object(ui.ui_id, "GtkWindow", "window")
+    assert win is not None
+
+    # GtkButton
+    button = project.add_object(ui.ui_id, "GtkButton", "button", parent_id=win.object_id)
+    assert button is not None
+
+    # Make window a template
+    win.name = "MyWindow"
+    ui.template_id = win.object_id
+
+    # Export UI file
+    str_exported = project.db.tostring(ui.ui_id, merengue=False)
+    assert xml_get_node(str_exported, "template[@class='MyWindow' and @parent='GtkWindow']") is not None
+    assert xml_get_node(str_exported, "template/child/object[@class='GtkButton' and @id='button']") is not None
+
+    # Export UI file in merengue mode (Workspace)
+    str_exported = project.db.tostring(ui.ui_id, merengue=True)
+    assert xml_get_node(str_exported, "object[@class='GtkWindow' and @id='__cmb__1.1']") is not None
+    assert xml_get_node(str_exported, "object/child/object[@class='GtkButton' and @id='__cmb__1.2']") is not None
+
+    ui2 = project.add_ui("test.ui")
+    mywin = project.add_object(ui2.ui_id, "MyWindow", "window")
+    assert mywin is not None
+
+    # Export UI file
+    str_exported = project.db.tostring(ui2.ui_id, merengue=False)
+    assert xml_get_node(str_exported, "object[@class='MyWindow' and @id='window']") is not None
+
+    # Export UI file in merengue mode (Workspace)
+    str_exported = project.db.tostring(ui2.ui_id, merengue=True)
+    assert xml_get_node(str_exported, "object[@class='GtkWindow' and @id='__cmb__2.1']") is not None
+    assert xml_get_node(str_exported, "object/child/object[@class='GtkButton']") is not None
 
 
 def test_no_signals():
