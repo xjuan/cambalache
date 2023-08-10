@@ -45,15 +45,14 @@ class CmbFileEntry(Gtk.Entry):
 
     def __on_icon_pressed(self, widget, icon_pos, event):
         # Create Open Dialog
-        dialog = Gtk.FileChooserDialog(
-            title=self.title, parent=self.get_toplevel(), action=Gtk.FileChooserAction.OPEN, filter=self.filter
+        dialog = Gtk.FileChooserNative(
+            title=self.title, transient_for=self.get_toplevel(), action=Gtk.FileChooserAction.OPEN, filter=self.filter
         )
-        dialog.add_buttons(_("_Cancel"), Gtk.ResponseType.CANCEL, _("_Open"), Gtk.ResponseType.OK)
 
         if self.dirname is not None:
             dialog.set_current_folder(self.dirname)
 
-        if dialog.run() == Gtk.ResponseType.OK:
+        if dialog.run() == Gtk.ResponseType.ACCEPT:
             self.props.text = os.path.relpath(dialog.get_filename(), start=self.dirname)
 
         dialog.destroy()

@@ -549,15 +549,16 @@ class CmbWindow(Gtk.ApplicationWindow):
         self.__update_action_undo_redo()
         self.__update_action_add_object()
 
-    def __file_open_dialog_new(self, title, action=Gtk.FileChooserAction.OPEN, filter_obj=None, select_multiple=False):
-        dialog = Gtk.FileChooserDialog(
-            title=title, parent=self, action=action, filter=filter_obj, select_multiple=select_multiple
-        )
-        dialog.add_buttons(
-            Gtk.STOCK_CANCEL,
-            Gtk.ResponseType.CANCEL,
-            Gtk.STOCK_OPEN,
-            Gtk.ResponseType.OK,
+    def __file_open_dialog_new(
+        self, title, action=Gtk.FileChooserAction.OPEN, filter_obj=None, select_multiple=False, accept_label=None
+    ):
+        dialog = Gtk.FileChooserNative(
+            title=title,
+            transient_for=self,
+            action=action,
+            filter=filter_obj,
+            select_multiple=select_multiple,
+            accept_label=accept_label,
         )
 
         if self.project and self.project.filename:
@@ -688,7 +689,7 @@ class CmbWindow(Gtk.ApplicationWindow):
 
     def _on_open_activate(self, action, data):
         dialog = self.__file_open_dialog_new(_("Choose project to open"), filter_obj=self.open_filter)
-        if dialog.run() == Gtk.ResponseType.OK:
+        if dialog.run() == Gtk.ResponseType.ACCEPT:
             self.emit("open-project", dialog.get_filename(), None, None)
 
         dialog.destroy()
@@ -747,7 +748,7 @@ class CmbWindow(Gtk.ApplicationWindow):
 
         if project.filename is None:
             dialog = self.__file_open_dialog_new(_("Choose a file to save the project"), Gtk.FileChooserAction.SAVE)
-            if dialog.run() == Gtk.ResponseType.OK:
+            if dialog.run() == Gtk.ResponseType.ACCEPT:
                 filename = dialog.get_filename()
             dialog.destroy()
 
@@ -761,7 +762,7 @@ class CmbWindow(Gtk.ApplicationWindow):
             return
 
         dialog = self.__file_open_dialog_new(_("Choose a new file to save the project"), Gtk.FileChooserAction.SAVE)
-        if dialog.run() == Gtk.ResponseType.OK:
+        if dialog.run() == Gtk.ResponseType.ACCEPT:
             self.project.filename = dialog.get_filename()
             self.__save_project()
 
@@ -890,9 +891,11 @@ class CmbWindow(Gtk.ApplicationWindow):
         if self.project is None:
             return
 
-        dialog = self.__file_open_dialog_new(_("Choose file to import"), filter_obj=self.import_filter, select_multiple=True)
+        dialog = self.__file_open_dialog_new(
+            _("Choose file to import"), filter_obj=self.import_filter, select_multiple=True, accept_label=_("Import")
+        )
 
-        if dialog.run() == Gtk.ResponseType.OK:
+        if dialog.run() == Gtk.ResponseType.ACCEPT:
             filenames = dialog.get_filenames()
             dialog.destroy()
 
