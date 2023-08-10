@@ -92,9 +92,29 @@ export PYTHONPATH=~/.local/lib/python3/dist-packages/
 export GI_TYPELIB_PATH=~/.local/lib/x86_64-linux-gnu/girepository-1.0/
 ```
 
-## Using in MS Windows
+## Docker
 
-Instructions to run Cambalache in MS Windows are [here](README_MS_Windows.md)
+While docker is not meant for UI applications it is possible to build an image
+with Cambalache and run it.
+
+Build the image with:
+```
+docker build -t cambalache .
+```
+
+On linux, enable localhost connections to your X server and run with:
+```
+xhost +local:
+docker run -v /tmp/.X11-unix:/tmp/.X11-unix cambalache
+```
+
+## MS Windows
+
+Instructions to run in MS Windows are [here](README.win.md)
+
+## MacOS
+
+Instructions to run in MacOS are [here](README.mac.md)
 
 ## Contributing
 
