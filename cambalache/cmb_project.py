@@ -622,7 +622,7 @@ class CmbProject(Gtk.TreeStore):
             return True
 
     def add_object(
-        self, ui_id, obj_type, name=None, parent_id=None, layout=None, position=0, child_type=None, inline_property=None
+        self, ui_id, obj_type, name=None, parent_id=None, layout=None, position=-1, child_type=None, inline_property=None
     ):
         if parent_id:
             parent = self.get_object_by_id(ui_id, parent_id)
