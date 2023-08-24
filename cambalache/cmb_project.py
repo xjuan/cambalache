@@ -119,8 +119,7 @@ class CmbProject(Gtk.TreeStore):
         if self.target_tk is None or self.target_tk == "":
             raise Exception("Either target_tk or filename are required")
 
-        # Use a TreeStore to hold object tree instead of using SQL for every
-        # TreeStore call
+        # Use a TreeStore to hold object tree instead of using SQL for every TreeStore call
         self.set_column_types([GObject.GObject])
 
         # DataModel is only used internally
@@ -1350,11 +1349,6 @@ class CmbProject(Gtk.TreeStore):
 
     def clipboard_count(self):
         return len(self.db.clipboard)
-
-    def get_library_latest(self, library_id):
-        c = self.db.execute("SELECT MAX_VERSION(version) FROM library_version WHERE library_id=?;", (library_id,))
-        row = c.fetchone()
-        return row[0] if row is not None else None
 
     @staticmethod
     def get_target_from_ui_file(filename):
