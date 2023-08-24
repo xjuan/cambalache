@@ -117,8 +117,39 @@ class CmbUI(CmbBaseUI):
     def get_display_name(self):
         return self.filename if self.filename else _("Unnamed {ui_id}").format(ui_id=self.ui_id)
 
+    def __get_infered_target(self, library_id):
+        ui_id = self.ui_id
+
+        row = self.project.db.execute(
+            """
+            WITH lib_version(version) AS (
+                SELECT t.version
+                FROM object AS o, type AS t
+                WHERE t.library_id=? AND o.ui_id=? AND o.type_id = t.type_id AND t.version IS NOT NULL
+                UNION
+                SELECT p.version
+                FROM object_property AS o, property AS p, type AS t
+                WHERE t.library_id=? AND o.ui_id=? AND o.owner_id = t.type_id AND o.owner_id = p.owner_id AND p.version IS NOT NULL
+                UNION
+                SELECT s.version
+                FROM object_signal AS o, signal AS s, type AS t
+                WHERE t.library_id=? AND o.ui_id=? AND o.owner_id = t.type_id AND o.owner_id = s.owner_id AND s.version IS NOT NULL
+            )
+            SELECT MAX_VERSION(version) FROM lib_version;
+            """,
+            (library_id, ui_id, library_id, ui_id, library_id, ui_id),
+        ).fetchone()
+
+        return row[0] if row is not None else None
+
     def get_target(self, library_id):
         target = self.get_library(library_id)
         if target is None:
-            target = self.project.get_library_latest(library_id)
+            target = self.__get_infered_target(library_id)
+
+        if target is None:
+            info = self.project.library_info.get(library_id, None)
+            if info:
+                return info.min_version
+
         return target
