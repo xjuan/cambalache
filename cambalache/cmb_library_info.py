@@ -29,6 +29,7 @@ class CmbLibraryInfo(CmbBaseLibraryInfo):
         super().__init__(**kwargs)
 
         self.object_types = self.__init_object_types()
+        self.min_version = self.__init_min_version()
 
     def __init_object_types(self):
         prefix = self.prefix
@@ -42,3 +43,11 @@ class CmbLibraryInfo(CmbBaseLibraryInfo):
                 retval.append(type_id[prefix_len:])
 
         return retval
+
+    def __init_min_version(self):
+        row = self.project.db.execute(
+            "SELECT MIN_VERSION(version) FROM library_version WHERE library_id=?;",
+            (self.library_id, )
+        ).fetchone()
+
+        return row[0] if row is not None else None
