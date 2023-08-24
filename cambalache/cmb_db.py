@@ -135,6 +135,7 @@ class CmbDB(GObject.GObject):
 
         conn.create_collation("version", sqlite_version_cmp)
         conn.create_aggregate("MAX_VERSION", 1, MaxVersion)
+        conn.create_aggregate("MIN_VERSION", 1, MinVersion)
         conn.create_function("CMB_PRINT", 1, cmb_print)
 
         return conn
@@ -2023,18 +2024,36 @@ class CmbDB(GObject.GObject):
             node.append(req)
 
         # Ensure we output a requires lib for every used module
-        # If the user did not specify a requirement version we use the latest
+        # If the user did not specify a requirement version we use the minimum that meets the requirements
         if not merengue:
             for row in c.execute(
                 """
-                SELECT l.library_id, MAX_VERSION(v.version)
-                FROM library AS l, library_version AS v
-                WHERE l.library_id=v.library_id AND l.library_id NOT IN (SELECT library_id FROM ui_library WHERE ui_id=?) AND
-                      l.library_id IN
+                WITH lib_version(library_id, version) AS (
+                    SELECT t.library_id, t.version
+                    FROM object AS o, type AS t
+                    WHERE o.ui_id=? AND o.type_id = t.type_id AND t.version IS NOT NULL
+                    UNION
+                    SELECT t.library_id, p.version
+                    FROM object_property AS o, property AS p, type AS t
+                    WHERE o.ui_id=? AND o.owner_id = t.type_id AND o.owner_id = p.owner_id AND p.version IS NOT NULL
+                    UNION
+                    SELECT t.library_id, s.version
+                    FROM object_signal AS o, signal AS s, type AS t
+                    WHERE o.ui_id=? AND o.owner_id = t.type_id AND o.owner_id = s.owner_id AND s.version IS NOT NULL
+                    UNION
+                    SELECT library_id, MIN_VERSION(version)
+                    FROM library_version
+                    WHERE library_id IN
                         (SELECT DISTINCT t.library_id FROM object AS o, type AS t WHERE o.ui_id=? AND o.type_id = t.type_id)
-                GROUP BY l.library_id;
+                    GROUP BY library_id
+                )
+                SELECT library_id, MAX_VERSION(version)
+                FROM lib_version
+                WHERE library_id NOT IN (SELECT library_id FROM ui_library WHERE ui_id=?)
+                GROUP BY library_id
+                ORDER BY library_id;
                 """,
-                (ui_id, ui_id),
+                (ui_id, ui_id, ui_id, ui_id, ui_id),
             ):
                 library_id, version = row
                 req = E.requires(lib=library_id, version=version)
@@ -2190,6 +2209,23 @@ class MaxVersion:
 
     def finalize(self):
         return self.max_ver_str
+
+
+# Aggregate class to get the MIN version
+class MinVersion:
+    def __init__(self):
+        self.min_ver = None
+        self.min_ver_str = None
+
+    def step(self, value):
+        ver = utils.parse_version(value)
+
+        if self.min_ver is None or utils.version_cmp(self.min_ver, ver) > 0:
+            self.min_ver = ver
+            self.min_ver_str = value
+
+    def finalize(self):
+        return self.min_ver_str
 
 
 def cmb_print(msg):
