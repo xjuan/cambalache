@@ -45,7 +45,7 @@
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Control&gt;e</property>
-                <property name="title">Save and Export</property>
+                <property name="title" translatable="yes">Save and Export</property>
               </object>
             </child>
           </object>
