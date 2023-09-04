@@ -891,7 +891,7 @@ class CmbDB(GObject.GObject):
         # GtkBuilder in Gtk4 supports defining an object in a property
         if self.target_tk == "gtk-4.0" and pinfo.is_object:
             if pinfo.disable_inline_object:
-                self.__collect_error("not-inline-object", prop, property_id)
+                self.__collect_error("not-inline-object", prop, f"{info.type_id}:{property_id}")
                 return
 
             obj_node = prop.find("object")
@@ -906,7 +906,7 @@ class CmbDB(GObject.GObject):
         try:
             c.execute(
                 """
-                INSERT INTO object_property
+                INSERT OR REPLACE INTO object_property
                   (ui_id, object_id, owner_id, property_id, value, translatable, comment, translation_context,
                    translation_comments, inline_object_id, bind_source_id, bind_property_id, bind_flags)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
@@ -951,6 +951,8 @@ class CmbDB(GObject.GObject):
             detail = None
 
         comment = self.__node_get_comment(signal)
+
+        owner_id = None
 
         # Find owner type for signal
         if signal_id in info.signals:
