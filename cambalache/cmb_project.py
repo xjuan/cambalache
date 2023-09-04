@@ -308,6 +308,7 @@ class CmbProject(Gtk.TreeStore):
             "unknown-tag": (_("one unknown tag '{detail}'"), _("{n} unknown tags ({detail})")),
             "unknown-attr": (_("one unknown attribute '{detail}'"), _("{n} unknown attributes ({detail})")),
             "missing-tag": (_("one missing attribute '{detail}'"), _("{n} missing attributes ({detail})")),
+            "not-inline-object": (_("one wrong inline object '{detail}'"), _("{n} wrong inline object ({detail})")),
         }
 
         detail_strings = {
@@ -317,6 +318,7 @@ class CmbProject(Gtk.TreeStore):
             "unknown-tag": _("xml:{line} unknown tag '{detail}'"),
             "unknown-attr": _("xml:{line} unknown attribute '{detail}'"),
             "missing-tag": _("xml:{line} missing attribute '{detail}'"),
+            "not-inline-object": _("xml:{line} not an inline object '{detail}'"),
         }
 
         detail = []
