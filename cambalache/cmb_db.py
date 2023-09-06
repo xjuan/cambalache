@@ -1995,16 +1995,18 @@ class CmbDB(GObject.GObject):
     def export_ui(self, ui_id, merengue=False):
         c = self.conn.cursor()
 
-        node = E.interface()
-        node.addprevious(etree.Comment(f" Created with Cambalache {config.VERSION} "))
-
-        c.execute("SELECT comment, template_id, custom_fragment FROM ui WHERE ui_id=?;", (ui_id,))
+        c.execute("SELECT translation_domain, comment, template_id, custom_fragment FROM ui WHERE ui_id=?;", (ui_id,))
         row = c.fetchone()
 
         if row is None:
             return None
 
-        comment, template_id, custom_fragment = row
+        translation_domain, comment, template_id, custom_fragment = row
+
+        node = E.interface()
+        node.addprevious(etree.Comment(f" Created with Cambalache {config.VERSION} "))
+        self.__node_set(node, "domain", translation_domain)
+
         self.__node_add_comment(node, comment)
 
         # Export UI data as comments
