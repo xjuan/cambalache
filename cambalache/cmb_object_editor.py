@@ -94,7 +94,10 @@ class CmbObjectEditor(Gtk.ScrolledWindow):
         obj.project.add_object(obj.ui_id, type_id, parent_id=obj.object_id)
 
     def __create_child_shortcuts(self, info):
-        box = Gtk.FlowBox(visible=True, hexpand=True)
+        box = Gtk.FlowBox(visible=True, hexpand=True, selection_mode=Gtk.SelectionMode.NONE)
+
+        label = Gtk.Label(label=_("Add"), xalign=0, visible=True)
+        box.add(label)
 
         for type_id in info.child_type_shortcuts:
             button = Gtk.Button(label=type_id, visible=True)
@@ -193,10 +196,9 @@ It has to be exposed by your application with GtkBuilder expose_object method."
 
             # Add shortcuts
             if not self.layout and len(info.child_type_shortcuts):
-                label = Gtk.Label(label=_("Add"), xalign=1, visible=True)
                 shortcuts = self.__create_child_shortcuts(info)
-                grid.attach(label, 0, i, 1, 1)
-                grid.attach(shortcuts, 1, i, 1, 1)
+                shortcuts.props.margin_start = 14
+                grid.attach(shortcuts, 0, i, 2, 1)
                 i += 1
 
             # Properties
