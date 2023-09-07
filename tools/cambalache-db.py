@@ -121,6 +121,7 @@ class CambalacheDb:
             "type_data",
             "type_data_arg",
             "type_child_type",
+            "type_child_constraint",
             "property",
             "signal",
         ]:
@@ -228,11 +229,21 @@ class CambalacheDb:
             (type_id, child_type, int(max_children) if max_children else None, linked_property_id),
         )
 
-    def populate_types(self, c, types):
-        def get_bool(node, prop, default="false"):
-            val = node.get(prop, default)
-            return 1 if val.lower() in ["true", "yes", "1", "t", "y"] else 0
+    def _import_type_constraint(self, c, node, type_id):
+        child_type_id = node.text.strip()
+        allowed = self.get_bool(node, "allowed", "True")
+        shortcut = self.get_bool(node, "shortcut")
 
+        c.execute(
+            "INSERT INTO type_child_constraint (type_id, child_type_id, allowed, shortcut) VALUES (?, ?, ?, ?);",
+            (type_id, child_type_id, allowed, shortcut),
+        )
+
+    def get_bool(self, node, prop, default="false"):
+        val = node.get(prop, default)
+        return 1 if val.lower() in ["true", "yes", "1", "t", "y"] else 0
+
+    def populate_types(self, c, types):
         def check_target(node):
             target = node.get("target", None)
 
@@ -261,17 +272,17 @@ class CambalacheDb:
                     if property_id is None:
                         continue
 
-                    translatable = get_bool(prop, "translatable")
-                    save_always = get_bool(prop, "save-always")
-                    is_position = get_bool(prop, "is-position")
+                    translatable = self.get_bool(prop, "translatable")
+                    save_always = self.get_bool(prop, "save-always")
+                    is_position = self.get_bool(prop, "is-position")
                     type_id = prop.get("type", None)
 
                     if self.lib.target_tk == "Gtk-4.0":
-                        disable_inline_object = get_bool(prop, "disable-inline-object")
+                        disable_inline_object = self.get_bool(prop, "disable-inline-object")
                     else:
                         disable_inline_object = None
 
-                    required = get_bool(prop, "required")
+                    required = self.get_bool(prop, "required")
                     workspace_default = prop.get("workspace-default", None)
 
                     c.execute(
@@ -314,6 +325,13 @@ class CambalacheDb:
                     continue
                 for type in types:
                     self._import_type(c, type, owner_id)
+
+            # Read children constraints
+            for constraints in klass.iterchildren("children-constraints"):
+                if check_target(constraints):
+                    continue
+                for constraint in constraints:
+                    self._import_type_constraint(c, constraint, owner_id)
 
     def populate_categories(self, c, categories):
         for category in categories:
