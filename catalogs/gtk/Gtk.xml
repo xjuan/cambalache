@@ -382,6 +382,13 @@
       </children-types>
     </GtkOverlay>
 
+    <GtkStack>
+      <children-constraints target='Gtk-4.0'>
+        <constraint shortcut="True">GtkStackPage</constraint>
+      </children-constraints>
+    </GtkStack>
+
+
     <GtkStackPage target='Gtk-4.0'>
       <properties>
         <property id="child" required="True"

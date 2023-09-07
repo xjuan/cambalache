@@ -1664,6 +1664,9 @@
 	("GtkTextTagTable","tag",None,None),
 	("GtkWindow","titlebar",1,None)
   </type_child_type>
+  <type_child_constraint>
+	("GtkStack","GtkStackPage",1,1)
+  </type_child_constraint>
   <property>
 	("GtkATContext","accessible","GtkAccessible",1,1,None,None,None,None,None,None,None,None,None,None,None),
 	("GtkATContext","accessible-role","GtkAccessibleRole",None,None,None,"none",None,None,None,None,None,None,None,None,None),
