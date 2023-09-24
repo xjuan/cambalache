@@ -46,6 +46,9 @@ if "N_" not in builtins.__dict__:
 # noqa: E402,E401
 from gi.repository import Gio, Gdk, Gtk
 
+# This will print an error and exit if there is no display available
+Gtk.init()
+
 resource = Gio.Resource.load(os.path.join(config.pkgdatadir, "cambalache.gresource"))
 resource._register()
 
