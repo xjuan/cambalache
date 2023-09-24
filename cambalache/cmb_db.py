@@ -1572,6 +1572,9 @@ class CmbDB(GObject.GObject):
             obj = E.submenu()
         elif type_id == GMENU_ITEM_TYPE:
             obj = E.item()
+        else:
+            logger.warning(f"Ignoring object type {type_id} while exporting menu.")
+            return None
 
         # Properties
         for row in c.execute(
@@ -1628,8 +1631,10 @@ class CmbDB(GObject.GObject):
         ):
             child_id, comment = row
             child_obj = self.__export_menu(ui_id, child_id, merengue=merengue, ignore_id=ignore_id)
-            self.__node_add_comment(child_obj, comment)
-            obj.append(child_obj)
+
+            if child_obj is not None:
+                self.__node_add_comment(child_obj, comment)
+                obj.append(child_obj)
 
         # Dump custom fragments
         self.__export_custom_fragment(obj, custom_fragment)
