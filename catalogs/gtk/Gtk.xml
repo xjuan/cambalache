@@ -18,6 +18,54 @@
       </properties>
     </GtkWidget>
 
+    <GtkAssistantPage>
+      <properties>
+        <property id="title" translatable="True"/>
+      </properties>
+    </GtkAssistantPage>
+
+    <GtkAssistantLayoutChild>
+      <properties>
+        <property id="title" translatable="True"/>
+      </properties>
+    </GtkAssistantLayoutChild>
+
+    <GtkColumnViewColumn>
+      <properties>
+        <property id="title" translatable="True"/>
+      </properties>
+    </GtkColumnViewColumn>
+
+    <GtkColorDialog>
+      <properties>
+        <property id="title" translatable="True"/>
+      </properties>
+    </GtkColorDialog>
+
+    <GtkFileDialog>
+      <properties>
+        <property id="title" translatable="True"/>
+      </properties>
+    </GtkFileDialog>
+
+    <GtkFontDialog>
+      <properties>
+        <property id="title" translatable="True"/>
+      </properties>
+    </GtkFontDialog>
+
+    <GtkNativeDialog>
+      <properties>
+        <property id="title" translatable="True"/>
+      </properties>
+    </GtkNativeDialog>
+
+    <GtkPrintJob>
+      <properties>
+        <property id="title" translatable="True"/>
+      </properties>
+    </GtkPrintJob>
+
     <GtkBoxLayoutChild>
       <properties>
         <property id="position" target="Gtk+-3.0" is-position="True"/>
@@ -119,6 +167,12 @@
         <type max-children="1">titlebar</type>
       </children-types>
     </GtkWindow>
+
+    <GtkMenu>
+      <properties>
+        <property id="tearoff-title" translatable="True"/>
+      </properties>
+    </GtkMenu>
 
     <GtkMenuItem target="Gtk+-3.0">
       <properties>
@@ -394,6 +448,7 @@
         <property id="child" required="True"
                   workspace-default="&lt;object class=&quot;GtkLabel&quot;&gt;&lt;property name=&quot;label&quot;&gt;Empty Page&lt;/property&gt;&lt;/object&gt;"/>
         <property id="icon-name" type="CmbIconName"/>
+        <property id="title" translatable="True"/>
       </properties>
     </GtkStackPage>
 
@@ -403,6 +458,10 @@
         <type>start</type>
         <type>end</type>
       </children-types>
+      <properties>
+        <property id="title" translatable="True"/>
+        <property id="subtitle" translatable="True"/>
+      </properties>
     </GtkHeaderBar>
 
     <GtkActionBar>
@@ -448,6 +507,7 @@
     <GtkStackLayoutChild target="Gtk+-3.0">
       <properties>
         <property id="icon-name" type="CmbIconName"/>
+        <property id="title" translatable="True"/>
       </properties>
     </GtkStackLayoutChild>
 

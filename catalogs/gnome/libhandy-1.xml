@@ -201,7 +201,7 @@
 	("HdyHeaderBar","title","gchararray",None,None,None,None,None,None,"1.0",None,1,None,None,None,None),
 	("HdyHeaderBar","transition-duration","guint",None,None,None,"200","0","4294967295","1.0",None,None,None,None,None,None),
 	("HdyHeaderBarLayoutChild","pack-type","GtkPackType",None,None,None,"start",None,None,None,None,None,None,None,None,None),
-	("HdyHeaderBarLayoutChild","position","gint",None,None,None,"0","-1","2147483647",None,None,None,None,None,None,None),
+	("HdyHeaderBarLayoutChild","position","gint",None,None,None,"0","-1","2147483647",None,None,None,None,1,None,None),
 	("HdyHeaderGroup","decorate-all","gboolean",None,None,None,"False",None,None,"1.0",None,None,None,None,None,None),
 	("HdyKeypad","column-spacing","guint",None,None,None,"6","0","32767","1.0",None,None,None,None,None,None),
 	("HdyKeypad","end-action","GtkWidget",1,None,None,None,None,None,"1.0",None,None,None,None,None,None),

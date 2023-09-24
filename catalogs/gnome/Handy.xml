@@ -2,7 +2,7 @@
 <!--
  Handy Extra meta data
 
- Copyright (C) 2022  Juan Pablo Ugarte
+ Copyright (C) 2022-2023  Juan Pablo Ugarte
 -->
 <meta>
   <types>
@@ -33,6 +33,12 @@
         <property id="title" translatable="True"/>
       </properties>
     </HdyHeaderBar>
+
+    <HdyHeaderBarLayoutChild>
+      <properties>
+        <property id="position" is-position="True"/>
+      </properties>
+    </HdyHeaderBarLayoutChild>
 
     <HdyPreferencesGroup>
       <properties>

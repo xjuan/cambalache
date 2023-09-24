@@ -7,6 +7,18 @@
 <meta>
   <types>
 
+    <AdwBanner>
+      <properties>
+        <property id="title" translatable="True"/>
+      </properties>
+    </AdwBanner>
+
+    <AdwNavigationPage>
+      <properties>
+        <property id="title" translatable="True"/>
+      </properties>
+    </AdwNavigationPage>
+
     <AdwHeaderBar>
       <children-types>
         <type max-children="1" linked-property-id="title-widget">title</type>
