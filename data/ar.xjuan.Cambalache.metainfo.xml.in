@@ -20,6 +20,20 @@
     </p>
   </description>
   <releases>
+    <release date="2023-09-24" version="0.16.0">
+      <description>
+        <p>GNOME 45 Release!</p>
+        <ul>
+          <li>Bump SDK dependency to SDK 45</li>
+          <li>Add support for types and properties added in SDK 45</li>
+          <li>Marked various missing translatable properties</li>
+        </ul>
+      </description>
+      <issues>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/188">Issue #190 "Missing translatable property for Gtk.ColumnViewColumn.title"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/190">Issue #190 "Unassigned local variable"</issue>
+      </issues>
+    </release>
     <release date="2023-09-07" version="0.14.0">
       <description>
         <p>GMenu release!</p>
