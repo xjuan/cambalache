@@ -1,5 +1,6 @@
 *.pyc
 .pytest_cache
+__pycache__
 .flatpak-builder
 .catalogs
 .lib
