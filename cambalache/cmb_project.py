@@ -255,7 +255,7 @@ class CmbProject(Gtk.TreeStore):
         # Populate tree view objects
         for ui in uis:
             # Update UI objects
-            for obj in cc.execute("SELECT * FROM object WHERE ui_id=? ORDER BY parent_id, position;", (ui.ui_id,)):
+            for obj in cc.execute("SELECT * FROM object WHERE ui_id=? ORDER BY parent_id, position, object_id;", (ui.ui_id,)):
                 self.__add_object(False, *obj)
 
         # Populate CSS
