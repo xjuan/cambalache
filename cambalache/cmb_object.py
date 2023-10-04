@@ -186,7 +186,11 @@ class CmbObject(CmbBaseObject):
 
         if parent_id > 0:
             parent = self.project.get_object_by_id(self.ui_id, parent_id)
-            self.__populate_layout_properties_from_type(f"{parent.type_id}LayoutChild")
+
+            if parent:
+                self.__populate_layout_properties_from_type(f"{parent.type_id}LayoutChild")
+            else:
+                logger.warning(f"Error populating layout properties for {self}, parent object not found")
         else:
             self.layout = []
 
