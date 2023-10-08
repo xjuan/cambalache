@@ -27,7 +27,7 @@ Source code lives on GNOME gitlab [here](https://gitlab.gnome.org/jpu/cambalache
 ## Dependencies
 
 * Python 3 - Cambalache is written in Python
-* [Meson](http://mesonbuild.org) build system
+* [Meson](http://mesonbuild.com) build system
 * [GTK](http://www.gtk.org) 3 and 4 with broadway backend enabled
 * python-gi - Python GTK bindings
 * python3-lxml - Python libxml2 bindings
