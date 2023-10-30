@@ -19,6 +19,13 @@
       </properties>
     </AdwNavigationPage>
 
+    <AdwMessageDialog>
+      <properties>
+        <property id="heading" translatable="True"/>
+        <property id="body" translatable="True"/>
+      </properties>
+    </AdwMessageDialog>
+
     <AdwHeaderBar>
       <children-types>
         <type max-children="1" linked-property-id="title-widget">title</type>
