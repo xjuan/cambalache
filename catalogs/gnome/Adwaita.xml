@@ -203,6 +203,7 @@
       <AdwApplicationWindow/>
       <AdwPreferencesWindow/>
       <AdwWindow/>
+      <AdwMessageDialog/>
     </category>
   </categories>
 

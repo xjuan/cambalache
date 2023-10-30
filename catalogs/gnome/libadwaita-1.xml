@@ -41,7 +41,7 @@
 	("AdwLeafletPage","GObject","libadwaita",None,"1.4",None,1,None,"layout",None),
 	("AdwLeafletTransitionType","enum","libadwaita",None,None,None,None,None,None,None),
 	("AdwLengthUnit","enum","libadwaita",None,None,None,None,None,None,None),
-	("AdwMessageDialog","GtkWindow","libadwaita","1.2",None,None,1,"container",None,None),
+	("AdwMessageDialog","GtkWindow","libadwaita","1.2",None,None,1,"container","toplevel",None),
 	("AdwNavigationDirection","enum","libadwaita",None,None,None,None,None,None,None),
 	("AdwNavigationPage","GtkWidget","libadwaita","1.4",None,None,1,"container",None,None),
 	("AdwNavigationSplitView","GtkWidget","libadwaita","1.4",None,None,1,"container",None,None),
