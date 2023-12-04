@@ -184,6 +184,13 @@ BEGIN
   because object_property.ui_id can not be NULL
  */
   UPDATE object_property SET bind_source_id=NULL WHERE ui_id=OLD.ui_id AND bind_source_id=OLD.object_id;
+
+/* Clear references to object */
+  UPDATE object_property SET value=NULL
+  FROM property AS p, object AS o
+  WHERE object_property.ui_id=OLD.ui_id AND p.is_object AND object_property.owner_id = p.owner_id AND
+        object_property.property_id = p.property_id AND o.ui_id = object_property.ui_id AND
+        object_property.value = OLD.object_id;
 END;
 
 
