@@ -1361,21 +1361,22 @@ class CmbDB(GObject.GObject):
 
         return (None, None, None)
 
-    def __fix_object_references(self, ui_id):
+    def __fix_object_references(self, ui_id, fix_externals=True):
         # Find all object references to external objects
-        for row in self.conn.execute(
-            """
-            SELECT DISTINCT op.value
-            FROM object_property AS op, property AS p
-            WHERE op.value IS NOT NULL AND op.ui_id=? AND p.is_object AND
-                  op.owner_id = p.owner_id AND op.property_id = p.property_id
-            EXCEPT
-            SELECT name FROM object WHERE name IS NOT NULL;
-            """,
-            (ui_id,),
-        ):
-            # And create an object for each one so that references to external objects work
-            self.add_object(ui_id, EXTERNAL_TYPE, name=row[0])
+        if fix_externals:
+            for row in self.conn.execute(
+                """
+                SELECT DISTINCT op.value
+                FROM object_property AS op, property AS p
+                WHERE op.value IS NOT NULL AND op.ui_id=? AND p.is_object AND
+                      op.owner_id = p.owner_id AND op.property_id = p.property_id
+                EXCEPT
+                SELECT name FROM object WHERE name IS NOT NULL;
+                """,
+                (ui_id,),
+            ):
+                # And create an object for each one so that references to external objects work
+                self.add_object(ui_id, EXTERNAL_TYPE, name=row[0])
 
         # Fix properties value that refer to an object
         self.conn.execute(
@@ -2182,7 +2183,7 @@ class CmbDB(GObject.GObject):
             # Object and children ids
             retval[object_id] = tuple([x[0] for x in c.fetchall()])
 
-        self.__fix_object_references(ui_id)
+        self.__fix_object_references(ui_id, fix_externals=False)
 
         self.foreign_keys = foreign_keys
 
