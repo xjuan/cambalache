@@ -25,4 +25,4 @@ if not destdir:
 
 
 # Pre compile all .py files
-compileall.compile_dir(sys.argv[1], force=True)
+compileall.compile_dir(destdir, force=True)
