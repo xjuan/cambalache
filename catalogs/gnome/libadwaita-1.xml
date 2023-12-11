@@ -556,7 +556,7 @@
 	("AdwSplitButton","can-shrink","gboolean",None,None,None,"False",None,None,"1.4",None,None,None,None,None,None),
 	("AdwSplitButton","child","GtkWidget",1,None,None,None,None,None,None,None,None,None,None,None,None),
 	("AdwSplitButton","direction","GtkArrowType",None,None,None,"down",None,None,None,None,None,None,None,None,None),
-	("AdwSplitButton","dropdown-tooltip","gchararray",None,None,None,"",None,None,"1.2",None,None,None,None,None,None),
+	("AdwSplitButton","dropdown-tooltip","gchararray",None,None,None,"",None,None,"1.2",None,1,None,None,None,None),
 	("AdwSplitButton","icon-name","CmbIconName",None,None,None,None,None,None,None,None,None,None,None,None,None),
 	("AdwSplitButton","label","gchararray",None,None,None,None,None,None,None,None,1,None,None,None,None),
 	("AdwSplitButton","menu-model","GMenuModel",1,None,None,None,None,None,None,None,None,None,None,None,None),
