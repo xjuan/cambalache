@@ -32,6 +32,14 @@ class MrgGtkBin(MrgGtkWidget):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
+    def get_children(self):
+        if self.object is None:
+            return []
+
+        child = self.object.get_child()
+
+        return [child] if child else []
+
     def add(self, child):
         if self.object is None:
             return
@@ -51,3 +59,4 @@ class MrgGtkBin(MrgGtkWidget):
     def object_changed(self, old, new):
         super().object_changed(old, new)
         self.__update_placeholder()
+
