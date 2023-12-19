@@ -73,6 +73,8 @@ class MrgGtkWidget(MrgController):
             return
 
         if not self.toplevel or issubclass(type(self.object), Gtk.Window):
+            # Make sure widget is visible in workspace
+            self.object.set_visible(True)
             return
 
         if self.window is None:
