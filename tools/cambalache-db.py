@@ -259,8 +259,12 @@ class CambalacheDb:
             if row is None:
                 continue
 
-            workspace_type = klass.get("workspace-type", None)
+            abstract = klass.get("abstract", None)
+            if abstract is not None:
+                abstract = self.get_bool(klass, "abstract")
+                c.execute("UPDATE type SET abstract=? WHERE type_id=?;", (abstract, owner_id))
 
+            workspace_type = klass.get("workspace-type", None)
             c.execute("UPDATE type SET workspace_type=? WHERE type_id=?;", (workspace_type, owner_id))
 
             for properties in klass.iterchildren("properties"):
