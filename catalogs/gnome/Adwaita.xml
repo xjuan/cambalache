@@ -126,6 +126,13 @@
       </properties>
     </AdwToast>
 
+    <AdwToolbarView>
+      <children-types>
+        <type max-children="1">top</type>
+        <type max-children="1">bottom</type>
+      </children-types>
+    </AdwToolbarView>
+
     <AdwViewSwitcherTitle>
       <properties>
         <property id="subtitle" translatable="True"/>
