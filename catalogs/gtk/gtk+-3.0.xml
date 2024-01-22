@@ -34,7 +34,7 @@
 	("GtkAssistantPageType","enum","gtk+",None,None,None,None,None,None,None),
 	("GtkAttachOptions","flags","gtk+",None,None,None,None,None,None,None),
 	("GtkBaselinePosition","enum","gtk+",None,None,None,None,None,None,None),
-	("GtkBin","GtkContainer","gtk+",None,None,1,1,"container","layout",None),
+	("GtkBin","GtkContainer","gtk+",None,None,None,1,"container","layout","GtkEventBox"),
 	("GtkBorderStyle","enum","gtk+",None,None,None,None,None,None,None),
 	("GtkBox","GtkContainer","gtk+","3.0",None,None,1,"container","layout",None),
 	("GtkBoxLayoutChild","GObject","gtk+",None,None,1,None,"child",None,None),

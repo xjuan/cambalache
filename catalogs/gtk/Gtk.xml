@@ -30,6 +30,8 @@
       </properties>
     </GtkAssistantLayoutChild>
 
+    <GtkBin abstract="False" workspace-type="GtkEventBox"/>
+
     <GtkColumnViewColumn>
       <properties>
         <property id="title" translatable="True"/>
@@ -272,6 +274,12 @@
         <property target="Gtk+-3.0" id="icon-name" type="CmbIconName"/>
       </properties>
     </GtkButton>
+
+    <GtkCheckButton target="Gtk-4.0">
+      <properties>
+        <property id="label" translatable="True"/>
+      </properties>
+    </GtkCheckButton>
 
     <GtkFileChooserButton>
       <properties>
