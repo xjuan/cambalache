@@ -1887,7 +1887,7 @@
 	("GtkCheckButton","child","GtkWidget",1,None,None,None,None,None,"4.8",None,None,None,None,None,None),
 	("GtkCheckButton","group","GtkCheckButton",1,None,None,None,None,None,None,None,None,None,None,None,None),
 	("GtkCheckButton","inconsistent","gboolean",None,None,None,"False",None,None,None,None,None,None,None,None,None),
-	("GtkCheckButton","label","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None),
+	("GtkCheckButton","label","gchararray",None,None,None,None,None,None,None,None,1,None,None,None,None),
 	("GtkCheckButton","use-underline","gboolean",None,None,None,"False",None,None,None,None,None,None,None,None,None),
 	("GtkColorButton","modal","gboolean",None,None,None,"True",None,None,None,None,None,None,None,None,None),
 	("GtkColorButton","show-editor","gboolean",None,None,None,"False",None,None,None,None,None,None,None,None,None),
