@@ -61,7 +61,7 @@ def close_compositor():
 
 
 # Make sure the right gtk version is loaded
-gi.require_version("Gtk", "3.0")
+gi.require_version("Gtk", "4.0")
 
 # Make sure we can run Cambalache from sources
 cmb_init_dev()

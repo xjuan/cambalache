@@ -80,8 +80,10 @@ class MrgGtkWindow(MrgGtkBin):
                 self.object.show_all()
 
             # Add gtk version CSS class
-            gtkversion = "gtk4" if Gtk.MAJOR_VERSION == 4 else "gtk3"
-            self.object.get_style_context().add_class(gtkversion)
+            if Gtk.MAJOR_VERSION == 4:
+                self.object.add_css_class("gtk4")
+            else:
+                self.object.get_style_context().add_class("gtk3")
 
             self._restore_state()
 

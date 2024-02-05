@@ -37,8 +37,6 @@ class CmbSpinButton(Gtk.SpinButton):
         self.props.numeric = True
         self.props.width_chars = 8
 
-        utils.unset_scroll_event(self)
-
     def __on_text_notify(self, obj, pspec):
         self.notify("cmb-value")
 

@@ -1,142 +1,120 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.40.0 -->
 <interface>
-  <requires lib="gtk+" version="3.24"/>
-  <requires lib="gladecambalache" version="0.0"/>
+  <requires lib="gtk" version="4.0"/>
   <object class="CmbTextBuffer" id="authors"/>
   <object class="CmbTextBuffer" id="comment"/>
   <object class="CmbTextBuffer" id="copyright"/>
   <object class="CmbTextBuffer" id="description"/>
-  <!-- n-columns=2 n-rows=8 -->
   <template class="CmbUIEditor" parent="GtkGrid">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
     <property name="row-spacing">4</property>
     <property name="column-spacing">3</property>
     <child>
       <object class="GtkLabel">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
         <property name="halign">start</property>
-        <property name="label" translatable="yes">Filename:</property>
+        <property name="label" translatable="1">Filename:</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="row">0</property>
+        </layout>
       </object>
-      <packing>
-        <property name="left-attach">0</property>
-        <property name="top-attach">0</property>
-      </packing>
     </child>
     <child>
       <object class="GtkLabel">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
         <property name="halign">start</property>
-        <property name="label" translatable="yes">Description:</property>
+        <property name="label" translatable="1">Description:</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="row">2</property>
+        </layout>
       </object>
-      <packing>
-        <property name="left-attach">0</property>
-        <property name="top-attach">2</property>
-      </packing>
     </child>
     <child>
       <object class="GtkLabel">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
         <property name="halign">start</property>
-        <property name="label" translatable="yes">Copyright:</property>
+        <property name="label" translatable="1">Copyright:</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="row">3</property>
+        </layout>
       </object>
-      <packing>
-        <property name="left-attach">0</property>
-        <property name="top-attach">3</property>
-      </packing>
     </child>
     <child>
       <object class="GtkLabel">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
         <property name="halign">start</property>
-        <property name="label" translatable="yes">Authors:</property>
+        <property name="label" translatable="1">Authors:</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="row">4</property>
+        </layout>
       </object>
-      <packing>
-        <property name="left-attach">0</property>
-        <property name="top-attach">4</property>
-      </packing>
     </child>
     <child>
       <object class="GtkLabel">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
         <property name="halign">start</property>
-        <property name="label" translatable="yes">Domain:</property>
+        <property name="label" translatable="1">Domain:</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="row">5</property>
+        </layout>
       </object>
-      <packing>
-        <property name="left-attach">0</property>
-        <property name="top-attach">5</property>
-      </packing>
     </child>
     <child>
       <object class="CmbEntry" id="filename">
         <property name="visible">True</property>
         <property name="can-focus">True</property>
         <property name="hexpand">True</property>
-        <property name="placeholder-text" translatable="yes">&lt;file name relative to project&gt;</property>
+        <property name="placeholder-text" translatable="1">&lt;file name relative to project&gt;</property>
+        <layout>
+          <property name="column">1</property>
+          <property name="row">0</property>
+        </layout>
       </object>
-      <packing>
-        <property name="left-attach">1</property>
-        <property name="top-attach">0</property>
-      </packing>
     </child>
     <child>
       <object class="CmbEntry" id="translation_domain">
         <property name="visible">True</property>
         <property name="can-focus">True</property>
         <property name="halign">start</property>
-        <property name="width-chars">16</property>
-        <property name="placeholder-text" translatable="yes">&lt;translation domain&gt;</property>
+        <property name="placeholder-text" translatable="1">&lt;translation domain&gt;</property>
+        <layout>
+          <property name="column">1</property>
+          <property name="row">5</property>
+        </layout>
       </object>
-      <packing>
-        <property name="left-attach">1</property>
-        <property name="top-attach">5</property>
-      </packing>
     </child>
     <child>
       <object class="GtkScrolledWindow">
-        <property name="visible">True</property>
-        <property name="can-focus">True</property>
-        <property name="shadow-type">in</property>
+        <property name="focusable">1</property>
         <property name="min-content-height">96</property>
         <property name="max-content-height">256</property>
-        <child>
+        <property name="child">
           <object class="GtkTextView">
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
+            <property name="focusable">1</property>
             <property name="buffer">description</property>
           </object>
-        </child>
+        </property>
+        <layout>
+          <property name="column">1</property>
+          <property name="row">2</property>
+        </layout>
       </object>
-      <packing>
-        <property name="left-attach">1</property>
-        <property name="top-attach">2</property>
-      </packing>
     </child>
     <child>
       <object class="GtkScrolledWindow">
-        <property name="visible">True</property>
-        <property name="can-focus">True</property>
-        <property name="shadow-type">in</property>
+        <property name="focusable">1</property>
         <property name="min-content-height">96</property>
         <property name="max-content-height">256</property>
-        <child>
+        <property name="child">
           <object class="GtkTextView">
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
+            <property name="focusable">1</property>
             <property name="buffer">authors</property>
           </object>
-        </child>
+        </property>
+        <layout>
+          <property name="column">1</property>
+          <property name="row">4</property>
+        </layout>
       </object>
-      <packing>
-        <property name="left-attach">1</property>
-        <property name="top-attach">4</property>
-      </packing>
     </child>
     <child>
       <object class="CmbToplevelChooser" id="template_id">
@@ -144,129 +122,103 @@
         <property name="can-focus">False</property>
         <property name="halign">start</property>
         <property name="derivable-only">True</property>
+        <layout>
+          <property name="column">1</property>
+          <property name="row">1</property>
+        </layout>
       </object>
-      <packing>
-        <property name="left-attach">1</property>
-        <property name="top-attach">1</property>
-      </packing>
     </child>
     <child>
       <object class="GtkLabel">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
         <property name="halign">start</property>
-        <property name="label" translatable="yes">Template:</property>
+        <property name="label" translatable="1">Template:</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="row">1</property>
+        </layout>
       </object>
-      <packing>
-        <property name="left-attach">0</property>
-        <property name="top-attach">1</property>
-      </packing>
     </child>
     <child>
       <object class="GtkBox">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
         <property name="valign">end</property>
-        <property name="vexpand">True</property>
+        <property name="vexpand">1</property>
         <property name="spacing">4</property>
         <child>
           <object class="GtkButton" id="remove_button">
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
-            <property name="receives-default">True</property>
+            <property name="focusable">1</property>
+            <property name="receives-default">1</property>
             <signal name="clicked" handler="on_remove_button_clicked" swapped="no"/>
             <child>
               <object class="GtkImage">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
                 <property name="icon-name">app-remove-symbolic</property>
               </object>
             </child>
           </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
-          </packing>
         </child>
         <child>
           <object class="GtkButton" id="export_button">
-            <property name="label" translatable="yes">Export</property>
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
-            <property name="receives-default">True</property>
-            <property name="tooltip-text" translatable="yes">Export</property>
-            <property name="halign">start</property>
+            <property name="label" translatable="1">Export</property>
+            <property name="focusable">1</property>
+            <property name="receives-default">1</property>
+            <property name="tooltip-text" translatable="1">Export</property>
+            <property name="halign">end</property>
+            <property name="hexpand">True</property>
             <signal name="clicked" handler="on_export_button_clicked" swapped="no"/>
             <style>
               <class name="suggested-action"/>
             </style>
           </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="pack-type">end</property>
-            <property name="position">2</property>
-          </packing>
         </child>
+        <layout>
+          <property name="column">0</property>
+          <property name="row">7</property>
+          <property name="column-span">2</property>
+        </layout>
       </object>
-      <packing>
-        <property name="left-attach">0</property>
-        <property name="top-attach">7</property>
-        <property name="width">2</property>
-      </packing>
     </child>
     <child>
       <object class="GtkScrolledWindow">
-        <property name="visible">True</property>
-        <property name="can-focus">True</property>
-        <property name="shadow-type">in</property>
+        <property name="focusable">1</property>
         <property name="min-content-height">96</property>
         <property name="max-content-height">256</property>
-        <child>
+        <property name="child">
           <object class="GtkTextView">
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
+            <property name="focusable">1</property>
             <property name="buffer">copyright</property>
           </object>
-        </child>
+        </property>
+        <layout>
+          <property name="column">1</property>
+          <property name="row">3</property>
+        </layout>
       </object>
-      <packing>
-        <property name="left-attach">1</property>
-        <property name="top-attach">3</property>
-      </packing>
     </child>
     <child>
       <object class="GtkLabel">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
         <property name="halign">start</property>
-        <property name="label" translatable="yes">Comment:</property>
+        <property name="label" translatable="1">Comment:</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="row">6</property>
+        </layout>
       </object>
-      <packing>
-        <property name="left-attach">0</property>
-        <property name="top-attach">6</property>
-      </packing>
     </child>
     <child>
       <object class="GtkScrolledWindow">
-        <property name="visible">True</property>
-        <property name="can-focus">True</property>
-        <property name="shadow-type">in</property>
+        <property name="focusable">1</property>
         <property name="min-content-height">96</property>
         <property name="max-content-height">256</property>
-        <child>
+        <property name="child">
           <object class="GtkTextView">
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
+            <property name="focusable">1</property>
             <property name="buffer">comment</property>
           </object>
-        </child>
+        </property>
+        <layout>
+          <property name="column">1</property>
+          <property name="row">6</property>
+        </layout>
       </object>
-      <packing>
-        <property name="left-attach">1</property>
-        <property name="top-attach">6</property>
-      </packing>
     </child>
   </template>
 </interface>

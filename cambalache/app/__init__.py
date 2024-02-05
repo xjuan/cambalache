@@ -29,3 +29,4 @@ resource = Gio.Resource.load(os.path.join(config.pkgdatadir, "app.gresource"))
 resource._register()
 
 from .cmb_application import CmbApplication
+from .cmb_scrolled_window import CmbScrolledWindow

@@ -62,3 +62,6 @@ class CmbFragmentEditor(Gtk.Box):
             GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
         )
         self.__binding = binding
+
+
+Gtk.WidgetClass.set_css_name(CmbFragmentEditor, "CmbFragmentEditor")

@@ -33,8 +33,6 @@ class CmbChildTypeComboBox(Gtk.ComboBox):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        utils.unset_scroll_event(self)
-
         self.connect("changed", self.__on_changed)
 
         # Model, store it in a Python variable to make sure we hold a reference

@@ -1,7 +1,7 @@
 #
-# CmbTextView
+# CmbScrolledWindow
 #
-# Copyright (C) 2021-2023  Juan Pablo Ugarte
+# Copyright (C) 2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -22,27 +22,23 @@
 #
 
 from gi.repository import GObject, Gtk
-from .cmb_text_buffer import CmbTextBuffer
 
 
-class CmbTextView(Gtk.ScrolledWindow):
-    __gtype_name__ = "CmbTextView"
-
-    cmb_value = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
+class CmbScrolledWindow(Gtk.ScrolledWindow):
+    __gtype_name__ = "CmbScrolledWindow"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.props.height_request = 64
-        self.buffer = CmbTextBuffer()
-        self.view = Gtk.TextView(visible=True, buffer=self.buffer)
-
-        GObject.Object.bind_property(
-            self,
-            "cmb-value",
-            self.buffer,
-            "cmb-value",
-            GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
+        # Do not let children get scroll events!
+        sroll = Gtk.EventControllerScroll(
+            flags=Gtk.EventControllerScrollFlags.VERTICAL,
+            propagation_phase=Gtk.PropagationPhase.CAPTURE
         )
+        sroll.connect("scroll", self.handle_scroll_capture)
+        self.add_controller(sroll)
 
-        self.set_child(self.view)
+    def handle_scroll_capture(self, ec, dx, dy):
+        self.props.vadjustment.props.value += self.props.vadjustment.props.step_increment * dy
+        return True
+

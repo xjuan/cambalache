@@ -47,8 +47,9 @@ class CmbTypeChooserPopover(Gtk.Popover):
 
         self._chooser = CmbTypeChooserWidget()
         self._chooser.connect("type-selected", self.__on_type_selected)
-        self._chooser.show_all()
-        self.add(self._chooser)
+
+        self.set_child(self._chooser)
+        self.set_default_widget(self._chooser)
 
         for prop in [
             "project",

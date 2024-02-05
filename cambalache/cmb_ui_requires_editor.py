@@ -24,6 +24,7 @@
 from gi.repository import GObject, Gtk
 
 from .cmb_ui import CmbUI
+from . import utils
 
 
 class CmbUIRequiresEditor(Gtk.Grid):
@@ -71,7 +72,7 @@ class CmbUIRequiresEditor(Gtk.Grid):
     def __update(self):
         self.__combos = {}
 
-        for child in self.get_children():
+        for child in utils.widget_get_children(self):
             self.remove(child)
 
         if self.__object is None:

@@ -100,15 +100,20 @@ class MrgGtkWidget(MrgController):
         if self.object is None:
             return
 
-        if self.selected:
-            self.object.get_style_context().add_class("merengue_selected")
-        else:
-            self.object.get_style_context().remove_class("merengue_selected")
-
         # Update toplevel backdrop state
         if Gtk.MAJOR_VERSION == 4:
+            if self.selected:
+                self.object.add_css_class("merengue_selected")
+            else:
+                self.object.remove_css_class("merengue_selected")
+
             toplevel = self.object.get_root()
         else:
+            if self.selected:
+                self.object.get_style_context().add_class("merengue_selected")
+            else:
+                self.object.get_style_context().remove_class("merengue_selected")
+
             toplevel = self.object.get_toplevel()
 
         if toplevel:

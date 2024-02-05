@@ -43,8 +43,6 @@ class CmbEnumComboBox(Gtk.ComboBox):
         self.props.id_column = self.text_column
         self.props.model = self.info.enum
 
-        utils.unset_scroll_event(self)
-
     def __on_changed(self, obj):
         self.notify("cmb-value")
 

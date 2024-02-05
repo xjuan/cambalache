@@ -1,7 +1,7 @@
 #
 # CmbTypeChooserBar - Cambalache Type Chooser Bar
 #
-# Copyright (C) 2021  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -41,6 +41,7 @@ class CmbTypeChooser(Gtk.Box):
     selected_type = GObject.Property(type=CmbTypeInfo, flags=GObject.ParamFlags.READWRITE)
 
     type_label = Gtk.Template.Child()
+    content = Gtk.Template.Child()
     all = Gtk.Template.Child()
     toplevel = Gtk.Template.Child()
     layout = Gtk.Template.Child()
@@ -83,3 +84,6 @@ class CmbTypeChooser(Gtk.Box):
         if info:
             self.selected_type = info
             self.emit("type-selected", info)
+
+
+Gtk.WidgetClass.set_css_name(CmbTypeChooser, "CmbTypeChooser")

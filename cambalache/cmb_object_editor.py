@@ -1,7 +1,7 @@
 #
 # CmbObjectEditor - Cambalache Object Editor
 #
-# Copyright (C) 2021  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -29,9 +29,10 @@ from .control import CmbEntry, CmbChildTypeComboBox, cmb_create_editor
 from .cmb_property_label import CmbPropertyLabel
 from cambalache import _
 from .constants import EXTERNAL_TYPE
+from . import utils
 
 
-class CmbObjectEditor(Gtk.ScrolledWindow):
+class CmbObjectEditor(Gtk.Box):
     __gtype_name__ = "CmbObjectEditor"
 
     layout = GObject.Property(type=bool, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY, default=False)
@@ -43,10 +44,7 @@ class CmbObjectEditor(Gtk.ScrolledWindow):
 
         super().__init__(**kwargs)
 
-        self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, visible=True)
-        viewport = Gtk.Viewport(visible=True, shadow_type=Gtk.ShadowType.NONE)
-        viewport.add(self.box)
-        self.add(viewport)
+        self.props.orientation = Gtk.Orientation.VERTICAL
 
     def __create_id_editor(self):
         grid = Gtk.Grid(hexpand=True, row_spacing=4, column_spacing=4)
@@ -97,12 +95,12 @@ class CmbObjectEditor(Gtk.ScrolledWindow):
         box = Gtk.FlowBox(visible=True, hexpand=True, selection_mode=Gtk.SelectionMode.NONE)
 
         label = Gtk.Label(label=_("Add"), xalign=0, visible=True)
-        box.add(label)
+        box.append(label)
 
         for type_id in info.child_type_shortcuts:
             button = Gtk.Button(label=type_id, visible=True)
             button.connect("clicked", self.__on_shortcut_button_clicked, type_id)
-            box.add(button)
+            box.append(button)
 
         return box
 
@@ -127,7 +125,7 @@ class CmbObjectEditor(Gtk.ScrolledWindow):
     def __create_child_type_editor(self):
         box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
 
-        box.add(Gtk.Label(label=_("Child Type"), width_chars=8))
+        box.append(Gtk.Label(label=_("Child Type"), width_chars=8))
 
         combo = CmbChildTypeComboBox(object=self.__object)
 
@@ -138,12 +136,12 @@ class CmbObjectEditor(Gtk.ScrolledWindow):
             "cmb-value",
             GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
         )
-        box.pack_start(combo, True, True, 0)
+        box.append(combo)
         return box
 
     def __update_view(self):
-        for child in self.box.get_children():
-            self.box.remove(child)
+        for child in utils.widget_get_children(self):
+            self.remove(child)
 
         if self.__object is None:
             return
@@ -158,10 +156,10 @@ class CmbObjectEditor(Gtk.ScrolledWindow):
 
             # Child Type input
             if parent.info.has_child_types():
-                self.box.add(self.__create_child_type_editor())
+                self.append(self.__create_child_type_editor())
         else:
             # ID
-            self.box.add(self.__create_id_editor())
+            self.append(self.__create_id_editor())
 
         if obj.type_id == EXTERNAL_TYPE:
             label = Gtk.Label(
@@ -174,8 +172,8 @@ It has to be exposed by your application with GtkBuilder expose_object method."
                 xalign=0,
                 wrap=True,
             )
-            self.box.add(label)
-            self.show_all()
+            self.append(label)
+            self.show()
             return
 
         info = parent.info if self.layout and parent else obj.info
@@ -261,11 +259,11 @@ It has to be exposed by your application with GtkBuilder expose_object method."
             expander = Gtk.Expander(label=f"<b>{owner_id}</b>", use_markup=True, expanded=True)
             revealer = Gtk.Revealer(reveal_child=True)
             expander.connect("notify::expanded", self.__on_expander_expanded, revealer)
-            revealer.add(grid)
-            self.box.add(expander)
-            self.box.add(revealer)
+            revealer.set_child(grid)
+            self.append(expander)
+            self.append(revealer)
 
-        self.show_all()
+        self.show()
 
     def __on_object_ui_notify(self, obj, pspec):
         if pspec.name == "template-id" and self.__template_switch:

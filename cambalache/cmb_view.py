@@ -1,7 +1,7 @@
 #
 # CmbView - Cambalache View
 #
-# Copyright (C) 2021  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -27,20 +27,21 @@ import socket
 import time
 import warnings
 
-from gi.repository import GObject, GLib, Gtk, WebKit2
+from gi.repository import GObject, GLib, Gtk, WebKit
 
 from . import config
 from .cmb_ui import CmbUI
 from .cmb_object import CmbObject
 from .cmb_context_menu import CmbContextMenu
+from . import utils
 from cambalache import getLogger, _
 
 logger = getLogger(__name__)
 
 basedir = os.path.dirname(__file__) or "."
 
-GObject.type_ensure(WebKit2.Settings.__gtype__)
-GObject.type_ensure(WebKit2.WebView.__gtype__)
+GObject.type_ensure(WebKit.Settings.__gtype__)
+GObject.type_ensure(WebKit.WebView.__gtype__)
 
 
 class CmbProcess(GObject.Object):
@@ -111,7 +112,7 @@ class CmbProcess(GObject.Object):
 
 
 @Gtk.Template(resource_path="/ar/xjuan/Cambalache/cmb_view.ui")
-class CmbView(Gtk.Stack):
+class CmbView(Gtk.Box):
     __gtype_name__ = "CmbView"
 
     __gsignals__ = {
@@ -121,6 +122,7 @@ class CmbView(Gtk.Stack):
 
     preview = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
 
+    stack = Gtk.Template.Child()
     webview = Gtk.Template.Child()
     text_view = Gtk.Template.Child()
 
@@ -129,6 +131,7 @@ class CmbView(Gtk.Stack):
         self.__restart_project = None
         self.__ui_id = 0
         self.__theme = None
+        self.__dark = False
 
         self.menu = self.__create_context_menu()
 
@@ -145,22 +148,11 @@ class CmbView(Gtk.Stack):
         self.__port = None
         self.__merengue_last_exit = None
 
-        context = self.get_style_context()
-        context.connect("changed", lambda ctx: self.__update_webview_bg())
-
         if self.__broadwayd_bin is None:
             logger.warning("broadwayd not found, Gtk 3 workspace wont work.")
 
         if self.__gtk4_broadwayd_bin is None:
             logger.warning("gtk4-broadwayd not found, Gtk 4 workspace wont work.")
-
-        GObject.Object.bind_property(
-            self,
-            "gtk-theme",
-            self.menu,
-            "gtk-theme",
-            GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
-        )
 
         self.connect("notify::preview", self.__on_preview_notify)
 
@@ -174,23 +166,18 @@ class CmbView(Gtk.Stack):
     def __evaluate_js(self, script):
         self.webview.evaluate_javascript(script, -1, None, None, None, None, None, None)
 
-    def __update_webview_bg(self):
-        context = self.get_style_context()
-
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            bg = context.get_background_color(Gtk.StateFlags.NORMAL)
-
-        self.__evaluate_js(f"document.body.style.background = '{bg.to_string()}';")
+    def _set_dark_mode(self, dark):
+        self.__dark = dark
+        self.__evaluate_js(f"document.body.style.background = '{'#222' if dark else 'inherit'}';")
 
     def __on_load_changed(self, webview, event):
-        if event != WebKit2.LoadEvent.FINISHED:
+        if event != WebKit.LoadEvent.FINISHED:
             return
 
-        self.__update_webview_bg()
+        self._set_dark_mode(self.__dark)
 
         # Disable alert() function used when broadwayd get disconnected
-        # Monkey patch setupDocument() to avoid disabling document.oncontextmenu
+        # Monkey pat ch setupDocument() to avoid disabling document.oncontextmenu
         self.__evaluate_js(
             """
 window.alert = function (message) {
@@ -232,7 +219,7 @@ window.setupDocument = function (document) {
 
     def __update_view(self):
         if self.__project is not None and self.__ui_id > 0:
-            if self.props.visible_child_name == "ui_xml":
+            if self.stack.props.visible_child_name == "ui_xml":
                 ui = self.__get_ui_xml(self.__ui_id)
                 self.text_view.buffer.set_text(ui)
             return
@@ -352,9 +339,11 @@ window.setupDocument = function (document) {
             self.__merengue_update_ui(0)
 
     def __on_css_added(self, project, obj):
-        dirname = os.path.dirname(self.project.filename)
-
-        filename = os.path.join(dirname, obj.filename) if obj.filename else None
+        if self.project.filename and obj.filename:
+            dirname = os.path.dirname(self.project.filename)
+            filename = os.path.join(dirname, obj.filename)
+        else:
+            filename = None
 
         self.__merengue_command(
             "add_css_provider",
@@ -468,8 +457,8 @@ window.setupDocument = function (document) {
         self.__merengue_command("gtk_settings_set", args={"property": "gtk-theme-name", "value": theme})
 
     @Gtk.Template.Callback("on_context_menu")
-    def __on_context_menu(self, webview, menu, e, hit_test_result):
-        self.menu.popup_at(e.x, e.y)
+    def __on_context_menu(self, webview, menu, hit_test_result):
+        self.menu.popup_at(*utils.get_pointer(self))
         return True
 
     def __webview_set_msg(self, msg):
@@ -494,25 +483,20 @@ window.setupDocument = function (document) {
         if bin is not None:
             self.__webview_set_msg(_("Workspace not available\n{bin} executable not found").format(bin=bin))
 
-    def __on_inspect_button_clicked(self, button):
-        self.props.visible_child_name = "ui_xml"
+    def inspect(self):
+        self.stack.props.visible_child_name = "ui_xml"
         self.__update_view()
 
-    def __on_restart_button_clicked(self, button):
+    def restart_workspace(self):
         self.__restart_project = self.__project
         self.project = None
 
     def __create_context_menu(self):
-        retval = CmbContextMenu(relative_to=self)
+        retval = CmbContextMenu()
+        retval.set_parent(self)
 
-        restart = Gtk.ModelButton(text=_("Restart workspace"), visible=True)
-        restart.connect("clicked", self.__on_restart_button_clicked)
-
-        inspect = Gtk.ModelButton(text=_("Inspect UI definition"), visible=True)
-        inspect.connect("clicked", self.__on_inspect_button_clicked)
-
-        retval.main_box.add(restart)
-        retval.main_box.add(inspect)
+        retval.main_section.append(_("Restart workspace"), "win.workspace_restart")
+        retval.main_section.append(_("Inspect UI definition"), "win.inspect")
 
         return retval
 

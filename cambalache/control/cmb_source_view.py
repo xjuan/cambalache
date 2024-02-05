@@ -21,7 +21,7 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-from gi.repository import GObject, GtkSource
+from gi.repository import GObject, Gtk, GtkSource
 
 
 class CmbSourceView(GtkSource.View):
@@ -55,3 +55,4 @@ class CmbSourceView(GtkSource.View):
 
     def __on_buffer_changed(self, buffer):
         self.notify("text")
+

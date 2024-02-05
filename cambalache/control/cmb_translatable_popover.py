@@ -35,14 +35,13 @@ class CmbTranslatablePopover(Gtk.Popover):
         super().__init__(**kwargs)
 
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        box.pack_start(Gtk.Label(label=_("<b>Translation</b>"), use_markup=True), False, True, 4)
-        box.pack_start(Gtk.Separator(), False, False, 0)
+        box.append(Gtk.Label(label=_("<b>Translation</b>"), use_markup=True))
+        box.append(Gtk.Separator())
 
         self._translation = CmbTranslatableWidget()
-        box.pack_start(self._translation, False, False, 0)
+        box.append(self._translation)
 
-        box.show_all()
-        self.add(box)
+        self.set_child(box)
 
     def bind_properties(self, target):
         self._translation.bind_properties(target)

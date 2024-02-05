@@ -37,8 +37,9 @@ class CmbEntry(Gtk.Entry):
         self.props.secondary_icon_name = "document-edit-symbolic"
         self.connect("icon-press", self.__on_icon_pressed)
 
-    def __on_icon_pressed(self, widget, icon_pos, event):
-        popover = CmbTranslatablePopover(relative_to=self)
+    def __on_icon_pressed(self, widget, icon_pos):
+        popover = CmbTranslatablePopover()
+        popover.set_parent(self)
         popover.bind_properties(self._target)
         popover.popup()
 
