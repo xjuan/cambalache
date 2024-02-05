@@ -618,8 +618,8 @@ class CmbDB(GObject.GObject):
 
             return f"\t({r})"
 
-        def _dump_table(c, table):
-            c.execute(f"SELECT * FROM {table};")
+        def _dump_query(c, query):
+            c.execute(query)
             row = c.fetchone()
 
             if row is None:
@@ -635,20 +635,27 @@ class CmbDB(GObject.GObject):
 
             return f"\n{retval}\n  "
 
+        def append_data(project, name, data):
+            if data is None:
+                return
+
+            element = etree.Element(name)
+            element.text = data
+            project.append(element)
+
         self.conn.commit()
         c = self.conn.cursor()
 
         project = E("cambalache-project", version=config.FILE_FORMAT_VERSION, target_tk=self.target_tk)
 
         for table in self.__tables:
-            data = _dump_table(c, table)
+            data = _dump_query(c, f"SELECT * FROM {table};")
+            append_data(project, table, data)
 
-            if data is None:
-                continue
-
-            element = etree.Element(table)
-            element.text = data
-            project.append(element)
+        # DUMP custom properties and signals
+        for table in ["property", "signal"]:
+            data = _dump_query(c, f"SELECT {table}.* FROM {table},type WHERE {table}.owner_id == type.type_id AND type.library_id IS NULL;")
+            append_data(project, table, data)
 
         # Dump xml to file
         with open(filename, "wb") as fd:
