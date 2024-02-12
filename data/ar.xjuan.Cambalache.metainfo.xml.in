@@ -20,6 +20,20 @@
     </p>
   </description>
   <releases>
+    <release date="2024-02-12" version="0.17.2">
+      <description>
+        <p>Gtk 4 port (Beta)</p>
+        <ul>
+          <li>Migrate main application to Gtk 4</li>
+          <li>Mark AdwSplitButton.dropdown-tooltip translatable. (Danial Behzadi)</li>
+        </ul>
+      </description>
+      <issues>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/199">Issue #199 "Copy and pasting messes references between widgets"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/196">Issue #196 "postinstall.py is trying to modify files in prefix."</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/201">Issue #201 "AdwToolbarView needs special child types"</issue>
+      </issues>
+    </release>
     <release date="2023-09-24" version="0.16.0">
       <description>
         <p>GNOME 45 Release!</p>
