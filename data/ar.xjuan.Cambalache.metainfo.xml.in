@@ -237,24 +237,8 @@
       <image>https://gitlab.gnome.org/jpu/cambalache/-/raw/screenshots/cambalache3.png</image>
     </screenshot>
     <screenshot>
-      <caption>Shortcuts window</caption>
+      <caption>GTK widget factory</caption>
       <image>https://gitlab.gnome.org/jpu/cambalache/-/raw/screenshots/cambalache4.png</image>
-    </screenshot>
-    <screenshot type="default">
-      <caption>Workspace gtk dark theme</caption>
-      <image>https://gitlab.gnome.org/jpu/cambalache/-/raw/screenshots/cambalache5.png</image>
-    </screenshot>
-    <screenshot>
-      <caption>Display type chooser</caption>
-      <image>https://gitlab.gnome.org/jpu/cambalache/-/raw/screenshots/cambalache6.png</image>
-    </screenshot>
-    <screenshot>
-      <caption>Right click popover</caption>
-      <image>https://gitlab.gnome.org/jpu/cambalache/-/raw/screenshots/cambalache7.png</image>
-    </screenshot>
-    <screenshot>
-      <caption>main menu</caption>
-      <image>https://gitlab.gnome.org/jpu/cambalache/-/raw/screenshots/cambalache8.png</image>
     </screenshot>
   </screenshots>
   <requires>
