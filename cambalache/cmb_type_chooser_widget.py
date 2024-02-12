@@ -1,7 +1,7 @@
 #
 # CmbTypeChooserWidget - Cambalache Type Chooser Widget
 #
-# Copyright (C) 2021  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -46,7 +46,6 @@ class CmbTypeChooserWidget(Gtk.Box):
     parent_type_id = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
     derived_type_id = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
 
-    entrycompletion = Gtk.Template.Child()
     scrolledwindow = Gtk.Template.Child()
     treeview = Gtk.Template.Child()
 
@@ -57,8 +56,6 @@ class CmbTypeChooserWidget(Gtk.Box):
         self._filter = None
 
         super().__init__(**kwargs)
-
-        self.connect("map", self.__on_map)
 
     def __type_info_should_append(self, info):
         retval = False
@@ -152,7 +149,6 @@ class CmbTypeChooserWidget(Gtk.Box):
         if self._filter:
             self._filter.set_visible_func(self.__visible_func)
 
-        self.entrycompletion.props.model = self.__model
         self.treeview.props.model = self._filter
 
         if project is not None:
@@ -189,17 +185,6 @@ class CmbTypeChooserWidget(Gtk.Box):
             return True
 
         return type_id_lower.find(self._search_text) >= 0
-
-    def __on_map(self, widget):
-        toplevel = widget.get_toplevel()
-
-        if toplevel:
-            height = toplevel.get_allocated_height() - 100
-            if height > 460:
-                height = height * 0.7
-
-            self.scrolledwindow.set_max_content_height(height)
-        return False
 
     def __on_type_info_added(self, project, info):
         if self.__model is None:

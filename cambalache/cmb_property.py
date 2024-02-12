@@ -1,7 +1,7 @@
 #
 # Cambalache Property wrapper
 #
-# Copyright (C) 2021  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -156,4 +156,6 @@ class CmbProperty(CmbBaseProperty):
 
     def _update_version_warning(self):
         target = self.object.ui.get_target(self.library_id)
-        self.version_warning = utils.get_version_warning(target, self.info.version, self.info.deprecated_version, self.property_id)
+        self.version_warning = utils.get_version_warning(
+            target, self.info.version, self.info.deprecated_version, self.property_id
+        )

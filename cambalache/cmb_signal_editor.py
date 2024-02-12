@@ -1,7 +1,7 @@
 #
 # CmbSignalEditor - Cambalache Signal Editor
 #
-# Copyright (C) 2021-2023  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -69,6 +69,7 @@ class CmbSignalEditor(Gtk.Box):
         self.user_data_column.set_cell_data_func(self.user_data, self.__data_func, Col.USER_DATA.value)
         self.swap_column.set_cell_data_func(self.swap, self.__data_func, Col.SWAP.value)
         self.after_column.set_cell_data_func(self.after, self.__data_func, Col.AFTER.value)
+
     @GObject.Property(type=CmbObject)
     def object(self):
         return self._object
@@ -178,7 +179,7 @@ class CmbSignalEditor(Gtk.Box):
                                 signal.swap,
                                 signal.after,
                                 child[Col.INFO.value],
-                                None
+                                None,
                             ),
                         )
                 break

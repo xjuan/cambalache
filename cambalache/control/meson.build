@@ -22,5 +22,6 @@ install_data([
     'cmb_translatable_widget.py',
     'icon_naming_spec.py',
     '__init__.py',
+    'named_colors.py',
     ],
     install_dir: moduledir)

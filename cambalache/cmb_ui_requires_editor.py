@@ -1,7 +1,7 @@
 #
 # CmbUIRequiresEditor - Cambalache UI Requires Editor
 #
-# Copyright (C) 2023  Juan Pablo Ugarte
+# Copyright (C) 2023-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -24,6 +24,7 @@
 from gi.repository import GObject, Gtk
 
 from .cmb_ui import CmbUI
+from . import utils
 
 
 class CmbUIRequiresEditor(Gtk.Grid):
@@ -71,7 +72,7 @@ class CmbUIRequiresEditor(Gtk.Grid):
     def __update(self):
         self.__combos = {}
 
-        for child in self.get_children():
+        for child in utils.widget_get_children(self):
             self.remove(child)
 
         if self.__object is None:

@@ -1,7 +1,7 @@
 #
 # CmbTypeChooserPopover - Cambalache Type Chooser Popover
 #
-# Copyright (C) 2021  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -47,8 +47,9 @@ class CmbTypeChooserPopover(Gtk.Popover):
 
         self._chooser = CmbTypeChooserWidget()
         self._chooser.connect("type-selected", self.__on_type_selected)
-        self._chooser.show_all()
-        self.add(self._chooser)
+
+        self.set_child(self._chooser)
+        self.set_default_widget(self._chooser)
 
         for prop in [
             "project",

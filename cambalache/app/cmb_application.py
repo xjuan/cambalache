@@ -1,7 +1,7 @@
 #
 # Cambalache Application
 #
-# Copyright (C) 2021  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -43,7 +43,8 @@ class CmbApplication(Gtk.Application):
     def __add_window(self):
         window = CmbWindow(application=self)
         window.connect("open-project", self.__on_open_project)
-        window.connect("delete-event", self.__on_window_delete_event)
+
+        window.connect("close-request", self.__on_window_close_request)
         self.add_window(window)
         return window
 
@@ -91,7 +92,7 @@ class CmbApplication(Gtk.Application):
 
         provider = Gtk.CssProvider()
         provider.load_from_resource("/ar/xjuan/Cambalache/app/cambalache.css")
-        Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
     def do_activate(self):
         if self.props.active_window is None:
@@ -103,9 +104,17 @@ class CmbApplication(Gtk.Application):
         else:
             self.open_project(filename, target_tk, uiname)
 
-    def __check_can_quit(self, windows):
+    def __check_can_quit(self, window=None):
+        windows = self.__get_windows() if window is None else [window]
         unsaved_windows = []
-        projects2save = []
+        windows2save = []
+
+        def do_quit():
+            if window is None:
+                self.quit()
+            else:
+                self.remove_window(window)
+                window.destroy()
 
         # Gather projects that needs saving
         for win in windows:
@@ -117,16 +126,17 @@ class CmbApplication(Gtk.Application):
 
         unsaved_windows_len = len(unsaved_windows)
         if unsaved_windows_len == 0:
-            return True
+            do_quit()
+            return
 
         # Create Dialog
         text = _("Save changes before closing?")
         dialog = Gtk.MessageDialog(
             transient_for=windows[0],
-            flags=0,
             message_type=Gtk.MessageType.QUESTION,
             text=f"<b><big>{text}</big></b>",
             use_markup=True,
+            modal=True,
         )
 
         # Add buttons
@@ -141,36 +151,58 @@ class CmbApplication(Gtk.Application):
 
         dialog.set_default_response(Gtk.ResponseType.ACCEPT)
 
-        if unsaved_windows_len > 1:
+        if unsaved_windows_len > 1 or unsaved_windows[0].project.filename is None:
             # Add checkbox for each unsaved project
             box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
-            box.add(Gtk.Label(label=_("Select which files:"), halign=Gtk.Align.START))
+            box.append(Gtk.Label(label=_("Select which files:"), halign=Gtk.Align.START))
+
+            home = GLib.get_home_dir()
+            untitled = 0
 
             for win in unsaved_windows:
-                path = win.project.filename.replace(GLib.get_home_dir(), "~")
-                check = Gtk.CheckButton(label=path, active=True, margin_start=8, can_focus=False)
-                projects2save.append((win.project, check))
-                box.add(check)
+                if win.project.filename is None:
+                    untitled += 1
 
-            box.show_all()
-            dialog.props.message_area.add(box)
+                    # Find Unique name
+                    while os.path.exists(f"Untitled {untitled}.cmb"):
+                        untitled += 1
 
-        # Run Dialog
-        response = dialog.run()
-        dialog.destroy()
+                    check = Gtk.CheckButton(active=True, margin_start=8, can_focus=False)
+                    entry = Gtk.Entry(text=f"Untitled {untitled}")
 
-        # Handle response
-        if response == Gtk.ResponseType.ACCEPT:
-            if unsaved_windows_len > 1:
-                for project, check in projects2save:
+                    hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
+                    hbox.append(check)
+                    hbox.append(entry)
+
+                    box.append(hbox)
+                else:
+                    path = win.project.filename.replace(home, "~")
+                    check = Gtk.CheckButton(label=path, active=True, margin_start=8, can_focus=False)
+                    box.append(check)
+
+                windows2save.append((win, check, entry))
+
+            box.show()
+            dialog.props.message_area.append(box)
+        else:
+            windows2save.append((unsaved_windows[0], None, None))
+
+        def callback(dialog, response, window):
+            dialog.destroy()
+
+            if response == Gtk.ResponseType.ACCEPT:
+                for win, check, entry in windows2save:
+                    if entry is not None:
+                        win.project.filename = entry.props.text
                     if check is None or check.props.active:
-                        project.save()
-            elif unsaved_windows_len:
-                unsaved_windows[0].project.save()
-        elif response == Gtk.ResponseType.CANCEL:
-            return False
+                        win.save_project()
+            elif response == Gtk.ResponseType.CANCEL:
+                return
 
-        return True
+            do_quit()
+
+        dialog.connect("response", callback, window)
+        dialog.present()
 
     def __get_windows(self):
         retval = []
@@ -181,8 +213,9 @@ class CmbApplication(Gtk.Application):
 
         return retval
 
-    def __on_window_delete_event(self, window, event):
-        return not self.__check_can_quit([window])
+    def __on_window_close_request(self, window):
+        self.__check_can_quit(window)
+        return True
 
     def do_window_removed(self, window):
         windows = self.__get_windows()
@@ -191,8 +224,7 @@ class CmbApplication(Gtk.Application):
             self.activate_action("quit")
 
     def _on_quit_activate(self, action, data):
-        if self.__check_can_quit(self.__get_windows()):
-            self.quit()
+        self.__check_can_quit()
 
     def do_handle_local_options(self, options):
         if options.contains("version"):

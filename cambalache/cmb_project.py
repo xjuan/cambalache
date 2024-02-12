@@ -1,7 +1,7 @@
 #
 # CmbProject - Cambalache Project
 #
-# Copyright (C) 2020-2023  Juan Pablo Ugarte
+# Copyright (C) 2020-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -78,7 +78,6 @@ class CmbProject(Gtk.TreeStore):
         "type-info-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbTypeInfo,)),
         "type-info-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbTypeInfo,)),
         "type-info-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbTypeInfo,)),
-        "filename-required": (GObject.SignalFlags.RUN_FIRST, str, ()),
     }
 
     target_tk = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
@@ -282,9 +281,6 @@ class CmbProject(Gtk.TreeStore):
         self.__filename = value
 
     def save(self):
-        if self.filename is None:
-            self.filename = self.emit("filename-required")
-
         if self.filename:
             self.db.save(self.filename)
             return True
@@ -378,6 +374,9 @@ class CmbProject(Gtk.TreeStore):
         return (ui, msgs, detail_msg)
 
     def __export(self, ui_id, filename, dirname=None):
+        if filename is None:
+            return
+
         if not os.path.isabs(filename):
             if dirname is None:
                 dirname = os.path.dirname(self.filename)
@@ -566,8 +565,7 @@ class CmbProject(Gtk.TreeStore):
 
             # Set which parent property makes a reference to this inline object
             row = self.db.execute(
-                "SELECT property_id FROM object_property WHERE ui_id=? AND inline_object_id=?;",
-                (ui_id, object_id)
+                "SELECT property_id FROM object_property WHERE ui_id=? AND inline_object_id=?;", (ui_id, object_id)
             ).fetchone()
             obj.inline_property_id = row[0] if row else None
         else:
@@ -1178,14 +1176,15 @@ class CmbProject(Gtk.TreeStore):
             self.__object_update_row(ui.ui_id, template_id)
 
     def _ui_changed(self, ui, field):
-        iter = self.get_iter_from_object(ui)
-
         if field == "template-id":
             self.__update_template_type_info(ui)
 
+        iter = self.get_iter_from_object(ui)
+        if iter is None:
+            return
+
         path = self.get_path(iter)
         self.row_changed(path, iter)
-
         self.emit("ui-changed", ui, field)
 
     def _ui_library_changed(self, ui, lib):

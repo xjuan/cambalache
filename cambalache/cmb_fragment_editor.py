@@ -1,7 +1,7 @@
 #
 # CmbFragmentEditor - Cambalache CSS Editor
 #
-# Copyright (C) 2022  Juan Pablo Ugarte
+# Copyright (C) 2022-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -62,3 +62,6 @@ class CmbFragmentEditor(Gtk.Box):
             GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
         )
         self.__binding = binding
+
+
+Gtk.WidgetClass.set_css_name(CmbFragmentEditor, "CmbFragmentEditor")

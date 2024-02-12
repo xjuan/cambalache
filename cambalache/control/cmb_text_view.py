@@ -1,7 +1,7 @@
 #
 # CmbTextView
 #
-# Copyright (C) 2021-2023  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -33,7 +33,6 @@ class CmbTextView(Gtk.ScrolledWindow):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.props.shadow_type = Gtk.ShadowType.IN
         self.props.height_request = 64
         self.buffer = CmbTextBuffer()
         self.view = Gtk.TextView(visible=True, buffer=self.buffer)
@@ -46,4 +45,4 @@ class CmbTextView(Gtk.ScrolledWindow):
             GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
         )
 
-        self.add(self.view)
+        self.set_child(self.view)

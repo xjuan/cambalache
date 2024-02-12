@@ -1,7 +1,7 @@
 #
 # CmbCSSEditor - Cambalache CSS Editor
 #
-# Copyright (C) 2022  Juan Pablo Ugarte
+# Copyright (C) 2022-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -23,6 +23,7 @@
 
 from gi.repository import GObject, Gtk
 from .cmb_css import CmbCSS
+from . import utils
 
 
 @Gtk.Template(resource_path="/ar/xjuan/Cambalache/cmb_css_editor.ui")
@@ -121,8 +122,7 @@ class CmbCSSEditor(Gtk.Grid):
 
     def __update_provider_for(self):
         # Remove all css_ui check buttons
-        ui_box_children = self.ui_box.get_children()
-        for child in ui_box_children:
+        for child in utils.widget_get_children(self.ui_box):
             self.ui_box.remove(child)
 
         if self._object is None:
@@ -137,7 +137,7 @@ class CmbCSSEditor(Gtk.Grid):
                 label=ui.get_display_name(), active=ui.ui_id in provider_for, halign=Gtk.Align.START, visible=True
             )
             check.connect("toggled", self.__on_check_button_toggled, ui)
-            self.ui_box.add(check)
+            self.ui_box.append(check)
 
     def __on_file_changed(self, obj):
         self.infobar.set_revealed(True)
@@ -173,3 +173,6 @@ class CmbCSSEditor(Gtk.Grid):
             self.object.project.remove_css(self.object)
 
         return True
+
+
+Gtk.WidgetClass.set_css_name(CmbCSSEditor, "CmbCSSEditor")

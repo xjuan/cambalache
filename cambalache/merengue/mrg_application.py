@@ -1,7 +1,7 @@
 #
 # Merengue: Cambalache view process
 #
-# Copyright (C) 2021  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -136,8 +136,8 @@ class MrgApplication(Gtk.Application):
             # FIXME: object_id could be reused for a different object type
             # if you undo the creation of a widget and create a different type
             # As a workaround if the types do not match we create a new controller
-            # This could be fixed if we alway auto increment object_id but then
-            # we would have to clean up unussed controllers
+            # This could be fixed if we always auto increment object_id but then
+            # we would have to clean up unused controllers
             if pspec is None or pspec.value_type != obj.__gtype__:
                 controller = self.registry.new_controller_for_type(obj.__gtype__, self)
 

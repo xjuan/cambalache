@@ -1,7 +1,7 @@
 #
 # CmbEnumComboBox
 #
-# Copyright (C) 2021-2023  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -42,8 +42,6 @@ class CmbEnumComboBox(Gtk.ComboBox):
 
         self.props.id_column = self.text_column
         self.props.model = self.info.enum
-
-        utils.unset_scroll_event(self)
 
     def __on_changed(self, obj):
         self.notify("cmb-value")

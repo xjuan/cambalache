@@ -1,7 +1,7 @@
 #
 # utils - Cambalache utilities
 #
-# Copyright (C) 2023  Juan Pablo Ugarte
+# Copyright (C) 2023-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -47,18 +47,6 @@ def version_cmp_str(a, b):
     return version_cmp(parse_version(a), parse_version(b))
 
 
-def unset_scroll_event(widget):
-    def ignore_scroll_event(widget, event):
-        Gtk.propagate_event(widget.get_parent(), event)
-        return True
-
-    events = widget.get_events()
-    widget.set_events(events & ~(Gdk.EventMask.SCROLL_MASK | Gdk.EventMask.SMOOTH_SCROLL_MASK))
-
-    if isinstance(widget, Gtk.ComboBox):
-        widget.connect("scroll-event", ignore_scroll_event)
-
-
 def get_version_warning(target, version, deprecated_version, this):
     if not target:
         return None
@@ -69,3 +57,32 @@ def get_version_warning(target, version, deprecated_version, this):
         return f"UI targets {target} but {this} was deprecated in {deprecated_version}"
 
     return None
+
+
+def widget_get_children(widget):
+    retval = []
+
+    child = widget.get_first_child()
+    while child is not None:
+        retval.append(child)
+        child = child.get_next_sibling()
+
+    return retval
+
+
+def get_pointer(widget):
+    root = widget.get_root()
+    pointer = widget.get_display().get_default_seat().get_pointer()
+    valid, x, y, mask = root.get_surface().get_device_position(pointer)
+
+    if valid:
+        return root.translate_coordinates(widget, x, y)
+
+    return (None, None)
+
+
+def get_pointing_to(widget):
+    r = Gdk.Rectangle()
+    r.x, r.y = get_pointer(widget)
+    r.width = r.height = 0
+    return r

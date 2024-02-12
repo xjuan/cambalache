@@ -59,4 +59,3 @@ class MrgGtkBin(MrgGtkWidget):
     def object_changed(self, old, new):
         super().object_changed(old, new)
         self.__update_placeholder()
-

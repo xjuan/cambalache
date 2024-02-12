@@ -1,7 +1,7 @@
 #
 # CmbObjectDataEditor - Cambalache Object Data Editor
 #
-# Copyright (C) 2022-2023  Juan Pablo Ugarte
+# Copyright (C) 2022-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -50,7 +50,6 @@ class CmbObjectDataEditor(Gtk.Box):
         self.__value_editor = None
         self.__arg_editors = {}
         self.__editors = []
-        self.__editor_margin_end = None
 
         super().__init__(**kwargs)
 
@@ -70,18 +69,6 @@ class CmbObjectDataEditor(Gtk.Box):
             self.object.remove_data(self.__data)
         else:
             self.__data.parent.remove_data(self.__data)
-
-    @Gtk.Template.Callback("on_remove_size_allocate")
-    def __on_remove_size_allocate(self, button, alloc):
-        info = self.data.info if self.data else self.info
-
-        if info is None or info.type_id is None:
-            return
-
-        self.__editor_margin_end = alloc.width + self.top_box.props.spacing
-
-        for editor in self.__editors:
-            editor.props.margin_end = self.__editor_margin_end
 
     @GObject.Property(type=GObject.Object)
     def object(self):
@@ -182,9 +169,9 @@ class CmbObjectDataEditor(Gtk.Box):
             child_info = info.children[child]
             button = Gtk.ModelButton(label=_("Add {key}").format(key=child_info.key), visible=True)
             button.connect("clicked", self.__on_child_button_clicked, child_info)
-            box.add(button)
+            box.append(button)
 
-        popover.add(box)
+        popover.set_child(box)
 
         return popover
 
@@ -203,9 +190,6 @@ class CmbObjectDataEditor(Gtk.Box):
             self.__size_group.add_widget(label)
 
         self.grid.attach(editor, 1, neditors, 1, 1)
-
-        if self.__editor_margin_end:
-            editor.props.margin_end = self.__editor_margin_end
 
         self.__editors.append(editor)
 
@@ -236,7 +220,7 @@ class CmbObjectDataEditor(Gtk.Box):
 
         nchildren = len(info.children)
 
-        self.remove_button.set_tooltip_text(_("Remove {key}").format(key=info.key))
+        self.remove_button.props.tooltip_text = _("Remove {key}").format(key=info.key)
 
         # Add a menu if there is more than one child type
         if nchildren > 1:
@@ -244,7 +228,7 @@ class CmbObjectDataEditor(Gtk.Box):
             self.add_child.set_visible(True)
         elif nchildren:
             key = list(info.children.keys())[0]
-            self.add_only_child.set_tooltip_text(_("Add {key}").format(key=key))
+            self.add_only_child.props.tooltip_text = _("Add {key}").format(key=key)
             self.add_only_child.set_visible(True)
 
         # Item name
@@ -267,7 +251,7 @@ class CmbObjectDataEditor(Gtk.Box):
                     GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
                 )
 
-            self.top_box.add(editor)
+            self.top_box.append(editor)
 
         nargs = len(info.args)
 
@@ -287,7 +271,7 @@ class CmbObjectDataEditor(Gtk.Box):
             # Special case items with one argument and no value (like styles)
             if nargs == 1 and not info.type_id:
                 self.label.props.label = f"{info.key} {arg_info.key}"
-                self.top_box.add(editor)
+                self.top_box.append(editor)
             else:
                 label = Gtk.Label(visible=True, label=arg_info.key, xalign=1)
                 self.__add(editor, label)

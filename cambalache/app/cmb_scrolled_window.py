@@ -1,6 +1,7 @@
-# Cambalache Application
 #
-# Copyright (C) 2021-2024  Juan Pablo Ugarte
+# CmbScrolledWindow
+#
+# Copyright (C) 2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -20,13 +21,22 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-import os
+from gi.repository import GObject, Gtk
 
-from cambalache import config
-from gi.repository import Gio
 
-resource = Gio.Resource.load(os.path.join(config.pkgdatadir, "app.gresource"))
-resource._register()
+class CmbScrolledWindow(Gtk.ScrolledWindow):
+    __gtype_name__ = "CmbScrolledWindow"
 
-from .cmb_application import CmbApplication
-from .cmb_scrolled_window import CmbScrolledWindow
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        # Do not let children get scroll events!
+        sroll = Gtk.EventControllerScroll(
+            flags=Gtk.EventControllerScrollFlags.VERTICAL, propagation_phase=Gtk.PropagationPhase.CAPTURE
+        )
+        sroll.connect("scroll", self.handle_scroll_capture)
+        self.add_controller(sroll)
+
+    def handle_scroll_capture(self, ec, dx, dy):
+        self.props.vadjustment.props.value += self.props.vadjustment.props.step_increment * dy
+        return True

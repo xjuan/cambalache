@@ -1,6 +1,6 @@
 # Cambalache
 #
-# Copyright (C) 2021  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -28,10 +28,10 @@ import builtins
 
 from . import config
 
-gi.require_version("Gdk", "3.0")
-gi.require_version("Gtk", "3.0")
-gi.require_version("GtkSource", "4")
-gi.require_version("WebKit2", "4.1")
+gi.require_version("Gdk", "4.0")
+gi.require_version("Gtk", "4.0")
+gi.require_version("GtkSource", "5")
+gi.require_version("WebKit", "6.0")
 
 # Ensure _() builtin
 if "_" not in builtins.__dict__:
@@ -54,8 +54,9 @@ resource._register()
 
 provider = Gtk.CssProvider()
 provider.load_from_resource("/ar/xjuan/Cambalache/cambalache.css")
-Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-Gtk.IconTheme.get_default().add_resource_path("/ar/xjuan/Cambalache/icons")
+display = Gdk.Display.get_default()
+Gtk.StyleContext.add_provider_for_display(display, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+Gtk.IconTheme.get_for_display(display).add_resource_path("/ar/xjuan/Cambalache/icons")
 
 
 def getLogger(name):

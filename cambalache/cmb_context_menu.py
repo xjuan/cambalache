@@ -1,7 +1,7 @@
 #
 # CmbContextMenu - Cambalache UI Editor
 #
-# Copyright (C) 2021  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -23,7 +23,7 @@
 
 import os
 
-from gi.repository import GObject, GLib, Gdk, Gtk
+from gi.repository import GObject, GLib, Gio, Gdk, Gtk
 from cambalache import _
 
 
@@ -31,22 +31,16 @@ from cambalache import _
 class CmbContextMenu(Gtk.PopoverMenu):
     __gtype_name__ = "CmbContextMenu"
 
-    gtk_theme = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
     target_tk = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
 
-    main_box = Gtk.Template.Child()
-    separator = Gtk.Template.Child()
-    css_theme = Gtk.Template.Child()
-    css_theme_box = Gtk.Template.Child()
+    main_section = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
+        self.theme_submenu = None
+
         super().__init__(**kwargs)
 
         self.connect("notify::target-tk", lambda o, p: self.__populate_css_theme_box())
-
-    def __on_css_theme_button_toggled(self, button, data):
-        if button.props.active:
-            self.gtk_theme = data
 
     def __populate_css_theme_box(self):
         gtk_path = "gtk-3.0"
@@ -56,9 +50,17 @@ class CmbContextMenu(Gtk.PopoverMenu):
 
         if self.target_tk == "gtk-4.0":
             gtk_path = "gtk-4.0"
+            # FIXME: whats the real default theme for gtk4?
+            themes = ["Default"]
+        else:
+            themes = ["Adwaita", "HighContrast", "HighContrastInverse"]
 
-        for child in self.css_theme_box.get_children():
-            self.css_theme_box.remove(child)
+        if self.theme_submenu is None:
+            self.theme_submenu = Gio.Menu()
+            self.main_section.prepend_submenu(_("CSS theme"), self.theme_submenu)
+
+        # Remove all items from theme submenu
+        self.theme_submenu.remove_all()
 
         dirs = []
 
@@ -70,9 +72,6 @@ class CmbContextMenu(Gtk.PopoverMenu):
 
         # Append ~/.themes
         dirs.append(os.path.join(GLib.get_home_dir(), ".themes"))
-
-        # Default themes
-        themes = ["Adwaita", "HighContrast", "HighContrastInverse"]
 
         for path in dirs:
             if not os.path.isdir(path):
@@ -86,23 +85,16 @@ class CmbContextMenu(Gtk.PopoverMenu):
         # Dedup and sort
         themes = list(dict.fromkeys(themes))
 
-        # Add back item
-        button = Gtk.ModelButton(text=_("CSS themes"), menu_name="main", inverted=True, centered=True, visible=True)
-        self.css_theme_box.add(button)
-
         group = None
         for theme in sorted(themes):
-            button = Gtk.RadioButton(label=theme, group=group, active=self.gtk_theme == theme, visible=True)
-            if group is None:
-                group = button
-
-            button.connect("toggled", self.__on_css_theme_button_toggled, theme)
-            self.css_theme_box.add(button)
-
-        self.separator.props.visible = self.css_theme.props.visible = len(themes) > 0
+            item = Gio.MenuItem()
+            item.set_label(theme)
+            item.set_action_and_target_value("win.workspace_theme", GLib.Variant("s", theme))
+            self.theme_submenu.append_item(item)
 
     def popup_at(self, x, y):
         r = Gdk.Rectangle()
-        r.x, r.y, r.width, r.height = (x, y, 10, 10)
+        r.x, r.y = (x, y)
+        r.width = r.height = 0
         self.set_pointing_to(r)
         self.popup()

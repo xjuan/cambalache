@@ -1,7 +1,7 @@
 #
 # Cambalache Library Info wrapper
 #
-# Copyright (C) 2022  Juan Pablo Ugarte
+# Copyright (C) 2022-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -46,8 +46,7 @@ class CmbLibraryInfo(CmbBaseLibraryInfo):
 
     def __init_min_version(self):
         row = self.project.db.execute(
-            "SELECT MIN_VERSION(version) FROM library_version WHERE library_id=?;",
-            (self.library_id, )
+            "SELECT MIN_VERSION(version) FROM library_version WHERE library_id=?;", (self.library_id,)
         ).fetchone()
 
         return row[0] if row is not None else None

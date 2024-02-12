@@ -1,7 +1,7 @@
 #
 # CmbObjectChooser
 #
-# Copyright (C) 2021-2023  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -106,7 +106,7 @@ class CmbObjectChooser(Gtk.Entry):
         parent.project.add_object(parent.ui_id, info.type_id, parent_id=parent.object_id, inline_property=self.prop.property_id)
         self.__update_icons()
 
-    def __on_icon_pressed(self, widget, icon_pos, event):
+    def __on_icon_pressed(self, widget, icon_pos):
         parent = self.parent
         project = parent.project
         prop = self.prop
@@ -116,7 +116,8 @@ class CmbObjectChooser(Gtk.Entry):
             project.remove_object(obj)
             self.__update_icons()
         else:
-            chooser = CmbTypeChooserPopover(relative_to=self, parent_type_id=parent.type_id, derived_type_id=prop.info.type_id)
+            chooser = CmbTypeChooserPopover(parent_type_id=parent.type_id, derived_type_id=prop.info.type_id)
+            chooser.set_parent(self)
             chooser.project = project
             chooser.connect("type-selected", self.__on_type_selected)
             chooser.popup()

@@ -1,7 +1,7 @@
 #
 # CmbChildTypeComboBox
 #
-# Copyright (C) 2021-2023  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -32,8 +32,6 @@ class CmbChildTypeComboBox(Gtk.ComboBox):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
-        utils.unset_scroll_event(self)
 
         self.connect("changed", self.__on_changed)
 

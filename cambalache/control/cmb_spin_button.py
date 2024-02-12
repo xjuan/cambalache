@@ -1,7 +1,7 @@
 #
 # CmbSpinButton
 #
-# Copyright (C) 2021-2023  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -36,8 +36,6 @@ class CmbSpinButton(Gtk.SpinButton):
         self.props.halign = Gtk.Align.START
         self.props.numeric = True
         self.props.width_chars = 8
-
-        utils.unset_scroll_event(self)
 
     def __on_text_notify(self, obj, pspec):
         self.notify("cmb-value")

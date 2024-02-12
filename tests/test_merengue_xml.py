@@ -11,6 +11,7 @@ from lxml import etree
 
 basedir = os.path.dirname(__file__)
 
+
 def xml_get_node(xml, node_query):
     assert xml is not None
     assert node_query is not None
@@ -25,7 +26,7 @@ def xml_get_node(xml, node_query):
 
 def xml_check_object_ws_properties(xml, object_query, ws_properties=[]):
     obj_node = xml_get_node(xml, object_query)
-    assert(obj_node is not None)
+    assert obj_node is not None
 
     for property_id, value, exp in ws_properties:
         # Look for a property node with name==property_id

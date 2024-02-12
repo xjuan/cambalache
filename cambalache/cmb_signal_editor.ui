@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.40.0 -->
 <interface>
-  <requires lib="gtk+" version="3.24"/>
+  <requires lib="gtk" version="4.0"/>
   <object class="GtkEntryCompletion" id="handler_entrycompletion">
     <child>
       <object class="GtkCellRendererText"/>
@@ -12,42 +11,28 @@
   </object>
   <object class="GtkTreeStore" id="treestore">
     <columns>
-      <!-- column-name signal -->
       <column type="GObject"/>
-      <!-- column-name owner_id -->
       <column type="gchararray"/>
-      <!-- column-name signal_id -->
       <column type="gchararray"/>
-      <!-- column-name detail -->
       <column type="gchararray"/>
-      <!-- column-name handler -->
       <column type="gchararray"/>
-      <!-- column-name user_data -->
       <column type="gchararray"/>
-      <!-- column-name swap -->
       <column type="gboolean"/>
-      <!-- column-name after -->
       <column type="gboolean"/>
-      <!-- column-name info -->
       <column type="GObject"/>
-      <!-- column-name version_warning -->
       <column type="gchararray"/>
     </columns>
   </object>
   <template class="CmbSignalEditor" parent="GtkBox">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
     <property name="orientation">vertical</property>
     <property name="spacing">4</property>
     <child>
       <object class="GtkScrolledWindow">
-        <property name="visible">True</property>
-        <property name="can-focus">True</property>
-        <property name="shadow-type">in</property>
-        <child>
+        <property name="vexpand">1</property>
+        <property name="focusable">1</property>
+        <property name="child">
           <object class="GtkTreeView" id="treeview">
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
+            <property name="focusable">1</property>
             <property name="model">treestore</property>
             <property name="tooltip-column">9</property>
             <child internal-child="selection">
@@ -55,9 +40,9 @@
             </child>
             <child>
               <object class="GtkTreeViewColumn" id="signal_id_column">
-                <property name="resizable">True</property>
+                <property name="resizable">1</property>
                 <property name="min-width">64</property>
-                <property name="title" translatable="yes">Signal</property>
+                <property name="title" translatable="1">Signal</property>
                 <child>
                   <object class="GtkCellRendererText" id="signal_id">
                     <signal name="edited" handler="on_detail_edited" swapped="no"/>
@@ -70,13 +55,13 @@
             </child>
             <child>
               <object class="GtkTreeViewColumn" id="handler_column">
-                <property name="resizable">True</property>
+                <property name="resizable">1</property>
                 <property name="min-width">64</property>
-                <property name="title" translatable="yes">Handler</property>
-                <property name="expand">True</property>
+                <property name="title" translatable="1">Handler</property>
+                <property name="expand">1</property>
                 <child>
                   <object class="GtkCellRendererText" id="handler">
-                    <property name="editable">True</property>
+                    <property name="editable">1</property>
                     <property name="placeholder-text">&lt;Enter callback&gt;</property>
                     <signal name="edited" handler="on_handler_edited" swapped="no"/>
                   </object>
@@ -88,10 +73,10 @@
             </child>
             <child>
               <object class="GtkTreeViewColumn" id="user_data_column">
-                <property name="title" translatable="yes">Data</property>
+                <property name="title" translatable="1">Data</property>
                 <child>
                   <object class="GtkCellRendererText" id="user_data">
-                    <property name="editable">True</property>
+                    <property name="editable">1</property>
                     <property name="placeholder-text">&lt;object&gt;</property>
                     <signal name="edited" handler="on_user_data_edited" swapped="no"/>
                   </object>
@@ -103,7 +88,7 @@
             </child>
             <child>
               <object class="GtkTreeViewColumn" id="swap_column">
-                <property name="title" translatable="yes">Swap</property>
+                <property name="title" translatable="1">Swap</property>
                 <child>
                   <object class="GtkCellRendererToggle" id="swap">
                     <signal name="toggled" handler="on_swap_toggled" swapped="no"/>
@@ -116,7 +101,7 @@
             </child>
             <child>
               <object class="GtkTreeViewColumn" id="after_column">
-                <property name="title" translatable="yes">After</property>
+                <property name="title" translatable="1">After</property>
                 <child>
                   <object class="GtkCellRendererToggle" id="after">
                     <signal name="toggled" handler="on_after_toggled" swapped="no"/>
@@ -128,13 +113,8 @@
               </object>
             </child>
           </object>
-        </child>
+        </property>
       </object>
-      <packing>
-        <property name="expand">True</property>
-        <property name="fill">True</property>
-        <property name="position">3</property>
-      </packing>
     </child>
   </template>
 </interface>

@@ -1,7 +1,7 @@
 #
 # CmbTreeView - Cambalache Tree View
 #
-# Copyright (C) 2021-2023  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -40,7 +40,6 @@ class CmbTreeView(Gtk.TreeView):
         self.__in_selection_change = False
         self._selection.connect("changed", self.__on_selection_changed)
         self.set_headers_visible(False)
-        self.__right_click = False
 
         renderer = Gtk.CellRendererText()
         column = Gtk.TreeViewColumn("Object(Type)", renderer)
@@ -50,31 +49,14 @@ class CmbTreeView(Gtk.TreeView):
         self.connect("notify::model", self.__on_model_notify)
         self.connect("row-activated", self.__on_row_activated)
 
-        self.menu = CmbContextMenu(relative_to=self)
-
-        self.add_events(Gdk.EventMask.BUTTON_PRESS_MASK | Gdk.EventMask.BUTTON_RELEASE_MASK)
-        self.connect("button-press-event", self.__on_button_press_event)
-        self.connect("button-release-event", self.__on_button_release_event)
+        gesture = Gtk.GestureClick(button=3)
+        gesture.connect("pressed", self.__on_button_press)
+        self.add_controller(gesture)
 
         self.set_reorderable(True)
 
-    def __on_button_press_event(self, widget, event):
-        if event.window != self.get_bin_window() or event.button != 3:
-            return False
-
-        self.__right_click = True
-        return True
-
-    def __on_button_release_event(self, widget, event):
-        if event.window != self.get_bin_window() or event.button != 3:
-            return False
-
-        if not self.__right_click:
-            return False
-
-        self.__right_click = False
-
-        retval = self.get_path_at_pos(event.x, event.y)
+    def __on_button_press(self, widget, npress, x, y):
+        retval = self.get_path_at_pos(x, y)
 
         if retval is None:
             return False
@@ -82,7 +64,12 @@ class CmbTreeView(Gtk.TreeView):
         path, col, xx, yy = retval
         self.get_selection().select_path(path)
 
-        self.menu.popup_at(event.x, event.y)
+        menu = CmbContextMenu()
+
+        # Use parent instead of self to avoid warning and focus not working properly
+        # (run-dev.py:188589): Gtk-CRITICAL **: 16:45:12.790: gtk_css_node_insert_after: assertion 'previous_sibling == NULL || previous_sibling->parent == parent' failed
+        menu.set_parent(self.props.parent)
+        menu.popup_at(x, y)
 
         return True
 
@@ -156,7 +143,7 @@ class CmbTreeView(Gtk.TreeView):
             project.set_selection([obj])
 
     def do_query_tooltip(self, x, y, keyboard_mode, tooltip):
-        retval, xx, yy, model, path, iter_ = self.get_tooltip_context(x, y, keyboard_mode)
+        retval, model, path, iter_ = self.get_tooltip_context(x, y, keyboard_mode)
 
         if not retval:
             return False

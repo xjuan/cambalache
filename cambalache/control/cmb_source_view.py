@@ -1,7 +1,7 @@
 #
 # CmbSourceView
 #
-# Copyright (C) 2021-2023  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -21,7 +21,7 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-from gi.repository import GObject, GtkSource
+from gi.repository import GObject, Gtk, GtkSource
 
 
 class CmbSourceView(GtkSource.View):

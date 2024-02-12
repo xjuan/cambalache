@@ -1,7 +1,7 @@
 #
 # CmbPropertyLabel
 #
-# Copyright (C) 2023  Juan Pablo Ugarte
+# Copyright (C) 2023-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -43,8 +43,6 @@ class CmbPropertyLabel(Gtk.Button):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.props.relief = Gtk.ReliefStyle.NONE
-
         if not self.prop and not self.layout_prop:
             raise Exception("CmbPropertyLabel requires prop or layout_prop to be set")
             return
@@ -54,8 +52,8 @@ class CmbPropertyLabel(Gtk.Button):
 
         # Update label status
         if self.prop:
-            self.bind_icon = Gtk.Image(icon_size=Gtk.IconSize.MENU, visible=True)
-            box.add(self.bind_icon)
+            self.bind_icon = Gtk.Image(icon_size=Gtk.IconSize.NORMAL, visible=True)
+            box.append(self.bind_icon)
 
             self.label.props.label = self.prop.property_id
 
@@ -71,24 +69,22 @@ class CmbPropertyLabel(Gtk.Button):
             self.__update_layout_property_label()
             self.layout_prop.connect("notify::value", lambda o, p: self.__update_layout_property_label())
 
-        box.add(self.label)
-        self.add(box)
+        box.append(self.label)
+        self.set_child(box)
 
     def __update_label(self, prop):
-        style = self.get_style_context()
-
         if prop.value != prop.info.default_value:
-            style.add_class("modified")
+            self.add_css_class("modified")
         else:
-            style.remove_class("modified")
+            self.remove_css_class("modified")
 
         msg = prop.version_warning
         self.set_tooltip_text(msg)
 
         if msg:
-            style.add_class("warning")
+            self.add_css_class("warning")
         else:
-            style.remove_class("warning")
+            self.remove_css_class("warning")
 
     def __update_layout_property_label(self):
         self.__update_label(self.layout_prop)
@@ -101,10 +97,10 @@ class CmbPropertyLabel(Gtk.Button):
 
         if self.prop.bind_property_id:
             self.bind_icon.props.icon_name = "binded-symbolic"
-            self.get_style_context().remove_class("hidden")
+            self.remove_css_class("hidden")
         else:
             self.bind_icon.props.icon_name = "bind-symbolic"
-            self.get_style_context().add_class("hidden")
+            self.add_css_class("hidden")
 
     def __on_object_editor_notify(self, object_editor, pspec, property_editor):
         object_id = object_editor.cmb_value
@@ -129,9 +125,10 @@ class CmbPropertyLabel(Gtk.Button):
         popover.popdown()
 
     def __on_bind_button_clicked(self, button):
-        popover = Gtk.Popover(relative_to=button, position=Gtk.PositionType.LEFT)
+        popover = Gtk.Popover(position=Gtk.PositionType.LEFT)
+        popover.set_parent(self)
 
-        grid = Gtk.Grid(hexpand=True, row_spacing=4, column_spacing=4, border_width=4, visible=True)
+        grid = Gtk.Grid(hexpand=True, row_spacing=4, column_spacing=4, visible=True)
 
         grid.attach(Gtk.Label(label="<b>Property Binding</b>", use_markup=True, visible=True, xalign=0), 0, 0, 2, 1)
 
@@ -177,7 +174,7 @@ class CmbPropertyLabel(Gtk.Button):
         grid.attach(clear, 0, i, 2, 1)
         object_editor.grab_focus()
 
-        popover.add(grid)
+        popover.set_child(grid)
         popover.popup()
 
 
@@ -193,7 +190,6 @@ class CmbPropertyChooser(Gtk.ComboBoxText):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        utils.unset_scroll_event(self)
         self.__populate()
         self.connect("notify::object", self.__on_object_notify)
 

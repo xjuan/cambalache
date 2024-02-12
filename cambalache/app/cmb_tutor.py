@@ -1,7 +1,7 @@
 #
 # Cambalache Tutor
 #
-# Copyright (C) 2021  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -26,6 +26,7 @@
 from gi.repository import GObject, GLib, Gdk, Gtk
 from enum import Enum
 from collections import namedtuple
+from cambalache import utils
 
 
 class CmbTutorState(Enum):
@@ -85,32 +86,30 @@ class CmbTutor(GObject.GObject):
     def __add(self, text, widget_name, delay, name=None, position=CmbTutorPosition.BOTTOM):
         retval = {}
 
-        def find_widget(w, data):
-            if data.get("widget", None):
-                return
+        def find_by_css_name_or_buildable_id(widget, name):
+            retval = None
+            css_name = widget.get_name()
 
-            name = None
-            n = w.get_name()
+            # Get css name first
+            if css_name and css_name != GObject.type_name(widget) and css_name == name:
+                return widget
 
-            # Get css name first then GtkBuildable name
-            if n and n != GObject.type_name(w):
-                name = n
-            elif isinstance(w, Gtk.Buildable):
-                n = Gtk.Buildable.get_name(w)
-                if n and not n.startswith("___object"):
-                    name = n
+            # then GtkBuildable name
+            if isinstance(widget, Gtk.Buildable) and Gtk.Buildable.get_buildable_id(widget) == name:
+                return widget
 
-            # Return widget
-            if name == widget_name:
-                data["widget"] = w
-                return
+            # or ModelButton name
+            if GObject.type_name(widget) == "GtkModelButton" and widget.props.text == name:
+                return widget
 
-            if isinstance(w, Gtk.Container):
-                w.forall(find_widget, data)
+            for child in utils.widget_get_children(widget):
+                retval = find_by_css_name_or_buildable_id(child, name)
+                if retval:
+                    return retval
 
-        self.window.forall(find_widget, retval)
+            return retval
 
-        widget = retval.get("widget", None)
+        widget = find_by_css_name_or_buildable_id(self.window, widget_name)
 
         if widget:
             self.script.append(ScriptNode(widget, text, delay, name, position))
@@ -140,14 +139,13 @@ class CmbTutor(GObject.GObject):
         self.notify("state")
 
     def __popover_new(self, text):
-        popover = Gtk.Popover(modal=False)
-        box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        popover = Gtk.Popover(autohide=False)
+        popover.add_css_class("cmb-tutor")
+        box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, hexpand=True)
 
-        box.add(Gtk.Image(icon_name="dialog-information-symbolic", icon_size=Gtk.IconSize.DIALOG))
-        box.add(Gtk.Label(label=text, wrap=True, max_width_chars=28))
-        popover.add(box)
-        popover.get_style_context().add_class("cmb-tutor")
-        box.show_all()
+        box.append(Gtk.Image(icon_name="dialog-information-symbolic"))
+        box.append(Gtk.Label(label=text, vexpand=False, hexpand=True, wrap=True, max_width_chars=24))
+        popover.set_child(box)
 
         return popover
 
@@ -203,11 +201,11 @@ class CmbTutor(GObject.GObject):
                 if parent:
                     parent.popup()
 
-            node.widget.get_style_context().add_class("cmb-tutor-highlight")
+            node.widget.add_css_class("cmb-tutor-highlight")
 
             # Create popover
             self.popover = self.__popover_new(node.text)
-            self.popover.set_relative_to(node.widget)
+            self.popover.set_parent(node.widget)
 
             if node.position == CmbTutorPosition.BOTTOM:
                 self.popover.set_position(Gtk.PositionType.BOTTOM)

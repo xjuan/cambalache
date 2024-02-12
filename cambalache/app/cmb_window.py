@@ -1,7 +1,7 @@
 #
 # CmbWindow
 #
-# Copyright (C) 2021-2023  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -30,7 +30,7 @@ from gi.repository import GLib, GObject, Gio, Gdk, Gtk, Pango
 from .cmb_tutor import CmbTutor, CmbTutorState
 from . import cmb_tutorial
 
-from cambalache import CmbProject, CmbUI, CmbCSS, CmbObject, CmbTypeChooserPopover, getLogger, config, _
+from cambalache import CmbProject, CmbUI, CmbCSS, CmbObject, CmbTypeChooserPopover, getLogger, config, utils, _
 
 logger = getLogger(__name__)
 
@@ -39,15 +39,18 @@ logger = getLogger(__name__)
 class CmbWindow(Gtk.ApplicationWindow):
     __gtype_name__ = "CmbWindow"
 
-    __gsignals__ = {"open-project": (GObject.SignalFlags.RUN_FIRST, None, (str, str, str))}
+    __gsignals__ = {
+        "open-project": (GObject.SignalFlags.RUN_FIRST, None, (str, str, str)),
+        "project-saved": (GObject.SignalFlags.RUN_FIRST, None, (CmbProject,)),
+    }
 
     open_filter = Gtk.Template.Child()
     import_filter = Gtk.Template.Child()
 
-    open_button_box = Gtk.Template.Child()
-    import_button_box = Gtk.Template.Child()
-
     headerbar = Gtk.Template.Child()
+    subtitle = Gtk.Template.Child()
+    recent_menu = Gtk.Template.Child()
+    recent_button = Gtk.Template.Child()
     undo_button = Gtk.Template.Child()
     redo_button = Gtk.Template.Child()
     stack = Gtk.Template.Child()
@@ -59,6 +62,7 @@ class CmbWindow(Gtk.ApplicationWindow):
     np_name_entry = Gtk.Template.Child()
     np_ui_entry = Gtk.Template.Child()
     np_location_chooser = Gtk.Template.Child()
+    np_location_chooser_label = Gtk.Template.Child()
     np_gtk3_radiobutton = Gtk.Template.Child()
     np_gtk4_radiobutton = Gtk.Template.Child()
 
@@ -70,7 +74,6 @@ class CmbWindow(Gtk.ApplicationWindow):
     view = Gtk.Template.Child()
     tree_view = Gtk.Template.Child()
     type_chooser = Gtk.Template.Child()
-    preview_button = Gtk.Template.Child()
     editor_stack = Gtk.Template.Child()
     ui_editor = Gtk.Template.Child()
     ui_requires_editor = Gtk.Template.Child()
@@ -85,58 +88,76 @@ class CmbWindow(Gtk.ApplicationWindow):
 
     # Tutor widgets
     intro_button = Gtk.Template.Child()
-    main_menu = Gtk.Template.Child()
-    export_all = Gtk.Template.Child()
+    menu_button = Gtk.Template.Child()
 
     # Settings
     completed_intro = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
 
+    MAXIMIZED = 1 << 2
+    FULLSCREEN = 1 << 4
+
     def __init__(self, **kwargs):
         self.__project = None
         self.__last_saved_index = None
+        self.__np_location = None
 
         super().__init__(**kwargs)
+
+        self.__recent_manager = Gtk.RecentManager.get_default()
 
         self.editor_stack.set_size_request(420, -1)
 
         self.actions = {}
-        self.open_button_box.props.homogeneous = False
-        self.import_button_box.props.homogeneous = False
 
         for action in [
-            "open",
-            "create_new",
-            "new",
-            "undo",
-            "redo",
-            "intro",
-            "save",
-            "save_as",
-            "add_ui",
+            "about",
             "add_css",
-            "copy",
-            "paste",
-            "cut",
-            "delete",
             "add_object",
             "add_object_toplevel",
-            "clear",
             "add_placeholder",
-            "remove_placeholder",
             "add_placeholder_row",
-            "remove_placeholder_row",
-            "import",
-            "export",
+            "add_ui",
+            "clear",
             "close",
-            "debug",
-            "show_workspace",
-            "donate",
-            "liberapay",
-            "patreon",
             "contact",
-            "about",
+            "copy",
+            "create_new",
+            "cut",
+            "debug",
+            "delete",
+            "donate",
+            "export",
+            "import",
+            "intro",
+            "liberapay",
+            "new",
+            "open",
+            "paste",
+            "patreon",
+            "redo",
+            "remove_placeholder",
+            "remove_placeholder_row",
+            "save",
+            "save_as",
+            "select_project_location",
+            "show_workspace",
+            "undo",
+            "workspace_restart",
+            "inspect",
         ]:
             gaction = Gio.SimpleAction.new(action, None)
+            gaction.connect("activate", getattr(self, f"_on_{action}_activate"))
+            self.actions[action] = gaction
+            self.add_action(gaction)
+
+        # Stateful actions
+        for action, parameter_type, state in [("open_recent", "s", None), ("workspace_theme", "s", "")]:
+            if state is None:
+                gaction = Gio.SimpleAction.new(action, GLib.VariantType.new(parameter_type))
+            else:
+                gaction = Gio.SimpleAction.new_stateful(
+                    action, GLib.VariantType.new(parameter_type), GLib.Variant(parameter_type, state)
+                )
             gaction.connect("activate", getattr(self, f"_on_{action}_activate"))
             self.actions[action] = gaction
             self.add_action(gaction)
@@ -205,7 +226,7 @@ class CmbWindow(Gtk.ApplicationWindow):
         )
 
         self.tutor = None
-        self.turor_waiting_for_user_action = False
+        self.tutor_waiting_for_user_action = False
 
         self.__clipboard_enabled = True
         self.__message_timeout_id = None
@@ -229,13 +250,24 @@ class CmbWindow(Gtk.ApplicationWindow):
         self.__update_dark_mode()
 
         # Bind preview
+        preview_button = Gtk.ToggleButton(tooltip_text=_("Preview mode"), icon_name="system-run-symbolic")
+        self.type_chooser.content.append(preview_button)
+
         GObject.Object.bind_property(
-            self.preview_button,
+            preview_button,
             "active",
             self.view,
             "preview",
             GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
         )
+
+        self.view.connect("notify::gtk-theme", self.__on_view_gtk_theme_notify)
+        self.connect("notify::focus-widget", self.__on_focus_widget_notify)
+        self.__recent_manager.connect("changed", lambda rm: self.__update_recent_menu())
+        self.__update_recent_menu()
+
+    def __on_view_gtk_theme_notify(self, obj, pspec):
+        self.actions["workspace_theme"].set_state(GLib.Variant("s", obj.props.gtk_theme))
 
     @GObject.Property(type=CmbProject)
     def project(self):
@@ -246,7 +278,6 @@ class CmbWindow(Gtk.ApplicationWindow):
         if self.__project is not None:
             self.__project.disconnect_by_func(self.__on_project_filename_notify)
             self.__project.disconnect_by_func(self.__on_project_selection_changed)
-            self.__project.disconnect_by_func(self.__on_project_filename_required)
             self.__project.disconnect_by_func(self.__on_project_changed)
 
         self.__project = project
@@ -267,10 +298,9 @@ class CmbWindow(Gtk.ApplicationWindow):
             self.__on_project_filename_notify(None, None)
             self.__project.connect("notify::filename", self.__on_project_filename_notify)
             self.__project.connect("selection-changed", self.__on_project_selection_changed)
-            self.__project.connect("filename-required", self.__on_project_filename_required)
             self.__project.connect("changed", self.__on_project_changed)
         else:
-            self.headerbar.set_subtitle(None)
+            self.subtitle.props.visible = False
 
         self.__update_actions()
 
@@ -279,15 +309,9 @@ class CmbWindow(Gtk.ApplicationWindow):
             path = self.project.filename.replace(GLib.get_home_dir(), "~")
         else:
             path = _("Untitled")
-        self.headerbar.set_subtitle(path)
 
-    @Gtk.Template.Callback("on_about_dialog_delete_event")
-    def __on_about_dialog_delete_event(self, widget, event):
-        return True
-
-    @Gtk.Template.Callback("on_about_dialog_response")
-    def __on_about_dialog_response(self, widget, response_id):
-        widget.hide()
+        self.subtitle.props.visible = True
+        self.subtitle.props.label = path
 
     @Gtk.Template.Callback("on_type_chooser_type_selected")
     def __on_type_chooser_type_selected(self, popover, info):
@@ -297,10 +321,10 @@ class CmbWindow(Gtk.ApplicationWindow):
         if obj and type(obj) not in [CmbObject, CmbUI]:
             return
 
-        valid, state = Gtk.get_current_event_state()
+        device = self.get_display().get_default_seat().get_keyboard()
 
         # If alt is pressed, force adding object to selection
-        if valid and bool(state & Gdk.ModifierType.MOD1_MASK):
+        if device and bool(device.props.modifier_state & Gdk.ModifierType.ALT_MASK):
             if obj:
                 parent_id = obj.object_id if isinstance(obj, CmbObject) else None
                 self.project.add_object(obj.ui_id, info.type_id, None, parent_id)
@@ -334,12 +358,9 @@ class CmbWindow(Gtk.ApplicationWindow):
 
     @Gtk.Template.Callback("on_view_placeholder_activated")
     def __on_view_placeholder_activated(self, view, ui_id, object_id, layout, position, child_type):
-        r = Gdk.Rectangle()
-        r.x, r.y = self.view.get_pointer()
-        r.width = r.height = 4
-
         obj = self.project.get_object_by_id(ui_id, object_id)
-        popover = CmbTypeChooserPopover(relative_to=self.view, pointing_to=r, parent_type_id=obj.type_id)
+        popover = CmbTypeChooserPopover(pointing_to=utils.get_pointing_to(self.view), parent_type_id=obj.type_id)
+        popover.set_parent(self.view)
 
         popover.project = self.project
 
@@ -348,13 +369,6 @@ class CmbWindow(Gtk.ApplicationWindow):
             lambda o, info: self.project.add_object(ui_id, info.type_id, None, object_id, layout, position, child_type),
         )
         popover.popup()
-
-    @Gtk.Template.Callback("on_open_recent_action_item_activated")
-    def __on_open_recent_action_item_activated(self, recent):
-        uri = recent.get_current_uri()
-        if uri is not None:
-            filename, host = GLib.filename_from_uri(uri)
-            self.emit("open-project", filename, None, None)
 
     @Gtk.Template.Callback("on_ui_editor_remove_ui")
     def __on_ui_editor_remove_ui(self, editor):
@@ -366,9 +380,10 @@ class CmbWindow(Gtk.ApplicationWindow):
         self.__remove_object_with_confirmation(editor.object)
         return True
 
-    @Gtk.Template.Callback("on_window_set_focus")
-    def __on_window_set_focus(self, window, widget):
-        types = [Gtk.Entry, Gtk.TextView, Gtk.SpinButton]
+    def __on_focus_widget_notify(self, obj, pspec):
+        widget = self.props.focus_widget
+
+        types = [Gtk.Text, Gtk.TextView]
         focused_widget_needs = True
 
         for type in types:
@@ -413,16 +428,16 @@ class CmbWindow(Gtk.ApplicationWindow):
             r, g, b = (linear(c.red), linear(c.green), linear(c.blue))
             return 0.2126 * r + 0.7152 * g + 0.0722 * b
 
-        ctx = self.get_style_context()
-
         # Get foreground color
-        fg = ctx.get_color(Gtk.StateFlags.NORMAL)
+        fg = self.get_color()
 
         # If foreground luminance is closer to 1 then the background must be dark
         if luminance(fg) > 0.5:
-            ctx.add_class("dark")
+            self.add_css_class("dark")
+            self.view._set_dark_mode(True)
         else:
-            ctx.remove_class("dark")
+            self.remove_css_class("dark")
+            self.view._set_dark_mode(False)
 
     def __np_name_to_ui(self, binding, value):
         if len(value):
@@ -549,20 +564,16 @@ class CmbWindow(Gtk.ApplicationWindow):
         self.__update_action_undo_redo()
         self.__update_action_add_object()
 
-    def __file_open_dialog_new(
-        self, title, action=Gtk.FileChooserAction.OPEN, filter_obj=None, select_multiple=False, accept_label=None
-    ):
-        dialog = Gtk.FileChooserNative(
+    def __file_open_dialog_new(self, title, filter_obj=None, accept_label=None):
+        dialog = Gtk.FileDialog(
+            modal=True,
             title=title,
-            transient_for=self,
-            action=action,
-            filter=filter_obj,
-            select_multiple=select_multiple,
+            default_filter=filter_obj,
             accept_label=accept_label,
         )
 
         if self.project and self.project.filename:
-            dialog.set_current_folder(os.path.dirname(self.project.filename))
+            dialog.set_initial_folder(Gio.File.new_for_path(os.path.dirname(self.project.filename)))
 
         return dialog
 
@@ -580,18 +591,18 @@ class CmbWindow(Gtk.ApplicationWindow):
     def present_message_to_user(self, message, secondary_text=None, details=None):
         dialog = Gtk.MessageDialog(
             transient_for=self,
-            flags=0,
             message_type=Gtk.MessageType.INFO,
             buttons=Gtk.ButtonsType.OK,
             text=message,
             secondary_text=secondary_text,
+            modal=True,
         )
 
         if details:
             box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
 
             for detail in details:
-                box.add(
+                box.append(
                     Gtk.Label(
                         label=detail,
                         halign=Gtk.Align.START,
@@ -602,12 +613,10 @@ class CmbWindow(Gtk.ApplicationWindow):
                         ellipsize=Pango.EllipsizeMode.END,
                     )
                 )
+            dialog.props.message_area.append(box)
 
-            box.show_all()
-            dialog.props.message_area.add(box)
-
-        dialog.run()
-        dialog.destroy()
+        dialog.connect("response", lambda d, r: dialog.destroy())
+        dialog.present()
 
     def import_file(self, filename):
         if self.project is None:
@@ -688,25 +697,41 @@ class CmbWindow(Gtk.ApplicationWindow):
             )
 
     def _on_open_activate(self, action, data):
-        dialog = self.__file_open_dialog_new(_("Choose project to open"), filter_obj=self.open_filter)
-        if dialog.run() == Gtk.ResponseType.ACCEPT:
-            self.emit("open-project", dialog.get_filename(), None, None)
+        def dialog_callback(dialog, res):
+            try:
+                file = dialog.open_finish(res)
+                self.emit("open-project", file.get_path(), None, None)
+            except Exception as e:
+                pass
 
-        dialog.destroy()
+        dialog = self.__file_open_dialog_new(_("Choose project to open"), filter_obj=self.open_filter)
+        dialog.open(self, None, dialog_callback)
+
+    def _on_select_project_location_activate(self, action, data):
+        def dialog_callback(dialog, res):
+            try:
+                self.__np_location = dialog.select_folder_finish(res).get_path()
+                self.np_location_chooser_label.props.label = os.path.basename(self.__np_location)
+
+            except Exception as e:
+                pass
+
+        dialog = self.__file_open_dialog_new(_("Select project location"))
+        dialog.select_folder(self, None, dialog_callback)
 
     def _on_create_new_activate(self, action, data):
         self.__set_page("new_project")
         self.set_focus(self.np_name_entry)
 
-        home = GLib.get_home_dir()
-        projects = os.path.join(home, "Projects")
-        directory = projects if os.path.isdir(projects) else home
+        if self.__np_location is None:
+            home = GLib.get_home_dir()
+            projects = os.path.join(home, "Projects")
+            self.__np_location = projects if os.path.isdir(projects) else home
 
-        self.np_location_chooser.set_current_folder(directory)
+        self.np_location_chooser_label.props.label = os.path.basename(self.__np_location)
 
     def _on_new_activate(self, action, data):
         name = self.np_name_entry.props.text
-        location = self.np_location_chooser.get_filename() or "."
         uiname = self.np_ui_entry.props.text
         filename = None
         uipath = None
@@ -718,7 +743,7 @@ class CmbWindow(Gtk.ApplicationWindow):
 
         if len(name):
             name, ext = os.path.splitext(name)
-            filename = os.path.join(location, name + ".cmb")
+            filename = os.path.join(self.__np_location, name + ".cmb")
 
             if len(uiname) == 0:
                 uiname = self.np_ui_entry.props.placeholder_text
@@ -728,7 +753,7 @@ class CmbWindow(Gtk.ApplicationWindow):
                 self.set_focus(self.np_name_entry)
                 return
 
-            uipath = os.path.join(location, uiname)
+            uipath = os.path.join(self.__np_location, uiname)
 
         self.emit("open-project", filename, target_tk, uipath)
         self.__set_page("workspace" if self.project is not None else "cambalache")
@@ -743,30 +768,23 @@ class CmbWindow(Gtk.ApplicationWindow):
             self.project.redo()
             self.__update_action_undo_redo()
 
-    def __on_project_filename_required(self, project):
-        filename = None
-
-        if project.filename is None:
-            dialog = self.__file_open_dialog_new(_("Choose a file to save the project"), Gtk.FileChooserAction.SAVE)
-            if dialog.run() == Gtk.ResponseType.ACCEPT:
-                filename = dialog.get_filename()
-            dialog.destroy()
-
-        return filename
-
     def _on_save_activate(self, action, data):
-        self.__save_project()
+        self.save_project()
+
+    def __save_dialog_callback(self, dialog, res):
+        try:
+            file = dialog.save_finish(res)
+            self.project.filename = file.get_path()
+            self.__save()
+        except Exception as e:
+            pass
 
     def _on_save_as_activate(self, action, data):
         if self.project is None:
             return
 
-        dialog = self.__file_open_dialog_new(_("Choose a new file to save the project"), Gtk.FileChooserAction.SAVE)
-        if dialog.run() == Gtk.ResponseType.ACCEPT:
-            self.project.filename = dialog.get_filename()
-            self.__save_project()
-
-        dialog.destroy()
+        dialog = self.__file_open_dialog_new(_("Choose a new file to save the project"))
+        dialog.save(self, None, self.__save_dialog_callback)
 
     def _on_add_ui_activate(self, action, data):
         if self.project is None:
@@ -785,19 +803,23 @@ class CmbWindow(Gtk.ApplicationWindow):
     def __remove_object_with_confirmation(self, obj):
         dialog = Gtk.MessageDialog(
             transient_for=self,
-            flags=0,
+            modal=True,
             message_type=Gtk.MessageType.QUESTION,
             buttons=Gtk.ButtonsType.YES_NO,
             text=_("Do you really want to remove {name}?").format(name=obj.get_display_name()),
         )
 
-        if dialog.run() == Gtk.ResponseType.YES:
-            if type(obj) == CmbUI:
-                self.project.remove_ui(obj)
-            elif type(obj) == CmbCSS:
-                self.project.remove_css(obj)
+        def on_dialog_response(dialog, response):
+            if response == Gtk.ResponseType.YES:
+                if type(obj) == CmbUI:
+                    self.project.remove_ui(obj)
+                elif type(obj) == CmbCSS:
+                    self.project.remove_css(obj)
 
-        dialog.destroy()
+            dialog.destroy()
+
+        dialog.connect("response", on_dialog_response)
+        dialog.present()
 
     def _on_copy_activate(self, action, data):
         if self.project:
@@ -891,30 +913,43 @@ class CmbWindow(Gtk.ApplicationWindow):
         if self.project is None:
             return
 
+        def dialog_callback(dialog, res):
+            try:
+                for file in dialog.open_multiple_finish(res):
+                    self.import_file(file.get_path())
+            except Exception as e:
+                pass
+
         dialog = self.__file_open_dialog_new(
-            _("Choose file to import"), filter_obj=self.import_filter, select_multiple=True, accept_label=_("Import")
+            _("Choose file to import"), filter_obj=self.import_filter, accept_label=_("Import")
         )
+        dialog.open_multiple(self, None, dialog_callback)
 
-        if dialog.run() == Gtk.ResponseType.ACCEPT:
-            filenames = dialog.get_filenames()
-            dialog.destroy()
+    def __save(self):
+        if self.project.save():
+            self.__last_saved_index = self.project.history_index
+            self.__update_action_save()
+            self.emit("project-saved", self.project)
 
-            for filename in filenames:
-                self.import_file(filename)
-        else:
-            dialog.destroy()
+    def save_project(self):
+        if self.project is None:
+            return False
 
-    def __save_project(self):
-        if self.project is not None:
-            if self.project.save():
-                self.__last_saved_index = self.project.history_index
-                self.__update_action_save()
+        if self.project.filename is None:
+            dialog = self.__file_open_dialog_new(_("Choose a file to save the project"))
+            dialog.save(self, None, self.__save_dialog_callback)
+            return True
+
+        # Save project and update last saved index
+        self.__save()
+
+        return False
 
     def _on_export_activate(self, action, data):
         if self.project is None:
             return
 
-        self.__save_project()
+        self.save_project()
 
         n = self.project.export()
 
@@ -931,7 +966,7 @@ class CmbWindow(Gtk.ApplicationWindow):
             fd, filename = tempfile.mkstemp(".db", "cmb")
 
         self.project.db_move_to_fs(filename)
-        Gtk.show_uri_on_window(self, f"file://{filename}", Gdk.CURRENT_TIME)
+        Gtk.show_uri(self, f"file://{filename}", Gdk.CURRENT_TIME)
 
     def _on_about_activate(self, action, data):
         self.about_dialog.present()
@@ -940,13 +975,13 @@ class CmbWindow(Gtk.ApplicationWindow):
         self.__set_page("donate")
 
     def _on_liberapay_activate(self, action, data):
-        Gtk.show_uri_on_window(self, "https://liberapay.com/xjuan/donate", Gdk.CURRENT_TIME)
+        Gtk.show_uri(self, "https://liberapay.com/xjuan/donate", Gdk.CURRENT_TIME)
 
     def _on_patreon_activate(self, action, data):
-        Gtk.show_uri_on_window(self, "https://www.patreon.com/cambalache", Gdk.CURRENT_TIME)
+        Gtk.show_uri(self, "https://www.patreon.com/cambalache", Gdk.CURRENT_TIME)
 
     def _on_contact_activate(self, action, data):
-        Gtk.show_uri_on_window(self, "https://matrix.to/#/#cambalache:gnome.org", Gdk.CURRENT_TIME)
+        Gtk.show_uri(self, "https://matrix.to/#/#cambalache:gnome.org", Gdk.CURRENT_TIME)
 
     def _on_add_placeholder_activate(self, action, data):
         self.view.add_placeholder()
@@ -974,18 +1009,18 @@ class CmbWindow(Gtk.ApplicationWindow):
 
     def __on_project_notify(self, obj, pspec):
         if self.project:
-            self.turor_waiting_for_user_action = False
+            self.tutor_waiting_for_user_action = False
             self.tutor.play()
             self.disconnect_by_func(self.__on_project_notify)
 
     def __on_object_added(self, project, obj, data):
         if obj.info.is_a(data):
             project.disconnect_by_func(self.__on_object_added)
-            self.turor_waiting_for_user_action = False
+            self.tutor_waiting_for_user_action = False
             self.tutor.play()
 
     def __on_ui_added(self, project, ui):
-        self.turor_waiting_for_user_action = False
+        self.tutor_waiting_for_user_action = False
         project.disconnect_by_func(self.__on_ui_added)
         self.tutor.play()
 
@@ -1001,14 +1036,12 @@ class CmbWindow(Gtk.ApplicationWindow):
             self.project.connect("object-added", self.__on_object_added, "GtkGrid")
         elif node == "add-button":
             self.project.connect("object-added", self.__on_object_added, "GtkButton")
-        elif node == "main-menu":
-            self.main_menu.props.modal = False
+        elif node in ["menu_button", "main-menu"]:
+            self.menu_button.popup()
         elif node == "show-type-popover":
-            widget.props.popover.modal = False
             widget.props.popover.popup()
         elif node == "show-type-popover-gtk":
-            child = widget.get_children()[0]
-            child.props.popover.props.modal = False
+            child = utils.widget_get_children(widget)[0]
             child.props.popover.popup()
 
     def __on_tutor_hide_node(self, tutor, node, widget):
@@ -1017,28 +1050,23 @@ class CmbWindow(Gtk.ApplicationWindow):
             self.__clear_tutor()
         elif node == "add-project":
             if self.__project is None:
-                self.turor_waiting_for_user_action = True
+                self.tutor_waiting_for_user_action = True
                 self.tutor.pause()
         elif node in ["add-ui", "add-window", "add-grid", "add-button"]:
-            self.turor_waiting_for_user_action = True
+            self.tutor_waiting_for_user_action = True
             self.tutor.pause()
-        elif node == "main-menu":
-            self.export_all.get_style_context().remove_class("cmb-tutor-highlight")
-        elif node == "donate":
-            self.main_menu.props.modal = True
-            self.main_menu.popdown()
+        elif node in ["menu_button", "donate"]:
+            self.menu_button.popdown()
         elif node == "show-type-popover":
-            widget.props.popover.modal = True
             widget.props.popover.popdown()
         elif node == "show-type-popover-gtk":
-            child = widget.get_children()[0]
-            child.props.popover.props.modal = True
+            child = utils.widget_get_children(widget)[0]
             child.props.popover.popdown()
 
         self.__update_actions()
 
     def _on_intro_activate(self, action, data):
-        if self.turor_waiting_for_user_action:
+        if self.tutor_waiting_for_user_action:
             return
 
         if self.tutor:
@@ -1058,28 +1086,72 @@ class CmbWindow(Gtk.ApplicationWindow):
         self.tutor.connect("hide-node", self.__on_tutor_hide_node)
         self.tutor.play()
 
+    def _on_workspace_restart_activate(self, action, data):
+        self.view.restart_workspace()
+
+    def _on_workspace_theme_activate(self, action, data):
+        self.view.props.gtk_theme = data.get_string()
+        action.set_state(data)
+
+    def _on_inspect_activate(self, action, data):
+        self.view.inspect()
+
+    def _on_open_recent_activate(self, action, data):
+        self.emit("open-project", data.get_string(), None, None)
+
+    def __update_recent_menu(self):
+        mime_types = ["application/x-cambalache-project"]
+
+        self.recent_menu.remove_all()
+        has_items = False
+
+        for recent in self.__recent_manager.get_items():
+            if recent.get_mime_type() not in mime_types:
+                continue
+
+            if not recent.exists() or recent.get_age() > 7:
+                continue
+
+            filename, host = GLib.filename_from_uri(recent.get_uri())
+
+            item = Gio.MenuItem()
+            item.set_label(recent.get_display_name())
+            item.set_action_and_target_value("win.open_recent", GLib.Variant("s", filename))
+            self.recent_menu.append_item(item)
+            has_items = True
+
+        self.recent_button.set_sensitive(has_items)
+
     def __load_window_state(self):
         state = self.window_settings.get_uint("state")
 
-        if state & Gdk.WindowState.MAXIMIZED:
+        if state & self.MAXIMIZED:
             self.maximize()
+        elif state & self.FULLSCREEN:
+            self.fullscreen()
         else:
             size = self.window_settings.get_value("size").unpack()
             self.set_default_size(*size)
 
     def __save_window_state(self):
-        state = self.props.window.get_state()
+        fullscreen = self.props.fullscreened
+        maximized = self.props.maximized
+        state = 0
 
-        fullscreen = state & Gdk.WindowState.FULLSCREEN
-        maximized = state & Gdk.WindowState.MAXIMIZED
+        if fullscreen:
+            state = state | self.FULLSCREEN
 
+        if maximized:
+            state = state | self.MAXIMIZED
+
+        # Maintain compatibility with Gtk 3 state
         self.window_settings.set_uint("state", state)
 
-        size = (0, 0) if fullscreen or maximized else self.get_size()
+        size = (0, 0) if fullscreen or maximized else (self.props.default_width, self.props.default_height)
 
         self.window_settings.set_value("size", GLib.Variant("(ii)", size))
 
-    def do_delete_event(self, event):
+    def do_close_request(self):
         self.__save_window_state()
         return False
 
@@ -1112,6 +1184,3 @@ class CmbWindow(Gtk.ApplicationWindow):
             self.__message_timeout_id = GLib.timeout_add(len(msg) * 100, self.__on_message_timeout, None)
         else:
             self.message_revealer.props.reveal_child = False
-
-
-Gtk.WidgetClass.set_css_name(CmbWindow, "CmbWindow")

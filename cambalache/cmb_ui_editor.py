@@ -1,7 +1,7 @@
 #
 # CmbUIEditor - Cambalache UI Editor
 #
-# Copyright (C) 2021  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -117,3 +117,6 @@ class CmbUIEditor(Gtk.Grid):
             self.object.project.remove_ui(self.object)
 
         return True
+
+
+Gtk.WidgetClass.set_css_name(CmbUIEditor, "CmbUIEditor")

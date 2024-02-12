@@ -1,7 +1,7 @@
 #
 # CmbTutorial
 #
-# Copyright (C) 2021  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -36,9 +36,9 @@ intro = [
     (_("Common actions like Undo"), "undo_button", 4),
     (_("Redo"), "redo_button", 2),
     (_("Add new UI file"), "add_button", 3),
-    (_("and Save are directly accessible in the headerbar"), "save_button", 6),
+    (_("and Save are directly accessible in the headerbar"), "cmb_save_button", 6),
     (_("just like Save As"), "save_as_button", 2),
-    (_("and the main menu"), "menu_button", 3),
+    (_("and the main menu"), "menu_button", 3, "menu_button"),
     (_("Create a project to continue"), "intro_button", 2, "add-project"),
     (_("Great!"), "intro_button", 2),
     (
@@ -66,14 +66,21 @@ intro = [
     (_("Quite easy! Isn't it?"), "intro_button", 3),
     (
         _("Once you finish, you can export all UI files to xml here"),
-        "export_all",
+        _("Export all"),
         5,
         "main-menu",
         CmbTutorPosition.LEFT,
     ),
     (
+        _("If you have any question, contact us on Matrix!"),
+        _("Contact"),
+        7,
+        None,
+        CmbTutorPosition.LEFT,
+    ),
+    (
         _("That is all for now.\nIf you find Cambalache useful please consider donating"),
-        "donate",
+        _("Donate"),
         7,
         "donate",
         CmbTutorPosition.LEFT,

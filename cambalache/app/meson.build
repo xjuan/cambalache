@@ -24,6 +24,7 @@ configure_file(
 install_data([
     '__init__.py',
     'cmb_application.py',
+    'cmb_scrolled_window.py',
     'cmb_window.py',
     'cmb_tutor.py',
     'cmb_tutorial.py',

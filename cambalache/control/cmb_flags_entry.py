@@ -1,7 +1,7 @@
 #
 # CmbFlagsEntry
 #
-# Copyright (C) 2021-2023  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -47,14 +47,16 @@ class CmbFlagsEntry(Gtk.Entry):
         self.__init_popover()
 
     def __init_popover(self):
-        self._popover = Gtk.Popover(relative_to=self)
+        self._popover = Gtk.Popover()
+        self._popover.set_parent(self)
+
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        box.pack_start(Gtk.Label(label=f"<b>{self.info.type_id}</b>", use_markup=True), False, True, 4)
-        box.pack_start(Gtk.Separator(), False, False, 0)
+        box.append(Gtk.Label(label=f"<b>{self.info.type_id}</b>", use_markup=True))
+        box.append(Gtk.Separator())
         sw = Gtk.ScrolledWindow(hscrollbar_policy=Gtk.PolicyType.NEVER, propagate_natural_height=True, max_content_height=360)
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        sw.add(vbox)
-        box.pack_start(sw, True, True, 0)
+        sw.set_child(vbox)
+        box.append(sw)
 
         for row in self.info.flags:
             flag = row[self.text_column]
@@ -62,18 +64,17 @@ class CmbFlagsEntry(Gtk.Entry):
 
             check = Gtk.CheckButton(label=flag)
             check.connect("toggled", self.__on_check_toggled, flag_id)
-            vbox.pack_start(check, False, True, 4)
+            vbox.append(check)
             self._checks[flag_id] = check
 
-        box.show_all()
-        self._popover.add(box)
+        self._popover.set_child(box)
 
     def __on_check_toggled(self, check, flag_id):
         self.flags[flag_id] = check.props.active
         self.props.text = self.__to_string()
         self.notify("cmb-value")
 
-    def __on_icon_release(self, obj, pos, event):
+    def __on_icon_release(self, obj, pos):
         self._popover.popup()
 
     def __to_string(self):

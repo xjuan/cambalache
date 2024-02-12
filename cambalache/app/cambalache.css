@@ -1,7 +1,7 @@
 /*
  * cambalache.css
  *
- * Copyright (C) 2021 Juan Pablo Ugarte
+ * Copyright (C) 2021-2024 Juan Pablo Ugarte
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,42 +21,37 @@
  *
  */
 
-@binding-set WindowBindings {
-  bind "<Control>s"         { "cmb-action" ("save") };
-  bind "<Control>w"         { "cmb-action" ("close") };
-  bind "<Control>z"         { "cmb-action" ("undo") };
-  bind "<Control><shift>z"  { "cmb-action" ("redo") };
-  bind "Delete"             { "cmb-action" ("delete") };
-  bind "<Control>n"         { "cmb-action" ("create_new") };
-  bind "<Control>o"         { "cmb-action" ("open") };
-  bind "<Control>Insert"    { "cmb-action-bool" ("add_placeholder", 0) };
-  bind "<Control>Delete"    { "cmb-action-bool" ("remove_placeholder", 0) };
-  bind "<Control><shift>Insert" { "cmb-action-bool" ("add_placeholder", 1) };
-  bind "<Control><shift>Delete" { "cmb-action-bool" ("remove_placeholder", 1) };
+
+window.cmb-window .logo {
+  background: url('resource:///ar/xjuan/Cambalache/app/images/logo-symbolic.svg') no-repeat 50% 35% / 40%;
 }
 
-CmbWindow .logo {
-  background: url('resource:///ar/xjuan/Cambalache/app/images/logo-symbolic.svg') no-repeat 50% 35% / 40%
-}
-
-CmbWindow.dark .logo {
+window.cmb-window.dark .logo {
   color: white;
-  background: -gtk-recolor(url('resource:///ar/xjuan/Cambalache/app/images/logo-symbolic.svg'), success #ffcb85, error #1a1a1a) no-repeat 50% 35% / 40%
+  background: -gtk-recolor(url('resource:///ar/xjuan/Cambalache/app/images/logo-symbolic.svg'), success #ffcb85, error #1a1a1a) no-repeat 50% 35% / 40%;
 }
 
-CmbWindow label.message {
+window.cmb-window label.message {
   padding: 1ex 1em;
   border-radius: 1ex 1ex 0 0;
   color: white;
   background-color: rgba(0, 0, 0, .6);
 }
 
-CmbWindow.dark label.message {
+window.cmb-window.dark label.message {
   color: black;
   background-color: rgba(255, 255, 255, .6);
 }
 
-popover.cmb-tutor {
+window.cmb-window stackswitcher.compact > button {
+  min-width: unset;
+}
+
+window.cmb-window box.donate {
+  padding: 1em;
+}
+
+popover.cmb-tutor > * {
   padding: 1em;
 }
 
@@ -65,13 +60,54 @@ popover.cmb-tutor label {
   font-weight: bold;
 }
 
+popover.cmb-tutor image {
+  padding-right: 1em;
+  -gtk-icon-size: 48px;
+}
+
 button.cmb-tutor-highlight,
 modelbutton.cmb-tutor-highlight,
 buttonbox.cmb-tutor-highlight > button,
 stackswitcher.cmb-tutor-highlight > button,
 entry.cmb-tutor-highlight,
 treeview.cmb-tutor-highlight,
-box.cmb-tutor-highlight {
+box.cmb-tutor-highlight,
+CmbView.cmb-tutor-highlight {
   box-shadow: inset 0px 0px 6px @theme_selected_bg_color;
   transition: box-shadow .75s ease;
+}
+
+CmbView.cmb-tutor-highlight {
+  padding: 6px;
+}
+
+CmbTypeChooser {
+  padding: 4px;
+}
+
+CmbUIEditor,
+CmbFragmentEditor,
+CmbObjectEditor {
+  padding: 0 4px 4px 4px;
+}
+
+CmbCSSEditor,
+stackswitcher.property-pane {
+  padding: 4px;
+}
+
+textview {
+  border: solid @borders 1px;
+}
+
+button.borderless {
+ border: unset;
+}
+
+image.icon-size-32 {
+  -gtk-icon-size: 32px;
+}
+
+image.icon-size-64 {
+  -gtk-icon-size: 64px;
 }

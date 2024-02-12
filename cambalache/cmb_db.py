@@ -1,7 +1,7 @@
 #
 # CmbDB - Cambalache DataBase
 #
-# Copyright (C) 2021-2023  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -28,7 +28,7 @@ import ast
 
 from lxml import etree
 from lxml.builder import E
-from gi.repository import Gio, GObject, Gtk
+from gi.repository import GLib, Gio, GObject
 from cambalache import config, getLogger, _
 from . import cmb_db_migration, utils
 from .constants import EXTERNAL_TYPE, GMENU_TYPE, GMENU_SECTION_TYPE, GMENU_SUBMENU_TYPE, GMENU_ITEM_TYPE
@@ -654,7 +654,9 @@ class CmbDB(GObject.GObject):
 
         # DUMP custom properties and signals
         for table in ["property", "signal"]:
-            data = _dump_query(c, f"SELECT {table}.* FROM {table},type WHERE {table}.owner_id == type.type_id AND type.library_id IS NULL;")
+            data = _dump_query(
+                c, f"SELECT {table}.* FROM {table},type WHERE {table}.owner_id == type.type_id AND type.library_id IS NULL;"
+            )
             append_data(project, table, data)
 
         # Dump xml to file
@@ -1530,12 +1532,11 @@ class CmbDB(GObject.GObject):
                         if column is not None:
                             c.execute(f"UPDATE ui SET {column}=? WHERE ui_id=?", (value, ui_id))
             else:
-                print(child)
                 custom_fragments.append(child)
-                # self.__unknown_tag(child, None, child.tag)
 
-            while Gtk.events_pending():
-                Gtk.main_iteration_do(False)
+            main_loop = GLib.MainContext.default()
+            while main_loop.pending():
+                main_loop.iteration(False)
 
         # Fix object references!
         self.__fix_object_references(ui_id)

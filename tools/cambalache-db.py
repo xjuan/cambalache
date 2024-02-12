@@ -539,5 +539,4 @@ if __name__ == "__main__":
             json.dumps(translatable_properties, indent=2, sort_keys=True),
         )
 
-
     db.dump(args.output)

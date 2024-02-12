@@ -1,7 +1,7 @@
 #
 # Unit Tests utils
 #
-# Copyright (C) 2023  Juan Pablo Ugarte
+# Copyright (C) 2023-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -28,28 +28,20 @@ import struct
 from gi.repository import GLib, Gtk
 
 
-# Based on Gtk sources gtk-reftest.c
+# Based on Gtk sources gtktestutils.c gtk_test_widget_wait_for_draw()
 def wait_for_drawing(window):
-    def on_window_draw(widget, cr, loop):
-        loop.quit()
-        return False
+    done = {"done": False}
+    main_loop = GLib.MainContext.default()
 
-    def quit_when_idle(loop):
-        loop.quit()
+    def quit_main_loop_callback(widget, frame_clock, done):
+        done["done"] = True
+        main_loop.wakeup()
         return GLib.SOURCE_REMOVE
 
-    loop = GLib.MainLoop()
+    window.add_tick_callback(quit_main_loop_callback, done)
 
-    # We wait until the widget is drawn for the first time.
-    # We are running in a dedicated compositor so the window should not be obstructed by other windows
-    window.connect("draw", on_window_draw, loop)
-    loop.run()
-    window.disconnect_by_func(on_window_draw)
-
-    # give the WM/server some time to sync. They need it.
-    window.get_display().sync()
-    GLib.timeout_add(500, quit_when_idle, loop)
-    loop.run()
+    while not done["done"]:
+        main_loop.iteration(True)
 
 
 def surface_write_ppm(surface, path):
@@ -71,13 +63,20 @@ def window_screenshot(window):
     # Wait for window to finish drawing
     wait_for_drawing(window)
 
-    w = window.get_allocated_width()
-    h = window.get_allocated_height()
+    paintable = Gtk.WidgetPaintable.new(window)
+    snapshot = Gtk.Snapshot()
+
+    w = paintable.get_intrinsic_width()
+    h = paintable.get_intrinsic_height()
 
     # Draw widget to cairo surface
     surface = cairo.ImageSurface(cairo.FORMAT_RGB24, w, h)
+
+    paintable.snapshot(snapshot, w, h)
+    node = snapshot.to_node()
+
     cr = cairo.Context(surface)
-    window.draw(cr)
+    node.draw(cr)
 
     surface.flush()
 
@@ -124,26 +123,36 @@ def mean_squared_error(original, screenshot, ignore_color=None):
 
 
 def process_all_pending_gtk_events():
-    while Gtk.events_pending():
-        Gtk.main_iteration_do(False)
+    main_loop = GLib.MainContext.default()
+    while main_loop.pending():
+        main_loop.iteration(False)
+
+
+def __get_children(obj):
+    if obj is None:
+        return []
+
+    retval = []
+
+    child = obj.get_first_child()
+    while child is not None:
+        retval.append(child)
+        child = child.get_next_sibling()
+    return retval
 
 
 def find_by_buildable_id(widget, name):
     retval = None
 
-    if isinstance(widget, Gtk.Buildable) and Gtk.Buildable.get_name(widget) == name:
+    if isinstance(widget, Gtk.Buildable) and Gtk.Buildable.get_buildable_id(widget) == name:
         return widget
 
-    if not isinstance(widget, Gtk.Container):
-        return None
+    for child in __get_children(widget):
+        retval = find_by_buildable_id(child, name)
+        if retval:
+            return retval
 
-    for child in widget.get_children():
-        if isinstance(child, Gtk.Container):
-            retval = find_by_buildable_id(child, name)
-            if retval:
-                return retval
-
-        if isinstance(child, Gtk.Buildable) and Gtk.Buildable.get_name(child) == name:
+        if isinstance(child, Gtk.Buildable) and Gtk.Buildable.get_buildable_id(child) == name:
             return child
 
     return retval
@@ -159,8 +168,9 @@ def cmb_create_app():
     window = None
 
     # Spin until we get the main window
-    while Gtk.events_pending() and not window:
-        Gtk.main_iteration_do(False)
+    main_loop = GLib.MainContext.default()
+    while main_loop.pending() and not window:
+        main_loop.iteration(False)
 
         # Get window if any
         windows = app.get_windows()
