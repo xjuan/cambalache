@@ -3,21 +3,22 @@
 # This file is distributed under the same license as the cambalache package.
 # Vojtěch Perník <translations@pervoj.cz>, 2021-2022.
 # Juan Pablo Ugarte <juanpablougarte@gmail.com>, 2022.
+# Daniel Rusek <mail@asciiwolf.com>, 2024.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: cambalache\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-06-22 17:02-0400\n"
-"PO-Revision-Date: 2022-06-08 14:10-0400\n"
-"Last-Translator: Juan Pablo Ugarte <juanpablougarte@gmail.com>\n"
-"Language-Team: Spanish; Castilian <>\n"
-"Language: es\n"
+"PO-Revision-Date: 2024-02-13 00:06+0100\n"
+"Last-Translator: Daniel Rusek <mail@asciiwolf.com>\n"
+"Language-Team: Czech <gnome-cs-list@gnome.org>\n"
+"Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Gtranslator 41.0\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"X-Generator: Poedit 3.4.2\n"
 
 #: data/ar.xjuan.Cambalache.desktop.in:3
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:6 cambalache/app/cmb_window.ui:288
@@ -57,80 +58,76 @@ msgstr ""
 "podporoval i jiné verze."
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:25
-#, fuzzy
 msgid "New Features release!"
-msgstr "Vydání na Flathubu!"
+msgstr "Vydání s novými funkcemi!"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:27
 msgid "User Templates: use your templates anywhere in your project"
-msgstr ""
+msgstr "Uživatelské šablony: používejte své šablony kdekoli ve svém projektu"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:28
 msgid "Workspace CSS support: see your CSS changes live"
-msgstr ""
+msgstr "Podpora CSS v prostředí: sledujte změny CSS naživo"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:29
 msgid "GtkBuildable Custom Tags: support for styles, items, etc"
-msgstr ""
+msgstr "Vlastní značky GtkBuildable: podpora stylů, položek atd."
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:30
 msgid "Property Bindings: bind your property to any source property"
 msgstr ""
+"Vazby vlastností: svažte svou vlastnost s jakoukoli zdrojovou vlastností"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:31
 msgid "XML Fragments: add any xml to any object or UI as a fallback"
 msgstr ""
+"Fragmenty XML: přidejte libovolný xml do libovolného objektu nebo "
+"uživatelského rozhraní jako záložní"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:32
-#, fuzzy
 msgid "Preview mode: hide placeholders in workspace"
-msgstr "GTK 4: Oprava zástupných ploch v GtkPaned"
+msgstr "Režim náhledu: skrytí zástupných ploch v prostředí"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:33
 msgid "WebKit support: new widget catalog available"
-msgstr ""
+msgstr "Podpora WebKit: k dispozici nový katalog widgetů"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:34
 msgid "External objects references support"
-msgstr ""
+msgstr "Podpora odkazů na externí objekty"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:35
-#, fuzzy
 msgid "Add support for GdkPixbuf, GListModel and GListStore types"
-msgstr "Přidána podpora pro GdkPixbuf, Pango, Gio, Gdk a typy Gsk flags/enums"
+msgstr "Přidána podpora pro GdkPixbuf, GListModel a typy GListStore"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:36
 msgid "Add missing child type attributes to Gtk4 GtkActionBar (B. Teeuwen)"
 msgstr ""
+"Přidán chybějící atribut podřízeného typu do Gtk4 GtkActionBar (B. Teeuwen)"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:37
-#, fuzzy
 msgid "Added French Translation (rene-coty)"
-msgstr "Přidat překlad do holandštiny (Gert)"
+msgstr "Přidán překlad do francouzštiny (rene-coty)"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:71
-#, fuzzy
 msgid "New bugfix release!"
-msgstr "Vydání s opravami chyb!"
+msgstr "Nové vydání s opravami chyb!"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:73
 msgid "Fix reordering workspace update on gtk 4 projects"
-msgstr ""
+msgstr "Oprava aktualizace přeskupení prostředí na projektech gtk 4"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:74
-#, fuzzy
 msgid "Fix metainfo version"
-msgstr "Vypsat verzi"
+msgstr "Oprava metainfo verze"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:80
-#, fuzzy
 msgid "Fix bugfix release!"
-msgstr "Vydání s opravami chyb!"
+msgstr "Oprava opravného vydání!"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:82
-#, fuzzy
 msgid "Fix inline object regression"
-msgstr "Přidat vložený objekt"
+msgstr "Oprava regrese vložených objektů"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:88
 msgid "3rd party libs release!"
@@ -183,7 +180,7 @@ msgstr "Přidán italský překlad (capaz)"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:100
 msgid "Add Dutch translation (Gert)"
-msgstr "Přidat překlad do holandštiny (Gert)"
+msgstr "Přidán překlad do holandštiny (Gert)"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:139
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:211
@@ -378,16 +375,15 @@ msgstr "hlavní menu"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:305
 msgid "GUI Designer"
-msgstr ""
+msgstr "Návrhář grafického uživatelského rozhraní"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:307
-#, fuzzy
 msgid "user interface"
-msgstr "Tvorba uživatelských rozhraní"
+msgstr "uživatelské rozhraní"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:308
 msgid "UI Builder"
-msgstr ""
+msgstr "Tvůrce uživatelského rozhraní"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:310
 msgid "Juan Pablo Ugarte"
@@ -470,20 +466,19 @@ msgstr "Přepnout mezi objektem a šablonou"
 #: cambalache/cmb_object_editor.py:77
 #, python-brace-format
 msgid "{type} is not derivable."
-msgstr ""
+msgstr "{type} není odvoditelný."
 
 #: cambalache/cmb_object_editor.py:79
 msgid "Template"
 msgstr "Šablona"
 
 #: cambalache/cmb_object_editor.py:94
-#, fuzzy
 msgid "Type Name"
-msgstr "Jméno"
+msgstr "Jméno typu"
 
 #: cambalache/cmb_object_editor.py:113
 msgid "Child Type"
-msgstr "Typ mateřského widgetu "
+msgstr "Typ mateřského widgetu"
 
 #: cambalache/cmb_object_editor.py:150
 msgid ""
@@ -491,6 +486,8 @@ msgid ""
 "It has to be exposed by your application with GtkBuilder expose_object "
 "method."
 msgstr ""
+"Tento objekt nebude exportován, slouží pouze k vytvoření odkazu na něj. Musí "
+"být vystaven vaší aplikací pomocí metody GtkBuilder expose_object."
 
 #: cambalache/cmb_object.py:349
 #, python-brace-format
@@ -608,14 +605,14 @@ msgid "Remove UI \"{name}\""
 msgstr "Odebrat UI \"{name}\""
 
 #: cambalache/cmb_project.py:525
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Add CSS {basename}"
-msgstr "Přidat UI {basename}"
+msgstr "Přidat CSS {basename}"
 
 #: cambalache/cmb_project.py:544
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Remove CSS \"{name}\""
-msgstr "Odebrat UI \"{name}\""
+msgstr "Odebrat CSS \"{name}\""
 
 #: cambalache/cmb_project.py:632
 #, python-brace-format
@@ -638,34 +635,34 @@ msgid "Remove UI {ui}"
 msgstr "Odebrat UI {ui}"
 
 #: cambalache/cmb_project.py:1012
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Update {field} of UI {ui}"
-msgstr "Aktualizovat UI {ui}"
+msgstr "Aktualizovat pole {field} UI {ui}"
 
 #: cambalache/cmb_project.py:1015
 #, python-brace-format
 msgid "Add CSS provider {css}"
-msgstr ""
+msgstr "Přidat poskytovatele CSS {css}"
 
 #: cambalache/cmb_project.py:1016
 #, python-brace-format
 msgid "Remove CSS provider {css}"
-msgstr ""
+msgstr "Odebrat poskytovatele CSS {css}"
 
 #: cambalache/cmb_project.py:1017
 #, python-brace-format
 msgid "Update {field} of CSS provider {css}"
-msgstr ""
+msgstr "Aktualizovat pole {field} poskytovatele CSS {css}"
 
 #: cambalache/cmb_project.py:1020
 #, python-brace-format
 msgid "Add {ui} to CSS provider {css}"
-msgstr ""
+msgstr "Přidat {ui} k poskytovateli CSS {css}"
 
 #: cambalache/cmb_project.py:1021
 #, python-brace-format
 msgid "Remove {ui} from CSS provider {css}"
-msgstr ""
+msgstr "Odebrat {ui} z poskytovatele CSS {css}"
 
 #: cambalache/cmb_project.py:1024
 #, python-brace-format
@@ -678,9 +675,9 @@ msgid "Remove object {obj}"
 msgstr "Odebrat objekt {obj}"
 
 #: cambalache/cmb_project.py:1026
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Update {field} of object {obj}"
-msgstr "Aktualizovat objekt {obj}"
+msgstr "Aktualizovat pole {field} objektu {obj}"
 
 #: cambalache/cmb_project.py:1029
 #, python-brace-format
@@ -730,19 +727,19 @@ msgid "Update {signal} signal of {obj}"
 msgstr "Aktualizovat signál {signal} objektu {obj}"
 
 #: cambalache/cmb_project.py:1044 cambalache/cmb_project.py:1049
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Add {data}={value} to {obj}"
-msgstr "Přidat signál {signal} objektu {obj}"
+msgstr "Přidat {data}={value} do objektu {obj}"
 
 #: cambalache/cmb_project.py:1045 cambalache/cmb_project.py:1050
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Remove {data}={value} from {obj}"
-msgstr "Odebrat signál {signal} objektu {obj}"
+msgstr "Odebrat {data}={value} z objektu {obj}"
 
 #: cambalache/cmb_project.py:1046 cambalache/cmb_project.py:1051
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Update {data} of {obj} to {value}"
-msgstr "Aktualizovat vlastnost \"{prop}\" objektu {obj} na hodnotu {value}"
+msgstr "Aktualizovat {data} objektu {obj} na hodnotu {value}"
 
 #: cambalache/cmb_project.py:1272
 #, python-brace-format
@@ -761,12 +758,11 @@ msgstr "Vyjmout {n_objects} objektů"
 
 #: cambalache/cmb_property_controls.py:324
 msgid "Select File"
-msgstr ""
+msgstr "Vybrat soubor"
 
 #: cambalache/cmb_property_controls.py:337
-#, fuzzy
 msgid "_Cancel"
-msgstr "Zrušit"
+msgstr "_Zrušit"
 
 #: cambalache/cmb_property_controls.py:337 cambalache/app/cmb_window.ui:1137
 msgid "_Open"
@@ -774,7 +770,7 @@ msgstr "_Otevřít"
 
 #: cambalache/cmb_property_controls.py:365
 msgid "Select Image"
-msgstr ""
+msgstr "Vybrat obrázek"
 
 #: cambalache/cmb_property_controls.py:430
 msgid "Clear property"
@@ -905,12 +901,12 @@ msgstr "Exportovat"
 
 #: cambalache/cmb_ui_editor.ui:244
 msgid "Comment:"
-msgstr ""
+msgstr "Komentář:"
 
 #: cambalache/cmb_ui.py:84
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Unnamed {ui_id}"
-msgstr "<b>Nepojmenovaný {ui_id}</b>"
+msgstr "Nepojmenovaný {ui_id}"
 
 #: cambalache/cmb_view.py:495
 #, python-brace-format
@@ -1004,11 +1000,11 @@ msgstr "Exportovat projekt"
 #. Create Dialog
 #: cambalache/app/cmb_application.py:123
 msgid "Save changes before closing?"
-msgstr ""
+msgstr "Uložit změny před zavřením?"
 
 #: cambalache/app/cmb_application.py:134
 msgid "Close without Saving"
-msgstr ""
+msgstr "Zavřít bez uložení"
 
 #: cambalache/app/cmb_application.py:136 cambalache/app/cmb_window.ui:520
 msgid "Cancel"
@@ -1020,7 +1016,7 @@ msgstr "Uložit"
 
 #: cambalache/app/cmb_application.py:147
 msgid "Select which files:"
-msgstr ""
+msgstr "Vyberte, které soubory:"
 
 #: cambalache/app/cmb_shortcuts.ui:14
 msgid "Project"
@@ -1146,7 +1142,6 @@ msgid "Good, now try to create a window"
 msgstr "Dobře, nyní zkus vytvořit okno"
 
 #: cambalache/app/cmb_tutorial.py:62
-#, fuzzy
 msgid "Excellent!"
 msgstr "Výborně!"
 
@@ -1187,7 +1182,7 @@ msgstr "Hezký den!"
 
 #: cambalache/app/cmb_window.py:279
 msgid "Untitled"
-msgstr ""
+msgstr "Bez názvu"
 
 #: cambalache/app/cmb_window.py:318
 msgid "Hold <alt> to create object in place"
@@ -1252,18 +1247,17 @@ msgid "File name already exists, choose a different name."
 msgstr "Jméno souboru již existuje, vyberte jiné jméno."
 
 #: cambalache/app/cmb_window.py:746
-#, fuzzy
 msgid "Choose a file to save the project"
-msgstr "Vyberte nové jméno souboru k uložení projektu"
+msgstr "Vyberte soubor k uložení projektu"
 
 #: cambalache/app/cmb_window.py:760
 msgid "Choose a new file to save the project"
 msgstr "Vyberte nové jméno souboru k uložení projektu"
 
 #: cambalache/app/cmb_window.py:787
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Do you really want to remove {name}?"
-msgstr "Opravdu chcete odebrat {filename}?"
+msgstr "Opravdu chcete odebrat {name}?"
 
 #: cambalache/app/cmb_window.py:890
 msgid "Choose file to import"
@@ -1272,11 +1266,11 @@ msgstr "Vyberte soubor k importu"
 #: cambalache/app/cmb_window.py:915
 #, python-brace-format
 msgid "{n} files exported"
-msgstr ""
+msgstr "Exportováno {n} souborů"
 
 #: cambalache/app/cmb_window.py:915
 msgid "File exported"
-msgstr ""
+msgstr "Soubor exportován"
 
 #: cambalache/app/cmb_window.py:1085
 msgid "<Ctrl>+Ins/Del to add/remove placeholders"
@@ -1303,9 +1297,8 @@ msgid "Export all"
 msgstr "Exportovat vše"
 
 #: cambalache/app/cmb_window.ui:80
-#, fuzzy
 msgid "Add CSS file"
-msgstr "přidat nový soubor UI"
+msgstr "přidat soubor CSS"
 
 #: cambalache/app/cmb_window.ui:105
 msgid "Close Project"
@@ -1374,12 +1367,11 @@ msgstr "Vytvořit"
 
 #: cambalache/app/cmb_window.ui:404
 msgid "Old stable version"
-msgstr ""
+msgstr "Stará stabilní verze"
 
 #: cambalache/app/cmb_window.ui:453
-#, fuzzy
 msgid "Recommended for new projects"
-msgstr "Vytvořit nový projekt"
+msgstr "Doporučeno pro nové projekty"
 
 #: cambalache/app/cmb_window.ui:510
 msgid "Choose a location to save the project"
@@ -1395,7 +1387,7 @@ msgstr "Nový projekt"
 
 #: cambalache/app/cmb_window.ui:643
 msgid "Preview mode"
-msgstr ""
+msgstr "Režim náhledu"
 
 #: cambalache/app/cmb_window.ui:730 cambalache/app/cmb_window.ui:827
 msgid "Properties"
@@ -1414,9 +1406,8 @@ msgid "UI Editor"
 msgstr "Editor UI"
 
 #: cambalache/app/cmb_window.ui:886
-#, fuzzy
 msgid "CSS Editor"
-msgstr "Editor UI"
+msgstr "Editor CSS"
 
 #: cambalache/app/cmb_window.ui:963
 msgid ""
@@ -1484,7 +1475,7 @@ msgstr "Tvorba uživatelských rozhraní"
 
 #: cambalache/app/cmb_window.ui:1358
 msgid "Source repository and issue tracker"
-msgstr "Repositář se zdrojovým kódem a nástroj pro sledování problémů"
+msgstr "Repozitář se zdrojovým kódem a nástroj pro sledování problémů"
 
 #~ msgid "Can not recognize file format"
 #~ msgstr "Nelze rozpoznat formát souboru"
