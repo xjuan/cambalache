@@ -22,6 +22,7 @@
 #
 
 from gi.repository import GObject, Gtk
+from .cmb_object import CmbObject
 
 
 @Gtk.Template(resource_path="/ar/xjuan/Cambalache/cmb_fragment_editor.ui")
@@ -29,10 +30,12 @@ class CmbFragmentEditor(Gtk.Box):
     __gtype_name__ = "CmbFragmentEditor"
 
     view = Gtk.Template.Child()
+    child_view = Gtk.Template.Child()
+    switcher = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         self._object = None
-        self.__binding = None
+        self.__bindings = []
 
         super().__init__(**kwargs)
 
@@ -45,9 +48,10 @@ class CmbFragmentEditor(Gtk.Box):
         if obj == self._object:
             return
 
-        if self.__binding:
-            self.__binding.unbind()
-            self.__binding = None
+        for binding in self.__bindings:
+            binding.unbind()
+
+        self.__bindings = []
 
         self._object = obj
 
@@ -61,7 +65,20 @@ class CmbFragmentEditor(Gtk.Box):
             "text",
             GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
         )
-        self.__binding = binding
+        self.__bindings.append(binding)
+
+        # Only objects have child fragments
+        if type(obj) == CmbObject and obj.parent is not None:
+            binding = GObject.Object.bind_property(
+                obj,
+                "custom-child-fragment",
+                self.child_view,
+                "text",
+                GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
+            )
+            self.__bindings.append(binding)
+
+            self.switcher.set_visible(True)
 
 
 Gtk.WidgetClass.set_css_name(CmbFragmentEditor, "CmbFragmentEditor")
