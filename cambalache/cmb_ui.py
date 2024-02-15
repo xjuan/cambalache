@@ -115,7 +115,17 @@ class CmbUI(CmbBaseUI):
         c.close()
 
     def get_display_name(self):
-        return self.filename if self.filename else _("Unnamed {ui_id}").format(ui_id=self.ui_id)
+        if self.filename:
+            return self.filename
+
+        template_id = self.template_id
+
+        if template_id:
+            template = self.project.get_object_by_id(self.ui_id, template_id)
+            if template is not None:
+                return template.name
+
+        return _("Unnamed {ui_id}").format(ui_id=self.ui_id)
 
     def __get_infered_target(self, library_id):
         ui_id = self.ui_id
