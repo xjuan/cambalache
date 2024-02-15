@@ -31,6 +31,7 @@ from lxml import etree
 from .cmb_db import CmbDB
 from .cmb_ui import CmbUI
 from .cmb_css import CmbCSS
+from .cmb_base import CmbBase
 from .cmb_object import CmbObject
 from .cmb_object_data import CmbObjectData
 from .cmb_property import CmbProperty
@@ -119,7 +120,7 @@ class CmbProject(Gtk.TreeStore):
             raise Exception("Either target_tk or filename are required")
 
         # Use a TreeStore to hold object tree instead of using SQL for every TreeStore call
-        self.set_column_types([GObject.GObject])
+        self.set_column_types([CmbBase])
 
         # DataModel is only used internally
         self.db = CmbDB(target_tk=self.target_tk)
@@ -1453,8 +1454,9 @@ class CmbProject(Gtk.TreeStore):
             iter = self.iter_next(iter)
 
     # GtkTreeDragDest Iface
-    def do_drag_data_received(self, path, selection_data):
-        valid, _model, drag_path = Gtk.tree_get_row_drag_data(selection_data)
+    def do_drag_data_received(self, dest, value):
+        value = GObject.Value(Gtk.TreeRowData, value)
+        valid, _model, drag_path = Gtk.tree_get_row_drag_data(value)
 
         if not valid:
             return False
@@ -1464,12 +1466,12 @@ class CmbProject(Gtk.TreeStore):
 
         # Move to new place
         try:
-            iter = self.get_iter(path)
-            self.move_before(drag_iter, iter)
+            iter = self.get_iter(dest)
+            drag_iter = self.insert_before(None, iter, [self[drag_iter][0]])
         except ValueError:
-            path.prev()
-            iter = self.get_iter(path)
-            self.move_after(drag_iter, iter)
+            dest.prev()
+            iter = self.get_iter(dest)
+            drag_iter = self.insert_before(None, iter, [self[drag_iter][0]])
 
         position_path = self.get_path(drag_iter)
 
@@ -1483,15 +1485,17 @@ class CmbProject(Gtk.TreeStore):
         drag_obj.parent.reorder_child(drag_obj, indices[-1])
         self.__reordering_children = False
 
-        # Manually emmit signal since we disable it by setting __reordering_children flag
+        # Manually emit signal since we disable it by setting __reordering_children flag
         self.emit("object-changed", drag_obj, "position")
 
+        self.set_selection([])
         self.set_selection([drag_obj])
 
-        return False
+        return True
 
-    def do_row_drop_possible(self, path, selection_data):
-        valid, _model, drag_path = Gtk.tree_get_row_drag_data(selection_data)
+    def do_row_drop_possible(self, path, value):
+        value = GObject.Value(Gtk.TreeRowData, value)
+        valid, _model, drag_path = Gtk.tree_get_row_drag_data(value)
 
         if not valid:
             return False
