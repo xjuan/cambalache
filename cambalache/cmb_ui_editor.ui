@@ -1,17 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.17.3 -->
 <interface>
+  <!-- interface-name cmb_ui_editor.ui -->
   <requires lib="gtk" version="4.0"/>
   <object class="CmbTextBuffer" id="authors"/>
   <object class="CmbTextBuffer" id="comment"/>
   <object class="CmbTextBuffer" id="copyright"/>
   <object class="CmbTextBuffer" id="description"/>
   <template class="CmbUIEditor" parent="GtkGrid">
-    <property name="row-spacing">4</property>
     <property name="column-spacing">3</property>
+    <property name="row-spacing">4</property>
     <child>
       <object class="GtkLabel">
         <property name="halign">start</property>
-        <property name="label" translatable="1">Filename:</property>
+        <property name="label" translatable="yes">Filename:</property>
         <layout>
           <property name="column">0</property>
           <property name="row">0</property>
@@ -21,7 +23,7 @@
     <child>
       <object class="GtkLabel">
         <property name="halign">start</property>
-        <property name="label" translatable="1">Description:</property>
+        <property name="label" translatable="yes">Description:</property>
         <layout>
           <property name="column">0</property>
           <property name="row">2</property>
@@ -31,7 +33,7 @@
     <child>
       <object class="GtkLabel">
         <property name="halign">start</property>
-        <property name="label" translatable="1">Copyright:</property>
+        <property name="label" translatable="yes">Copyright:</property>
         <layout>
           <property name="column">0</property>
           <property name="row">3</property>
@@ -41,7 +43,7 @@
     <child>
       <object class="GtkLabel">
         <property name="halign">start</property>
-        <property name="label" translatable="1">Authors:</property>
+        <property name="label" translatable="yes">Authors:</property>
         <layout>
           <property name="column">0</property>
           <property name="row">4</property>
@@ -51,7 +53,7 @@
     <child>
       <object class="GtkLabel">
         <property name="halign">start</property>
-        <property name="label" translatable="1">Domain:</property>
+        <property name="label" translatable="yes">Domain:</property>
         <layout>
           <property name="column">0</property>
           <property name="row">5</property>
@@ -60,10 +62,10 @@
     </child>
     <child>
       <object class="CmbEntry" id="filename">
-        <property name="visible">True</property>
         <property name="can-focus">True</property>
         <property name="hexpand">True</property>
-        <property name="placeholder-text" translatable="1">&lt;file name relative to project&gt;</property>
+        <property name="placeholder-text" translatable="yes">&lt;file name relative to project&gt;</property>
+        <property name="visible">True</property>
         <layout>
           <property name="column">1</property>
           <property name="row">0</property>
@@ -72,10 +74,10 @@
     </child>
     <child>
       <object class="CmbEntry" id="translation_domain">
-        <property name="visible">True</property>
         <property name="can-focus">True</property>
         <property name="halign">start</property>
-        <property name="placeholder-text" translatable="1">&lt;translation domain&gt;</property>
+        <property name="placeholder-text" translatable="yes">&lt;translation domain&gt;</property>
+        <property name="visible">True</property>
         <layout>
           <property name="column">1</property>
           <property name="row">5</property>
@@ -84,15 +86,15 @@
     </child>
     <child>
       <object class="GtkScrolledWindow">
-        <property name="focusable">1</property>
-        <property name="min-content-height">96</property>
-        <property name="max-content-height">256</property>
         <property name="child">
           <object class="GtkTextView">
-            <property name="focusable">1</property>
             <property name="buffer">description</property>
+            <property name="focusable">1</property>
           </object>
         </property>
+        <property name="focusable">1</property>
+        <property name="max-content-height">256</property>
+        <property name="min-content-height">96</property>
         <layout>
           <property name="column">1</property>
           <property name="row">2</property>
@@ -101,15 +103,15 @@
     </child>
     <child>
       <object class="GtkScrolledWindow">
-        <property name="focusable">1</property>
-        <property name="min-content-height">96</property>
-        <property name="max-content-height">256</property>
         <property name="child">
           <object class="GtkTextView">
-            <property name="focusable">1</property>
             <property name="buffer">authors</property>
+            <property name="focusable">1</property>
           </object>
         </property>
+        <property name="focusable">1</property>
+        <property name="max-content-height">256</property>
+        <property name="min-content-height">96</property>
         <layout>
           <property name="column">1</property>
           <property name="row">4</property>
@@ -118,10 +120,10 @@
     </child>
     <child>
       <object class="CmbToplevelChooser" id="template_id">
-        <property name="visible">True</property>
         <property name="can-focus">False</property>
-        <property name="halign">start</property>
         <property name="derivable-only">True</property>
+        <property name="halign">start</property>
+        <property name="visible">True</property>
         <layout>
           <property name="column">1</property>
           <property name="row">1</property>
@@ -131,7 +133,7 @@
     <child>
       <object class="GtkLabel">
         <property name="halign">start</property>
-        <property name="label" translatable="1">Template:</property>
+        <property name="label" translatable="yes">Template:</property>
         <layout>
           <property name="column">0</property>
           <property name="row">1</property>
@@ -140,14 +142,14 @@
     </child>
     <child>
       <object class="GtkBox">
+        <property name="spacing">4</property>
         <property name="valign">end</property>
         <property name="vexpand">1</property>
-        <property name="spacing">4</property>
         <child>
           <object class="GtkButton" id="remove_button">
             <property name="focusable">1</property>
             <property name="receives-default">1</property>
-            <signal name="clicked" handler="on_remove_button_clicked" swapped="no"/>
+            <signal name="clicked" handler="on_remove_button_clicked"/>
             <child>
               <object class="GtkImage">
                 <property name="icon-name">app-remove-symbolic</property>
@@ -157,13 +159,13 @@
         </child>
         <child>
           <object class="GtkButton" id="export_button">
-            <property name="label" translatable="1">Export</property>
             <property name="focusable">1</property>
-            <property name="receives-default">1</property>
-            <property name="tooltip-text" translatable="1">Export</property>
             <property name="halign">end</property>
             <property name="hexpand">True</property>
-            <signal name="clicked" handler="on_export_button_clicked" swapped="no"/>
+            <property name="label" translatable="yes">Export</property>
+            <property name="receives-default">1</property>
+            <property name="tooltip-text" translatable="yes">Export</property>
+            <signal name="clicked" handler="on_export_button_clicked"/>
             <style>
               <class name="suggested-action"/>
             </style>
@@ -171,22 +173,22 @@
         </child>
         <layout>
           <property name="column">0</property>
-          <property name="row">7</property>
           <property name="column-span">2</property>
+          <property name="row">7</property>
         </layout>
       </object>
     </child>
     <child>
       <object class="GtkScrolledWindow">
-        <property name="focusable">1</property>
-        <property name="min-content-height">96</property>
-        <property name="max-content-height">256</property>
         <property name="child">
           <object class="GtkTextView">
-            <property name="focusable">1</property>
             <property name="buffer">copyright</property>
+            <property name="focusable">1</property>
           </object>
         </property>
+        <property name="focusable">1</property>
+        <property name="max-content-height">256</property>
+        <property name="min-content-height">96</property>
         <layout>
           <property name="column">1</property>
           <property name="row">3</property>
@@ -196,7 +198,7 @@
     <child>
       <object class="GtkLabel">
         <property name="halign">start</property>
-        <property name="label" translatable="1">Comment:</property>
+        <property name="label" translatable="yes">Comment:</property>
         <layout>
           <property name="column">0</property>
           <property name="row">6</property>
@@ -205,15 +207,15 @@
     </child>
     <child>
       <object class="GtkScrolledWindow">
-        <property name="focusable">1</property>
-        <property name="min-content-height">96</property>
-        <property name="max-content-height">256</property>
         <property name="child">
           <object class="GtkTextView">
-            <property name="focusable">1</property>
             <property name="buffer">comment</property>
+            <property name="focusable">1</property>
           </object>
         </property>
+        <property name="focusable">1</property>
+        <property name="max-content-height">256</property>
+        <property name="min-content-height">96</property>
         <layout>
           <property name="column">1</property>
           <property name="row">6</property>

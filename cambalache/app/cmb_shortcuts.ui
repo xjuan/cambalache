@@ -1,5 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.17.3 -->
 <interface>
+  <!-- interface-name cmb_shortcuts.ui -->
   <requires lib="gtk" version="4.0"/>
   <object class="GtkShortcutsWindow" id="shortcuts">
     <property name="section-name">shortcuts</property>
@@ -8,67 +10,66 @@
         <property name="section-name">shortcuts</property>
         <child>
           <object class="GtkShortcutsGroup">
-            <property name="title" translatable="1">Project</property>
+            <property name="title" translatable="yes">Project</property>
             <property name="view">shortcuts</property>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Control&gt;n</property>
-                <property name="title" translatable="1">Create new project</property>
+                <property name="title" translatable="yes">Create new project</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Control&gt;o</property>
-                <property name="title" translatable="1">Open a project</property>
+                <property name="title" translatable="yes">Open a project</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Control&gt;w</property>
-                <property name="title" translatable="1">Close the project</property>
+                <property name="title" translatable="yes">Close the project</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Control&gt;s</property>
-                <property name="title" translatable="1">Save the project</property>
+                <property name="title" translatable="yes">Save the project</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="visible">0</property>
                 <property name="accelerator">&lt;Control&gt;e</property>
-                <property name="title" translatable="1">Save and Export</property>
+                <property name="title" translatable="yes">Save and Export</property>
               </object>
             </child>
           </object>
         </child>
         <child>
           <object class="GtkShortcutsGroup">
-            <property name="title" translatable="1">Workspace</property>
+            <property name="title" translatable="yes">Workspace</property>
             <property name="view">shortcuts</property>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Control&gt;Insert</property>
-                <property name="title" translatable="1">Add  slot/column</property>
+                <property name="title" translatable="yes">Add  slot/column</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Control&gt;Delete</property>
-                <property name="title" translatable="1">Remove slot/column</property>
+                <property name="title" translatable="yes">Remove slot/column</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Control&gt;&lt;shift&gt;Insert</property>
-                <property name="title" translatable="1">Add row</property>
+                <property name="title" translatable="yes">Add row</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Control&gt;&lt;shift&gt;Delete</property>
-                <property name="title" translatable="1">Remove row</property>
+                <property name="title" translatable="yes">Remove row</property>
               </object>
             </child>
           </object>

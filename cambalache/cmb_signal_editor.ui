@@ -1,9 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.17.3 -->
 <interface>
+  <!-- interface-name cmb_signal_editor.ui -->
   <requires lib="gtk" version="4.0"/>
   <object class="GtkEntryCompletion" id="handler_entrycompletion">
     <child>
       <object class="GtkCellRendererText"/>
+      <!-- Custom child fragments -->
       <attributes>
         <attribute name="text">0</attribute>
       </attributes>
@@ -28,8 +31,6 @@
     <property name="spacing">4</property>
     <child>
       <object class="GtkScrolledWindow">
-        <property name="vexpand">1</property>
-        <property name="focusable">1</property>
         <property name="child">
           <object class="GtkTreeView" id="treeview">
             <property name="focusable">1</property>
@@ -40,13 +41,14 @@
             </child>
             <child>
               <object class="GtkTreeViewColumn" id="signal_id_column">
-                <property name="resizable">1</property>
                 <property name="min-width">64</property>
-                <property name="title" translatable="1">Signal</property>
+                <property name="resizable">1</property>
+                <property name="title" translatable="yes">Signal</property>
                 <child>
                   <object class="GtkCellRendererText" id="signal_id">
-                    <signal name="edited" handler="on_detail_edited" swapped="no"/>
+                    <signal name="edited" handler="on_detail_edited"/>
                   </object>
+                  <!-- Custom child fragments -->
                   <attributes>
                     <attribute name="text">2</attribute>
                   </attributes>
@@ -55,16 +57,17 @@
             </child>
             <child>
               <object class="GtkTreeViewColumn" id="handler_column">
-                <property name="resizable">1</property>
-                <property name="min-width">64</property>
-                <property name="title" translatable="1">Handler</property>
                 <property name="expand">1</property>
+                <property name="min-width">64</property>
+                <property name="resizable">1</property>
+                <property name="title" translatable="yes">Handler</property>
                 <child>
                   <object class="GtkCellRendererText" id="handler">
                     <property name="editable">1</property>
                     <property name="placeholder-text">&lt;Enter callback&gt;</property>
-                    <signal name="edited" handler="on_handler_edited" swapped="no"/>
+                    <signal name="edited" handler="on_handler_edited"/>
                   </object>
+                  <!-- Custom child fragments -->
                   <attributes>
                     <attribute name="text">4</attribute>
                   </attributes>
@@ -73,13 +76,14 @@
             </child>
             <child>
               <object class="GtkTreeViewColumn" id="user_data_column">
-                <property name="title" translatable="1">Data</property>
+                <property name="title" translatable="yes">Data</property>
                 <child>
                   <object class="GtkCellRendererText" id="user_data">
                     <property name="editable">1</property>
                     <property name="placeholder-text">&lt;object&gt;</property>
-                    <signal name="edited" handler="on_user_data_edited" swapped="no"/>
+                    <signal name="edited" handler="on_user_data_edited"/>
                   </object>
+                  <!-- Custom child fragments -->
                   <attributes>
                     <attribute name="text">5</attribute>
                   </attributes>
@@ -88,11 +92,12 @@
             </child>
             <child>
               <object class="GtkTreeViewColumn" id="swap_column">
-                <property name="title" translatable="1">Swap</property>
+                <property name="title" translatable="yes">Swap</property>
                 <child>
                   <object class="GtkCellRendererToggle" id="swap">
-                    <signal name="toggled" handler="on_swap_toggled" swapped="no"/>
+                    <signal name="toggled" handler="on_swap_toggled"/>
                   </object>
+                  <!-- Custom child fragments -->
                   <attributes>
                     <attribute name="active">6</attribute>
                   </attributes>
@@ -101,11 +106,12 @@
             </child>
             <child>
               <object class="GtkTreeViewColumn" id="after_column">
-                <property name="title" translatable="1">After</property>
+                <property name="title" translatable="yes">After</property>
                 <child>
                   <object class="GtkCellRendererToggle" id="after">
-                    <signal name="toggled" handler="on_after_toggled" swapped="no"/>
+                    <signal name="toggled" handler="on_after_toggled"/>
                   </object>
+                  <!-- Custom child fragments -->
                   <attributes>
                     <attribute name="active">7</attribute>
                   </attributes>
@@ -114,6 +120,8 @@
             </child>
           </object>
         </property>
+        <property name="focusable">1</property>
+        <property name="vexpand">1</property>
       </object>
     </child>
   </template>

@@ -1,5 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.17.3 -->
 <interface>
+  <!-- interface-name cmb_type_chooser.ui -->
   <requires lib="gtk" version="4.0"/>
   <object class="CmbTypeChooserPopover" id="all">
     <property name="show-categories">True</property>
@@ -28,14 +30,14 @@
       <object class="GtkBox" id="content">
         <child>
           <object class="GtkMenuButton" id="type_chooser_all">
-            <property name="focusable">1</property>
             <property name="focus-on-click">0</property>
-            <property name="receives-default">1</property>
+            <property name="focusable">1</property>
             <property name="popover">all</property>
+            <property name="receives-default">1</property>
             <child>
-               <object class="GtkImage">
+              <object class="GtkImage">
                 <property name="icon-name">edit-find-symbolic</property>
-               </object>
+              </object>
             </child>
           </object>
         </child>
@@ -46,82 +48,79 @@
     </child>
     <child>
       <object class="GtkLabel" id="type_label">
-        <property name="sensitive">0</property>
-        <property name="hexpand">1</property>
         <property name="halign">start</property>
+        <property name="hexpand">1</property>
+        <property name="sensitive">0</property>
         <attributes>
-          <attribute name="style" value="italic"></attribute>
+          <attribute name="style" value="italic"/>
         </attributes>
       </object>
     </child>
     <child>
       <object class="GtkBox" id="type_chooser_gtk">
-        <property name="visible">True</property>
         <property name="homogeneous">False</property>
-        <style>
-          <class name="linked"/>
-        </style>
+        <property name="visible">True</property>
         <child>
           <object class="GtkMenuButton">
-            <property name="focusable">1</property>
             <property name="focus-on-click">0</property>
-            <property name="receives-default">1</property>
+            <property name="focusable">1</property>
             <property name="popover">toplevel</property>
+            <property name="receives-default">1</property>
             <child>
               <object class="GtkLabel">
-                <property name="label" translatable="1" comments="Widget group for toplevels/windows">Toplevel</property>
+                <property name="label" translatable="yes" comments="Widget group for toplevels/windows">Toplevel</property>
               </object>
             </child>
           </object>
         </child>
         <child>
           <object class="GtkMenuButton">
-            <property name="focusable">1</property>
             <property name="focus-on-click">0</property>
-            <property name="receives-default">1</property>
+            <property name="focusable">1</property>
             <property name="popover">layout</property>
+            <property name="receives-default">1</property>
             <child>
               <object class="GtkLabel">
-                <property name="label" translatable="1" comments="Widget group for container widgets like GtkBox grid">Layout</property>
+                <property name="label" translatable="yes" comments="Widget group for container widgets like GtkBox grid">Layout</property>
               </object>
             </child>
           </object>
         </child>
         <child>
           <object class="GtkMenuButton">
-            <property name="focusable">1</property>
             <property name="focus-on-click">0</property>
-            <property name="receives-default">1</property>
+            <property name="focusable">1</property>
             <property name="popover">control</property>
+            <property name="receives-default">1</property>
             <child>
               <object class="GtkLabel">
-                <property name="label" translatable="1" comments="Widget group for  control widget like buttons, entries">Control</property>
+                <property name="label" translatable="yes" comments="Widget group for  control widget like buttons, entries">Control</property>
               </object>
             </child>
           </object>
         </child>
         <child>
           <object class="GtkMenuButton">
-            <property name="focusable">1</property>
             <property name="focus-on-click">0</property>
-            <property name="receives-default">1</property>
+            <property name="focusable">1</property>
             <property name="popover">display</property>
+            <property name="receives-default">1</property>
             <child>
               <object class="GtkLabel">
-                <property name="label" translatable="1" comments="Widget group for display widgets (label, image)">Display</property>
+                <property name="label" translatable="yes" comments="Widget group for display widgets (label, image)">Display</property>
               </object>
             </child>
           </object>
         </child>
         <child>
           <object class="GtkMenuButton">
-            <property name="focusable">1</property>
             <property name="focus-on-click">0</property>
-            <property name="receives-default">1</property>
+            <property name="focusable">1</property>
             <property name="popover">model</property>
+            <property name="receives-default">1</property>
             <child>
               <object class="GtkLabel">
-                <property name="label" translatable="1" comments="Widget group for model objects (ListStore, TextBuffer)">Model</property>
+                <property name="label" translatable="yes" comments="Widget group for model objects (ListStore, TextBuffer)">Model</property>
               </object>
             </child>
           </object>
@@ -129,8 +128,8 @@
         <child>
           <object class="GtkMenuButton">
             <property name="focusable">1</property>
-            <property name="receives-default">1</property>
             <property name="popover">extra</property>
+            <property name="receives-default">1</property>
             <child>
               <object class="GtkImage">
                 <property name="icon-name">pan-down-symbolic</property>
@@ -138,6 +137,9 @@
             </child>
           </object>
         </child>
+        <style>
+          <class name="linked"/>
+        </style>
       </object>
     </child>
   </template>
