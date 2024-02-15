@@ -57,6 +57,19 @@ class CmbTypeChooserWidget(Gtk.Box):
 
         super().__init__(**kwargs)
 
+        self.connect("map", self.__on_map)
+
+    def __on_map(self, widget):
+        root = widget.get_root()
+
+        if root is not None:
+            height = root.get_allocated_height() - 100
+            if height > 460:
+                height = height * 0.7
+
+            self.scrolledwindow.set_max_content_height(height)
+        return False
+
     def __type_info_should_append(self, info):
         retval = False
 
