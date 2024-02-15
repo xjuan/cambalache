@@ -22,8 +22,8 @@
 #
 
 from gi.repository import GObject, Gtk
+from cambalache import utils, _
 from .cmb_css import CmbCSS
-from . import utils
 
 
 @Gtk.Template(resource_path="/ar/xjuan/Cambalache/cmb_css_editor.ui")
@@ -34,6 +34,7 @@ class CmbCSSEditor(Gtk.Grid):
     priority = Gtk.Template.Child()
     is_global = Gtk.Template.Child()
 
+    ui_menu_button = Gtk.Template.Child()
     ui_box = Gtk.Template.Child()
     infobar = Gtk.Template.Child()
     save_button = Gtk.Template.Child()
@@ -102,6 +103,7 @@ class CmbCSSEditor(Gtk.Grid):
         obj.connect("file-changed", self.__on_file_changed)
 
         self.__update_provider_for()
+        self.__update_ui_button_label()
 
     @Gtk.Template.Callback("on_remove_button_clicked")
     def __on_remove_button_clicked(self, button):
@@ -152,6 +154,27 @@ class CmbCSSEditor(Gtk.Grid):
             self.object.add_ui(ui)
         else:
             self.object.remove_ui(ui)
+
+        self.__update_ui_button_label()
+
+    def __update_ui_button_label(self):
+        n = 0
+        first_one = None
+        child = self.ui_box.get_first_child()
+
+        while child is not None:
+            if child.props.active:
+                n += 1
+
+                if first_one is None:
+                    first_one = child
+
+            child = child.get_next_sibling()
+
+        if first_one is None:
+            self.ui_menu_button.props.label = _("None")
+        else:
+            self.ui_menu_button.props.label = f"{first_one.props.label} + {n - 1}" if n > 1 else first_one.props.label
 
     def __on_ui_added_removed(self, project, ui):
         self.__update_provider_for()

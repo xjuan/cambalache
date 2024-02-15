@@ -1,13 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.17.3 -->
 <interface>
+  <!-- interface-name cmb_css_editor.ui -->
   <requires lib="gtk" version="4.0"/>
   <template class="CmbCSSEditor" parent="GtkGrid">
-    <property name="row-spacing">4</property>
     <property name="column-spacing">3</property>
+    <property name="row-spacing">4</property>
     <child>
       <object class="GtkLabel">
         <property name="halign">start</property>
-        <property name="label" translatable="1">Filename:</property>
+        <property name="label" translatable="yes">Filename:</property>
         <layout>
           <property name="column">0</property>
           <property name="row">0</property>
@@ -17,7 +19,7 @@
     <child>
       <object class="GtkLabel">
         <property name="halign">start</property>
-        <property name="label" translatable="1">Priority:</property>
+        <property name="label" translatable="yes">Priority:</property>
         <layout>
           <property name="column">0</property>
           <property name="row">1</property>
@@ -26,9 +28,9 @@
     </child>
     <child>
       <object class="GtkLabel">
-        <property name="tooltip-text" translatable="1">This provider will be used in all UI.</property>
         <property name="halign">start</property>
-        <property name="label" translatable="1">Global:</property>
+        <property name="label" translatable="yes">Global:</property>
+        <property name="tooltip-text" translatable="yes">This provider will be used in all UI.</property>
         <layout>
           <property name="column">0</property>
           <property name="row">2</property>
@@ -37,13 +39,40 @@
     </child>
     <child>
       <object class="CmbEntry" id="filename">
-        <property name="visible">True</property>
         <property name="can-focus">True</property>
         <property name="hexpand">True</property>
-        <property name="placeholder-text" translatable="1">&lt;file name relative to project&gt;</property>
+        <property name="placeholder-text" translatable="yes">&lt;file name relative to project&gt;</property>
+        <property name="visible">True</property>
         <layout>
           <property name="column">1</property>
           <property name="row">0</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuButton" id="ui_menu_button">
+        <property name="halign">start</property>
+        <property name="popover">
+          <object class="GtkPopover">
+            <child>
+              <object class="GtkScrolledWindow">
+                <property name="hscrollbar-policy">never</property>
+                <property name="propagate-natural-height">True</property>
+                <property name="propagate-natural-width">True</property>
+                <child>
+                  <object class="GtkBox" id="ui_box">
+                    <property name="orientation">vertical</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </property>
+        <layout>
+          <property name="column">1</property>
+          <property name="column-span">1</property>
+          <property name="row">3</property>
+          <property name="row-span">1</property>
         </layout>
       </object>
     </child>
@@ -68,29 +97,10 @@
       </object>
     </child>
     <child>
-      <object class="GtkBox" id="ui_box">
-        <property name="orientation">vertical</property>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <layout>
-          <property name="column">1</property>
-          <property name="row">3</property>
-        </layout>
-      </object>
-    </child>
-    <child>
       <object class="GtkLabel">
-        <property name="tooltip-text" translatable="1">List of UI where this provider will be used</property>
         <property name="halign">start</property>
-        <property name="valign">start</property>
-        <property name="label" translatable="1">Provider for:</property>
+        <property name="label" translatable="yes">Provider for:</property>
+        <property name="tooltip-text" translatable="yes">List of UI where this provider will be used</property>
         <layout>
           <property name="column">0</property>
           <property name="row">3</property>
@@ -103,11 +113,10 @@
         <child>
           <object class="GtkButton" id="remove_button">
             <property name="focusable">1</property>
-            <!-- <property name="receives-default">1</property> -->
             <!-- <property name="tooltip-text" translatable="1">Remove CSS file from project</property> -->
             <property name="halign">start</property>
             <property name="valign">end</property>
-            <signal name="clicked" handler="on_remove_button_clicked" swapped="no"/>
+            <signal name="clicked" handler="on_remove_button_clicked"/>
             <child>
               <object class="GtkImage">
                 <property name="icon-name">app-remove-symbolic</property>
@@ -118,21 +127,21 @@
         <child>
           <object class="GtkLabel">
             <property name="halign">center</property>
-            <property name="valign">center</property>
-            <property name="label" translatable="1">&lt;small&gt;Note: CSS files need to be loaded at runtime&lt;/small&gt;</property>
+            <property name="label" translatable="yes">&lt;small&gt;Note: CSS files need to be loaded at runtime&lt;/small&gt;</property>
             <property name="use-markup">1</property>
+            <property name="valign">center</property>
           </object>
         </child>
         <child>
           <object class="GtkButton" id="save_button">
-            <property name="sensitive">0</property>
             <property name="focusable">1</property>
-            <property name="receives-default">1</property>
-            <property name="tooltip-text" translatable="1">Save CSS file</property>
-            <property name="hexpand">True</property>
             <property name="halign">end</property>
+            <property name="hexpand">True</property>
+            <property name="receives-default">1</property>
+            <property name="sensitive">0</property>
+            <property name="tooltip-text" translatable="yes">Save CSS file</property>
             <property name="valign">end</property>
-            <signal name="clicked" handler="on_save_button_clicked" swapped="no"/>
+            <signal name="clicked" handler="on_save_button_clicked"/>
             <child>
               <object class="GtkImage">
                 <property name="icon-name">document-save-symbolic</property>
@@ -142,8 +151,8 @@
         </child>
         <layout>
           <property name="column">0</property>
-          <property name="row">5</property>
           <property name="column-span">2</property>
+          <property name="row">5</property>
         </layout>
       </object>
     </child>
@@ -155,17 +164,17 @@
             <child>
               <object class="GtkInfoBar" id="infobar">
                 <property name="message-type">warning</property>
-                <property name="show-close-button">1</property>
                 <property name="revealed">0</property>
-                <signal name="response" handler="on_infobar_response" swapped="no"/>
+                <property name="show-close-button">1</property>
+                <signal name="response" handler="on_infobar_response"/>
                 <child type="action">
-                      <object class="GtkButton" id="reload_button">
-                        <property name="label" translatable="1">Reload</property>
-                        <property name="focusable">1</property>
-                        <property name="receives-default">1</property>
-                        <property name="halign">start</property>
-                        <property name="valign">end</property>
-                      </object>
+                  <object class="GtkButton" id="reload_button">
+                    <property name="focusable">1</property>
+                    <property name="halign">start</property>
+                    <property name="label" translatable="yes">Reload</property>
+                    <property name="receives-default">1</property>
+                    <property name="valign">end</property>
+                  </object>
                 </child>
                 <child>
                   <object class="GtkBox">
@@ -175,14 +184,12 @@
                       <object class="GtkLabel">
                         <property name="halign">start</property>
                         <property name="hexpand">1</property>
-                        <property name="label" translatable="1">The file changed on disk.</property>
+                        <property name="label" translatable="yes">The file changed on disk.</property>
                       </object>
                     </child>
                   </object>
                 </child>
-                <action-widgets>
-                  <action-widget response="-5">reload_button</action-widget>
-                </action-widgets>
+                <!-- Custom object fragments -->
               </object>
             </child>
             <child>
@@ -191,22 +198,21 @@
                 <property name="vexpand">1</property>
                 <child>
                   <object class="CmbSourceView" id="view">
-                    <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="lang">css</property>
+                    <property name="visible">True</property>
                   </object>
                 </child>
               </object>
             </child>
           </object>
         </property>
-        <child type="label_item">
-          <placeholder/>
-        </child>
+        <property name="vexpand">True</property>
+        <property name="vexpand-set">True</property>
         <layout>
           <property name="column">0</property>
-          <property name="row">4</property>
           <property name="column-span">2</property>
+          <property name="row">4</property>
         </layout>
       </object>
     </child>
