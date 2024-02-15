@@ -976,7 +976,21 @@ class CmbBaseObject(CmbBase):
         super().__init__(**kwargs)
 
     @classmethod
-    def from_row(cls, project, ui_id, object_id, type_id, name, parent_id, internal, type, comment, position, custom_fragment):
+    def from_row(
+        cls,
+        project,
+        ui_id,
+        object_id,
+        type_id,
+        name,
+        parent_id,
+        internal,
+        type,
+        comment,
+        position,
+        custom_fragment,
+        custom_child_fragment,
+    ):
         return cls(project=project, ui_id=ui_id, object_id=object_id)
 
     @GObject.Property(type=str)
@@ -1140,6 +1154,27 @@ class CmbBaseObject(CmbBase):
     def _set_custom_fragment(self, value):
         self.db_set(
             "UPDATE object SET custom_fragment=? WHERE (ui_id, object_id) IS (?, ?);",
+            (
+                self.ui_id,
+                self.object_id,
+            ),
+            value,
+        )
+
+    @GObject.Property(type=str)
+    def custom_child_fragment(self):
+        return self.db_get(
+            "SELECT custom_child_fragment FROM object WHERE (ui_id, object_id) IS (?, ?);",
+            (
+                self.ui_id,
+                self.object_id,
+            ),
+        )
+
+    @custom_child_fragment.setter
+    def _set_custom_child_fragment(self, value):
+        self.db_set(
+            "UPDATE object SET custom_child_fragment=? WHERE (ui_id, object_id) IS (?, ?);",
             (
                 self.ui_id,
                 self.object_id,

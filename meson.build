@@ -1,12 +1,12 @@
 project(
     'cambalache', 'c',
-    version: '0.17.2',
+    version: '0.17.3',
     meson_version: '>= 0.50.0'
 )
 
 # File format version follows app version and only changes when there is a
 # change that prevents older versions to load it.
-fileformatversion = '0.17.1'
+fileformatversion = '0.17.3'
 
 python = import('python')
 python_bin = python.find_installation('python3')

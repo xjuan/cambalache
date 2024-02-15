@@ -473,6 +473,9 @@ class CmbDB(GObject.GObject):
         if version < (0, 13, 1):
             data = cmb_db_migration.ensure_columns_for_0_13_1(table, data)
 
+        if version < (0, 17, 3):
+            data = cmb_db_migration.ensure_columns_for_0_17_3(table, data)
+
         return data
 
     def __migrate_table_data(self, c, version, table, data):
@@ -844,14 +847,30 @@ class CmbDB(GObject.GObject):
         knowns = []
         retval = []
 
+        def get_key_val(node, attr):
+            tokens = attr.split(":")
+            key = tokens[0]
+            val = node.get(key, None)
+
+            if len(tokens) > 1:
+                t = tokens[1]
+                if t == "bool":
+                    return (key, val.lower() in {"1", "t", "y", "true", "yes"} if val else False)
+                elif t == "int":
+                    return (key, int(val))
+
+            return (key, val)
+
         for attr in args:
             if isinstance(attr, list):
                 for opt in attr:
-                    retval.append(node.get(opt, None))
-                    knowns.append(opt)
+                    key, val = get_key_val(node, opt)
+                    retval.append(val)
+                    knowns.append(key)
             elif attr in keys:
-                retval.append(node.get(attr))
-                knowns.append(attr)
+                key, val = get_key_val(node, attr)
+                retval.append(val)
+                knowns.append(key)
             else:
                 self.__collect_error("missing-attr", node, attr)
 
@@ -865,21 +884,46 @@ class CmbDB(GObject.GObject):
     def __get_property_info(self, info, property_id):
         pinfo = None
 
+        debug = info.type_id == "CmbFragmentEditor"
+
+        if debug:
+            print(info.properties, info.interfaces, property_id)
+
         # Find owner type for property
         if property_id in info.properties:
             pinfo = info.properties[property_id]
         else:
+            # Search in interfaces properties
+            for iface in info.interfaces:
+                iface_info = self.type_info[iface]
+
+                if property_id in iface_info.properties:
+                    pinfo = iface_info.properties[property_id]
+                    break
+
             for parent in info.hierarchy:
                 type_info = self.type_info[parent]
+
+                # Search in parent properties
                 if property_id in type_info.properties:
                     pinfo = type_info.properties[property_id]
+
+                # Search in parent interfaces properties
+                for iface in type_info.interfaces:
+                    iface_info = self.type_info[iface]
+
+                    if property_id in iface_info.properties:
+                        pinfo = iface_info.properties[property_id]
+                        break
+
+                if pinfo is not None:
                     break
 
         return pinfo
 
     def __import_property(self, c, info, ui_id, object_id, prop, object_id_map=None):
         name, translatable, context, comments, bind_source_id, bind_property_id, bind_flags = self.__node_get(
-            prop, "name", ["translatable", "context", "comments", "bind-source", "bind-property", "bind-flags"]
+            prop, "name", ["translatable:bool", "context", "comments", "bind-source", "bind-property", "bind-flags"]
         )
 
         property_id = name.replace("_", "-")
@@ -899,15 +943,14 @@ class CmbDB(GObject.GObject):
         inline_object_id = None
 
         # GtkBuilder in Gtk4 supports defining an object in a property
-        if self.target_tk == "gtk-4.0" and pinfo.is_object:
+        obj_node = prop.find("object")
+        if self.target_tk == "gtk-4.0" and pinfo.is_object and obj_node is not None:
             if pinfo.disable_inline_object:
                 self.__collect_error("not-inline-object", prop, f"{info.type_id}:{property_id}")
                 return
 
-            obj_node = prop.find("object")
-            if obj_node is not None:
-                inline_object_id = self.__import_object(ui_id, obj_node, object_id)
-                value = None
+            inline_object_id = self.__import_object(ui_id, obj_node, object_id)
+            value = None
 
         # Need to remap object ids on paste
         if object_id_map and pinfo.is_object:
@@ -949,7 +992,7 @@ class CmbDB(GObject.GObject):
             user_data,
             swap,
             after,
-        ) = self.__node_get(signal, "name", ["handler", "object", "swapped", "after"])
+        ) = self.__node_get(signal, "name", ["handler", "object", "swapped:bool", "after:bool"])
 
         tokens = name.split("::")
 
@@ -1000,6 +1043,8 @@ class CmbDB(GObject.GObject):
         object_id = None
         packing = None
 
+        custom_fragments = []
+
         for node in child.iterchildren():
             if node.tag == "object":
                 object_id = self.__import_object(ui_id, node, parent_id, internal, ctype, object_id_map=object_id_map)
@@ -1009,11 +1054,17 @@ class CmbDB(GObject.GObject):
             elif node.tag == "placeholder":
                 # Ignore placeholder tags
                 pass
+            elif node.tag is etree.Comment:
+                pass
             else:
-                self.__unknown_tag(node, ctype, node.tag)
+                custom_fragments.append(node)
 
         if packing is not None and object_id:
             self.__import_layout_properties(c, info, ui_id, parent_id, object_id, packing)
+
+        fragment = self.__custom_fragments_tostring(custom_fragments)
+        if fragment and object_id is not None:
+            c.execute("UPDATE object SET custom_child_fragment=? WHERE ui_id=? AND object_id=?", (fragment, ui_id, object_id))
 
     def __get_layout_property_owner(self, type_id, property_id):
         info = self.type_info.get(type_id, None)
@@ -1044,7 +1095,7 @@ class CmbDB(GObject.GObject):
                 self.__unknown_tag(prop, parent_id, prop.tag)
                 continue
 
-            name, translatable, context, comments = self.__node_get(prop, "name", ["translatable", "context", "comments"])
+            name, translatable, context, comments = self.__node_get(prop, "name", ["translatable:bool", "context", "comments"])
             property_id = name.replace("_", "-")
             comment = self.__node_get_comment(prop)
             owner_id = self.__get_layout_property_owner(parent_type[0], property_id)
@@ -1139,7 +1190,7 @@ class CmbDB(GObject.GObject):
         comment = self.__node_get_comment(ntag)
 
         if taginfo.translatable:
-            translatable, context, comments = self.__node_get(ntag, ["translatable", "context", "comments"])
+            translatable, context, comments = self.__node_get(ntag, ["translatable:bool", "context", "comments"])
         else:
             translatable, context, comments = (None, None, None)
 
@@ -1303,7 +1354,6 @@ class CmbDB(GObject.GObject):
                     self.__import_object_data(ui_id, object_id, taginfo.owner_id, taginfo, child, None)
                 else:
                     custom_fragments.append(child)
-                    # self.__unknown_tag(child, klass, child.tag)
 
         fragment = self.__custom_fragments_tostring(custom_fragments)
         if fragment:
@@ -1573,12 +1623,13 @@ class CmbDB(GObject.GObject):
 
         if type_id == GMENU_TYPE:
             obj = E.menu()
-            # Only menu has id
             self.__node_set(obj, "id", f"__cmb__{ui_id}.{object_id}" if merengue else name)
         elif type_id == GMENU_SECTION_TYPE:
             obj = E.section()
+            self.__node_set(obj, "id", f"__cmb__{ui_id}.{object_id}" if merengue else name)
         elif type_id == GMENU_SUBMENU_TYPE:
             obj = E.submenu()
+            self.__node_set(obj, "id", f"__cmb__{ui_id}.{object_id}" if merengue else name)
         elif type_id == GMENU_ITEM_TYPE:
             obj = E.item()
         else:
@@ -1764,7 +1815,6 @@ class CmbDB(GObject.GObject):
                     # From now own all output should be without an ID
                     # because we do not want so select internal widget from the template
                     ignore_id = True
-                    self.__node_set(obj, "id", name)
                 elif not ignore_id:
                     self.__node_set(obj, "id", f"__cmb__{ui_id}.{object_id}")
             else:
@@ -1918,7 +1968,7 @@ class CmbDB(GObject.GObject):
         # Children
         for row in c.execute(
             """
-            SELECT object_id, internal, type, comment, position
+            SELECT object_id, internal, type, comment, position, custom_child_fragment
             FROM object
             WHERE ui_id=? AND parent_id=? AND
                   object_id NOT IN (SELECT inline_object_id FROM object_property
@@ -1927,7 +1977,7 @@ class CmbDB(GObject.GObject):
             """,
             (ui_id, object_id, ui_id, object_id),
         ):
-            child_id, internal, ctype, comment, position = row
+            child_id, internal, ctype, comment, position, custom_child_fragment = row
 
             if merengue:
                 position = position if position is not None else 0
@@ -1948,35 +1998,37 @@ class CmbDB(GObject.GObject):
 
             obj.append(child)
 
-            if linfo is None:
-                continue
+            if linfo is not None:
+                # Packing / Layout
+                layout = E("packing" if self.target_tk == "gtk+-3.0" else "layout")
+                for prop in cc.execute(
+                    f"""
+                    SELECT value, property_id, comment
+                    FROM object_layout_property
+                    WHERE ui_id=? AND object_id=? AND child_id=?
+                    UNION
+                    SELECT default_value AS value, property_id, null
+                    FROM property
+                    WHERE save_always=1 AND owner_id IN ({placeholders}) AND property_id NOT IN
+                          (SELECT property_id FROM object_layout_property WHERE ui_id=? AND object_id=? AND child_id=?)
+                    ORDER BY property_id
+                    """,
+                    (ui_id, object_id, child_id) + tuple(hierarchy) + (ui_id, object_id, child_id),
+                ):
+                    value, property_id, comment = prop
+                    node = E.property(value, name=property_id)
+                    layout.append(node)
+                    self.__node_add_comment(node, comment)
 
-            # Packing / Layout
-            layout = E("packing" if self.target_tk == "gtk+-3.0" else "layout")
-            for prop in cc.execute(
-                f"""
-                SELECT value, property_id, comment
-                FROM object_layout_property
-                WHERE ui_id=? AND object_id=? AND child_id=?
-                UNION
-                SELECT default_value AS value, property_id, null
-                FROM property
-                WHERE save_always=1 AND owner_id IN ({placeholders}) AND property_id NOT IN
-                      (SELECT property_id FROM object_layout_property WHERE ui_id=? AND object_id=? AND child_id=?)
-                ORDER BY property_id
-                """,
-                (ui_id, object_id, child_id) + tuple(hierarchy) + (ui_id, object_id, child_id),
-            ):
-                value, property_id, comment = prop
-                node = E.property(value, name=property_id)
-                layout.append(node)
-                self.__node_add_comment(node, comment)
+                if len(layout) > 0:
+                    if self.target_tk == "gtk+-3.0":
+                        child.append(layout)
+                    else:
+                        child_obj.append(layout)
 
-            if len(layout) > 0:
-                if self.target_tk == "gtk+-3.0":
-                    child.append(layout)
-                else:
-                    child_obj.append(layout)
+            if custom_child_fragment is not None:
+                # Dump custom child fragments
+                self.__export_custom_fragment(child, custom_child_fragment)
 
         # Custom buildable tags
         # Iterate over all hierarchy extra data
@@ -2002,7 +2054,7 @@ class CmbDB(GObject.GObject):
         except Exception:
             pass
         else:
-            node.append(etree.Comment(" Custom fragments "))
+            node.append(etree.Comment(f" Custom {node.tag} fragments "))
             for child in root:
                 node.append(child)
 

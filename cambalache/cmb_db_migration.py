@@ -102,3 +102,11 @@ def ensure_columns_for_0_13_1(table, data):
         return [row + (None, None, None) for row in data]
 
     return data
+
+
+def ensure_columns_for_0_17_3(table, data):
+    if table == "object":
+        # Append custom_child_fragment column
+        return [row + (None,) for row in data]
+
+    return data

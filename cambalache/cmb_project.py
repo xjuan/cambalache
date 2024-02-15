@@ -586,6 +586,7 @@ class CmbProject(Gtk.TreeStore):
         comment=None,
         position=0,
         custom_fragment=None,
+        custom_child_fragment=None,
     ):
         obj = CmbObject(project=self, ui_id=ui_id, object_id=object_id, info=self.type_info[obj_type])
 
