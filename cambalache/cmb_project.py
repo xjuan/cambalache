@@ -488,12 +488,21 @@ class CmbProject(Gtk.TreeStore):
     def remove_ui(self, ui):
         try:
             self.history_push(_('Remove UI "{name}"').format(name=ui.name))
+
+            # Remove template object first, to properly handle instances removal
+            template_id = ui.template_id
+            if template_id:
+                obj = self.get_object_by_id(ui.ui_id, template_id)
+                if obj is not None:
+                    self.remove_object(obj)
+
             self.db.execute("DELETE FROM ui WHERE ui_id=?;", (ui.ui_id,))
             self.history_pop()
             self.db.commit()
+        except Exception as e:
+            logger.warning(f"Error removing UI {ui}: {e}")
+        else:
             self.__remove_ui(ui)
-        except Exception:
-            pass
 
     def get_ui_list(self):
         c = self.db.cursor()
@@ -653,8 +662,19 @@ class CmbProject(Gtk.TreeStore):
         else:
             return self.__add_object(True, ui_id, object_id, obj_type, name, parent_id, position=position)
 
-    def __remove_object(self, obj):
-        iter_ = self.__object_id.pop(f"{obj.ui_id}.{obj.object_id}", None)
+    def __remove_object(self, obj, template_ui=None, template_instances=None):
+        ui_id = obj.ui_id
+        object_id = obj.object_id
+        iter_ = self.__object_id.pop(f"{ui_id}.{object_id}", None)
+
+        if template_ui is not None:
+            self.__update_template_type_info(template_ui)
+
+        # Remove all object of this template class
+        if template_instances is not None:
+            for tmpl_obj in template_instances:
+                self.__remove_object(tmpl_obj)
+
         if iter_ is not None:
             self.__selection_remove(obj)
             self.remove(iter_)
@@ -662,15 +682,32 @@ class CmbProject(Gtk.TreeStore):
 
     def remove_object(self, obj):
         try:
+            template_ui = None
+            template_instances = None
+
+            if obj.ui.template_id == obj.object_id:
+                template_ui = obj.ui
+                template_instances = []
+
+                for row in self.db.execute("SELECT ui_id, object_id FROM object WHERE type_id=?;", (obj.name, )):
+                    obj_ui_id, obj_object_id = row
+                    tmpl_obj = self.get_object_by_id(obj_ui_id, obj_object_id)
+                    if tmpl_obj:
+                        template_instances.append(tmpl_obj)
+
             name = obj.name if obj.name is not None else obj.type_id
             self.history_push(_("Remove object {name}").format(name=name))
+
+            if len(template_instances):
+                self.db.execute("DELETE FROM object WHERE type_id=?;", (obj.name, ))
+
             self.db.execute("DELETE FROM object WHERE ui_id=? AND object_id=?;", (obj.ui_id, obj.object_id))
             self.history_pop()
             self.db.commit()
         except Exception as e:
             logger.warning(f"Error removing object {obj}: {e}")
         else:
-            self.__remove_object(obj)
+            self.__remove_object(obj, template_ui, template_instances)
 
     def get_selection(self):
         return self.__selection
@@ -854,7 +891,10 @@ class CmbProject(Gtk.TreeStore):
                     if table == "ui":
                         self.__add_ui(True, *row)
                     elif table == "object":
-                        self.__add_object(True, *row)
+                        obj = self.__add_object(True, *row)
+
+                        if obj.ui.template_id == obj.object_id:
+                            self.__update_template_type_info(obj.ui)
                     elif table == "css":
                         self.__add_css(True, *row)
             elif table in ["object_signal", "object_data", "object_data_arg"]:
