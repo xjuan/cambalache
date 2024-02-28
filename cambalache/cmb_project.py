@@ -698,7 +698,7 @@ class CmbProject(Gtk.TreeStore):
             name = obj.name if obj.name is not None else obj.type_id
             self.history_push(_("Remove object {name}").format(name=name))
 
-            if len(template_instances):
+            if template_instances is not None and len(template_instances):
                 self.db.execute("DELETE FROM object WHERE type_id=?;", (obj.name, ))
 
             self.db.execute("DELETE FROM object WHERE ui_id=? AND object_id=?;", (obj.ui_id, obj.object_id))
