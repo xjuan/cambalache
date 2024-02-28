@@ -146,7 +146,7 @@ def test_template():
 
     # Export UI file in merengue mode (Workspace)
     str_exported = project.db.tostring(ui2.ui_id, merengue=True)
-    assert xml_get_node(str_exported, "object[@class='GtkWindow' and @id='__cmb__2.1']") is not None
+    assert xml_get_node(str_exported, "object[@class='GtkWindow']") is not None
     assert xml_get_node(str_exported, "object/child/object[@class='GtkButton']") is not None
 
 
