@@ -2,7 +2,7 @@
 #
 # GUI Unit Tests
 #
-# Copyright (C) 2023  Juan Pablo Ugarte
+# Copyright (C) 2023-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -24,6 +24,7 @@
 
 import os
 import cairo
+import time
 
 from . import utils
 
@@ -102,7 +103,7 @@ def window_activate_action(action_name):
 def window_button_clicked(button_name):
     button = utils.find_by_buildable_id(window, button_name)
     assert button
-    button.clicked()
+    button.emit("clicked")
     utils.process_all_pending_gtk_events()
     return button
 
@@ -131,21 +132,27 @@ def window_widget_grab_focus(widget):
     widget.grab_focus()
 
 
-def window_add_object(klass, obj_id, ui_id=1):
+def window_add_object(type_id, obj_id, parent_id, ui_id=1):
     project = window.project
 
-    window.type_chooser.select_type_id(klass)
-    window.activate_action("add_object", None)
+    obj = project.add_object(ui_id, type_id, None, parent_id)
+
     utils.process_all_pending_gtk_events()
 
-    obj = project.get_object_by_id(ui_id, obj_id)
     project.set_selection([obj])
+
+    for i in range(10):
+        utils.process_all_pending_gtk_events()
+        time.sleep(0.1)
+
+    return obj
 
 
 def select_object(obj_id=None, ui_id=1):
     project = window.project
     obj = project.get_object_by_id(ui_id, obj_id)
     project.set_selection([obj])
+    return obj
 
 
 # TESTS
@@ -199,14 +206,13 @@ def _test_cmb_window_ui_stack_requires(target):
 
 
 def _test_cmb_window_add_window(target):
-    window_add_object("GtkWindow", 1)
+    window_add_object("GtkWindow", 1, None)
     window_assert_screenshot("cambalache_add_window.png", target)
 
 
 def _test_cmb_window_object_stack_layout(target):
-    window_add_object("GtkGrid", 2)
-    window_add_object("GtkButton", 3)
-
+    window_add_object("GtkGrid", 2, 1)
+    window_add_object("GtkButton", 3, 2)
     window_stack_set_page("object_stack", "layout")
     window_assert_screenshot("cambalache_object_stack_layout.png", target)
 

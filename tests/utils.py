@@ -161,6 +161,9 @@ def find_by_buildable_id(widget, name):
 def cmb_create_app():
     from cambalache.app import CmbApplication
 
+    settings = Gtk.Settings.get_default()
+    settings.props.gtk_enable_animations = False
+
     app = CmbApplication()
     app.register()
     app.activate()
