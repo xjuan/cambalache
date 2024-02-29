@@ -43,6 +43,7 @@ class CmbObject(CmbBaseObject):
         "layout-property-changed": (GObject.SignalFlags.RUN_FIRST, None, (GObject.GObject, CmbLayoutProperty)),
         "signal-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbSignal,)),
         "signal-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbSignal,)),
+        "signal-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbSignal,)),
         "data-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbObjectData,)),
         "data-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObjectData,)),
     }
@@ -53,6 +54,7 @@ class CmbObject(CmbBaseObject):
         self.layout = []
         self.layout_dict = {}
         self.signals = []
+        self.signals_dict = {}
         self.data = []
         self.data_dict = {}
         self.position_layout_property = None
@@ -149,8 +151,15 @@ class CmbObject(CmbBaseObject):
 
     def __add_signal_object(self, signal):
         self.signals.append(signal)
+        self.signals_dict[signal.signal_pk] = signal
         self.emit("signal-added", signal)
         self.project._object_signal_added(self, signal)
+
+        signal.connect("notify", self.__on_signal_notify)
+
+    def __on_signal_notify(self, signal, pspec):
+        self.emit("signal-changed", signal)
+        self.project._object_signal_changed(self, signal)
 
     def __add_data_object(self, data):
         if data in self.data:
@@ -273,6 +282,8 @@ class CmbObject(CmbBaseObject):
 
     def _remove_signal(self, signal):
         self.signals.remove(signal)
+        del self.signals_dict[signal.signal_pk]
+
         self.emit("signal-removed", signal)
         self.project._object_signal_removed(self, signal)
 
