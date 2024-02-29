@@ -69,6 +69,7 @@ class CmbProject(Gtk.TreeStore):
         "object-property-binding-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, CmbProperty)),
         "object-signal-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, CmbSignal)),
         "object-signal-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, CmbSignal)),
+        "object-signal-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, CmbSignal)),
         "object-data-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, CmbObjectData)),
         "object-data-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, CmbObjectData)),
         "object-data-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObjectData,)),
@@ -838,7 +839,13 @@ class CmbProject(Gtk.TreeStore):
                 child = self.get_object_by_id(pk[0], pk[2])
                 self.__undo_redo_property_notify(child, True, column, pk[3], pk[4])
             elif table == "object_signal":
-                pass
+                c.execute(commands["DATA"], (self.history_index, ))
+                data = c.fetchone()
+                obj = self.get_object_by_id(data[1], data[2])
+                if obj:
+                    signal = obj.signals_dict[pk[0]]
+                    if signal:
+                        signal.notify(column)
             elif table == "object_data":
                 obj = self.get_object_by_id(pk[0], pk[1])
                 if obj:
@@ -1038,11 +1045,35 @@ class CmbProject(Gtk.TreeStore):
                         retval["obj"] = name if name is not None else type_id
 
                 if table == "object_property":
-                    retval["prop"] = data[3]
-                    retval["value"] = data[4]
+                    if column == "translatable":
+                        retval["value"] = _("True") if data[5] else _("False")
+                    elif column == "comment":
+                        retval["value"] = f'"{data[6]}"'
+                    elif column == "translation_context":
+                        retval["value"] = f'"{data[7]}"'
+                    elif column == "translation_comments":
+                        retval["value"] = f'"{data[8]}"'
+                    else:
+                        retval["prop"] = f'"{data[3]}"'
+                        retval["value"] = data[4]
+
+                    if column != "value":
+                        retval["prop"] = f'"{data[3]}" {column}'
                 elif table == "object_layout_property":
-                    retval["prop"] = data[4]
-                    retval["value"] = data[5]
+                    if column == "translatable":
+                        retval["value"] = _("True") if data[5] else _("False")
+                    elif column == "comment":
+                        retval["value"] = f'"{data[7]}"'
+                    elif column == "translation_context":
+                        retval["value"] = f'"{data[8]}"'
+                    elif column == "translation_comments":
+                        retval["value"] = f'"{data[9]}"'
+                    else:
+                        retval["prop"] = f'"{data[4]}"'
+                        retval["value"] = data[5]
+
+                    if column != "value":
+                        retval["prop"] = f'"{data[4]}" {column}'
                 elif table == "object_signal":
                     retval["signal"] = data[4]
                 elif table == "object_data":
@@ -1092,14 +1123,14 @@ class CmbProject(Gtk.TreeStore):
                         "UPDATE": _("Update {field} of object {obj}"),
                     },
                     "object_property": {
-                        "INSERT": _('Set property "{prop}" of {obj} to {value}'),
-                        "DELETE": _('Unset property "{prop}" of {obj}'),
-                        "UPDATE": _('Update property "{prop}" of {obj} to {value}'),
+                        "INSERT": _('Set property {prop} of {obj} to {value}'),
+                        "DELETE": _('Unset property {prop} of {obj}'),
+                        "UPDATE": _('Update property {prop} of {obj} to {value}'),
                     },
                     "object_layout_property": {
-                        "INSERT": _('Set layout property "{prop}" of {obj} to {value}'),
-                        "DELETE": _('Unset layout property "{prop}" of {obj}'),
-                        "UPDATE": _('Update layout property "{prop}" of {obj} to {value}'),
+                        "INSERT": _('Set layout property {prop} of {obj} to {value}'),
+                        "DELETE": _('Unset layout property {prop}" of {obj}'),
+                        "UPDATE": _('Update layout property {prop} of {obj} to {value}'),
                     },
                     "object_signal": {
                         "INSERT": _("Add {signal} signal to {obj}"),
@@ -1278,6 +1309,9 @@ class CmbProject(Gtk.TreeStore):
     def _object_signal_added(self, obj, signal):
         self.emit("object-signal-added", obj, signal)
 
+    def _object_signal_changed(self, obj, signal):
+        self.emit("object-signal-changed", obj, signal)
+
     def _object_data_data_removed(self, parent, data):
         self.emit("object-data-data-removed", parent, data)
 
@@ -1452,6 +1486,9 @@ class CmbProject(Gtk.TreeStore):
         self.emit("changed")
 
     def do_object_signal_removed(self, obj, signal):
+        self.emit("changed")
+
+    def do_object_signal_changed(self, obj, signal):
         self.emit("changed")
 
     def do_object_data_added(self, obj, data):
