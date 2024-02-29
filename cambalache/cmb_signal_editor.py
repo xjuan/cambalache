@@ -80,6 +80,7 @@ class CmbSignalEditor(Gtk.Box):
             self.treestore.clear()
             self._object.disconnect_by_func(self.__on_signal_added)
             self._object.disconnect_by_func(self.__on_signal_removed)
+            self._object.disconnect_by_func(self.__on_signal_changed)
 
         self._object = obj
 
@@ -87,6 +88,7 @@ class CmbSignalEditor(Gtk.Box):
             self.__populate_treestore()
             self._object.connect("signal-added", self.__on_signal_added)
             self._object.connect("signal-removed", self.__on_signal_removed)
+            self._object.connect("signal-changed", self.__on_signal_changed)
 
     @Gtk.Template.Callback("on_handler_edited")
     def __on_handler_edited(self, renderer, path, new_text):
@@ -189,6 +191,17 @@ class CmbSignalEditor(Gtk.Box):
             for child in row.iterchildren():
                 if child[Col.SIGNAL.value] == signal:
                     self.treestore.remove(child.iter)
+                    return
+
+    def __on_signal_changed(self, obj, signal):
+        for row in self.treestore:
+            for child in row.iterchildren():
+                if child[Col.SIGNAL.value] == signal:
+                    child[Col.DETAIL.value] = signal.detail
+                    child[Col.HANDLER.value] = signal.handler
+                    child[Col.USER_DATA.value] = str(signal.user_data)
+                    child[Col.SWAP.value] = signal.swap
+                    child[Col.AFTER.value] = signal.after
                     return
 
     def __populate_from_type(self, info, target):
