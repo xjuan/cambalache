@@ -41,8 +41,13 @@ class CmbLayoutProperty(CmbBaseLayoutProperty):
         self.library_id = owner_info.library_id
         self._update_version_warning()
 
+        self.connect("notify", self.__on_notify)
+
     def __str__(self):
         return f"CmbLayoutProperty<{self.object.type_id} {self.info.owner_id}:{self.property_id}>"
+
+    def __on_notify(self, obj, pspec):
+        self.project._object_property_changed(self.object, self)
 
     @GObject.Property(type=str)
     def value(self):
