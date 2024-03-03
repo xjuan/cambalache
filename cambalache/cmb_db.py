@@ -130,6 +130,20 @@ class CmbDB(GObject.GObject):
         self.conn.commit()
         self.conn.execute(f"PRAGMA foreign_keys={fk};")
 
+    @GObject.Property(type=bool, default=False)
+    def ignore_check_constraints(self):
+        self.conn.commit()
+        c = self.conn.execute("PRAGMA ignore_check_constraints;")
+        fk = c.fetchone()[0]
+        c.close()
+        return fk
+
+    @ignore_check_constraints.setter
+    def _set_ignore_check_constraints(self, value):
+        val = "ON" if value else "OFF"
+        self.conn.commit()
+        self.conn.execute(f"PRAGMA ignore_check_constraints={val};")
+
     def __sqlite_connect(self, path):
         conn = sqlite3.connect(path)
 
@@ -488,6 +502,9 @@ class CmbDB(GObject.GObject):
         if version < (0, 9, 0):
             cmb_db_migration.migrate_table_data_to_0_9_0(c, table, data)
 
+        if version < (0, 17, 3):
+            cmb_db_migration.migrate_table_data_to_0_17_3(c, table, data)
+
     def __load_table_from_tuples(self, c, table, tuples, version=None):
         data = ast.literal_eval(f"[{tuples}]") if tuples else []
 
@@ -530,11 +547,13 @@ class CmbDB(GObject.GObject):
 
         # Avoid circular dependencies errors
         self.foreign_keys = False
+        self.ignore_check_constraints = True
 
         for child in root.getchildren():
             self.__load_table_from_tuples(c, child.tag, child.text, version)
 
         self.foreign_keys = True
+        self.ignore_check_constraints = False
         c.close()
 
     def load_catalog(self, filename):

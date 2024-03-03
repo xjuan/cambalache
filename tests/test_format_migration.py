@@ -23,3 +23,11 @@ def test_gtk3_format_0_10_3():
 
 def test_gtk4_format_0_10_3():
     migration_test("gtk-4.0", "test_project_0.10.3.cmb")
+
+
+def test_gtk3_column_constraint_changes_0_17_3():
+    migration_test("gtk+-3.0", "test_column_constraint_changes_0.17.3.cmb")
+
+
+def test_gtk4_column_constraint_changes_0_17_3():
+    migration_test("gtk-4.0", "test_column_constraint_changes_0.17.3.cmb")

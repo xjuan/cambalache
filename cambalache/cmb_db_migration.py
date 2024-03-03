@@ -110,3 +110,25 @@ def ensure_columns_for_0_17_3(table, data):
         return [row + (None,) for row in data]
 
     return data
+
+
+def migrate_table_data_to_0_17_3(c, table, data):
+    if table in ["object_property", "object_layout_property", "object_data"]:
+        c.executescript(
+            f"""
+            UPDATE {table} SET translatable=1
+            WHERE translatable IS NOT NULL AND lower(translatable) IN (1, 'y', 'yes', 't', 'true');
+            UPDATE {table} SET translatable=NULL
+            WHERE translatable IS NOT NULL AND translatable != 1;
+            """
+        )
+
+    if table == "object_signal":
+        for prop in ["swap", "after"]:
+            c.executescript(
+                f"""
+                UPDATE object_signal SET {prop}=1
+                WHERE {prop} IS NOT NULL AND lower({prop}) IN (1, 'y', 'yes', 't', 'true');
+                UPDATE object_signal SET {prop}=NULL WHERE {prop} IS NOT NULL AND after != 1;
+                """
+            )
