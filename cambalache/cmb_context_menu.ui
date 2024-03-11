@@ -33,6 +33,13 @@
         <attribute name="label" translatable="yes">Add object as toplevel</attribute>
       </item>
       <item>
+        <attribute name="action">win.remove_parent</attribute>
+        <attribute name="label">Remove parent</attribute>
+      </item>
+      <submenu id="add_submenu">
+        <attribute name="label">Add parent</attribute>
+      </submenu>
+      <item>
         <attribute name="action">win.clear</attribute>
         <attribute name="label" translatable="yes">Clear Properties</attribute>
       </item>

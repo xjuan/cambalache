@@ -31,21 +31,57 @@ from cambalache import _
 class CmbContextMenu(Gtk.PopoverMenu):
     __gtype_name__ = "CmbContextMenu"
 
+    enable_theme = GObject.Property(
+        type=bool,
+        default=False,
+        flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY
+    )
     target_tk = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
 
     main_section = Gtk.Template.Child()
+    add_submenu = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         self.theme_submenu = None
 
         super().__init__(**kwargs)
 
-        self.connect("notify::target-tk", lambda o, p: self.__populate_css_theme_box())
+        self.connect("notify::target-tk", self.__on_target_tk_notify)
+
+    def __on_target_tk_notify(self, obj, pspec):
+        self.__populate_css_theme_box()
+        self.__update_add_submenu()
+
+    def __update_add_submenu(self):
+        if self.target_tk not in ["gtk-4.0", "gtk+-3.0"]:
+            return
+
+        types = [
+            "GtkBox",
+            "GtkGrid",
+            "GtkExpander",
+            "GtkRevealer",
+            "GtkOverlay",
+        ]
+
+        if self.target_tk == "gtk+-3.0":
+            types += [
+                "GtkAligment",
+                "GtkEventBox"
+            ]
+
+        self.add_submenu.remove_all()
+
+        for gtype in sorted(types):
+            item = Gio.MenuItem()
+            item.set_label(gtype)
+            item.set_action_and_target_value("win.add_parent", GLib.Variant("s", gtype))
+            self.add_submenu.append_item(item)
 
     def __populate_css_theme_box(self):
         gtk_path = "gtk-3.0"
 
-        if self.target_tk in [None, ""]:
+        if not self.enable_theme or self.target_tk not in ["gtk-4.0", "gtk+-3.0"]:
             return
 
         if self.target_tk == "gtk-4.0":
@@ -85,7 +121,6 @@ class CmbContextMenu(Gtk.PopoverMenu):
         # Dedup and sort
         themes = list(dict.fromkeys(themes))
 
-        group = None
         for theme in sorted(themes):
             item = Gio.MenuItem()
             item.set_label(theme)
