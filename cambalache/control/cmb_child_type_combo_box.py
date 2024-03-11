@@ -21,7 +21,6 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-from cambalache import utils
 from gi.repository import GObject, Gtk
 
 

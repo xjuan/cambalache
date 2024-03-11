@@ -23,7 +23,6 @@
 
 from gi.repository import GObject, Gtk
 from ..cmb_type_info import CmbTypeInfo
-from cambalache import utils
 
 
 class CmbEnumComboBox(Gtk.ComboBox):

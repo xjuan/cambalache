@@ -44,7 +44,7 @@ class CmbSwitch(Gtk.Switch):
         if value is not None:
             val = value.lower()
 
-            if type(val) == str:
+            if type(val) is str:
                 if val.lower() in {"1", "t", "y", "true", "yes"}:
                     self.props.active = True
                 else:

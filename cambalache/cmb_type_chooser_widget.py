@@ -39,7 +39,6 @@ class CmbTypeChooserWidget(Gtk.Box):
         "type-selected": (GObject.SignalFlags.RUN_LAST, None, (CmbTypeInfo,)),
     }
 
-    project = GObject.Property(type=CmbProject, flags=GObject.ParamFlags.READWRITE)
     category = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
     uncategorized_only = GObject.Property(type=bool, flags=GObject.ParamFlags.READWRITE, default=False)
     show_categories = GObject.Property(type=bool, flags=GObject.ParamFlags.READWRITE, default=False)
@@ -144,7 +143,7 @@ class CmbTypeChooserWidget(Gtk.Box):
 
         return store
 
-    @GObject.Property(type=GObject.GObject)
+    @GObject.Property(type=CmbProject)
     def project(self):
         return self.__project
 

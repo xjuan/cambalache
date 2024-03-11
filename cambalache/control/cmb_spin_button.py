@@ -24,7 +24,6 @@
 import math
 
 from gi.repository import GObject, GLib, Gtk
-from cambalache import utils
 
 
 class CmbSpinButton(Gtk.SpinButton):

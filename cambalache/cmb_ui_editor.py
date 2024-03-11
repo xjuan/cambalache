@@ -67,7 +67,7 @@ class CmbUIEditor(Gtk.Grid):
             for field in self.fields:
                 widget = getattr(self, field)
 
-                if type(widget.cmb_value) == int:
+                if type(widget.cmb_value) is int:
                     widget.cmb_value = 0
                 else:
                     widget.cmb_value = None

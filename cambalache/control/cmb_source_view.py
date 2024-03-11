@@ -21,7 +21,7 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-from gi.repository import GObject, Gtk, GtkSource
+from gi.repository import GObject, GtkSource
 
 
 class CmbSourceView(GtkSource.View):

@@ -28,7 +28,6 @@ from .cmb_property import CmbProperty
 from .cmb_layout_property import CmbLayoutProperty
 from .cmb_objects_base import CmbPropertyInfo
 from .control import CmbObjectChooser, CmbFlagsEntry
-from . import utils
 
 
 class CmbPropertyLabel(Gtk.Button):

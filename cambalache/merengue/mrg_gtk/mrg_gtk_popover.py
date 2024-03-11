@@ -39,7 +39,6 @@ class MrgGtkPopover(MrgGtkWidget):
             self.property_ignore_list.add("autohide")
         else:
             self.property_ignore_list.add("modal")
-            #self.property_ignore_list.add("relative_to")
 
     def __ensure_popup(self):
         if self.object is None:

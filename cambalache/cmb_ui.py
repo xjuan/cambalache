@@ -139,11 +139,13 @@ class CmbUI(CmbBaseUI):
                 UNION
                 SELECT p.version
                 FROM object_property AS o, property AS p, type AS t
-                WHERE t.library_id=? AND o.ui_id=? AND o.owner_id = t.type_id AND o.owner_id = p.owner_id AND p.version IS NOT NULL
+                WHERE t.library_id=? AND o.ui_id=? AND o.owner_id = t.type_id AND o.owner_id = p.owner_id
+                  AND p.version IS NOT NULL
                 UNION
                 SELECT s.version
                 FROM object_signal AS o, signal AS s, type AS t
-                WHERE t.library_id=? AND o.ui_id=? AND o.owner_id = t.type_id AND o.owner_id = s.owner_id AND s.version IS NOT NULL
+                WHERE t.library_id=? AND o.ui_id=? AND o.owner_id = t.type_id AND o.owner_id = s.owner_id
+                  AND s.version IS NOT NULL
             )
             SELECT MAX_VERSION(version) FROM lib_version;
             """,

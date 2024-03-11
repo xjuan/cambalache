@@ -1,6 +1,6 @@
 import os
 import gi
-import atexit
+# import atexit
 import signal
 import time
 import tempfile
@@ -67,7 +67,7 @@ gi.require_version("Gtk", "4.0")
 cmb_init_dev()
 
 # Start a compositor
-#run_compositor()
+# run_compositor()
 
 # Close compositor at exit
-#atexit.register(close_compositor)
+# atexit.register(close_compositor)

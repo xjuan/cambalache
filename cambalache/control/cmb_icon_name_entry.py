@@ -24,7 +24,7 @@
 import os
 
 from cambalache import _
-from gi.repository import GLib, Gio, GdkPixbuf, GObject, Gdk, Gtk, Pango
+from gi.repository import GLib, GdkPixbuf, GObject, Gdk, Gtk, Pango
 from .cmb_entry import CmbEntry
 from .icon_naming_spec import standard_icon_context, standard_icon_names
 
@@ -184,8 +184,6 @@ class CmbIconNameEntry(CmbEntry):
         vbox.append(sidebar)
         hbox.append(vbox)
         hbox.append(stack)
-
-        theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default())
 
         # sorted_contexts = sorted(theme.list_contexts())
         sorted_contexts = []

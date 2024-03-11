@@ -52,7 +52,6 @@ class CmbTutor(GObject.GObject):
     }
 
     window = GObject.Property(type=Gtk.Window, flags=GObject.ParamFlags.READWRITE)
-    state = GObject.Property(type=int, flags=GObject.ParamFlags.READABLE)
 
     def __init__(self, script, **kwargs):
         # List of ScriptNode
@@ -74,7 +73,7 @@ class CmbTutor(GObject.GObject):
         for node in script:
             self.__add(*node)
 
-    @GObject.Property()
+    @GObject.Property(type=int, flags=GObject.ParamFlags.READABLE)
     def state(self):
         if self.timeout_id:
             return CmbTutorState.PLAYING
@@ -84,8 +83,6 @@ class CmbTutor(GObject.GObject):
         return CmbTutorState.NULL
 
     def __add(self, text, widget_name, delay, name=None, position=CmbTutorPosition.BOTTOM):
-        retval = {}
-
         def find_by_css_name_or_buildable_id(widget, name):
             retval = None
             css_name = widget.get_name()

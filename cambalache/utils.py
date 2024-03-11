@@ -21,7 +21,7 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-from gi.repository import Gdk, Gtk
+from gi.repository import Gdk
 
 
 def parse_version(version):

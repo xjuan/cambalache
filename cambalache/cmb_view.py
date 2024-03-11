@@ -25,7 +25,6 @@ import os
 import json
 import socket
 import time
-import warnings
 
 from gi.repository import GObject, GLib, Gtk, WebKit
 
@@ -312,7 +311,7 @@ window.setupDocument = function (document) {
         objects = []
 
         for obj in selection:
-            if type(obj) == CmbObject and obj.ui_id == ui_id:
+            if type(obj) is CmbObject and obj.ui_id == ui_id:
                 objects.append(obj.object_id)
 
         return objects
@@ -492,7 +491,7 @@ window.setupDocument = function (document) {
         self.project = None
 
     def __create_context_menu(self):
-        retval = CmbContextMenu()
+        retval = CmbContextMenu(enable_theme=True)
         retval.set_parent(self)
 
         retval.main_section.append(_("Restart workspace"), "win.workspace_restart")

@@ -629,7 +629,7 @@ class CmbDB(GObject.GObject):
                 else:
                     r = ""
 
-                if type(c) == str:
+                if type(c) is str:
                     # FIXME: find a better way to escape string
                     val = c.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
                     r += f'"{val}"'

@@ -21,7 +21,7 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-from gi.repository import GObject, Gtk
+from gi.repository import Gtk
 
 
 class CmbScrolledWindow(Gtk.ScrolledWindow):

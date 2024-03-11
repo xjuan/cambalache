@@ -45,7 +45,7 @@ class CmbToplevelChooser(Gtk.ComboBox):
     def __name_cell_data_func(self, column, cell, model, iter_, data):
         obj = model.get_value(iter_, 0)
 
-        if type(obj) != CmbObject:
+        if type(obj) is not CmbObject:
             return
 
         name = f"{obj.name} " if obj.name else ""
@@ -58,7 +58,7 @@ class CmbToplevelChooser(Gtk.ComboBox):
         if self.object.ui_id != obj.ui_id:
             return False
 
-        if type(obj) == CmbObject:
+        if type(obj) is CmbObject:
             if self.derivable_only:
                 return obj.info.derivable and obj.parent_id == 0
             else:
