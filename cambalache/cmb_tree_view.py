@@ -21,7 +21,7 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-from gi.repository import Gdk, Gtk, Pango
+from gi.repository import Gtk, Pango
 
 from .cmb_object import CmbObject
 from .cmb_context_menu import CmbContextMenu
@@ -66,8 +66,12 @@ class CmbTreeView(Gtk.TreeView):
 
         menu = CmbContextMenu()
 
+        if self._project is not None:
+            menu.target_tk = self._project.target_tk
+
         # Use parent instead of self to avoid warning and focus not working properly
-        # (run-dev.py:188589): Gtk-CRITICAL **: 16:45:12.790: gtk_css_node_insert_after: assertion 'previous_sibling == NULL || previous_sibling->parent == parent' failed
+        # (run-dev.py:188589): Gtk-CRITICAL **: 16:45:12.790: gtk_css_node_insert_after: assertion 'previous_sibling == NULL ||
+        # previous_sibling->parent == parent' failed
         menu.set_parent(self.props.parent)
         menu.popup_at(x, y)
 
@@ -77,7 +81,7 @@ class CmbTreeView(Gtk.TreeView):
         obj = model.get_value(iter_, 0)
         msg = None
 
-        if type(obj) == CmbObject:
+        if type(obj) is CmbObject:
             inline_prop = obj.inline_property_id
             inline_prop = f"<b>{inline_prop}</b> " if inline_prop else ""
             name = f"{obj.name} " if obj.name else ""
@@ -150,7 +154,7 @@ class CmbTreeView(Gtk.TreeView):
 
         obj = model.get_value(iter_, 0)
 
-        if type(obj) == CmbObject:
+        if type(obj) is CmbObject:
             msg = obj.version_warning
             if msg:
                 tooltip.set_text(msg)
