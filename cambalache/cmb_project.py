@@ -714,7 +714,7 @@ class CmbProject(Gtk.TreeStore):
         return self.__selection
 
     def set_selection(self, selection):
-        if type(selection) != list or self.__selection == selection:
+        if type(selection) is not list or self.__selection == selection:
             return
 
         for obj in selection:
@@ -731,11 +731,11 @@ class CmbProject(Gtk.TreeStore):
             return self.__object_id.get(ui_id, None)
 
     def get_iter_from_object(self, obj):
-        if type(obj) == CmbObject:
+        if type(obj) is CmbObject:
             return self.__object_id.get(f"{obj.ui_id}.{obj.object_id}", None)
-        elif type(obj) == CmbUI:
+        elif type(obj) is CmbUI:
             return self.__object_id.get(obj.ui_id, None)
-        elif type(obj) == CmbCSS:
+        elif type(obj) is CmbCSS:
             return self.__css_id.get(obj.css_id, None)
 
     def get_object_by_key(self, key):
@@ -832,6 +832,13 @@ class CmbProject(Gtk.TreeStore):
                 obj = self.get_object_by_id(pk[0], pk[1])
                 if obj:
                     obj.notify(column)
+
+                if column == "parent_id":
+                    iter = self.get_iter_from_object_id(pk[0], pk[1])
+                    if iter is not None:
+                        self.remove(iter)
+                        self._append_object(obj)
+
             elif table == "object_property":
                 obj = self.get_object_by_id(pk[0], pk[1])
                 self.__undo_redo_property_notify(obj, False, column, pk[2], pk[3])
@@ -1266,25 +1273,26 @@ class CmbProject(Gtk.TreeStore):
     def _object_changed(self, obj, field):
         iter = self.get_iter_from_object(obj)
 
-        if field == "position":
-            if self.__reordering_children:
-                return
+        if iter is not None:
+            if field == "position":
+                if self.__reordering_children:
+                    return
 
-            parent = self.iter_parent(iter)
+                parent = self.iter_parent(iter)
 
-            try:
-                position = self.iter_nth_child(parent, obj.position)
-                self.move_before(iter, position)
-            except Exception:
-                pos = self.iter_n_children()
-                position = self.iter_nth_child(parent, pos)
-                self.move_after(iter, position)
+                try:
+                    position = self.iter_nth_child(parent, obj.position)
+                    self.move_before(iter, position)
+                except Exception:
+                    pos = self.iter_n_children()
+                    position = self.iter_nth_child(parent, pos)
+                    self.move_after(iter, position)
 
-            # Update all children iters
-            self.__update_children_iters(parent)
-        else:
-            path = self.get_path(iter)
-            self.row_changed(path, iter)
+                # Update all children iters
+                self.__update_children_iters(parent)
+            else:
+                path = self.get_path(iter)
+                self.row_changed(path, iter)
 
         # Update template type id
         if field == "name":
@@ -1406,8 +1414,7 @@ class CmbProject(Gtk.TreeStore):
 
             if n_objects == 1:
                 obj = selection[0]
-                name = obj.name if obj.name is not None else obj.type_id
-                self.history_push(_("Cut object {name}").format(name=name))
+                self.history_push(_("Cut object {name}").format(name=obj.get_display_name()))
             else:
                 self.history_push(_("Cut {n_objects} object").format(n_objects=n_objects))
 
@@ -1421,6 +1428,109 @@ class CmbProject(Gtk.TreeStore):
         else:
             for obj in selection:
                 self.__remove_object(obj)
+
+    def __add_object_recursive(self, emit, ui_id, object_id):
+        for row in self.db.execute(
+            """
+            WITH RECURSIVE ancestor(object_id) AS (
+              SELECT object_id
+              FROM object
+              WHERE ui_id=? AND object_id=?
+              UNION
+              SELECT object.object_id
+              FROM object JOIN ancestor ON object.parent_id=ancestor.object_id
+              WHERE ui_id=?
+            )
+            SELECT object_id FROM ancestor;
+            """,
+            (ui_id, object_id, ui_id),
+        ):
+            child_id = row[0]
+            c = self.db.execute("SELECT * FROM object WHERE ui_id=? AND object_id=?;", (ui_id, child_id))
+            self.__add_object(emit, *c.fetchone())
+
+    def add_parent(self, type_id, obj):
+        try:
+            self.history_push(_("Add {type_id} parent to {name}").format(name=obj.get_display_name(), type_id=type_id))
+
+            ui_id = obj.ui_id
+            object_id = obj.object_id
+            grand_parent_id = obj.parent_id
+            position = obj.position
+            child_type = obj.type
+
+            new_parent_id = self.db.add_object(
+                ui_id,
+                type_id,
+                None,
+                grand_parent_id,
+                position=position,
+                child_type=child_type,
+            )
+
+            self.db.execute(
+                "UPDATE object SET parent_id=? WHERE ui_id=? AND object_id=?;",
+                (new_parent_id, ui_id, object_id)
+            )
+
+            # Move all layout properties from obj to parent
+            self.db.execute(
+                "UPDATE object_layout_property SET child_id=? WHERE ui_id=? AND object_id=? AND child_id=?;",
+                (new_parent_id, ui_id, grand_parent_id, object_id)
+            )
+
+            self.history_pop()
+            self.db.commit()
+        except Exception as e:
+            print(f"Error adding parent {type_id} to object {obj} {e}")
+        finally:
+            # Update treemodel
+            self.__remove_object(obj)
+            new_parent = self.__add_object(False, ui_id, new_parent_id, type_id, None, grand_parent_id, position=position)
+            self.__add_object_recursive(False, ui_id, object_id)
+            self.set_selection([new_parent])
+
+    def remove_parent(self, obj):
+        try:
+            self.history_push(_("Remove parent of {name}").format(name=obj.get_display_name()))
+
+            ui_id = obj.ui_id
+            object_id = obj.object_id
+
+            parent = obj.parent
+            grand_parent_id = parent.parent_id
+
+            # Object to remove
+            parent_id = obj.parent_id
+
+            # Remove all object layout properties
+            self.db.execute(
+                "DELETE FROM object_layout_property WHERE ui_id=? AND object_id=? AND child_id=?;",
+                (ui_id, parent_id, object_id)
+            )
+
+            # Move all layout properties from parent to object
+            self.db.execute(
+                "UPDATE object_layout_property SET child_id=? WHERE ui_id=? AND object_id=? AND child_id=?;",
+                (object_id, ui_id, grand_parent_id, parent_id)
+            )
+
+            self.db.execute(
+                "UPDATE object SET parent_id=? WHERE ui_id=? AND object_id=?;",
+                (grand_parent_id, ui_id, object_id)
+            )
+
+            self.db.execute("DELETE FROM object WHERE ui_id=? AND object_id=?;", (ui_id, parent_id))
+
+            self.history_pop()
+            self.db.commit()
+        except Exception as e:
+            print(f"Error removing parent of object {obj} {e}")
+        finally:
+            self.__remove_object(parent)
+            self.__add_object_recursive(False, ui_id, object_id)
+            self.set_selection([obj])
+            obj.notify("parent-id")
 
     def clipboard_count(self):
         return len(self.db.clipboard)

@@ -269,6 +269,10 @@ It has to be exposed by your application with GtkBuilder expose_object method."
         if pspec.name == "template-id" and self.__template_switch:
             self.__template_switch.set_active(obj.props.template_id != 0)
 
+    def __on_object_notify(self, obj, pspec):
+        if pspec.name == "parent-id":
+            self.__update_view()
+
     @GObject.Property(type=CmbObject)
     def object(self):
         return self.__object
@@ -279,11 +283,13 @@ It has to be exposed by your application with GtkBuilder expose_object method."
             return
 
         if self.__object:
+            self.__object.disconnect_by_func(self.__on_object_notify)
             self.__object.ui.disconnect_by_func(self.__on_object_ui_notify)
 
         self.__object = obj
 
         if obj:
+            self.__object.connect("notify", self.__on_object_notify)
             self.__object.ui.connect("notify", self.__on_object_ui_notify)
 
         self.__update_view()

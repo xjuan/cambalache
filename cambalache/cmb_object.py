@@ -171,6 +171,9 @@ class CmbObject(CmbBaseObject):
         self.project._object_data_added(self, data)
 
     def __on_notify(self, obj, pspec):
+        if pspec.name == "parent-id":
+            self.__populate_layout_properties()
+
         self.project._object_changed(self, pspec.name)
 
     def __populate_signals(self):

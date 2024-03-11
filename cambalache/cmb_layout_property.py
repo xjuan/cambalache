@@ -47,7 +47,8 @@ class CmbLayoutProperty(CmbBaseLayoutProperty):
         return f"CmbLayoutProperty<{self.object.type_id} {self.info.owner_id}:{self.property_id}>"
 
     def __on_notify(self, obj, pspec):
-        self.project._object_layout_property_changed(self.object, self)
+        obj = self.object
+        self.project._object_layout_property_changed(obj.parent, obj, self)
 
     @GObject.Property(type=str)
     def value(self):

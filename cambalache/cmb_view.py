@@ -273,7 +273,7 @@ window.setupDocument = function (document) {
         self.__merengue_update_ui(obj.ui_id)
 
     def __on_object_changed(self, project, obj, field):
-        if field in ["type", "position", "custom-fragment"]:
+        if field in ["type", "position", "custom-fragment", "parent-id"]:
             self.__merengue_update_ui(obj.ui_id)
 
     def __on_object_property_changed(self, project, obj, prop):
