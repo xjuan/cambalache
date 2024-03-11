@@ -193,11 +193,14 @@ class CmbObject(CmbBaseObject):
     def __populate_layout_properties(self):
         parent_id = self.parent_id
 
+        # FIXME: delete is anything is set?
+        self.layout = []
+        self.layout_dict = {}
+
         if parent_id > 0:
+            # FIXME: what about parent layout properties?
             parent = self.project.get_object_by_id(self.ui_id, parent_id)
             self.__populate_layout_properties_from_type(f"{parent.type_id}LayoutChild")
-        else:
-            self.layout = []
 
     @GObject.Property(type=int)
     def parent_id(self):
