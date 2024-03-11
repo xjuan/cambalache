@@ -128,6 +128,7 @@ class CmbWindow(Gtk.ApplicationWindow):
             "donate",
             "export",
             "import",
+            "inspect",
             "intro",
             "liberapay",
             "new",
@@ -135,6 +136,7 @@ class CmbWindow(Gtk.ApplicationWindow):
             "paste",
             "patreon",
             "redo",
+            "remove_parent",
             "remove_placeholder",
             "remove_placeholder_row",
             "save",
@@ -143,7 +145,6 @@ class CmbWindow(Gtk.ApplicationWindow):
             "show_workspace",
             "undo",
             "workspace_restart",
-            "inspect",
         ]:
             gaction = Gio.SimpleAction.new(action, None)
             gaction.connect("activate", getattr(self, f"_on_{action}_activate"))
@@ -151,7 +152,11 @@ class CmbWindow(Gtk.ApplicationWindow):
             self.add_action(gaction)
 
         # Stateful actions
-        for action, parameter_type, state in [("open_recent", "s", None), ("workspace_theme", "s", "")]:
+        for action, parameter_type, state in [
+            ("add_parent", "s", None),
+            ("open_recent", "s", None),
+            ("workspace_theme", "s", "")
+        ]:
             if state is None:
                 gaction = Gio.SimpleAction.new(action, GLib.VariantType.new(parameter_type))
             else:
@@ -506,17 +511,17 @@ class CmbWindow(Gtk.ApplicationWindow):
 
         obj = sel[0] if len(sel) > 0 else None
 
-        if type(obj) == CmbUI:
+        if type(obj) is CmbUI:
             self.ui_editor.object = obj
             self.ui_requires_editor.object = obj
             self.ui_fragment_editor.object = obj
             self.editor_stack.set_visible_child_name("ui")
             obj = None
-        elif type(obj) == CmbObject:
+        elif type(obj) is CmbObject:
             self.editor_stack.set_visible_child_name("object")
             if obj:
                 self.__user_message_by_type(obj.info)
-        elif type(obj) == CmbCSS:
+        elif type(obj) is CmbCSS:
             self.css_editor.object = obj
             self.editor_stack.set_visible_child_name("css")
             obj = None
@@ -702,7 +707,7 @@ class CmbWindow(Gtk.ApplicationWindow):
                 file = dialog.open_finish(res)
                 self.emit("open-project", file.get_path(), None, None)
             except Exception as e:
-                pass
+                logger.warning(f"Error {e}")
 
         dialog = self.__file_open_dialog_new(_("Choose project to open"), filter_obj=self.open_filter)
         dialog.open(self, None, dialog_callback)
@@ -714,7 +719,7 @@ class CmbWindow(Gtk.ApplicationWindow):
                 self.np_location_chooser_label.props.label = os.path.basename(self.__np_location)
 
             except Exception as e:
-                pass
+                logger.warning(f"Error {e}")
 
         dialog = self.__file_open_dialog_new(_("Select project location"))
         dialog.select_folder(self, None, dialog_callback)
@@ -777,7 +782,7 @@ class CmbWindow(Gtk.ApplicationWindow):
             self.project.filename = file.get_path()
             self.__save()
         except Exception as e:
-            pass
+            logger.warning(f"Error {e}")
 
     def _on_save_as_activate(self, action, data):
         if self.project is None:
@@ -811,9 +816,9 @@ class CmbWindow(Gtk.ApplicationWindow):
 
         def on_dialog_response(dialog, response):
             if response == Gtk.ResponseType.YES:
-                if type(obj) == CmbUI:
+                if type(obj) is CmbUI:
                     self.project.remove_ui(obj)
-                elif type(obj) == CmbCSS:
+                elif type(obj) is CmbCSS:
                     self.project.remove_css(obj)
 
             dialog.destroy()
@@ -842,7 +847,7 @@ class CmbWindow(Gtk.ApplicationWindow):
 
         selection = self.project.get_selection()
         for obj in selection:
-            if type(obj) == CmbObject:
+            if type(obj) is CmbObject:
                 self.project.remove_object(obj)
             else:
                 self.__remove_object_with_confirmation(obj)
@@ -918,7 +923,7 @@ class CmbWindow(Gtk.ApplicationWindow):
                 for file in dialog.open_multiple_finish(res):
                     self.import_file(file.get_path())
             except Exception as e:
-                pass
+                logger.warning(f"Error {e}")
 
         dialog = self.__file_open_dialog_new(
             _("Choose file to import"), filter_obj=self.import_filter, accept_label=_("Import")
@@ -971,6 +976,10 @@ class CmbWindow(Gtk.ApplicationWindow):
     def _on_about_activate(self, action, data):
         self.about_dialog.present()
 
+    def _on_add_parent_activate(self, action, data):
+        obj = self.project.get_selection()[0]
+        self.project.add_parent(data.get_string(), obj)
+
     def _on_donate_activate(self, action, data):
         self.__set_page("donate")
 
@@ -994,6 +1003,13 @@ class CmbWindow(Gtk.ApplicationWindow):
 
     def _on_remove_placeholder_row_activate(self, action, data):
         self.view.remove_placeholder(modifier=True)
+
+    def _on_remove_parent_activate(self, action, data):
+        selection = self.project.get_selection()
+        if selection is None or len(selection) == 0:
+            return
+
+        self.project.remove_parent(selection[0])
 
     def _on_show_workspace_activate(self, action, data):
         self.__set_page("workspace" if self.project is not None else "cambalache")
