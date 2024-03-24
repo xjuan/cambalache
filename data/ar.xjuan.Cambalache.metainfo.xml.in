@@ -20,15 +20,21 @@
     </p>
   </description>
   <releases>
-    <release date="2024-02-12" version="0.17.2">
+    <release date="2024-03-24" version="0.90.0">
       <description>
-        <p>Gtk 4 port (Beta)</p>
+        <p>Gtk 4 port</p>
         <ul>
           <li>Migrate main application to Gtk 4</li>
+          <li>Update widget catalogs to SDK 46</li>
+          <li>Add support for child custom fragments</li>
+          <li>Add add parent context menu action</li>
           <li>Mark AdwSplitButton.dropdown-tooltip translatable. (Danial Behzadi)</li>
         </ul>
       </description>
       <issues>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/184">Issue #184 "Headerbar save button not enabled when "translatable" checkbox's state is changed"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/207">Issue #207 "Adding or changing data to signal doesn't activate 'Save' button"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/212">Issue #212 "[Feature] add parent"</issue>
         <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/199">Issue #199 "Copy and pasting messes references between widgets"</issue>
         <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/196">Issue #196 "postinstall.py is trying to modify files in prefix."</issue>
         <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/201">Issue #201 "AdwToolbarView needs special child types"</issue>
