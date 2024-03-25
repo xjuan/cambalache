@@ -1,7 +1,7 @@
 project(
     'cambalache', 'c',
     version: '0.90.0',
-    meson_version: '>= 0.50.0'
+    meson_version: '>= 0.64.0'
 )
 
 # File format version follows app version and only changes when there is a
@@ -92,10 +92,11 @@ subdir('catalogs')
 subdir('po')
 subdir('tests')
 
-# Post Install deps
-find_program('update-mime-database', required: true)
-find_program('gtk-update-icon-cache', required: true)
-find_program('update-desktop-database', required: true)
-find_program('glib-compile-schemas', required: true)
+gnome.post_install(
+  glib_compile_schemas: true,
+  update_desktop_database: true,
+  update_mime_database: true,
+  gtk_update_icon_cache: true,
+)
 
 meson.add_install_script('postinstall.py', modulesdir)
