@@ -1,21 +1,5 @@
 datadir = get_option('datadir')
 
-install_data('ar.xjuan.Cambalache.svg',
-  install_dir: join_paths(datadir, 'icons', 'hicolor', 'scalable', 'apps')
-)
-
-install_data('ar.xjuan.Cambalache-symbolic.svg',
-  install_dir: join_paths(datadir, 'icons', 'hicolor', 'symbolic', 'apps')
-)
-
-install_data('ar.xjuan.Cambalache.mime.svg',
-  install_dir: join_paths(datadir, 'icons', 'hicolor', 'scalable', 'mimetypes')
-)
-
-install_data('ar.xjuan.Cambalache.mime.xml',
-    install_dir: join_paths(datadir, 'mime', 'packages')
-)
-
 desktop_file = i18n.merge_file(
   input: 'ar.xjuan.Cambalache.desktop.in',
   output: 'ar.xjuan.Cambalache.desktop',
@@ -38,13 +22,22 @@ if desktop_file_validate.found()
   test('Validating desktop file', desktop_file_validate, args: [desktop_file])
 endif
 
-appstream_util = find_program('appstream-util', required: false)
-if appstream_util.found()
-  test('Validating appstream file',
-       appstream_util,
-       args: ['validate', appstream_file])
-endif
+appstreamcli = find_program('appstreamcli', required: false, disabler: true)
+test('Validate appstream file', appstreamcli,
+     args: ['validate', '--no-net', '--explain', appstream_file])
+
+compile_schemas = find_program('glib-compile-schemas', required: false, disabler: true)
+test('Validate schema file',
+     compile_schemas,
+     args: ['--strict', '--dry-run', meson.current_source_dir()])
+
+
+install_data('ar.xjuan.Cambalache.mime.xml',
+    install_dir: join_paths(datadir, 'mime', 'packages')
+)
 
 install_data('ar.xjuan.Cambalache.gschema.xml',
   install_dir: join_paths(datadir, 'glib-2.0', 'schemas')
 )
+
+subdir('icons')
