@@ -266,11 +266,10 @@
   </keywords>
   <developer_name>Juan Pablo Ugarte</developer_name>
   <update_contact>juanpablougarte@gmail.com</update_contact>
+  <launchable type="desktop-id">ar.xjuan.Cambalache.desktop</launchable>
   <url type="homepage">https://gitlab.gnome.org/jpu/cambalache</url>
   <url type="bugtracker">https://gitlab.gnome.org/jpu/cambalache/issues</url>
   <url type="donation">https://liberapay.com/xjuan</url>
-  <url type="donation">https://www.patreon.com/cambalache</url>
   <url type="contact">https://matrix.to/#/#cambalache:gnome.org</url>
-  <!-- Uncomment when moving to new SDK -->
-  <!-- <url type="vcs-browser">https://gitlab.gnome.org/jpu/cambalache</url> -->
+  <url type="vcs-browser">https://gitlab.gnome.org/jpu/cambalache</url>
 </component>
