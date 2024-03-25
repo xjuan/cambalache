@@ -856,6 +856,7 @@ Juan Pablo Ugarte</property>
     <property name="copyright">© 2020-2024 Juan Pablo Ugarte</property>
     <property name="license-type">lgpl-2-1-only</property>
     <property name="logo-icon-name">ar.xjuan.Cambalache</property>
+    <property name="modal">True</property>
     <property name="program-name">Cambalache</property>
     <property name="transient-for">CmbWindow</property>
     <property name="website">https://gitlab.gnome.org/jpu/cambalache</property>
