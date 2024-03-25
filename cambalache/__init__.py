@@ -46,8 +46,6 @@ if "N_" not in builtins.__dict__:
 # noqa: E402,E401
 from gi.repository import Gio, Gdk, Gtk
 
-# This will print an error and exit if there is no display available
-Gtk.init()
 
 resource = Gio.Resource.load(os.path.join(config.pkgdatadir, "cambalache.gresource"))
 resource._register()
@@ -56,7 +54,9 @@ provider = Gtk.CssProvider()
 provider.load_from_resource("/ar/xjuan/Cambalache/cambalache.css")
 display = Gdk.Display.get_default()
 Gtk.StyleContext.add_provider_for_display(display, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-Gtk.IconTheme.get_for_display(display).add_resource_path("/ar/xjuan/Cambalache/icons")
+
+# FIXME: this is needed in flatpak for icons to work
+Gtk.IconTheme.get_for_display(display).add_search_path("/app/share/icons")
 
 
 def getLogger(name):
