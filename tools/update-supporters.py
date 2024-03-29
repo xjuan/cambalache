@@ -27,22 +27,36 @@ import csv
 
 header_text = """# Cambalache supporters
 
-Many thanks to all the people that suppport the project
+Many thanks to all the people that support the project
 
 """
 
 
-def get_supporters(filename):
+def get_supporters(filenames):
     retval = []
 
-    with open(filename, newline="") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            name = row["Name"]
-            lifetime = float(row["Lifetime Amount"])
+    for filename in filenames:
+        print("Processing", filename)
+        with open(filename, newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                # Try different columns, patreon and liberapay formats
+                for col in ["Name", "patron_public_name", "patron_username", "patron_id"]:
+                    name = row.get(col, None)
+                    if name is not None and len(name) > 0:
+                        break
 
-            if lifetime > 0:
-                retval.append((name, lifetime))
+                total_str = None
+
+                # Get total donations
+                for col in ["Lifetime Amount", "sum_received"]:
+                    total_str = row.get(col, None)
+                    if total_str is not None:
+                        break
+
+                total = float(total_str) if total_str is not None else 0
+                if total > 0:
+                    retval.append((name, total))
 
     return [x[0] for x in sorted(retval, key=lambda v: v[1], reverse=True)]
 
@@ -53,13 +67,13 @@ def save_supporters(fd, supporters, prefix):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print(f"Usage: {sys.argv[0]} input.csv output.md")
+    if len(sys.argv) < 3:
+        print(f"Usage: {sys.argv[0]} output.md input.csv input2.csv")
         exit()
 
-    supporters = get_supporters(sys.argv[1])
+    supporters = get_supporters(sys.argv[2:])
 
-    with open(sys.argv[2], "w") as fd:
+    with open(sys.argv[1], "w") as fd:
         fd.write(header_text)
         save_supporters(fd, supporters, " - ")
         fd.close()
