@@ -1,22 +1,24 @@
 # Cambalache supporters
 
-Many thanks to all the people that suppport the project
+Many thanks to all the people that support the project
 
  -  Stephan McCormick
  -  Willo Vincent
  -  Javier Jardón
  -  Sonny Piers
- -  Patrick Griffis
  -  David
+ -  Patrick Griffis
  -  Luis Barron
- -  Michel Fodje
- -  Platon workaccount
  -  Aemilia Scott
+ -  Michel Fodje
+ -  JustRyan
+ -  Platon workaccount
+ -  Jonathan K.
+ -  ~1826340
  -  Felipe Borges
  -  Johannes Deutsch
- -  Jonathan K.
  -  Patrick
  -  2 kojix
- -  Coleman 
- -  Shogo Takata
+ -  Coleman
  -  Muasim
+ -  Shogo Takata
