@@ -13,6 +13,12 @@
       </properties>
     </AdwBanner>
 
+    <AdwDialog>
+      <properties>
+        <property id="title" translatable="True"/>
+      </properties>
+    </AdwDialog>
+
     <AdwNavigationPage>
       <properties>
         <property id="title" translatable="True"/>

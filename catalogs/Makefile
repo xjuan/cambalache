@@ -7,7 +7,7 @@ CAMBALACHE_DB=flatpak run \
 	--device=all \
 	--filesystem=host \
 	--command=python3 \
-	org.gnome.Sdk//45 \
+	org.gnome.Sdk//46 \
 	../tools/cambalache-db.py
 
 BASE_CATALOG_FILES = \

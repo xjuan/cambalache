@@ -62,6 +62,12 @@
       </properties>
     </GtkNativeDialog>
 
+    <GtkPrintDialog>
+      <properties>
+        <property id="title" translatable="True"/>
+      </properties>
+    </GtkPrintDialog>
+
     <GtkPrintJob>
       <properties>
         <property id="title" translatable="True"/>

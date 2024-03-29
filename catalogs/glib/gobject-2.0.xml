@@ -5,6 +5,7 @@
 	("GBinding","GObject","gobject","2.26",None,None,None,None,None,"MrgGBindingProxy"),
 	("GBindingFlags","flags","gobject",None,None,None,None,None,None,None),
 	("GBytes","boxed","gobject",None,None,None,None,None,None,None),
+	("GIOCondition","flags","gobject",None,None,None,None,None,None,None),
 	("GObject","object","gobject",None,None,None,1,None,None,None),
 	("GStrv","boxed","gobject",None,None,None,None,None,None,None)
   </type>
@@ -12,7 +13,13 @@
 	("GBindingFlags","G_BINDING_BIDIRECTIONAL","bidirectional",1,"Bidirectional binding; if either the property of the source or the property of the target changes, the other is updated."),
 	("GBindingFlags","G_BINDING_DEFAULT","default",None,"The default binding; if the source property changes, the target property is updated with its value."),
 	("GBindingFlags","G_BINDING_INVERT_BOOLEAN","invert-boolean",4,"If the two properties being bound are booleans, setting one to %TRUE will result in the other being set to %FALSE and vice versa. This flag will only work for boolean properties, and cannot be used when passing custom transformation functions to g_object_bind_property_full()."),
-	("GBindingFlags","G_BINDING_SYNC_CREATE","sync-create",2,"Synchronize the values of the source and target properties when creating the binding; the direction of the synchronization is always from the source to the target.")
+	("GBindingFlags","G_BINDING_SYNC_CREATE","sync-create",2,"Synchronize the values of the source and target properties when creating the binding; the direction of the synchronization is always from the source to the target."),
+	("GIOCondition","G_IO_ERR","err",8,None),
+	("GIOCondition","G_IO_HUP","hup",16,None),
+	("GIOCondition","G_IO_IN","in",1,None),
+	("GIOCondition","G_IO_NVAL","nval",32,None),
+	("GIOCondition","G_IO_OUT","out",4,None),
+	("GIOCondition","G_IO_PRI","pri",2,None)
   </type_flags>
   <property>
 	("GBinding","flags","GBindingFlags",None,1,None,None,None,None,"2.26",None,None,None,None,None,None),
