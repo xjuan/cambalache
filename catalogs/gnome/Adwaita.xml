@@ -13,7 +13,7 @@
       </properties>
     </AdwBanner>
 
-    <AdwDialog>
+    <AdwDialog workspace-type="MgrAdwDialogProxy">
       <properties>
         <property id="title" translatable="True"/>
       </properties>

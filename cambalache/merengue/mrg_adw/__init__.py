@@ -23,7 +23,7 @@
 import gi
 
 gi.require_version("Adw", "1")
-from gi.repository import Adw
+from gi.repository import GObject, Adw
 
 Adw.init()
 
@@ -31,3 +31,7 @@ from .mrg_adw_application_window import MrgAdwApplicationWindow
 from .mrg_adw_bin import MrgAdwBin
 from .mrg_adw_carousel import MrgAdwCarousel
 from .mrg_adw_window import MrgAdwWindow
+
+from .mrg_adw_dialog import MrgAdwDialogProxy
+
+GObject.type_ensure(MrgAdwDialogProxy.__gtype__)

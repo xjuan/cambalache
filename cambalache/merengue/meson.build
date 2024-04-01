@@ -89,6 +89,7 @@ install_data([
   'mrg_adw/mrg_adw_application_window.py',
   'mrg_adw/mrg_adw_bin.py',
   'mrg_adw/mrg_adw_carousel.py',
+  'mrg_adw/mrg_adw_dialog.py',
   'mrg_adw/mrg_adw_window.py',
   ],
   install_dir: join_paths(moduledir, 'mrg_adw')
