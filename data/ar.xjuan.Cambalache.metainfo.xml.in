@@ -20,7 +20,7 @@
     </p>
   </description>
   <releases>
-    <release date="2024-03-25" version="0.90.1">
+    <release date="2024-03-29" version="0.90.2">
       <description>
         <p>Gtk 4 port</p>
         <ul>
