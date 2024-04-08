@@ -130,7 +130,7 @@ gnome/webkit2gtk-4.1.xml: gtk/gtk+-3.0.xml
 		--dependencies gtk+-3.0 \
 		--gir /usr/share/gir-1.0/WebKit2-4.1.gir \
 		--external-catalogs ${GTK3_DEPS} gtk/gtk+-3.0.xml \
-		--types WebKitWebViewBase WebKitWebView WebKitSettings \
+		--types WebKitWebViewBase WebKitWebView WebKitSettings WebKitWebContext \
 		--extra-data gnome/WebKit2.xml \
 		--skip-types WebKitWebViewBase \
 		--output $@
@@ -151,7 +151,7 @@ gnome/webkitgtk-6.0.xml: gtk/gtk-4.0.xml
 		--dependencies gtk-4.0 \
 		--gir /usr/share/gir-1.0/WebKit-6.0.gir \
 		--external-catalogs ${GTK4_DEPS} gtk/gtk-4.0.xml \
-		--types WebKitWebViewBase WebKitWebView WebKitSettings \
+		--types WebKitWebViewBase WebKitWebView WebKitSettings WebKitWebContext \
 		--extra-data gnome/WebKit2.xml \
 		--skip-types WebKitWebViewBase \
 		--output $@

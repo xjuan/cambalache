@@ -44,6 +44,7 @@
 	("WebKitUserMessageError","enum","webkitgtk",None,None,None,None,None,None,None),
 	("WebKitUserScriptInjectionTime","enum","webkitgtk",None,None,None,None,None,None,None),
 	("WebKitUserStyleLevel","enum","webkitgtk",None,None,None,None,None,None,None),
+	("WebKitWebContext","GObject","webkitgtk",None,None,None,1,None,None,None),
 	("WebKitWebExtensionMode","enum","webkitgtk",None,None,None,None,None,None,None),
 	("WebKitWebProcessTerminationReason","enum","webkitgtk",None,None,None,None,None,None,None),
 	("WebKitWebView","WebKitWebViewBase","webkitgtk",None,None,None,1,"container",None,"MrgDummyWebViewProxy"),
@@ -323,6 +324,7 @@
 	("WebKitSettings","serif-font-family","gchararray",None,None,None,"serif",None,None,None,None,None,None,None,None,None),
 	("WebKitSettings","user-agent","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None),
 	("WebKitSettings","zoom-text-only","gboolean",None,None,None,"False",None,None,None,None,None,None,None,None,None),
+	("WebKitWebContext","time-zone-override","gchararray",None,1,None,None,None,None,None,None,None,None,None,None,None),
 	("WebKitWebView","automation-presentation-type","WebKitAutomationBrowsingContextPresentation",None,1,None,"window",None,None,None,None,None,None,None,None,None),
 	("WebKitWebView","camera-capture-state","WebKitMediaCaptureState",None,None,None,"none",None,None,None,None,None,None,None,None,None),
 	("WebKitWebView","default-content-security-policy","gchararray",None,1,None,None,None,None,None,None,None,None,None,None,None),
@@ -333,10 +335,15 @@
 	("WebKitWebView","microphone-capture-state","WebKitMediaCaptureState",None,None,None,"none",None,None,None,None,None,None,None,None,None),
 	("WebKitWebView","related-view","WebKitWebView",1,1,None,None,None,None,None,None,None,None,None,None,None),
 	("WebKitWebView","settings","WebKitSettings",1,None,None,None,None,None,None,None,None,None,None,None,None),
+	("WebKitWebView","web-context","WebKitWebContext",1,1,None,None,None,None,None,None,None,None,None,None,None),
 	("WebKitWebView","web-extension-mode","WebKitWebExtensionMode",None,1,None,"none",None,None,None,None,None,None,None,None,None),
 	("WebKitWebView","zoom-level","gdouble",None,None,None,"1.0","0.0","1.79769313486232e+308",None,None,None,None,None,None,None)
   </property>
   <signal>
+	("WebKitWebContext","automation-started",None,None,None),
+	("WebKitWebContext","initialize-notification-permissions",None,None,None),
+	("WebKitWebContext","initialize-web-process-extensions",None,None,None),
+	("WebKitWebContext","user-message-received",None,None,None),
 	("WebKitWebView","authenticate",None,None,None),
 	("WebKitWebView","close",None,None,None),
 	("WebKitWebView","context-menu",None,None,None),
