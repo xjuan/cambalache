@@ -161,3 +161,4 @@ gnome/webkitgtk-6.0.xml: gtk/gtk-4.0.xml
 clean:
 	rm -rf ${CATALOG_FILES}
 
+

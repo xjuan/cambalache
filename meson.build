@@ -22,12 +22,12 @@ i18n = import('i18n')
 # Python requirements ['module', 'version', 'gi required version]
 modules = [
     ['lxml', '>= 4.5.0'],
-    ['gi', '>= 3.38.0'],
-    ['gi.repository.GLib', '>= 2.66.0'],
+    ['gi', '>= 3.48.0'],
+    ['gi.repository.GLib', '>= 2.80.0'],
     ['gi.repository.Gtk', '>= 3.24.0', '3.0'],
-    ['gi.repository.Gtk', '>= 4.0.0', '4.0'],
-    ['gi.repository.WebKit2', '>= 2.32.0', '4.1'],
-    ['gi.repository.WebKit', '>= 2.32.0', '6.0'],
+    ['gi.repository.Gtk', '>= 4.14.0', '4.0'],
+    ['gi.repository.WebKit2', '>= 2.44.0', '4.1'],
+    ['gi.repository.WebKit', '>= 2.44.0', '6.0'],
     ['gi.repository.GtkSource', '', '5'],
     ['gi.repository.Handy'],
     ['gi.repository.Adw'],
@@ -80,11 +80,12 @@ assert(all_required, 'One or more required modules where not found')
 find_program('broadwayd', required: true)
 find_program('gtk4-broadwayd', required: true)
 
+gtk3_dep = dependency('pygobject-3.0', version: '>= 3.48.0')
 gtk3_dep = dependency('gtk+-3.0', version: '>= 3.24.0')
-gtk4_dep = dependency('gtk4', version: '>= 4.4.0')
+gtk4_dep = dependency('gtk4', version: '>= 4.14.0')
 
-handy_dep = dependency('libhandy-1', version: '>= 1.6.2')
-adw_dep = dependency('libadwaita-1', version: '>= 1.1.2')
+handy_dep = dependency('libhandy-1', version: '>= 1.8.0')
+adw_dep = dependency('libadwaita-1', version: '>= 1.5.0')
 
 subdir('data')
 subdir('cambalache')
