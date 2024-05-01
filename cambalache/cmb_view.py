@@ -21,12 +21,13 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
+import gi
 import os
 import json
-import socket
 import time
 
-from gi.repository import GObject, GLib, Gtk, WebKit
+gi.require_version('Cambalache', '1.0')
+from gi.repository import GObject, GLib, Gio, Gtk, Cambalache
 
 from . import config
 from .cmb_ui import CmbUI
@@ -39,46 +40,88 @@ logger = getLogger(__name__)
 
 basedir = os.path.dirname(__file__) or "."
 
-GObject.type_ensure(WebKit.Settings.__gtype__)
-GObject.type_ensure(WebKit.WebView.__gtype__)
+GObject.type_ensure(Cambalache.Compositor.__gtype__)
 
 
-class CmbProcess(GObject.Object):
+class CmbMerengueProcess(GObject.Object):
     __gsignals__ = {
-        "stdout": (GObject.SignalFlags.RUN_LAST, bool, (GLib.IOCondition,)),
-        "exit": (GObject.SignalFlags.RUN_LAST, None, ()),
+        "handle-command": (GObject.SignalFlags.RUN_LAST, None, (str,)),
+        "exit": (GObject.SignalFlags.RUN_LAST, None, (bool, )),
     }
 
-    file = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    active = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
+    gtk_version = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
+    wayland_display = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
+        self.__file = os.path.join(config.merenguedir, "merengue", "merengue")
+        self.__command_socket = self.__get_socket()
+        self.__command_in = None
+        self.__on_command_in_source = None
+        self.__connection = None
+        self.__pid = 0
+
         super().__init__(**kwargs)
 
-        self.pid = 0
-        self.stdin = None
-        self.stdout = None
+        # Create socket address object
+        socket_addr = Gio.UnixSocketAddress.new(self.__command_socket)
 
-    def stop(self):
-        if self.stdin:
-            self.stdin.shutdown(False)
-            self.stdin = None
+        # Create socket listener and add address
+        self.__listener = Gio.SocketListener()
+        self.__listener.add_address(socket_addr,
+                                    Gio.SocketType.STREAM,
+                                    Gio.SocketProtocol.DEFAULT,
+                                    None)
+        socket_addr = None
 
-        if self.stdout:
-            self.stdout.shutdown(False)
-            self.stdout = None
+    def cleanup(self):
+        self.stop()
+        GLib.unlink(self.__command_socket)
 
-        if self.pid:
-            try:
-                GLib.spawn_close_pid(self.pid)
-                os.kill(self.pid, 9)
-            except Exception as e:
-                logger.warning(f"Error stopping {self.file} {e}")
+    def __get_socket(self):
+        socket = "/tmp/cmb-merengue-0.sock"
+        i = 0
 
-            self.pid = 0
+        while os.path.exists(socket):
+            i += 1
+            socket = f"/tmp/cmb-merengue-{i}.sock"
 
-    def run(self, args, env={}):
-        if self.file is None or self.pid > 0:
+        return socket
+
+    def __on_command_in(self, channel, condition):
+        if condition == GLib.IOCondition.HUP or self.__command_in is None:
+            self.stop()
+            return GLib.SOURCE_REMOVE
+
+        payload = self.__command_in.readline()
+        if payload is not None and payload != "":
+            self.emit("handle-command", payload)
+
+        return GLib.SOURCE_CONTINUE
+
+    def __on_listener_accept_callback(self, src_object, res, data):
+        connection, source_object = self.__listener.accept_finish(res)
+        self.__connection = connection
+
+        self.__command_in = GLib.IOChannel.unix_new(self.__connection.props.input_stream.get_fd())
+        id = GLib.io_add_watch(self.__command_in,
+                               GLib.PRIORITY_DEFAULT_IDLE,
+                               GLib.IOCondition.IN | GLib.IOCondition.HUP,
+                               self.__on_command_in)
+        self.__on_command_in_source = id
+
+        self.active = True
+
+    def start(self):
+        if self.__file is None or self.__pid > 0:
             return
+
+        env = json.loads(os.environ.get("MERENGUE_DEV_ENV", "{}"))
+        env = env | {
+            "GDK_BACKEND": "wayland",
+            "GSK_RENDERER": "cairo",
+            "WAYLAND_DISPLAY": self.wayland_display,
+        }
 
         envp = [f"{var}={val}" for var, val in os.environ.items() if var not in env]
 
@@ -87,27 +130,66 @@ class CmbProcess(GObject.Object):
             envp.append(f"{var}={env[var]}")
 
         pid, stdin, stdout, stderr = GLib.spawn_async(
-            [self.file] + args,
+            [self.__file, self.version, self.__command_socket],
             envp=envp,
             flags=GLib.SpawnFlags.DO_NOT_REAP_CHILD,
-            standard_input=True,
-            standard_output=True,
         )
-        self.pid = pid
 
-        self.stdin = GLib.IOChannel.unix_new(stdin)
-        self.stdout = GLib.IOChannel.unix_new(stdout)
+        self.__pid = pid
 
-        GLib.io_add_watch(self.stdout, GLib.PRIORITY_DEFAULT_IDLE, GLib.IOCondition.IN | GLib.IOCondition.HUP, self.__on_stdout)
+        self.__listener.accept_async(None, self.__on_listener_accept_callback, None)
 
         GLib.child_watch_add(GLib.PRIORITY_DEFAULT_IDLE, pid, self.__on_exit, None)
 
-    def __on_exit(self, pid, status, data):
-        self.stop()
-        self.emit("exit")
+    def __cleanup(self):
+        if self.__on_command_in_source:
+            GLib.source_remove(self.__on_command_in_source)
+            self.__on_command_in_source = None
 
-    def __on_stdout(self, channel, condition):
-        return self.emit("stdout", condition)
+        if self.__command_in:
+            self.__command_in = None
+
+        if self.__connection:
+            self.__connection.close()
+            self.__connection = None
+
+        self.active = False
+
+    def stop(self):
+        self.__cleanup()
+
+        if self.__pid:
+            try:
+                GLib.spawn_close_pid(self.__pid)
+                os.kill(self.__pid, 9)
+            except Exception as e:
+                logger.warning(f"Error stopping {self.__file} {e}")
+            finally:
+                self.__pid = 0
+
+    def write_command(self, command, payload=None, args=None):
+        cmd = {"command": command, "payload": payload is not None}
+
+        if args is not None:
+            cmd["args"] = args
+
+        # Send command in one line as json
+        output_stream = self.__connection.props.output_stream
+        output_stream.write(json.dumps(cmd).encode())
+        output_stream.write(b"\n")
+
+        if payload is not None:
+            output_stream.write(GLib.strescape(payload).encode())
+            output_stream.write(b"\n")
+
+        # Flush
+        output_stream.flush()
+
+    def __on_exit(self, pid, status, data):
+        self.__cleanup()
+        stopped = self.__pid == 0
+        self.__pid = 0
+        self.emit("exit", stopped)
 
 
 @Gtk.Template(resource_path="/ar/xjuan/Cambalache/cmb_view.ui")
@@ -122,7 +204,7 @@ class CmbView(Gtk.Box):
     preview = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
 
     stack = Gtk.Template.Child()
-    webview = Gtk.Template.Child()
+    compositor = Gtk.Template.Child()
     text_view = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
@@ -136,82 +218,27 @@ class CmbView(Gtk.Box):
 
         super().__init__(**kwargs)
 
-        self.__merengue_bin = os.path.join(config.merenguedir, "merengue", "merengue")
-        self.__broadwayd_bin = GLib.find_program_in_path("broadwayd")
-        self.__gtk4_broadwayd_bin = GLib.find_program_in_path("gtk4-broadwayd")
-
-        self.webview.connect("load-changed", self.__on_load_changed)
-
-        self.__merengue = None
-        self.__broadwayd = None
-        self.__port = None
+        self.__merengue = CmbMerengueProcess(wayland_display=self.compositor.props.socket)
+        self.__merengue.connect("exit", self.__on_process_exit)
         self.__merengue_last_exit = None
-
-        if self.__broadwayd_bin is None:
-            logger.warning("broadwayd not found, Gtk 3 workspace wont work.")
-
-        if self.__gtk4_broadwayd_bin is None:
-            logger.warning("gtk4-broadwayd not found, Gtk 4 workspace wont work.")
 
         self.connect("notify::preview", self.__on_preview_notify)
 
-    def do_destroy(self):
-        if self.__merengue:
-            self.__merengue_command("quit")
-
-        if self.__broadwayd:
-            self.__broadwayd.stop()
-
-    def __evaluate_js(self, script):
-        self.webview.evaluate_javascript(script, -1, None, None, None, None, None, None)
+    def cleanup(self):
+        self.__merengue_command("quit")
+        self.compositor.cleanup()
+        self.__merengue.cleanup()
 
     def _set_dark_mode(self, dark):
         self.__dark = dark
-        self.__evaluate_js(f"document.body.style.background = '{'#222' if dark else 'inherit'}';")
-
-    def __on_load_changed(self, webview, event):
-        if event != WebKit.LoadEvent.FINISHED:
-            return
-
-        self._set_dark_mode(self.__dark)
-
-        # Disable alert() function used when broadwayd get disconnected
-        # Monkey pat ch setupDocument() to avoid disabling document.oncontextmenu
-        self.__evaluate_js(
-            """
-window.alert = function (message) {
-    console.log (message);
-}
-
-window.merengueSetupDocument = setupDocument;
-
-window.setupDocument = function (document) {
-    var cb = oncontextmenu
-    merengueSetupDocument(document);
-    document.oncontextmenu = cb;
-}
-"""
-        )
+        if dark:
+            self.compositor.set_bg_color(0.18, 0.18, 0.18)
+        else:
+            self.compositor.set_bg_color(1, 1, 1)
 
     def __merengue_command(self, command, payload=None, args=None):
-        if self.__merengue is None or self.__merengue.stdin is None:
-            return
-
-        cmd = {"command": command, "payload": payload is not None}
-
-        if args is not None:
-            cmd["args"] = args
-
-        # Send command in one line as json
-        self.__merengue.stdin.write(json.dumps(cmd))
-        self.__merengue.stdin.write("\n")
-
-        if payload is not None:
-            self.__merengue.stdin.write(GLib.strescape(payload))
-            self.__merengue.stdin.write("\n")
-
-        # Flush
-        self.__merengue.stdin.flush()
+        if self.__merengue is not None and self.__merengue.active:
+            self.__merengue.write_command(command, payload, args)
 
     def __get_ui_xml(self, ui_id, merengue=False):
         return self.__project.db.tostring(ui_id, merengue=merengue)
@@ -399,12 +426,17 @@ window.setupDocument = function (document) {
             self.__project.disconnect_by_func(self.__on_object_data_data_removed)
             self.__project.disconnect_by_func(self.__on_object_data_arg_changed)
             self.__project.disconnect_by_func(self.__on_project_selection_changed)
-            self.__merengue.disconnect_by_func(self.__on_merengue_stdout)
             self.__project.disconnect_by_func(self.__on_css_added)
             self.__project.disconnect_by_func(self.__on_css_removed)
             self.__project.disconnect_by_func(self.__on_css_changed)
+            self.__merengue.disconnect_by_func(self.__on_merengue_handle_command)
             self.__merengue.stop()
-            self.__broadwayd.stop()
+
+        if self.__restart_project is None:
+            self.compositor.forget_toplevel_state()
+        else:
+            project = self.__restart_project
+            self.__restart_project = None
 
         self.__project = project
 
@@ -427,24 +459,20 @@ window.setupDocument = function (document) {
             project.connect("css-added", self.__on_css_added)
             project.connect("css-removed", self.__on_css_removed)
             project.connect("css-changed", self.__on_css_changed)
+            self.__merengue.connect("handle-command", self.__on_merengue_handle_command)
 
-            self.__merengue = CmbProcess(file=self.__merengue_bin)
-            self.__merengue.connect("stdout", self.__on_merengue_stdout)
-            self.__merengue.connect("exit", self.__on_process_exit)
+            # Run view process
+            if project.target_tk == "gtk+-3.0":
+                self.__merengue.version = "3.0"
+            elif project.target_tk == "gtk-4.0":
+                self.__merengue.version = "4.0"
 
-            self.__broadwayd_check(self.__project.target_tk)
-
-            broadwayd = self.__gtk4_broadwayd_bin if self.__project.target_tk == "gtk-4.0" else self.__broadwayd_bin
-            self.__broadwayd = CmbProcess(file=broadwayd)
-            self.__broadwayd.connect("stdout", self.__on_broadwayd_stdout)
-            self.__broadwayd.connect("exit", self.__on_process_exit)
-
-            self.__port = self.__find_free_port()
-            display = self.__port - 8080
-            self.__broadwayd.run([f":{display}"])
+            # Clear any error
+            self.compositor.props.error_message = None
+            self.__merengue.start()
 
             # Update css themes
-            self.menu.target_tk = self.__project.target_tk
+            self.menu.target_tk = project.target_tk
 
     @GObject.Property(type=str)
     def gtk_theme(self):
@@ -455,32 +483,9 @@ window.setupDocument = function (document) {
         self.__theme = theme
         self.__merengue_command("gtk_settings_set", args={"property": "gtk-theme-name", "value": theme})
 
-    @Gtk.Template.Callback("on_context_menu")
-    def __on_context_menu(self, webview, menu, hit_test_result):
-        self.menu.popup_at(*utils.get_pointer(self))
-        return True
-
-    def __webview_set_msg(self, msg):
-        self.webview.load_html(
-            f"""
-            <html>
-              <body>
-                <h3 style="white-space: pre; text-align: center; margin-top: 45vh; opacity: 50%">{msg}</h3>
-              </body>
-            </html>
-            """
-        )
-
-    def __broadwayd_check(self, target_tk):
-        bin = None
-
-        if target_tk == "gtk-4.0" and self.__gtk4_broadwayd_bin is None:
-            bin = "gtk4-broadwayd"
-        if target_tk == "gtk+-3.0" and self.__broadwayd_bin is None:
-            bin = "broadwayd"
-
-        if bin is not None:
-            self.__webview_set_msg(_("Workspace not available\n{bin} executable not found").format(bin=bin))
+    @Gtk.Template.Callback("on_compositor_context_menu")
+    def __on_compositor_context_menu(self, compositor, x, y):
+        self.menu.popup_at(x, y)
 
     def inspect(self):
         self.stack.props.visible_child_name = "ui_xml"
@@ -488,6 +493,7 @@ window.setupDocument = function (document) {
 
     def restart_workspace(self):
         self.__restart_project = self.__project
+        self.__ui_id = 0
         self.project = None
 
     def __create_context_menu(self):
@@ -499,23 +505,18 @@ window.setupDocument = function (document) {
 
         return retval
 
-    def __on_process_exit(self, process):
-        if process == self.__merengue:
-            if self.__merengue_last_exit is None:
-                self.__merengue_last_exit = time.monotonic()
-            else:
-                if (time.monotonic() - self.__merengue_last_exit) < 1:
-                    self.__webview_set_msg(_("Workspace process error\nStopping auto restart"))
-                    self.__merengue_last_exit = None
-                    return
-
-        if self.__broadwayd.pid == 0 and self.__merengue.pid == 0:
-            self.project = self.__restart_project
-            self.__restart_project = None
-            self.__ui_id = 0
+    def __on_process_exit(self, process, stopped):
+        if self.__merengue_last_exit is None:
+            self.__merengue_last_exit = time.monotonic()
         else:
-            self.__restart_project = self.__project
-            self.project = None
+            if (time.monotonic() - self.__merengue_last_exit) < 1:
+                self.compositor.props.error_message = _("Workspace process error\nStopping auto restart")
+                self.__merengue_last_exit = None
+                return
+
+        if not stopped:
+            self.__ui_id = 0
+            self.__merengue.start()
 
     def __command_selection_changed(self, selection):
         objects = []
@@ -550,109 +551,48 @@ window.setupDocument = function (document) {
         for css in providers:
             self.__on_css_added(self.project, css)
 
-    def __on_merengue_stdout(self, process, condition):
-        if condition == GLib.IOCondition.HUP:
-            self.__merengue.stop()
-            return GLib.SOURCE_REMOVE
-
-        if self.__merengue.stdout is None:
-            return GLib.SOURCE_REMOVE
-
-        retval = self.__merengue.stdout.readline()
-        cmd = None
-
+    def __on_merengue_handle_command(self, merengue, payload):
         try:
-            cmd = json.loads(retval)
+            cmd = json.loads(payload)
             command = cmd.get("command", None)
             args = cmd.get("args", {})
-
-            if command == "selection_changed":
-                self.__command_selection_changed(**args)
-            elif command == "started":
-                self.__merengue_command("gtk_settings_get", args={"property": "gtk-theme-name"})
-
-                self.__load_namespaces()
-
-                self.__load_css_providers()
-
-                self.__on_project_selection_changed(self.__project)
-            elif command == "placeholder_selected":
-                self.emit(
-                    "placeholder-selected",
-                    args["ui_id"],
-                    args["object_id"],
-                    args["layout"],
-                    args["position"],
-                    args["child_type"],
-                )
-            elif command == "placeholder_activated":
-                self.emit(
-                    "placeholder-activated",
-                    args["ui_id"],
-                    args["object_id"],
-                    args["layout"],
-                    args["position"],
-                    args["child_type"],
-                )
-            elif command == "gtk_settings_get":
-                if args["property"] == "gtk-theme-name":
-                    self.__theme = args["value"]
-                    self.notify("gtk_theme")
-
         except Exception as e:
-            logger.warning(f"Merenge output error: {e}")
+            logger.warning(f"Merengue command error: {e}")
             self.__merengue.stop()
-            return GLib.SOURCE_REMOVE
+            return
 
-        return GLib.SOURCE_CONTINUE
+        if command == "selection_changed":
+            self.__command_selection_changed(**args)
+        elif command == "started":
+            self.__merengue_command("gtk_settings_get", args={"property": "gtk-theme-name"})
 
-    def __on_broadwayd_stdout(self, process, condition):
-        if condition == GLib.IOCondition.HUP:
-            self.__broadwayd.stop()
-            return GLib.SOURCE_REMOVE
+            self.__load_namespaces()
 
-        if self.__broadwayd.stdout is None:
-            return GLib.SOURCE_REMOVE
+            self.__load_css_providers()
 
-        status, retval, length, terminator = self.__broadwayd.stdout.read_line()
-        # path = retval.replace("Listening on ", "").strip()
-
-        # Run view process
-        if self.__project.target_tk == "gtk+-3.0":
-            version = "3.0"
-        elif self.__project.target_tk == "gtk-4.0":
-            version = "4.0"
-
-        display = self.__port - 8080
-
-        env = json.loads(os.environ.get("MERENGUE_DEV_ENV", "{}"))
-        self.__merengue.run(
-            [version],
-            env
-            | {
-                "GDK_BACKEND": "broadway",
-                # 'GTK_DEBUG': 'interactive',
-                "BROADWAY_DISPLAY": f":{display}",
-            },
-        )
-
-        # Load broadway desktop
-        self.webview.load_uri(f"http://127.0.0.1:{self.__port}")
-
-        self.__broadwayd.stdout.shutdown(False)
-        self.__broadwayd.stdout = None
-        return GLib.SOURCE_REMOVE
-
-    def __find_free_port(self):
-        for port in range(8080, 8180):
-            s = socket.socket()
-            retval = s.connect_ex(("127.0.0.1", port))
-            s.close()
-
-            if retval != 0:
-                return port
-
-        return 0
+            self.__on_project_selection_changed(self.__project)
+        elif command == "placeholder_selected":
+            self.emit(
+                "placeholder-selected",
+                args["ui_id"],
+                args["object_id"],
+                args["layout"],
+                args["position"],
+                args["child_type"],
+            )
+        elif command == "placeholder_activated":
+            self.emit(
+                "placeholder-activated",
+                args["ui_id"],
+                args["object_id"],
+                args["layout"],
+                args["position"],
+                args["child_type"],
+            )
+        elif command == "gtk_settings_get":
+            if args["property"] == "gtk-theme-name":
+                self.__theme = args["value"]
+                self.notify("gtk_theme")
 
     def __add_remove_placeholder(self, command, modifier):
         if self.project is None:
@@ -673,3 +613,4 @@ window.setupDocument = function (document) {
 
 
 Gtk.WidgetClass.set_css_name(CmbView, "CmbView")
+

@@ -20,7 +20,7 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-from gi.repository import GObject, Gtk
+from gi.repository import GObject, Gtk, CambalachePrivate
 
 from .mrg_selection import MrgSelection
 from .mrg_gtk_widget import MrgGtkWidget
@@ -91,16 +91,18 @@ class MrgGtkPopover(MrgGtkWidget):
         self.selection = MrgSelection(app=self.app, container=self.object)
 
         self.__ensure_popup()
-        self.object.popup()
+        self.object.popdown()
 
-        if Gtk.MAJOR_VERSION == 4:
-            self.object.show()
-            if self.window:
-                self.window.show()
-        else:
+        if Gtk.MAJOR_VERSION == 3:
             self.object.show_all()
             if self.window:
                 self.window.show_all()
+        else:
+            if self.window:
+                self.window.show()
+
+        if self.window:
+            CambalachePrivate.widget_set_application_id(self.window, f"Cmb:{self.ui_id}.{self.object_id}")
 
     def on_selected_changed(self):
         super().on_selected_changed()

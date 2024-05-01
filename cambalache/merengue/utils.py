@@ -22,29 +22,10 @@
 #
 
 import sys
-import json
 import ctypes
 
 from ctypes.util import find_library
 from gi.repository import Gdk, Gtk
-
-
-def write_command(command, payload=None, args=None):
-    cmd = {"command": command, "payload_length": len(payload) if payload is not None else 0}
-
-    if args is not None:
-        cmd["args"] = args
-
-    # Send command in one line as json
-    sys.stdout.write(json.dumps(cmd))
-    sys.stdout.write("\n")
-
-    # Send payload if any
-    if payload is not None:
-        sys.stdout.write(payload)
-
-    # Flush
-    sys.stdout.flush()
 
 
 def object_get_builder_id(obj):

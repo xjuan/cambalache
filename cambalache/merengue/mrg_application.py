@@ -40,14 +40,31 @@ logger = getLogger(__name__)
 
 
 class MrgApplication(Gtk.Application):
+    command_socket = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+
     preview = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
 
     dirname = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
 
-    def __init__(self):
-        self.stdin = None
+    def __init__(self, **kwargs):
+        self.command_in = None
 
-        super().__init__(application_id="ar.xjuan.Merengue", flags=Gio.ApplicationFlags.NON_UNIQUE)
+        GLib.set_application_name("Merengue")
+        super().__init__(application_id="ar.xjuan.Merengue", flags=Gio.ApplicationFlags.NON_UNIQUE, **kwargs)
+
+        socket_addr = Gio.UnixSocketAddress.new(self.command_socket)
+
+        command_client = Gio.SocketClient()
+        self.connection = command_client.connect(socket_addr, None)
+
+        command_client = None
+        socket_addr = None
+
+        if self.connection is None:
+            self.quit()
+            return
+
+        self.command_in = GLib.IOChannel.unix_new(self.connection.props.input_stream.get_fd())
 
         # List of available controler classes for objects
         self.registry = MrgControllerRegistry()
@@ -72,6 +89,25 @@ class MrgApplication(Gtk.Application):
         self.default_seat_pointer = default_seat.get_pointer() if default_seat else None
 
         self.connect("notify::dirname", self.__on_dirname_notify)
+
+    def write_command(self, command, payload=None, args=None):
+        cmd = {"command": command, "payload_length": len(payload) if payload is not None else 0}
+
+        if args is not None:
+            cmd["args"] = args
+
+        output_stream = self.connection.props.output_stream
+
+        # Send command in one line as json
+        output_stream.write(json.dumps(cmd).encode())
+        output_stream.write(b"\n")
+
+        # Send payload if any
+        if payload is not None:
+            output_stream.write(payload.encode())
+
+        # Flush
+        output_stream.flush()
 
     def __on_dirname_notify(self, obj, pspec):
         # Change CWD for builder to pick relative paths
@@ -206,9 +242,13 @@ class MrgApplication(Gtk.Application):
 
             obj = controller.object
 
-            if obj and issubclass(type(obj), Gtk.Widget):
-                controller.selected = True
-                self._show_widget(controller)
+            if obj:
+                if issubclass(type(obj), Gtk.Widget):
+                    controller.selected = True
+                    self._show_widget(controller)
+
+                if issubclass(type(obj), Gtk.Window):
+                    obj.present()
 
     def selection_changed(self, ui_id, selection):
         # Clear objects
@@ -221,7 +261,7 @@ class MrgApplication(Gtk.Application):
         self.settings.set_property(property, value)
 
     def gtk_settings_get(self, property):
-        utils.write_command("gtk_settings_get", args={"property": property, "value": self.settings.get_property(property)})
+        self.write_command("gtk_settings_get", args={"property": property, "value": self.settings.get_property(property)})
 
     def add_placeholder(self, ui_id, object_id, modifier):
         controller = self.get_controller(ui_id, object_id)
@@ -318,26 +358,28 @@ class MrgApplication(Gtk.Application):
         else:
             logger.warning(f"Unknown command {command}")
 
-    def on_stdin(self, channel, condition):
+    def __on_command_in(self, channel, condition):
         if condition == GLib.IOCondition.HUP:
-            sys.exit(-1)
+            self.quit()
             return GLib.SOURCE_REMOVE
 
         # We receive a command in each line
-        retval = self.stdin.readline()
+        retval = self.command_in.readline()
 
         try:
             # Command is a Json string with a command, args and payload fields
             cmd = json.loads(retval)
         except Exception as e:
             logger.warning(f"Error parsing command {e}")
+            self.quit()
+            return GLib.SOURCE_REMOVE
         else:
             command = cmd.get("command", None)
             args = cmd.get("args", {})
             has_payload = cmd.get("payload", False)
 
             # Read payload
-            payload = GLib.strcompress(self.stdin.readline()) if has_payload else None
+            payload = GLib.strcompress(self.command_in.readline()) if has_payload else None
 
             # Run command
             self.run_command(command, args, payload)
@@ -351,8 +393,10 @@ class MrgApplication(Gtk.Application):
 
         self.registry.load_module("Gtk", mrg_gtk)
 
-        self.stdin = GLib.IOChannel.unix_new(sys.stdin.fileno())
-        GLib.io_add_watch(self.stdin, GLib.PRIORITY_DEFAULT_IDLE, GLib.IOCondition.IN | GLib.IOCondition.HUP, self.on_stdin)
+        GLib.io_add_watch(self.command_in,
+                          GLib.PRIORITY_DEFAULT_IDLE,
+                          GLib.IOCondition.IN | GLib.IOCondition.HUP,
+                          self.__on_command_in)
 
         provider = Gtk.CssProvider()
         provider.load_from_resource("/ar/xjuan/Merengue/merengue.css")
@@ -366,11 +410,8 @@ class MrgApplication(Gtk.Application):
                 Gdk.Screen.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
             )
 
-        settings = Gtk.Settings.get_default()
-        settings.props.gtk_enable_animations = False
-
         # We need to add at least a window for the app not to exit!
         self.add_window(Gtk.Window())
 
     def do_activate(self):
-        utils.write_command("started")
+        self.write_command("started")

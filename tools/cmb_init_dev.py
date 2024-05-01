@@ -26,6 +26,7 @@ import sys
 import stat
 import signal
 import locale
+import subprocess
 import xml.etree.ElementTree as ET
 
 basedir = os.path.join(os.path.split(os.path.dirname(__file__))[0])
@@ -37,16 +38,19 @@ catalogsdir = os.path.join(basedir, ".catalogs")
 cambalachedir = os.path.join(basedir, "cambalache")
 xdgdatadir = os.getenv("XDG_DATA_DIRS", "/usr/local/share/:/usr/share/") + f":{datadir}"
 
-privatedir = os.path.join(basedir, ".lib")
-os.environ["GI_TYPELIB_PATH"] = privatedir
-os.environ["LD_LIBRARY_PATH"] = privatedir
+localdir = os.path.join(basedir, ".local")
+locallibdir = os.path.join(localdir, "lib")
+localgitypelibdir = os.path.join(locallibdir, "girepository-1.0")
+os.environ["LD_LIBRARY_PATH"] = locallibdir
+os.environ["GI_TYPELIB_PATH"] = localgitypelibdir
+os.environ["PKG_CONFIG_PATH"] = os.path.join(locallibdir, "pkgconfig")
 os.environ["GSETTINGS_SCHEMA_DIR"] = datadir
 os.environ["XDG_DATA_DIRS"] = xdgdatadir
 os.environ[
     "MERENGUE_DEV_ENV"
 ] = f"""{{
-    "GI_TYPELIB_PATH": "{privatedir}",
-    "LD_LIBRARY_PATH": "{privatedir}",
+    "LD_LIBRARY_PATH": "{locallibdir}",
+    "GI_TYPELIB_PATH": "{localgitypelibdir}",
     "GSETTINGS_SCHEMA_DIR": "{datadir}",
     "XDG_DATA_DIRS": "{xdgdatadir}"
 }}"""
@@ -227,36 +231,21 @@ def check_init_locale():
     locale.textdomain("cambalache")
 
 
-def compile_private():
-    srcdir = os.path.join(basedir, "cambalache", "private")
-
-    for prog in ["cc", "pkg-config", "g-ir-compiler", "g-ir-scanner"]:
+def compile_libs():
+    for prog in ["meson", "ninja", "cc", "pkg-config", "g-ir-compiler", "g-ir-scanner"]:
         if GLib.find_program_in_path(prog) is None:
             print(f"{prog} is needed to compile Cambalache private library")
             return
 
-    if not os.path.exists(privatedir):
-        GLib.mkdir_with_parents(privatedir, 0o700)
+    builddir = os.path.join(localdir, "build")
 
-    for v, pkg in [("3", "gtk+-3.0"), ("4", "gtk4")]:
-        srcfile = f"{srcdir}/cmb_private.c"
-        typelib = f"{privatedir}/CambalachePrivate-{v}.0.typelib"
+    if not os.path.exists(builddir):
+        GLib.mkdir_with_parents(builddir, 0o700)
+        os.system(f"meson setup --wipe --buildtype=debug --prefix={localdir} {builddir}")
 
-        if os.path.exists(typelib) and os.path.getmtime(srcfile) < os.path.getmtime(typelib):
-            continue
-
-        os.system(f"cc -c -fpic -Wall `pkg-config {pkg} --cflags` -I{srcdir} {srcfile} -o {privatedir}/cmb_private.o")
-        os.system(
-            f"cc -shared -o {privatedir}/libcambalacheprivate-{v}.so {privatedir}/cmb_private.o `pkg-config {pkg} --libs`"
-        )
-        os.system(
-            f"""
-            g-ir-scanner -i Gtk-{v}.0 -n CambalachePrivate --nsversion={v}.0 --identifier-prefix=cmb_private -L {privatedir} \
-                         -l cambalacheprivate-{v} --symbol-prefix=cmb_private --identifier-prefix=CmbPrivate \
-                         {srcdir}/*.c {srcdir}/*.h --warn-all -o {privatedir}/CambalachePrivate-{v}.0.gir
-            """
-        )
-        os.system(f"g-ir-compiler {privatedir}/CambalachePrivate-{v}.0.gir --output={typelib}")
+    result = subprocess.run(['ninja', '-C', builddir], stdout=subprocess.PIPE)
+    if "ninja: no work to do." not in result.stdout.decode('utf-8'):
+        os.system(f"ninja -C {builddir} install")
 
 
 def cmb_init_dev():
@@ -321,7 +310,7 @@ merenguedir = '{cambalachedir}'
 
     create_catalogs_dir()
 
-    compile_private()
+    compile_libs()
 
 
 if __name__ == "__main__":

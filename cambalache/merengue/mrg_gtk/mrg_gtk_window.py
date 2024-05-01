@@ -20,7 +20,7 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-from gi.repository import GObject, Gtk
+from gi.repository import GObject, Gtk, CambalachePrivate
 
 from .mrg_gtk_bin import MrgGtkBin
 from .mrg_selection import MrgSelection
@@ -34,10 +34,6 @@ class MrgGtkWindow(MrgGtkBin):
     object = GObject.Property(type=Gtk.Window, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
-        self._position = None
-        self._size = None
-        self._is_maximized = None
-        self._is_fullscreen = None
         self.selection = None
 
         super().__init__(**kwargs)
@@ -64,12 +60,6 @@ class MrgGtkWindow(MrgGtkBin):
             else:
                 self.object.connect("delete-event", lambda o, e: True)
 
-            # Restore size
-            if self._size and not self._is_maximized:
-                self.object.set_default_size(*self._size)
-            else:
-                self.object.set_default_size(320, 240)
-
             # Disable modal at runtime
             self.object.props.modal = False
 
@@ -85,11 +75,6 @@ class MrgGtkWindow(MrgGtkBin):
             else:
                 self.object.get_style_context().add_class("gtk3")
 
-            self._restore_state()
-
-        # keep track of size, position, and window state (maximized)
-        self._save_state()
-
     def _update_name(self):
         if self.object is None:
             return
@@ -98,30 +83,5 @@ class MrgGtkWindow(MrgGtkBin):
         type_name = GObject.type_name(self.object.__gtype__)
         self.object.props.title = type_name
 
-    def _save_state(self):
-        if self.object is None:
-            return
-
-        self._is_maximized = self.object.is_maximized()
-
-        if self._is_maximized:
-            return
-
-        if Gtk.MAJOR_VERSION == 4:
-            # FIXME: this does not work, find a way to get the size of the window try map event
-            self._size = [self.object.get_width(), self.object.get_height()]
-        else:
-            self._position = self.object.get_position()
-            self._size = self.object.get_size()
-
-    def _restore_state(self):
-        if self._is_maximized:
-            self.object.maximize()
-            return
-
-        if Gtk.MAJOR_VERSION == 4:
-            # TODO: find a way to store position on gtk4
-            pass
-        else:
-            if self._position:
-                self.object.move(*self._position)
+        CambalachePrivate.widget_set_application_id(self.object,
+                                                    f"Cmb:{self.ui_id}.{self.object_id}")

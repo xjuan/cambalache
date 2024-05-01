@@ -40,6 +40,41 @@
             ]
         },
         {
+          "name": "libseat",
+          "buildsystem": "meson",
+          "config-opts": [
+            "-Dserver=disabled",
+            "-Dman-pages=disabled"
+          ],
+          "sources": [
+            {
+              "type": "archive",
+              "url": "https://git.sr.ht/~kennylevinsen/seatd/archive/0.8.0.tar.gz",
+              "sha256": "a562a44ee33ccb20954a1c1ec9a90ecb2db7a07ad6b18d0ac904328efbcf65a0",
+              "x-checker-data": {
+                "type": "anitya",
+                "project-id": 234932,
+                "stable-only": true,
+                "url-template": "https://git.sr.ht/~kennylevinsen/seatd/archive/$version.tar.gz"
+              }
+            }
+          ]
+        },
+        {
+          "name": "wlroots",
+          "builddir": true,
+          "buildsystem": "meson",
+          "config-opts": [
+          ],
+          "sources": [
+            {
+              "type": "git",
+              "url": "https://gitlab.freedesktop.org/wlroots/wlroots.git",
+              "branch": "8abd43803bd1069c47bbbf83c8ff6042b29f1b19"
+            }
+          ]
+       },
+       {
             "name" : "cambalache",
             "builddir" : true,
             "buildsystem" : "meson",

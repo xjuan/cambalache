@@ -1,7 +1,10 @@
 project(
     'cambalache', 'c',
     version: '0.91.0',
-    meson_version: '>= 0.64.0'
+    meson_version: '>= 0.64.0',
+    default_options: [
+        'warning_level=everything'
+    ],
 )
 
 # File format version follows app version and only changes when there is a
@@ -88,6 +91,7 @@ handy_dep = dependency('libhandy-1', version: '>= 1.8.0')
 adw_dep = dependency('libadwaita-1', version: '>= 1.5.0')
 
 subdir('data')
+subdir('lib')
 subdir('cambalache')
 subdir('catalogs')
 subdir('po')

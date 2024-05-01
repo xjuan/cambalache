@@ -213,7 +213,8 @@ class CmbWindow(Gtk.ApplicationWindow):
         # Set shortcuts window
         builder = Gtk.Builder()
         builder.add_from_resource("/ar/xjuan/Cambalache/app/cmb_shortcuts.ui")
-        self.set_help_overlay(builder.get_object("shortcuts"))
+        self.shortcut_window = builder.get_object("shortcuts")
+        self.set_help_overlay(self.shortcut_window)
 
         self.version_label.props.label = f"version {config.VERSION}"
         self.about_dialog.props.version = config.VERSION
@@ -270,6 +271,11 @@ class CmbWindow(Gtk.ApplicationWindow):
         self.connect("notify::focus-widget", self.__on_focus_widget_notify)
         self.__recent_manager.connect("changed", lambda rm: self.__update_recent_menu())
         self.__update_recent_menu()
+
+    def cleanup(self):
+        self.about_dialog.destroy()
+        self.shortcut_window.destroy()
+        self.view.cleanup()
 
     def __on_view_gtk_theme_notify(self, obj, pspec):
         self.actions["workspace_theme"].set_state(GLib.Variant("s", obj.props.gtk_theme))

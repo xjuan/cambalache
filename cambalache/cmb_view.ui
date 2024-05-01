@@ -3,16 +3,6 @@
 <interface>
   <!-- interface-name cmb_view.ui -->
   <requires lib="gtk" version="4.0"/>
-  <requires lib="webkitgtk" version="6.0"/>
-  <object class="WebKitSettings" id="settings">
-    <property name="enable-fullscreen">False</property>
-    <property name="enable-html5-database">False</property>
-    <property name="enable-html5-local-storage">False</property>
-    <property name="enable-media">False</property>
-    <property name="enable-webaudio">False</property>
-    <property name="media-playback-allows-inline">False</property>
-    <property name="user-agent">Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0 Safari/605.1.15</property>
-  </object>
   <template class="CmbView" parent="GtkBox">
     <child>
       <object class="GtkStack" id="stack">
@@ -22,11 +12,9 @@
         <child>
           <object class="GtkStackPage">
             <property name="child">
-              <object class="WebKitWebView" id="webview">
-                <property name="can-focus">True</property>
-                <property name="settings">settings</property>
-                <property name="visible">True</property>
-                <signal name="context-menu" handler="on_context_menu"/>
+              <object class="CmbCompositor" id="compositor">
+                <property name="can-focus">True</property>s
+                <signal name="context-menu" handler="on_compositor_context_menu"/>
               </object>
             </property>
             <property name="name">ui_view</property>
@@ -48,7 +36,6 @@
                         <property name="cursor-visible">False</property>
                         <property name="editable">False</property>
                         <property name="lang">xml</property>
-                        <property name="visible">True</property>
                       </object>
                     </child>
                   </object>

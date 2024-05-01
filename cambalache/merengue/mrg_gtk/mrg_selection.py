@@ -99,7 +99,7 @@ class MrgSelection(GObject.GObject):
             return
 
         # Select widget on button release only if its preselected
-        utils.write_command("selection_changed", args={"selection": [object_id]})
+        self.app.write_command("selection_changed", args={"selection": [object_id]})
         controller.selected = True
         gesture.set_state(Gtk.EventSequenceState.CLAIMED)
 

@@ -178,7 +178,7 @@ class MrgGtkWidget(MrgController):
         position = self.get_child_position(placeholder)
         child_type = self.get_child_type(placeholder)
         layout = self.get_child_layout(placeholder, {})
-        utils.write_command(
+        self.app.write_command(
             "placeholder_selected",
             args={
                 "ui_id": self.ui_id,
@@ -193,7 +193,7 @@ class MrgGtkWidget(MrgController):
         position = self.get_child_position(placeholder)
         child_type = self.get_child_type(placeholder)
         layout = self.get_child_layout(placeholder, {})
-        utils.write_command(
+        self.app.write_command(
             "placeholder_activated",
             args={
                 "ui_id": self.ui_id,
