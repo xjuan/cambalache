@@ -28,10 +28,10 @@ Source code lives on GNOME gitlab [here](https://gitlab.gnome.org/jpu/cambalache
 
 * Python 3 - Cambalache is written in Python
 * [Meson](http://mesonbuild.com) build system
-* [GTK](http://www.gtk.org) 3 and 4 with broadway backend enabled
+* [GTK](http://www.gtk.org) 3 and 4
 * python-gi - Python GTK bindings
 * python3-lxml - Python libxml2 bindings
-* WebkitGTK - Webview for workspace
+* wlroots - For workspace custom compositor
 
 ## Running from sources
 
