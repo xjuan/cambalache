@@ -1,7 +1,7 @@
 /*
  * CmbPrivate - Private utility functions
  *
- * Copyright (C) 2022 Juan Pablo Ugarte.
+ * Copyright (C) 2022-2024 Juan Pablo Ugarte.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as
@@ -21,6 +21,13 @@
  */
 
 #include "cmb_private.h"
+
+#if GTK_MAJOR_VERSION == 4
+#include <gdk/wayland/gdkwayland.h>
+#else
+#include <gdk/gdkwayland.h>
+#endif
+
 
 static gboolean
 _value_from_string(GParamSpec *pspec, const gchar *string, GValue *value)
@@ -62,53 +69,41 @@ cmb_private_object_set_property_from_string (GObject *object,
   }
 }
 
+/**
+ * cmb_private_widget_set_application_id:
+ * @widget:
+ * @app_id:
+ *
+ */
+void
+cmb_private_widget_set_application_id (GtkWidget *widget, const gchar *app_id)
+{
+  GdkDisplay *display = gtk_widget_get_display(widget);
+
+  if (!GDK_IS_WAYLAND_DISPLAY (display))
+    {
+      g_warning("%s only work on wayland", __func__);
+      return;
+    }
+
 #if GTK_MAJOR_VERSION == 4
+  GtkNative *native = gtk_widget_get_native(widget);
+  GdkSurface *surface = gtk_native_get_surface(native);
 
-struct _CmbPrivateBuilderScope
-{
-  GtkBuilderCScope  parent_instance;
-};
-
-static GtkBuilderScopeInterface *parent_iface;
-
-static void cmb_private_builder_scope_scope_init (GtkBuilderScopeInterface *iface);
-
-G_DEFINE_TYPE_WITH_CODE (CmbPrivateBuilderScope, cmb_private_builder_scope, GTK_TYPE_BUILDER_CSCOPE,
-                         G_IMPLEMENT_INTERFACE (GTK_TYPE_BUILDER_SCOPE,
-                                                cmb_private_builder_scope_scope_init))
-
-static GType
-cmb_private_builder_scope_get_type_from_name (GtkBuilderScope *scope,
-                                              GtkBuilder      *builder,
-                                              const char      *type_name)
-{
-  g_autofree gchar *mrg_type_name = g_strconcat("Merengue", type_name, NULL);
-  GType mrg_type;
-
-  if ((mrg_type = g_type_from_name (mrg_type_name)) != G_TYPE_INVALID)
-    return mrg_type;
-
-  return parent_iface->get_type_from_name (scope, builder, type_name);
-}
-
-static void
-cmb_private_builder_scope_class_init (CmbPrivateBuilderScopeClass *klass)
-{
-}
-
-static void
-cmb_private_builder_scope_scope_init (GtkBuilderScopeInterface *iface)
-{
-  parent_iface = g_type_interface_peek_parent (iface);
-  iface->get_type_from_name = cmb_private_builder_scope_get_type_from_name;
-}
-
-static void
-cmb_private_builder_scope_init (CmbPrivateBuilderScope *self)
-{
-}
-
+  if (surface && GDK_IS_WAYLAND_TOPLEVEL(surface))
+    gdk_wayland_toplevel_set_application_id(GDK_WAYLAND_TOPLEVEL(surface),
+                                            app_id);
 #else
+  GdkWindow *window = gtk_widget_get_window(widget);
+
+  if (window)
+    gdk_wayland_window_set_application_id(window, app_id);
+#endif
+}
+
+
+
+#if GTK_MAJOR_VERSION == 3
 
 /**
  * cmb_private_container_child_set_property_from_string:
@@ -134,77 +129,6 @@ cmb_private_container_child_set_property_from_string (GtkContainer *container,
     gtk_container_child_set_property (container, child, property_name, &gvalue);
     g_value_unset (&gvalue);
   }
-}
-
-/*
- * Workaround:
- *
- * GtkBuilder can not be subclassed so there is no clean way to override
- * get_type_from_name()
- *
- */
-
-typedef GType (*getType) (GtkBuilder *, const char *);
-
-struct _MrgBuilderClass
-{
-  GObjectClass parent_class;
-
-  GType (* get_type_from_name) (GtkBuilder *builder,
-                                const char *type_name);
-
-  /* Padding for future expansion */
-  void (*_gtk_reserved1) (void);
-  void (*_gtk_reserved2) (void);
-  void (*_gtk_reserved3) (void);
-  void (*_gtk_reserved4) (void);
-  void (*_gtk_reserved5) (void);
-  void (*_gtk_reserved6) (void);
-  void (*_gtk_reserved7) (void);
-  void (*_gtk_reserved8) (void);
-};
-
-typedef struct _MrgBuilderClass MrgBuilderClass;
-
-static getType __get_type_from_name = NULL;
-
-static GType
-_get_type_from_name (GtkBuilder *builder, const char *type_name)
-{
-  g_autofree gchar *mrg_type_name = g_strconcat("Merengue", type_name, NULL);
-  GType mrg_type;
-
-  if ((mrg_type = g_type_from_name (mrg_type_name)) != G_TYPE_INVALID)
-    return mrg_type;
-
-  return __get_type_from_name  (builder, type_name);
-}
-
-/**
- * cmb_private_builder_init:
- *
- */
-void
-cmb_private_builder_init ()
-{
-  MrgBuilderClass *klass;
-
-  if (__get_type_from_name)
-    return;
-
-  /* Ensure GtkBuilder is registered */
-  g_type_ensure (GTK_TYPE_BUILDER);
-
-  /* Get Class pointer */
-  klass = g_type_class_ref (GTK_TYPE_BUILDER);
-
-  if (!klass)
-    return;
-
-  __get_type_from_name = klass->get_type_from_name;
-
-  /* Monkey patch */
-  klass->get_type_from_name = _get_type_from_name;
 }
 
 #endif

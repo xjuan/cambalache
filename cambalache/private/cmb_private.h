@@ -1,7 +1,7 @@
 /*
  * CmbPrivate - Private utility functions
  *
- * Copyright (C) 2022 Juan Pablo Ugarte.
+ * Copyright (C) 2022-2024 Juan Pablo Ugarte.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as
@@ -20,30 +20,19 @@
  *   Juan Pablo Ugarte <juanpablougarte@gmail.com>
  */
 
-#ifndef __CMB_PRIVATE_H__
-#define __CMB_PRIVATE_H__
+#pragma once
 
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS
 
-#if GTK_MAJOR_VERSION == 4
-
-#define CMB_PRIVATE_TYPE_BUILDER_SCOPE (cmb_private_builder_scope_get_type())
-
-G_DECLARE_FINAL_TYPE (CmbPrivateBuilderScope, cmb_private_builder_scope, CMB_PRIVATE, BUILDER_SCOPE, GtkBuilderCScope)
-
-#else
+#if GTK_MAJOR_VERSION == 3
 
 void
 cmb_private_container_child_set_property_from_string (GtkContainer *container,
                                                       GtkWidget    *child,
                                                       const gchar  *property_name,
                                                       const gchar  *value);
-
-
-void cmb_private_builder_init (void);
-
 #endif
 
 void
@@ -51,6 +40,9 @@ cmb_private_object_set_property_from_string (GObject *object,
                                              const gchar *property_name,
                                              const gchar *value);
 
+void
+cmb_private_widget_set_application_id (GtkWidget *widget,
+                                       const gchar *app_id);
+
 G_END_DECLS
 
-#endif
