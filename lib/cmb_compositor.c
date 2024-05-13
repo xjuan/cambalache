@@ -271,7 +271,7 @@ cmb_compositor_draw (GtkDrawingArea *area,
                      cairo_t        *cr,
                      int             width,
                      int             height,
-                     gpointer        data)
+                     G_GNUC_UNUSED gpointer data)
 {
   CmbCompositorPrivate *priv = GET_PRIVATE (area);
   struct wlr_scene_output *scene_output = priv->scene_output;
@@ -328,7 +328,8 @@ cmb_compositor_draw (GtkDrawingArea *area,
 }
 
 static void
-on_cmb_compositor_output_frame(struct wl_listener *listener, void *data)
+on_cmb_compositor_output_frame(struct wl_listener *listener,
+                               G_GNUC_UNUSED void *data)
 {
   CmbCompositorPrivate *priv = wl_container_of(listener, priv, on_frame);
   struct wlr_scene_output *scene_output = priv->scene_output;
@@ -681,7 +682,7 @@ cmb_compositor_handle_pointer_motion(CmbCompositorPrivate *priv)
 }
 
 static void
-on_motion_controller_enter (GtkEventControllerMotion *self,
+on_motion_controller_enter (G_GNUC_UNUSED GtkEventControllerMotion *self,
                             gdouble x,
                             gdouble y,
                             CmbCompositorPrivate *priv)
@@ -693,14 +694,14 @@ on_motion_controller_enter (GtkEventControllerMotion *self,
 }
 
 static void
-on_motion_controller_leave (GtkEventControllerMotion *self,
+on_motion_controller_leave (G_GNUC_UNUSED GtkEventControllerMotion *self,
                             CmbCompositorPrivate *priv)
 {
   wlr_seat_pointer_clear_focus(priv->seat);
 }
 
 static void
-on_motion_controller_motion (GtkEventControllerMotion *self,
+on_motion_controller_motion (G_GNUC_UNUSED GtkEventControllerMotion *self,
                              gdouble x,
                              gdouble y,
                              CmbCompositorPrivate *priv)
@@ -819,7 +820,7 @@ cmb_compositor_seat_pointer_notify(GtkGestureClick       *self,
 
 static void
 on_click_gesture_pressed (GtkGestureClick *self,
-                          gint n_press,
+                          G_GNUC_UNUSED gint n_press,
                           gdouble x,
                           gdouble y,
                           CmbCompositorPrivate *priv)
@@ -843,9 +844,9 @@ on_click_gesture_pressed (GtkGestureClick *self,
 
 static void
 on_click_gesture_released (GtkGestureClick* self,
-                           gint n_press,
-                           gdouble x,
-                           gdouble y,
+                           G_GNUC_UNUSED gint n_press,
+                           G_GNUC_UNUSED gdouble x,
+                           G_GNUC_UNUSED gdouble y,
                            CmbCompositorPrivate *priv)
 {
   gint button = gtk_gesture_single_get_current_button(GTK_GESTURE_SINGLE(self));
@@ -867,9 +868,9 @@ cmb_compositor_seat_key_notify(GtkEventControllerKey *self,
 
 static gboolean
 on_key_controller_key_pressed (GtkEventControllerKey* self,
-                               guint keyval,
+                               G_GNUC_UNUSED guint keyval,
                                guint keycode,
-                               GdkModifierType state,
+                               G_GNUC_UNUSED GdkModifierType state,
                                CmbCompositorPrivate *priv)
 {
   cmb_compositor_seat_key_notify(self, priv, keycode, WL_KEYBOARD_KEY_STATE_PRESSED);
@@ -878,16 +879,16 @@ on_key_controller_key_pressed (GtkEventControllerKey* self,
 
 static void
 on_key_controller_key_released (GtkEventControllerKey* self,
-                                guint keyval,
+                                G_GNUC_UNUSED guint keyval,
                                 guint keycode,
-                                GdkModifierType state,
+                                G_GNUC_UNUSED GdkModifierType state,
                                 CmbCompositorPrivate *priv)
 {
   cmb_compositor_seat_key_notify(self, priv, keycode, WL_KEYBOARD_KEY_STATE_RELEASED);
 }
 
 static gboolean
-on_key_controller_modifiers (GtkEventControllerKey *self,
+on_key_controller_modifiers (G_GNUC_UNUSED GtkEventControllerKey *self,
                              GdkModifierType state,
                              CmbCompositorPrivate *priv)
 {
@@ -917,7 +918,7 @@ on_key_controller_modifiers (GtkEventControllerKey *self,
 }
 
 static void
-_on_pixbuf_destroy_notify (guchar *pixels, gpointer data)
+_on_pixbuf_destroy_notify (guchar *pixels, G_GNUC_UNUSED gpointer data)
 {
   g_free(pixels);
 }
@@ -1028,19 +1029,19 @@ cmb_compositor_backend_destroy(struct wlr_backend *wlr_backend)
 }
 
 static uint32_t
-cmb_compositor_backend_get_buffer_caps(struct wlr_backend *wlr_backend)
+cmb_compositor_backend_get_buffer_caps(G_GNUC_UNUSED struct wlr_backend *wlr_backend)
 {
   return WLR_BUFFER_CAP_DATA_PTR | WLR_BUFFER_CAP_DMABUF | WLR_BUFFER_CAP_SHM;
 }
 
 static bool
-cmb_compositor_output_commit(struct wlr_output *wlr_output,
-                             const struct wlr_output_state *state)
+cmb_compositor_output_commit(G_GNUC_UNUSED struct wlr_output *wlr_output,
+                             G_GNUC_UNUSED const struct wlr_output_state *state)
 {
   return true;
 }
 
-static void cmb_compositor_output_destroy(struct wlr_output *wlr_output)
+static void cmb_compositor_output_destroy(G_GNUC_UNUSED struct wlr_output *wlr_output)
 {
   /* TODO: disconnect from GdkFrameClock */
 }
@@ -1196,7 +1197,7 @@ cmb_compositor_keyboard_init(CmbCompositorPrivate *priv)
   /* Update layout if present */
   if (state)
     {
-      for (int i = 0; i < xkb_keymap_num_layouts (keymap); i++)
+      for (guint i = 0; i < xkb_keymap_num_layouts (keymap); i++)
         {
           if (xkb_state_layout_index_is_active(state,
                                                i,
@@ -1301,7 +1302,7 @@ cmb_compositor_cleanup (CmbCompositor *object)
 void
 cmb_compositor_finalize (GObject *object)
 {
-  cmb_compositor_cleanup(object);
+  cmb_compositor_cleanup(CMB_COMPOSITOR(object));
   G_OBJECT_CLASS (cmb_compositor_parent_class)->finalize (object);
 }
 
@@ -1352,7 +1353,7 @@ cmb_compositor_get_property (GObject    *object,
 }
 
 static void
-on_cmb_compositor_frame_clock_update (GdkFrameClock *self,
+on_cmb_compositor_frame_clock_update (G_GNUC_UNUSED GdkFrameClock *self,
                                       CmbCompositorPrivate *priv)
 {
   wlr_output_send_frame(&priv->output);
@@ -1446,7 +1447,7 @@ seat_request_set_selection(struct wl_listener *listener, void *data)
 }
 
 static void
-xdg_toplevel_map(struct wl_listener *listener, void *data)
+xdg_toplevel_map(struct wl_listener *listener, G_GNUC_UNUSED void *data)
 {
   CmbCompositorToplevel *toplevel = wl_container_of(listener, toplevel, map);
   struct wlr_xdg_toplevel *xdg_toplevel = toplevel->xdg_toplevel;
@@ -1493,7 +1494,7 @@ xdg_toplevel_map(struct wl_listener *listener, void *data)
 }
 
 static void
-xdg_toplevel_unmap(struct wl_listener *listener, void *data)
+xdg_toplevel_unmap(struct wl_listener *listener, G_GNUC_UNUSED void *data)
 {
   CmbCompositorToplevel *toplevel = wl_container_of(listener, toplevel, unmap);
 
@@ -1506,7 +1507,7 @@ xdg_toplevel_unmap(struct wl_listener *listener, void *data)
 }
 
 static void
-xdg_toplevel_commit(struct wl_listener *listener, void *data)
+xdg_toplevel_commit(struct wl_listener *listener, G_GNUC_UNUSED void *data)
 {
   CmbCompositorToplevel *toplevel = wl_container_of(listener, toplevel, commit);
 
@@ -1515,7 +1516,7 @@ xdg_toplevel_commit(struct wl_listener *listener, void *data)
 }
 
 static void
-xdg_toplevel_destroy(struct wl_listener *listener, void *data)
+xdg_toplevel_destroy(struct wl_listener *listener, G_GNUC_UNUSED void *data)
 {
   CmbCompositorToplevel *toplevel = wl_container_of(listener, toplevel, destroy);
 
@@ -1543,7 +1544,7 @@ cmb_compositor_toplevel_has_focus(CmbCompositorToplevel *toplevel)
 }
 
 static void
-xdg_toplevel_request_move(struct wl_listener *listener, void *data)
+xdg_toplevel_request_move(struct wl_listener *listener, G_GNUC_UNUSED void *data)
 {
   CmbCompositorToplevel *toplevel = wl_container_of(listener, toplevel, request_move);
   CmbCompositorPrivate *priv = toplevel->priv;
@@ -1589,7 +1590,7 @@ xdg_toplevel_request_resize(struct wl_listener *listener, void *data)
 }
 
 static void
-xdg_toplevel_request_maximize(struct wl_listener *listener, void *data)
+xdg_toplevel_request_maximize(struct wl_listener *listener, G_GNUC_UNUSED void *data)
 {
   CmbCompositorToplevel *toplevel =
     wl_container_of(listener, toplevel, request_maximize);
@@ -1598,7 +1599,7 @@ xdg_toplevel_request_maximize(struct wl_listener *listener, void *data)
 }
 
 static void
-xdg_toplevel_request_fullscreen(struct wl_listener *listener, void *data)
+xdg_toplevel_request_fullscreen(struct wl_listener *listener, G_GNUC_UNUSED void *data)
 {
   CmbCompositorToplevel *toplevel =
     wl_container_of(listener, toplevel, request_fullscreen);
@@ -1607,7 +1608,7 @@ xdg_toplevel_request_fullscreen(struct wl_listener *listener, void *data)
 }
 
 static void
-xdg_toplevel_set_app_id(struct wl_listener *listener, void *data)
+xdg_toplevel_set_app_id(struct wl_listener *listener,G_GNUC_UNUSED  void *data)
 {
   CmbCompositorToplevel *toplevel =
     wl_container_of(listener, toplevel, set_app_id);
@@ -1684,7 +1685,7 @@ server_new_xdg_toplevel(struct wl_listener *listener, void *data)
 }
 
 static void
-xdg_popup_commit(struct wl_listener *listener, void *data)
+xdg_popup_commit(struct wl_listener *listener, G_GNUC_UNUSED void *data)
 {
   CmbCompositorPopup *popup = wl_container_of(listener, popup, commit);
 
@@ -1693,7 +1694,7 @@ xdg_popup_commit(struct wl_listener *listener, void *data)
 }
 
 static void
-xdg_popup_destroy(struct wl_listener *listener, void *data)
+xdg_popup_destroy(struct wl_listener *listener, G_GNUC_UNUSED void *data)
 {
   CmbCompositorPopup *popup = wl_container_of(listener, popup, destroy);
 
@@ -1703,7 +1704,7 @@ xdg_popup_destroy(struct wl_listener *listener, void *data)
 }
 
 static void
-server_new_xdg_popup(struct wl_listener *listener, void *data)
+server_new_xdg_popup(G_GNUC_UNUSED struct wl_listener *listener, void *data)
 {
   CmbCompositorPopup *popup = g_new0(CmbCompositorPopup, 1);
   struct wlr_xdg_popup *xdg_popup = data;

@@ -59,8 +59,8 @@ cmb_wayland_source_check (GSource *base)
 
 static gboolean
 cmb_wayland_source_dispatch (GSource *base,
-                             GSourceFunc callback,
-                             void *data)
+                             G_GNUC_UNUSED GSourceFunc callback,
+                             G_GNUC_UNUSED void *data)
 {
   CmbWaylandSource *source = CMB_WAYLAND_SOURCE(base);
   struct wl_event_loop *loop = wl_display_get_event_loop (source->display);
@@ -73,10 +73,9 @@ cmb_wayland_source_dispatch (GSource *base,
 
 static GSourceFuncs cmb_wayland_source_funcs =
 {
-  cmb_wayland_source_prepare,
-  cmb_wayland_source_check,
-  cmb_wayland_source_dispatch,
-  NULL
+  .prepare = cmb_wayland_source_prepare,
+  .check = cmb_wayland_source_check,
+  .dispatch = cmb_wayland_source_dispatch,
 };
 
 

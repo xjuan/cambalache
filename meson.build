@@ -3,7 +3,9 @@ project(
     version: '0.91.0',
     meson_version: '>= 0.64.0',
     default_options: [
-        'warning_level=everything'
+        'c_std=c11',
+        'warning_level=2',
+        'werror=true',
     ],
 )
 
