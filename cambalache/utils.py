@@ -21,7 +21,7 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-from gi.repository import Gdk
+from gi.repository import Gdk, Gio
 
 
 def parse_version(version):
@@ -86,3 +86,13 @@ def get_pointing_to(widget):
     r.x, r.y = get_pointer(widget)
     r.width = r.height = 0
     return r
+
+
+def content_type_guess(path):
+    content_type, uncertain = Gio.content_type_guess(path, None)
+    if uncertain:
+        with open(path, "rb") as fd:
+            data = fd.read(1024)
+        content_type, uncertain = Gio.content_type_guess(path, data)
+
+    return content_type

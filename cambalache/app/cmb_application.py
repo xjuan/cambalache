@@ -27,7 +27,7 @@ import sys
 from gi.repository import GLib, Gdk, Gtk, Gio
 
 from .cmb_window import CmbWindow
-from cambalache import CmbProject, config, _
+from cambalache import CmbProject, utils, config, _
 
 basedir = os.path.dirname(__file__) or "."
 
@@ -70,12 +70,7 @@ class CmbApplication(Gtk.Application):
     def do_open(self, files, nfiles, hint):
         for file in files:
             path = file.get_path()
-
-            content_type, uncertain = Gio.content_type_guess(path, None)
-            if uncertain:
-                with open(path, "rb") as fd:
-                    data = fd.read(1024)
-                content_type, uncertain = Gio.content_type_guess(path, data)
+            content_type = utils.content_type_guess(path)
 
             if content_type == "application/x-cambalache-project":
                 self.open_project(path)
