@@ -1750,12 +1750,10 @@ server_request_activate(struct wl_listener *listener, void *data)
 static gchar *
 cmb_compositor_get_socket()
 {
-  GString *socket = g_string_new("/tmp/cmb-compositor-0.sock");
-
-  for (gint i = 0; g_file_test(socket->str, G_FILE_TEST_EXISTS); i++)
-    g_string_printf (socket, "/tmp/cmb-compositor-%d.sock", i);
-
-  return g_string_free_and_steal(socket);
+  gchar *tmp = g_dir_make_tmp("cmb-compositor-XXXXXX", NULL);
+  gchar *retval = g_build_filename(tmp, "wayland.sock", NULL);
+  g_free(tmp);
+  return retval;
 }
 
 static void
