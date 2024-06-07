@@ -629,12 +629,15 @@ class CmbWindow(Gtk.ApplicationWindow):
         dialog.connect("response", lambda d, r: dialog.destroy())
         dialog.present()
 
-    def import_file(self, filename):
+    def import_file(self, filename, target_tk=None):
         if self.project is None:
             dirname = os.path.dirname(filename)
             basename = os.path.basename(filename)
             name, ext = os.path.splitext(basename)
-            target_tk = CmbProject.get_target_from_ui_file(filename)
+
+            if target_tk is None:
+                target_tk = CmbProject.get_target_from_ui_file(filename)
+
             self.project = CmbProject(filename=os.path.join(dirname, f"{name}.cmb"), target_tk=target_tk)
             self.__set_page("workspace")
             self.__update_actions()
@@ -690,11 +693,47 @@ class CmbWindow(Gtk.ApplicationWindow):
                 _("Error importing {filename}").format(filename=os.path.basename(filename)), secondary_text=str(e)
             )
 
-    def open_project(self, filename, target_tk=None, uiname=None):
-        try:
-            self.project = CmbProject(filename=filename, target_tk=target_tk)
+    def ask_gtk_version(self, filename):
+        basename = os.path.basename(filename)
 
-            if uiname or (filename is None and uiname is None):
+        dialog = Gtk.MessageDialog(
+            transient_for=self,
+            message_type=Gtk.MessageType.QUESTION,
+            text=_("Which is the target Gtk version of {filename}?").format(filename=basename),
+            modal=True,
+        )
+
+        dialog.add_button("Gtk 3", 3)
+        dialog.add_button("Gtk 4", 4)
+        dialog.set_default_response(4)
+
+        def on_ask_gtk_version_response(d, r):
+            target_tk = "gtk-4.0" if r == 4 else "gtk+-3.0"
+            self.import_file(filename, target_tk=target_tk)
+            d.destroy()
+
+        dialog.connect("response", on_ask_gtk_version_response)
+        dialog.present()
+
+    def open_project(self, filename, target_tk=None, uiname=None):
+        if filename is None:
+            return
+        try:
+            content_type = utils.content_type_guess(filename)
+
+            if content_type in ["application/x-gtk-builder", "application/x-glade"]:
+                if target_tk is None:
+                    target_tk = CmbProject.get_target_from_ui_file(filename)
+
+                if target_tk is None and filename is not None:
+                    self.ask_gtk_version(filename)
+                    return
+
+                self.import_file(filename, target_tk=target_tk)
+            elif content_type != "application/x-cambalache-project":
+                raise Exception(_("Unknown file type {content_type}").format(content_type=content_type))
+
+            if uiname is not None:
                 ui = self.project.add_ui(uiname)
                 self.project.set_selection([ui])
 
@@ -1206,3 +1245,4 @@ class CmbWindow(Gtk.ApplicationWindow):
             self.__message_timeout_id = GLib.timeout_add(len(msg) * 100, self.__on_message_timeout, None)
         else:
             self.message_revealer.props.reveal_child = False
+
