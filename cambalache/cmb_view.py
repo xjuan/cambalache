@@ -49,13 +49,12 @@ class CmbMerengueProcess(GObject.Object):
         "exit": (GObject.SignalFlags.RUN_LAST, None, (bool, )),
     }
 
-    active = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
     gtk_version = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
     wayland_display = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
+        self.__command_queue = []
         self.__file = os.path.join(config.merenguedir, "merengue", "merengue")
-        self.__command_socket = self.__get_socket()
         self.__command_in = None
         self.__on_command_in_source = None
         self.__connection = None
@@ -64,29 +63,25 @@ class CmbMerengueProcess(GObject.Object):
         super().__init__(**kwargs)
 
         # Create socket address object
+        self.__command_socket = os.path.join(os.path.dirname(self.wayland_display), "merengue.sock")
         socket_addr = Gio.UnixSocketAddress.new(self.__command_socket)
 
         # Create socket listener and add address
-        self.__listener = Gio.SocketListener()
-        self.__listener.add_address(socket_addr,
-                                    Gio.SocketType.STREAM,
-                                    Gio.SocketProtocol.DEFAULT,
-                                    None)
+        self.service = Gio.SocketService()
+        self.service.add_address(socket_addr,
+                                 Gio.SocketType.STREAM,
+                                 Gio.SocketProtocol.DEFAULT,
+                                 None)
+        self.service.connect("incoming", self.__on_service_incoming)
+        self.service.start()
+
         socket_addr = None
 
     def cleanup(self):
         self.stop()
-        GLib.unlink(self.__command_socket)
-
-    def __get_socket(self):
-        socket = "/tmp/cmb-merengue-0.sock"
-        i = 0
-
-        while os.path.exists(socket):
-            i += 1
-            socket = f"/tmp/cmb-merengue-{i}.sock"
-
-        return socket
+        dirname = os.path.dirname(self.__command_socket)
+        os.remove(self.__command_socket)
+        os.rmdir(dirname)
 
     def __on_command_in(self, channel, condition):
         if condition == GLib.IOCondition.HUP or self.__command_in is None:
@@ -99,8 +94,7 @@ class CmbMerengueProcess(GObject.Object):
 
         return GLib.SOURCE_CONTINUE
 
-    def __on_listener_accept_callback(self, src_object, res, data):
-        connection, source_object = self.__listener.accept_finish(res)
+    def __on_service_incoming(self, service, connection, source_object):
         self.__connection = connection
 
         self.__command_in = GLib.IOChannel.unix_new(self.__connection.props.input_stream.get_fd())
@@ -110,7 +104,11 @@ class CmbMerengueProcess(GObject.Object):
                                self.__on_command_in)
         self.__on_command_in_source = id
 
-        self.active = True
+        # Consume pending command queue
+        for cmd, payload in self.__command_queue:
+            self.__socket_write_command(cmd, payload)
+
+        self.__command_queue = []
 
     def start(self):
         if self.__file is None or self.__pid > 0:
@@ -136,9 +134,6 @@ class CmbMerengueProcess(GObject.Object):
         )
 
         self.__pid = pid
-
-        self.__listener.accept_async(None, self.__on_listener_accept_callback, None)
-
         GLib.child_watch_add(GLib.PRIORITY_DEFAULT_IDLE, pid, self.__on_exit, None)
 
     def __cleanup(self):
@@ -152,8 +147,6 @@ class CmbMerengueProcess(GObject.Object):
         if self.__connection:
             self.__connection.close()
             self.__connection = None
-
-        self.active = False
 
     def stop(self):
         self.__cleanup()
@@ -173,6 +166,14 @@ class CmbMerengueProcess(GObject.Object):
         if args is not None:
             cmd["args"] = args
 
+        # Queue command while we are not connected
+        if self.__connection is None:
+            self.__command_queue.append((cmd, payload))
+            return
+
+        self.__socket_write_command(cmd, payload)
+
+    def __socket_write_command(self, cmd, payload=None):
         # Send command in one line as json
         output_stream = self.__connection.props.output_stream
         output_stream.write(json.dumps(cmd).encode())
@@ -237,8 +238,7 @@ class CmbView(Gtk.Box):
             self.compositor.set_bg_color(1, 1, 1)
 
     def __merengue_command(self, command, payload=None, args=None):
-        if self.__merengue is not None and self.__merengue.active:
-            self.__merengue.write_command(command, payload, args)
+        self.__merengue.write_command(command, payload, args)
 
     def __get_ui_xml(self, ui_id, merengue=False):
         return self.__project.db.tostring(ui_id, merengue=merengue)
@@ -270,7 +270,7 @@ class CmbView(Gtk.Box):
         return dirname
 
     def __merengue_update_ui(self, ui_id):
-        ui = self.__get_ui_xml(ui_id, merengue=True)
+        ui = self.__get_ui_xml(ui_id, merengue=True) if ui_id else None
         toplevels = self.__project.db.get_toplevels(ui_id)
         selection = self.__project.get_selection()
         objects = self.__get_selection_objects(selection, ui_id)
