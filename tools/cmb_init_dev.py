@@ -2,7 +2,7 @@
 #
 # Cambalache UI Maker developer mode
 #
-# Copyright (C) 2021-2023  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as
@@ -36,10 +36,10 @@ sys.path.insert(1, basedir)
 datadir = os.path.join(basedir, "data")
 catalogsdir = os.path.join(basedir, ".catalogs")
 cambalachedir = os.path.join(basedir, "cambalache")
-xdgdatadir = os.getenv("XDG_DATA_DIRS", "/usr/local/share/:/usr/share/") + f":{datadir}"
+xdgdatadir = os.environ.get("XDG_DATA_DIRS", "/usr/local/share/:/usr/share/") + f":{datadir}"
 
 localdir = os.path.join(basedir, ".local")
-locallibdir = os.path.join(localdir, "lib")
+locallibdir = os.path.join(localdir, "lib", "x86_64-linux-gnu")
 localgitypelibdir = os.path.join(locallibdir, "girepository-1.0")
 os.environ["LD_LIBRARY_PATH"] = locallibdir
 os.environ["GI_TYPELIB_PATH"] = localgitypelibdir
@@ -244,8 +244,12 @@ def compile_libs():
         os.system(f"meson setup --wipe --buildtype=debug --prefix={localdir} {builddir}")
 
     result = subprocess.run(['ninja', '-C', builddir], stdout=subprocess.PIPE)
-    if "ninja: no work to do." not in result.stdout.decode('utf-8'):
+    if result.returncode == 0 and "ninja: no work to do." not in result.stdout.decode('utf-8'):
         os.system(f"ninja -C {builddir} install")
+    else:
+        print(result.stdout.decode('utf-8'))
+
+    return result.returncode
 
 
 def cmb_init_dev():
@@ -310,8 +314,8 @@ merenguedir = '{cambalachedir}'
 
     create_catalogs_dir()
 
-    compile_libs()
+    return compile_libs()
 
 
 if __name__ == "__main__":
-    cmb_init_dev()
+    exit(cmb_init_dev())

@@ -9,7 +9,7 @@ gnome.compile_resources('merengue',
 
 conf = configuration_data()
 conf.set('VERSION', meson.project_version())
-conf.set('PYTHON', python_bin.path())
+conf.set('PYTHON', python_bin.full_path())
 conf.set('pkgdatadir', pkgdatadir)
 conf.set('merenguedir', merenguedir)
 

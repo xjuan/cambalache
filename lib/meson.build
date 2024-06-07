@@ -15,7 +15,7 @@ xkbcommon = dependency(
 wayland_server_dep = dependency('wayland-server', version: '>=1.22')
 pixman_dep = dependency('pixman-1', version: '>=0.42.0')
 xkbcommon_x11_dep = dependency('xkbcommon-x11', version: '>=1.5')
-x11_xcb_dep = dependency('x11-xcb', version: '>=1.8.9')
+x11_xcb_dep = dependency('x11-xcb', version: '>=1.8.7')
 
 wayland_protos = dependency('wayland-protocols',
   version: '>=1.32',

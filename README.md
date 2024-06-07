@@ -76,20 +76,19 @@ flatpak install --user flathub ar.xjuan.Cambalache
 This is a regular meson package and can be installed the usual way.
 
 ```
-# Create build directory and configure project
-mkdir _build && cd _build
-meson --prefix=~/.local
+# Configure project in _build directory
+meson setup --wipe --prefix=~/.local _build .
 
-# Build and install
-ninja
-ninja install
+# Build and install in ~/.local
+ninja -C _build install
 ```
-To run it from .local/ you might need to setup PYTHONPATH and GI_TYPELIB_PATH env variable depending
-on your distribution defaults
+To run it from .local/ you might need to setup a few env variable depending on your distribution
 
 ```
 export PYTHONPATH=~/.local/lib/python3/dist-packages/
+export LD_LIBRARY_PATH=~/.local/lib/x86_64-linux-gnu/
 export GI_TYPELIB_PATH=~/.local/lib/x86_64-linux-gnu/girepository-1.0/
+cambalache
 ```
 
 ## Docker
