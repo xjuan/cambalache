@@ -1145,7 +1145,6 @@ cmb_compositor_keyboard_init(CmbCompositorPrivate *priv)
   GdkDevice *gkeyboard;
   GdkDisplay *gdisplay;
   GdkSeat *gseat;
-  gint active_layout;
 
   wlr_keyboard_init(&priv->keyboard, NULL, "cmb-keyboard");
 
@@ -1197,6 +1196,8 @@ cmb_compositor_keyboard_init(CmbCompositorPrivate *priv)
   /* Update layout if present */
   if (state)
     {
+      gint active_layout = -1;
+
       for (guint i = 0; i < xkb_keymap_num_layouts (keymap); i++)
         {
           if (xkb_state_layout_index_is_active(state,
@@ -1207,11 +1208,12 @@ cmb_compositor_keyboard_init(CmbCompositorPrivate *priv)
           g_debug("\t %i %s", i, xkb_keymap_layout_get_name (keymap, i));
         }
 
-      wlr_keyboard_notify_modifiers(&priv->keyboard,
-                                    priv->keyboard.modifiers.depressed,
-                                    priv->keyboard.modifiers.latched,
-                                    priv->keyboard.modifiers.locked,
-                                    active_layout);
+      if (active_layout >= 0)
+        wlr_keyboard_notify_modifiers(&priv->keyboard,
+                                      priv->keyboard.modifiers.depressed,
+                                      priv->keyboard.modifiers.latched,
+                                      priv->keyboard.modifiers.locked,
+                                      active_layout);
       xkb_state_unref(state);
     }
 
