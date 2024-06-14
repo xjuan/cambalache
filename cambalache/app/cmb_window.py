@@ -26,7 +26,7 @@ import traceback
 import locale
 import tempfile
 
-from gi.repository import GLib, GObject, Gio, Gdk, Gtk, Pango
+from gi.repository import GLib, GObject, Gio, Gdk, Gtk, Pango, Adw
 from .cmb_tutor import CmbTutor, CmbTutorState
 from . import cmb_tutorial
 
@@ -36,7 +36,7 @@ logger = getLogger(__name__)
 
 
 @Gtk.Template(resource_path="/ar/xjuan/Cambalache/app/cmb_window.ui")
-class CmbWindow(Gtk.ApplicationWindow):
+class CmbWindow(Adw.ApplicationWindow):
     __gtype_name__ = "CmbWindow"
 
     __gsignals__ = {
@@ -251,9 +251,8 @@ class CmbWindow(Gtk.ApplicationWindow):
         self.__load_window_state()
         self.__update_actions()
 
-        settings = Gtk.Settings.get_default()
-        settings.connect("notify::gtk-theme-name", lambda o, p: self.__update_dark_mode())
-        self.__update_dark_mode()
+        app.props.style_manager.connect("notify::dark", lambda o, p: self.__update_dark_mode(app.props.style_manager))
+        self.__update_dark_mode(app.props.style_manager)
 
         # Bind preview
         preview_button = Gtk.ToggleButton(tooltip_text=_("Preview mode"), icon_name="system-run-symbolic")
@@ -430,20 +429,8 @@ class CmbWindow(Gtk.ApplicationWindow):
         if translator_list:
             self.about_dialog.props.translator_credits = "\n".join(translator_list)
 
-    def __update_dark_mode(self):
-        # https://en.wikipedia.org/wiki/Relative_luminance
-        def linear(c):
-            return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
-
-        def luminance(c):
-            r, g, b = (linear(c.red), linear(c.green), linear(c.blue))
-            return 0.2126 * r + 0.7152 * g + 0.0722 * b
-
-        # Get foreground color
-        fg = self.get_color()
-
-        # If foreground luminance is closer to 1 then the background must be dark
-        if luminance(fg) > 0.5:
+    def __update_dark_mode(self, style_manager):
+        if style_manager.props.dark:
             self.add_css_class("dark")
             self.view._set_dark_mode(True)
         else:
@@ -716,22 +703,24 @@ class CmbWindow(Gtk.ApplicationWindow):
         dialog.present()
 
     def open_project(self, filename, target_tk=None, uiname=None):
-        if filename is None:
-            return
         try:
-            content_type = utils.content_type_guess(filename)
+            if filename is not None:
+                content_type = utils.content_type_guess(filename)
 
-            if content_type in ["application/x-gtk-builder", "application/x-glade"]:
-                if target_tk is None:
-                    target_tk = CmbProject.get_target_from_ui_file(filename)
+                if content_type in ["application/x-gtk-builder", "application/x-glade"]:
+                    if target_tk is None:
+                        target_tk = CmbProject.get_target_from_ui_file(filename)
 
-                if target_tk is None and filename is not None:
-                    self.ask_gtk_version(filename)
-                    return
+                    if target_tk is None and filename is not None:
+                        self.ask_gtk_version(filename)
+                        return
 
-                self.import_file(filename, target_tk=target_tk)
-            elif content_type != "application/x-cambalache-project":
-                raise Exception(_("Unknown file type {content_type}").format(content_type=content_type))
+                    self.import_file(filename, target_tk=target_tk)
+                elif content_type != "application/x-cambalache-project":
+                    raise Exception(_("Unknown file type {content_type}").format(content_type=content_type))
+
+            if self.project is None:
+                self.project = CmbProject(filename=filename, target_tk=target_tk)
 
             if uiname is not None:
                 ui = self.project.add_ui(uiname)

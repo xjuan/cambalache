@@ -23,8 +23,10 @@
 
 import os
 import sys
+import gi
 
-from gi.repository import GLib, Gdk, Gtk, Gio
+gi.require_version('Adw', '1')
+from gi.repository import GLib, Gdk, Gtk, Gio, Adw
 
 from .cmb_window import CmbWindow
 from cambalache import CmbProject, utils, config, _
@@ -32,7 +34,7 @@ from cambalache import CmbProject, utils, config, _
 basedir = os.path.dirname(__file__) or "."
 
 
-class CmbApplication(Gtk.Application):
+class CmbApplication(Adw.Application):
     def __init__(self):
         super().__init__(application_id="ar.xjuan.Cambalache", flags=Gio.ApplicationFlags.HANDLES_OPEN)
 
@@ -78,7 +80,7 @@ class CmbApplication(Gtk.Application):
                 self.import_file(path)
 
     def do_startup(self):
-        Gtk.Application.do_startup(self)
+        Adw.Application.do_startup(self)
 
         for action in ["quit"]:
             gaction = Gio.SimpleAction.new(action, None)

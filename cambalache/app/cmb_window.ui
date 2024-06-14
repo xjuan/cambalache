@@ -1,9 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.17.3 -->
+<!-- Created with Cambalache 0.91.0 -->
 <interface>
   <!-- interface-name cmb_window.ui -->
-  <requires lib="gtk" version="4.0"/>
   <requires lib="gio" version="2.0"/>
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="libadwaita" version="1.0"/>
   <object class="GtkFileFilter" id="import_filter">
     <mime-types>
       <mime-type>application/x-glade</mime-type>
@@ -68,786 +69,6 @@
       <mime-type>application/x-cambalache-project</mime-type>
     </mime-types>
   </object>
-  <template class="CmbWindow" parent="GtkApplicationWindow">
-    <child>
-      <object class="GtkOverlay">
-        <property name="child">
-          <object class="GtkStack" id="stack">
-            <property name="transition-type">crossfade</property>
-            <child>
-              <object class="GtkStackPage">
-                <property name="child">
-                  <object class="GtkBox">
-                    <property name="orientation">vertical</property>
-                    <child>
-                      <object class="GtkLabel" id="version_label">
-                        <property name="halign">center</property>
-                        <property name="margin-bottom">4</property>
-                        <property name="name">version</property>
-                        <property name="valign">end</property>
-                        <property name="vexpand">1</property>
-                        <attributes>
-                          <attribute name="size" value="9000"/>
-                        </attributes>
-                      </object>
-                    </child>
-                    <style>
-                      <class name="logo"/>
-                    </style>
-                  </object>
-                </property>
-                <property name="name">cambalache</property>
-                <property name="title" translatable="yes">Cambalache</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkStackPage">
-                <property name="child">
-                  <object class="GtkBox">
-                    <property name="orientation">vertical</property>
-                    <child>
-                      <object class="GtkLabel">
-                        <property name="justify">center</property>
-                        <property name="label" translatable="yes">&lt;b&gt;
-
-&lt;span size="18000"&gt;New project&lt;/span&gt;
-&lt;/b&gt;</property>
-                        <property name="use-markup">1</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkGrid">
-                        <property name="column-homogeneous">1</property>
-                        <property name="column-spacing">8</property>
-                        <property name="halign">center</property>
-                        <property name="row-spacing">8</property>
-                        <property name="valign">start</property>
-                        <child>
-                          <object class="GtkLabel">
-                            <property name="halign">end</property>
-                            <property name="label" translatable="yes">Name</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">0</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkLabel">
-                            <property name="halign">end</property>
-                            <property name="label" translatable="yes">Toolkit target</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">2</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkLabel">
-                            <property name="halign">end</property>
-                            <property name="label" translatable="yes">Location</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">1</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkEntry" id="np_name_entry">
-                            <property name="focusable">1</property>
-                            <property name="input-hints">GTK_INPUT_HINT_LOWERCASE | GTK_INPUT_HINT_NONE</property>
-                            <property name="input-purpose">alpha</property>
-                            <property name="placeholder-text" translatable="yes">&lt;project basename&gt;</property>
-                            <property name="width-chars">32</property>
-                            <signal name="changed" handler="on_np_name_entry_changed"/>
-                            <layout>
-                              <property name="column">1</property>
-                              <property name="column-span">3</property>
-                              <property name="row">0</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkButton" id="np_create_button">
-                            <property name="action-name">win.new</property>
-                            <property name="focusable">1</property>
-                            <property name="label" translatable="yes">Create</property>
-                            <property name="margin-top">16</property>
-                            <property name="receives-default">1</property>
-                            <style>
-                              <class name="suggested-action"/>
-                            </style>
-                            <layout>
-                              <property name="column">3</property>
-                              <property name="row">4</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkBox">
-                            <property name="halign">start</property>
-                            <property name="homogeneous">True</property>
-                            <child>
-                              <object class="GtkToggleButton" id="np_gtk3_radiobutton">
-                                <property name="group">np_gtk4_radiobutton</property>
-                                <property name="halign">center</property>
-                                <property name="tooltip-text" translatable="yes">Old stable version</property>
-                                <child>
-                                  <object class="GtkBox">
-                                    <property name="spacing">8</property>
-                                    <child>
-                                      <object class="GtkImage">
-                                        <property name="resource">/ar/xjuan/Cambalache/app/images/gtk3.svg</property>
-                                        <style>
-                                          <class name="icon-size-32"/>
-                                        </style>
-                                      </object>
-                                    </child>
-                                    <child>
-                                      <object class="GtkLabel">
-                                        <property name="justify">center</property>
-                                        <property name="label">&lt;b&gt;Gtk 3&lt;/b&gt;</property>
-                                        <property name="use-markup">1</property>
-                                      </object>
-                                    </child>
-                                  </object>
-                                </child>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkToggleButton" id="np_gtk4_radiobutton">
-                                <property name="active">1</property>
-                                <property name="halign">center</property>
-                                <property name="tooltip-text" translatable="yes">Recommended for new projects</property>
-                                <child>
-                                  <object class="GtkBox">
-                                    <property name="spacing">8</property>
-                                    <child>
-                                      <object class="GtkImage">
-                                        <property name="resource">/ar/xjuan/Cambalache/app/images/gtk4.svg</property>
-                                        <style>
-                                          <class name="icon-size-32"/>
-                                        </style>
-                                      </object>
-                                    </child>
-                                    <child>
-                                      <object class="GtkLabel">
-                                        <property name="justify">center</property>
-                                        <property name="label">&lt;b&gt;Gtk 4&lt;/b&gt;</property>
-                                        <property name="use-markup">1</property>
-                                      </object>
-                                    </child>
-                                  </object>
-                                </child>
-                              </object>
-                            </child>
-                            <style>
-                              <class name="linked"/>
-                            </style>
-                            <layout>
-                              <property name="column">1</property>
-                              <property name="column-span">3</property>
-                              <property name="row">2</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkButton" id="np_location_chooser">
-                            <property name="action-name">win.select_project_location</property>
-                            <property name="icon-name">folder-symbolic</property>
-                            <property name="sensitive">False</property>
-                            <child>
-                              <object class="GtkBox">
-                                <property name="spacing">4</property>
-                                <child>
-                                  <object class="GtkImage">
-                                    <property name="icon-name">folder-open-symbolic</property>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel" id="np_location_chooser_label">
-                                    <property name="halign">start</property>
-                                    <property name="hexpand">True</property>
-                                  </object>
-                                </child>
-                              </object>
-                            </child>
-                            <layout>
-                              <property name="column">1</property>
-                              <property name="column-span">3</property>
-                              <property name="row">1</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkButton" id="np_cancel_button">
-                            <property name="action-name">win.show_workspace</property>
-                            <property name="focusable">1</property>
-                            <property name="label" translatable="yes">Cancel</property>
-                            <property name="margin-top">16</property>
-                            <property name="receives-default">1</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">4</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkLabel">
-                            <property name="halign">end</property>
-                            <property name="label" translatable="yes">UI Filename</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">3</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkEntry" id="np_ui_entry">
-                            <property name="focusable">1</property>
-                            <property name="input-hints">GTK_INPUT_HINT_LOWERCASE | GTK_INPUT_HINT_NONE</property>
-                            <property name="input-purpose">alpha</property>
-                            <property name="sensitive">0</property>
-                            <property name="width-chars">32</property>
-                            <layout>
-                              <property name="column">1</property>
-                              <property name="column-span">3</property>
-                              <property name="row">3</property>
-                            </layout>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </property>
-                <property name="name">new_project</property>
-                <property name="title" translatable="yes">New Project</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkStackPage">
-                <property name="child">
-                  <object class="GtkPaned">
-                    <property name="end-child">
-                      <object class="GtkStack" id="editor_stack">
-                        <property name="transition-type">crossfade</property>
-                        <child>
-                          <object class="GtkStackPage">
-                            <property name="child">
-                              <object class="GtkBox">
-                                <property name="orientation">vertical</property>
-                                <child>
-                                  <object class="GtkStackSwitcher">
-                                    <property name="halign">center</property>
-                                    <property name="stack">object_stack</property>
-                                    <style>
-                                      <class name="compact"/>
-                                      <class name="property-pane"/>
-                                    </style>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkStack" id="object_stack">
-                                    <property name="transition-type">crossfade</property>
-                                    <property name="vexpand">1</property>
-                                    <child>
-                                      <object class="GtkStackPage">
-                                        <property name="child">
-                                          <object class="CmbScrolledWindow">
-                                            <property name="child">
-                                              <object class="CmbObjectEditor" id="object_editor">
-                                                <property name="vexpand">True</property>
-                                              </object>
-                                            </property>
-                                          </object>
-                                        </property>
-                                        <property name="name">properties</property>
-                                        <property name="title" translatable="yes">Properties</property>
-                                      </object>
-                                    </child>
-                                    <child>
-                                      <object class="GtkStackPage">
-                                        <property name="child">
-                                          <object class="CmbScrolledWindow">
-                                            <property name="child">
-                                              <object class="CmbObjectEditor" id="object_layout_editor">
-                                                <property name="layout">True</property>
-                                              </object>
-                                            </property>
-                                          </object>
-                                        </property>
-                                        <property name="name">layout</property>
-                                        <property name="title" translatable="yes">Layout</property>
-                                      </object>
-                                    </child>
-                                    <child>
-                                      <object class="GtkStackPage">
-                                        <property name="child">
-                                          <object class="CmbSignalEditor" id="signal_editor"/>
-                                        </property>
-                                        <property name="name">signals</property>
-                                        <property name="title" translatable="yes">Signals</property>
-                                      </object>
-                                    </child>
-                                    <child>
-                                      <object class="GtkStackPage">
-                                        <property name="child">
-                                          <object class="CmbFragmentEditor" id="fragment_editor"/>
-                                        </property>
-                                        <property name="name">fragment</property>
-                                        <property name="title">&lt;/&gt;</property>
-                                      </object>
-                                    </child>
-                                  </object>
-                                </child>
-                              </object>
-                            </property>
-                            <property name="name">object</property>
-                            <property name="title" translatable="yes">Object Editor</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkStackPage">
-                            <property name="child">
-                              <object class="GtkBox">
-                                <property name="orientation">vertical</property>
-                                <property name="spacing">4</property>
-                                <child>
-                                  <object class="GtkStackSwitcher">
-                                    <property name="halign">center</property>
-                                    <property name="stack">ui_stack</property>
-                                    <style>
-                                      <class name="compact"/>
-                                      <class name="property-pane"/>
-                                    </style>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkStack" id="ui_stack">
-                                    <property name="vexpand">1</property>
-                                    <child>
-                                      <object class="GtkStackPage">
-                                        <property name="child">
-                                          <object class="CmbUIEditor" id="ui_editor">
-                                            <property name="hexpand">True</property>
-                                            <property name="vexpand">True</property>
-                                            <signal name="remove-ui" handler="on_ui_editor_remove_ui"/>
-                                          </object>
-                                        </property>
-                                        <property name="name">properties</property>
-                                        <property name="title" translatable="yes">Properties</property>
-                                      </object>
-                                    </child>
-                                    <child>
-                                      <object class="GtkStackPage">
-                                        <property name="child">
-                                          <object class="CmbUIRequiresEditor" id="ui_requires_editor">
-                                            <property name="orientation">vertical</property>
-                                          </object>
-                                        </property>
-                                        <property name="name">requires</property>
-                                        <property name="title" translatable="yes">Requires</property>
-                                      </object>
-                                    </child>
-                                    <child>
-                                      <object class="GtkStackPage">
-                                        <property name="child">
-                                          <object class="CmbFragmentEditor" id="ui_fragment_editor">
-                                            <property name="orientation">vertical</property>
-                                          </object>
-                                        </property>
-                                        <property name="name">fragment</property>
-                                        <property name="title">&lt;/&gt;</property>
-                                      </object>
-                                    </child>
-                                  </object>
-                                </child>
-                              </object>
-                            </property>
-                            <property name="name">ui</property>
-                            <property name="title" translatable="yes">UI Editor</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkStackPage">
-                            <property name="child">
-                              <object class="CmbCSSEditor" id="css_editor">
-                                <property name="hexpand">True</property>
-                                <property name="vexpand">True</property>
-                                <signal name="remove-css" handler="on_css_editor_remove_ui"/>
-                              </object>
-                            </property>
-                            <property name="name">css</property>
-                            <property name="title" translatable="yes">CSS Editor</property>
-                          </object>
-                        </child>
-                      </object>
-                    </property>
-                    <property name="focusable">1</property>
-                    <property name="height-request">380</property>
-                    <property name="resize-end-child">0</property>
-                    <property name="shrink-end-child">0</property>
-                    <property name="shrink-start-child">0</property>
-                    <property name="start-child">
-                      <object class="GtkPaned">
-                        <property name="end-child">
-                          <object class="GtkBox">
-                            <property name="orientation">vertical</property>
-                            <child>
-                              <object class="CmbTypeChooser" id="type_chooser">
-                                <property name="spacing">2</property>
-                                <signal name="chooser-popdown" handler="on_type_chooser_chooser_popdown"/>
-                                <signal name="chooser-popup" handler="on_type_chooser_chooser_popup"/>
-                                <signal name="type-selected" handler="on_type_chooser_type_selected"/>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="CmbView" id="view">
-                                <property name="vexpand">1</property>
-                                <signal name="placeholder-activated" handler="on_view_placeholder_activated"/>
-                                <signal name="placeholder-selected" handler="on_view_placeholder_selected"/>
-                              </object>
-                            </child>
-                          </object>
-                        </property>
-                        <property name="focusable">1</property>
-                        <property name="resize-start-child">0</property>
-                        <property name="shrink-end-child">0</property>
-                        <property name="shrink-start-child">0</property>
-                        <property name="start-child">
-                          <object class="GtkBox" id="inspector">
-                            <property name="focusable">1</property>
-                            <property name="orientation">vertical</property>
-                            <child>
-                              <object class="GtkScrolledWindow">
-                                <property name="focusable">1</property>
-                                <property name="min-content-width">256</property>
-                                <property name="propagate-natural-height">1</property>
-                                <property name="propagate-natural-width">1</property>
-                                <property name="vexpand">1</property>
-                                <child>
-                                  <object class="CmbTreeView" id="tree_view">
-                                    <property name="focusable">1</property>
-                                    <property name="headers-clickable">False</property>
-                                    <property name="headers-visible">False</property>
-                                  </object>
-                                </child>
-                              </object>
-                            </child>
-                          </object>
-                        </property>
-                      </object>
-                    </property>
-                  </object>
-                </property>
-                <property name="name">workspace</property>
-                <property name="title" translatable="yes">Workspace</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkStackPage">
-                <property name="child">
-                  <object class="GtkBox">
-                    <property name="orientation">vertical</property>
-                    <child>
-                      <object class="GtkButton">
-                        <property name="action-name">win.show_workspace</property>
-                        <property name="focusable">1</property>
-                        <property name="halign">start</property>
-                        <property name="receives-default">1</property>
-                        <child>
-                          <object class="GtkImage">
-                            <property name="icon-name">go-previous-symbolic</property>
-                          </object>
-                        </child>
-                        <style>
-                          <class name="borderless"/>
-                        </style>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkBox">
-                        <property name="halign">center</property>
-                        <property name="homogeneous">1</property>
-                        <property name="margin-bottom">64</property>
-                        <property name="margin-top">32</property>
-                        <property name="spacing">196</property>
-                        <property name="valign">start</property>
-                        <property name="vexpand">1</property>
-                        <child>
-                          <object class="GtkBox">
-                            <property name="halign">center</property>
-                            <property name="hexpand">1</property>
-                            <property name="orientation">vertical</property>
-                            <property name="spacing">32</property>
-                            <child>
-                              <object class="GtkImage">
-                                <property name="resource">/ar/xjuan/Cambalache/app/images/lp-logo.svg</property>
-                                <style>
-                                  <class name="icon-size-64"/>
-                                </style>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkLabel">
-                                <property name="label" translatable="yes">• Liberapay is a recurrent donations platform
-
-• Run by a non-profit organization
-
-• Source code is public
-
-• No commission fee
-
-• ~5% payment processing fee</property>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkButton">
-                                <property name="action-name">win.liberapay</property>
-                                <property name="focusable">1</property>
-                                <property name="halign">center</property>
-                                <property name="label" translatable="yes">Donate</property>
-                                <property name="receives-default">1</property>
-                                <style>
-                                  <class name="suggested-action"/>
-                                </style>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkBox">
-                            <property name="halign">center</property>
-                            <property name="hexpand">1</property>
-                            <property name="orientation">vertical</property>
-                            <property name="spacing">32</property>
-                            <child>
-                              <object class="GtkImage">
-                                <property name="resource">/ar/xjuan/Cambalache/app/images/patreon-logo.svg</property>
-                                <style>
-                                  <class name="icon-size-64"/>
-                                </style>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkLabel">
-                                <property name="label" translatable="yes">• Patreon is a membership platform for creators
-
-• Run by private company
-
-• No source code available
-
-• ~8% commission fee
-
-• ~8% payment processing fee</property>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkButton">
-                                <property name="action-name">win.patreon</property>
-                                <property name="focusable">1</property>
-                                <property name="halign">center</property>
-                                <property name="label" translatable="yes">Donate</property>
-                                <property name="receives-default">1</property>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <style>
-                      <class name="donate"/>
-                    </style>
-                  </object>
-                </property>
-                <property name="name">donate</property>
-              </object>
-            </child>
-          </object>
-        </property>
-        <child type="overlay">
-          <object class="GtkRevealer" id="message_revealer">
-            <property name="child">
-              <object class="GtkLabel" id="message_label">
-                <style>
-                  <class name="message"/>
-                </style>
-              </object>
-            </property>
-            <property name="halign">center</property>
-            <property name="transition-type">slide-up</property>
-            <property name="valign">end</property>
-            <style>
-              <class name="message"/>
-            </style>
-          </object>
-        </child>
-      </object>
-    </child>
-    <child type="titlebar">
-      <object class="GtkHeaderBar" id="headerbar">
-        <child type="title">
-          <object class="GtkBox">
-            <property name="orientation">GTK_ORIENTATION_VERTICAL</property>
-            <child>
-              <object class="GtkLabel">
-                <property name="label" translatable="yes">Cambalache</property>
-                <property name="vexpand">true</property>
-                <style>
-                  <class name="title"/>
-                </style>
-              </object>
-            </child>
-            <child>
-              <object class="GtkLabel" id="subtitle">
-                <property name="visible">false</property>
-                <style>
-                  <class name="subtitle"/>
-                </style>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child type="end">
-          <object class="GtkMenuButton" id="menu_button">
-            <property name="focusable">1</property>
-            <property name="menu-model">main_menu</property>
-            <property name="receives-default">1</property>
-            <child>
-              <object class="GtkImage">
-                <property name="icon-name">open-menu-symbolic</property>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="GtkBox" id="open_button_box">
-            <child>
-              <object class="GtkButton" id="open_button">
-                <property name="action-name">win.open</property>
-                <property name="focusable">1</property>
-                <property name="label" translatable="yes">_Open</property>
-                <property name="receives-default">1</property>
-                <property name="tooltip-text" translatable="yes">Open a project</property>
-                <property name="use-underline">1</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkMenuButton" id="recent_button">
-                <property name="menu-model">recent_menu</property>
-                <child>
-                  <object class="GtkImage">
-                    <property name="icon-name">pan-down-symbolic</property>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <style>
-              <class name="linked"/>
-            </style>
-          </object>
-        </child>
-        <child>
-          <object class="GtkButton" id="new_button">
-            <property name="action-name">win.create_new</property>
-            <property name="focusable">1</property>
-            <property name="receives-default">1</property>
-            <property name="tooltip-text" translatable="yes">Create a new project</property>
-            <child>
-              <object class="GtkImage">
-                <property name="icon-name">document-new-symbolic</property>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child type="end">
-          <object class="GtkBox" id="save_button_box">
-            <child>
-              <object class="GtkButton" id="cmb_save_button">
-                <property name="action-name">win.save</property>
-                <property name="label" translatable="yes">Save</property>
-                <property name="tooltip-text" translatable="yes">Save project</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="save_as_button">
-                <property name="action-name">win.save_as</property>
-                <property name="tooltip-text" translatable="yes">Save project with a different file name</property>
-                <child>
-                  <object class="GtkImage">
-                    <property name="icon-name">document-save-as-symbolic</property>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <style>
-              <class name="linked"/>
-            </style>
-          </object>
-        </child>
-        <child>
-          <object class="GtkSeparator"/>
-        </child>
-        <child type="end">
-          <object class="GtkButton" id="add_button">
-            <property name="action-name">win.add_ui</property>
-            <property name="tooltip-text" translatable="yes">Add new UI to project</property>
-            <child>
-              <object class="GtkImage">
-                <property name="icon-name">list-add-symbolic</property>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child type="end">
-          <object class="GtkButton" id="intro_button">
-            <property name="action-name">win.intro</property>
-            <property name="tooltip-text" translatable="yes">Start interactive introduction</property>
-            <child>
-              <object class="GtkImage">
-                <property name="icon-name">start-here-symbolic</property>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="GtkBox">
-            <child>
-              <object class="GtkButton" id="undo_button">
-                <property name="action-name">win.undo</property>
-                <property name="focusable">1</property>
-                <property name="receives-default">1</property>
-                <child>
-                  <object class="GtkImage">
-                    <property name="icon-name">edit-undo-symbolic</property>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="redo_button">
-                <property name="action-name">win.redo</property>
-                <property name="focusable">1</property>
-                <property name="receives-default">1</property>
-                <property name="use-underline">1</property>
-                <child>
-                  <object class="GtkImage">
-                    <property name="icon-name">edit-redo-symbolic</property>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <style>
-              <class name="linked"/>
-            </style>
-          </object>
-        </child>
-      </object>
-    </child>
-    <style>
-      <class name="cmb-window"/>
-    </style>
-  </template>
   <object class="GtkAboutDialog" id="about_dialog">
     <property name="artists">Franco Dodorico
 Juan Pablo Ugarte</property>
@@ -862,4 +83,789 @@ Juan Pablo Ugarte</property>
     <property name="website">https://gitlab.gnome.org/jpu/cambalache</property>
     <property name="website-label" translatable="yes">Source repository and issue tracker</property>
   </object>
+  <template class="CmbWindow" parent="AdwApplicationWindow">
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="AdwHeaderBar" id="headerbar">
+            <child>
+              <object class="GtkBox" id="open_button_box">
+                <child>
+                  <object class="GtkButton" id="open_button">
+                    <property name="action-name">win.open</property>
+                    <property name="focusable">1</property>
+                    <property name="label" translatable="yes">_Open</property>
+                    <property name="receives-default">1</property>
+                    <property name="tooltip-text" translatable="yes">Open a project</property>
+                    <property name="use-underline">1</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkMenuButton" id="recent_button">
+                    <property name="menu-model">recent_menu</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">pan-down-symbolic</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <style>
+                  <class name="linked"/>
+                </style>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="new_button">
+                <property name="action-name">win.create_new</property>
+                <property name="focusable">1</property>
+                <property name="receives-default">1</property>
+                <property name="tooltip-text" translatable="yes">Create a new project</property>
+                <child>
+                  <object class="GtkImage">
+                    <property name="icon-name">document-new-symbolic</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkSeparator"/>
+            </child>
+            <child>
+              <object class="GtkBox">
+                <child>
+                  <object class="GtkButton" id="undo_button">
+                    <property name="action-name">win.undo</property>
+                    <property name="focusable">1</property>
+                    <property name="receives-default">1</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">edit-undo-symbolic</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="redo_button">
+                    <property name="action-name">win.redo</property>
+                    <property name="focusable">1</property>
+                    <property name="receives-default">1</property>
+                    <property name="use-underline">1</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">edit-redo-symbolic</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <style>
+                  <class name="linked"/>
+                </style>
+              </object>
+            </child>
+            <child type="title">
+              <object class="GtkBox">
+                <property name="orientation">GTK_ORIENTATION_VERTICAL</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">Cambalache</property>
+                    <property name="vexpand">true</property>
+                    <style>
+                      <class name="title"/>
+                    </style>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="subtitle">
+                    <property name="visible">false</property>
+                    <style>
+                      <class name="subtitle"/>
+                    </style>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="end">
+              <object class="GtkMenuButton" id="menu_button">
+                <property name="focusable">1</property>
+                <property name="menu-model">main_menu</property>
+                <property name="receives-default">1</property>
+                <child>
+                  <object class="GtkImage">
+                    <property name="icon-name">open-menu-symbolic</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="end">
+              <object class="GtkBox" id="save_button_box">
+                <child>
+                  <object class="GtkButton" id="cmb_save_button">
+                    <property name="action-name">win.save</property>
+                    <property name="label" translatable="yes">Save</property>
+                    <property name="tooltip-text" translatable="yes">Save project</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="save_as_button">
+                    <property name="action-name">win.save_as</property>
+                    <property name="tooltip-text" translatable="yes">Save project with a different file name</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="icon-name">document-save-as-symbolic</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <style>
+                  <class name="linked"/>
+                </style>
+              </object>
+            </child>
+            <child type="end">
+              <object class="GtkButton" id="add_button">
+                <property name="action-name">win.add_ui</property>
+                <property name="tooltip-text" translatable="yes">Add new UI to project</property>
+                <child>
+                  <object class="GtkImage">
+                    <property name="icon-name">list-add-symbolic</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="end">
+              <object class="GtkButton" id="intro_button">
+                <property name="action-name">win.intro</property>
+                <property name="tooltip-text" translatable="yes">Start interactive introduction</property>
+                <child>
+                  <object class="GtkImage">
+                    <property name="icon-name">start-here-symbolic</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkOverlay">
+            <property name="child">
+              <object class="GtkStack" id="stack">
+                <property name="transition-type">crossfade</property>
+                <child>
+                  <object class="GtkStackPage">
+                    <property name="child">
+                      <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkLabel" id="version_label">
+                            <property name="halign">center</property>
+                            <property name="margin-bottom">4</property>
+                            <property name="name">version</property>
+                            <property name="valign">end</property>
+                            <property name="vexpand">1</property>
+                            <attributes>
+                              <attribute name="size" value="9000"/>
+                            </attributes>
+                          </object>
+                        </child>
+                        <style>
+                          <class name="logo"/>
+                        </style>
+                      </object>
+                    </property>
+                    <property name="name">cambalache</property>
+                    <property name="title" translatable="yes">Cambalache</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkStackPage">
+                    <property name="child">
+                      <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="justify">center</property>
+                            <property name="label" translatable="yes">&lt;b&gt;
+
+&lt;span size="18000"&gt;New project&lt;/span&gt;
+&lt;/b&gt;</property>
+                            <property name="use-markup">1</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkGrid">
+                            <property name="column-homogeneous">1</property>
+                            <property name="column-spacing">8</property>
+                            <property name="halign">center</property>
+                            <property name="row-spacing">8</property>
+                            <property name="valign">start</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="halign">end</property>
+                                <property name="label" translatable="yes">Name</property>
+                                <layout>
+                                  <property name="column">0</property>
+                                  <property name="row">0</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="halign">end</property>
+                                <property name="label" translatable="yes">Toolkit target</property>
+                                <layout>
+                                  <property name="column">0</property>
+                                  <property name="row">2</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="halign">end</property>
+                                <property name="label" translatable="yes">Location</property>
+                                <layout>
+                                  <property name="column">0</property>
+                                  <property name="row">1</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkEntry" id="np_name_entry">
+                                <property name="focusable">1</property>
+                                <property name="input-hints">GTK_INPUT_HINT_LOWERCASE | GTK_INPUT_HINT_NONE</property>
+                                <property name="input-purpose">alpha</property>
+                                <property name="placeholder-text" translatable="yes">&lt;project basename&gt;</property>
+                                <property name="width-chars">32</property>
+                                <signal name="changed" handler="on_np_name_entry_changed"/>
+                                <layout>
+                                  <property name="column">1</property>
+                                  <property name="column-span">3</property>
+                                  <property name="row">0</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="np_create_button">
+                                <property name="action-name">win.new</property>
+                                <property name="focusable">1</property>
+                                <property name="label" translatable="yes">Create</property>
+                                <property name="margin-top">16</property>
+                                <property name="receives-default">1</property>
+                                <style>
+                                  <class name="suggested-action"/>
+                                </style>
+                                <layout>
+                                  <property name="column">3</property>
+                                  <property name="row">4</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="halign">start</property>
+                                <property name="homogeneous">True</property>
+                                <child>
+                                  <object class="GtkToggleButton" id="np_gtk3_radiobutton">
+                                    <property name="group">np_gtk4_radiobutton</property>
+                                    <property name="halign">center</property>
+                                    <property name="tooltip-text" translatable="yes">Old stable version</property>
+                                    <child>
+                                      <object class="GtkBox">
+                                        <property name="spacing">8</property>
+                                        <child>
+                                          <object class="GtkImage">
+                                            <property name="resource">/ar/xjuan/Cambalache/app/images/gtk3.svg</property>
+                                            <style>
+                                              <class name="icon-size-32"/>
+                                            </style>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel">
+                                            <property name="justify">center</property>
+                                            <property name="label">&lt;b&gt;Gtk 3&lt;/b&gt;</property>
+                                            <property name="use-markup">1</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkToggleButton" id="np_gtk4_radiobutton">
+                                    <property name="active">1</property>
+                                    <property name="halign">center</property>
+                                    <property name="tooltip-text" translatable="yes">Recommended for new projects</property>
+                                    <child>
+                                      <object class="GtkBox">
+                                        <property name="spacing">8</property>
+                                        <child>
+                                          <object class="GtkImage">
+                                            <property name="resource">/ar/xjuan/Cambalache/app/images/gtk4.svg</property>
+                                            <style>
+                                              <class name="icon-size-32"/>
+                                            </style>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel">
+                                            <property name="justify">center</property>
+                                            <property name="label">&lt;b&gt;Gtk 4&lt;/b&gt;</property>
+                                            <property name="use-markup">1</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <style>
+                                  <class name="linked"/>
+                                </style>
+                                <layout>
+                                  <property name="column">1</property>
+                                  <property name="column-span">3</property>
+                                  <property name="row">2</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="np_location_chooser">
+                                <property name="action-name">win.select_project_location</property>
+                                <property name="icon-name">folder-symbolic</property>
+                                <property name="sensitive">False</property>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="spacing">4</property>
+                                    <child>
+                                      <object class="GtkImage">
+                                        <property name="icon-name">folder-open-symbolic</property>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel" id="np_location_chooser_label">
+                                        <property name="halign">start</property>
+                                        <property name="hexpand">True</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <layout>
+                                  <property name="column">1</property>
+                                  <property name="column-span">3</property>
+                                  <property name="row">1</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="np_cancel_button">
+                                <property name="action-name">win.show_workspace</property>
+                                <property name="focusable">1</property>
+                                <property name="label" translatable="yes">Cancel</property>
+                                <property name="margin-top">16</property>
+                                <property name="receives-default">1</property>
+                                <layout>
+                                  <property name="column">0</property>
+                                  <property name="row">4</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="halign">end</property>
+                                <property name="label" translatable="yes">UI Filename</property>
+                                <layout>
+                                  <property name="column">0</property>
+                                  <property name="row">3</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkEntry" id="np_ui_entry">
+                                <property name="focusable">1</property>
+                                <property name="input-hints">GTK_INPUT_HINT_LOWERCASE | GTK_INPUT_HINT_NONE</property>
+                                <property name="input-purpose">alpha</property>
+                                <property name="sensitive">0</property>
+                                <property name="width-chars">32</property>
+                                <layout>
+                                  <property name="column">1</property>
+                                  <property name="column-span">3</property>
+                                  <property name="row">3</property>
+                                </layout>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </property>
+                    <property name="name">new_project</property>
+                    <property name="title" translatable="yes">New Project</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkStackPage">
+                    <property name="child">
+                      <object class="GtkPaned">
+                        <property name="end-child">
+                          <object class="GtkStack" id="editor_stack">
+                            <property name="transition-type">crossfade</property>
+                            <child>
+                              <object class="GtkStackPage">
+                                <property name="child">
+                                  <object class="GtkBox">
+                                    <property name="orientation">vertical</property>
+                                    <child>
+                                      <object class="GtkStackSwitcher">
+                                        <property name="halign">center</property>
+                                        <property name="stack">object_stack</property>
+                                        <style>
+                                          <class name="compact"/>
+                                          <class name="property-pane"/>
+                                        </style>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="GtkStack" id="object_stack">
+                                        <property name="transition-type">crossfade</property>
+                                        <property name="vexpand">1</property>
+                                        <child>
+                                          <object class="GtkStackPage">
+                                            <property name="child">
+                                              <object class="CmbScrolledWindow">
+                                                <property name="child">
+                                                  <object class="CmbObjectEditor" id="object_editor">
+                                                    <property name="vexpand">True</property>
+                                                  </object>
+                                                </property>
+                                              </object>
+                                            </property>
+                                            <property name="name">properties</property>
+                                            <property name="title" translatable="yes">Properties</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkStackPage">
+                                            <property name="child">
+                                              <object class="CmbScrolledWindow">
+                                                <property name="child">
+                                                  <object class="CmbObjectEditor" id="object_layout_editor">
+                                                    <property name="layout">True</property>
+                                                  </object>
+                                                </property>
+                                              </object>
+                                            </property>
+                                            <property name="name">layout</property>
+                                            <property name="title" translatable="yes">Layout</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkStackPage">
+                                            <property name="child">
+                                              <object class="CmbSignalEditor" id="signal_editor"/>
+                                            </property>
+                                            <property name="name">signals</property>
+                                            <property name="title" translatable="yes">Signals</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkStackPage">
+                                            <property name="child">
+                                              <object class="CmbFragmentEditor" id="fragment_editor"/>
+                                            </property>
+                                            <property name="name">fragment</property>
+                                            <property name="title">&lt;/&gt;</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </property>
+                                <property name="name">object</property>
+                                <property name="title" translatable="yes">Object Editor</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkStackPage">
+                                <property name="child">
+                                  <object class="GtkBox">
+                                    <property name="orientation">vertical</property>
+                                    <property name="spacing">4</property>
+                                    <child>
+                                      <object class="GtkStackSwitcher">
+                                        <property name="halign">center</property>
+                                        <property name="stack">ui_stack</property>
+                                        <style>
+                                          <class name="compact"/>
+                                          <class name="property-pane"/>
+                                        </style>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="GtkStack" id="ui_stack">
+                                        <property name="vexpand">1</property>
+                                        <child>
+                                          <object class="GtkStackPage">
+                                            <property name="child">
+                                              <object class="CmbUIEditor" id="ui_editor">
+                                                <property name="hexpand">True</property>
+                                                <property name="vexpand">True</property>
+                                                <signal name="remove-ui" handler="on_ui_editor_remove_ui"/>
+                                              </object>
+                                            </property>
+                                            <property name="name">properties</property>
+                                            <property name="title" translatable="yes">Properties</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkStackPage">
+                                            <property name="child">
+                                              <object class="CmbUIRequiresEditor" id="ui_requires_editor">
+                                                <property name="orientation">vertical</property>
+                                              </object>
+                                            </property>
+                                            <property name="name">requires</property>
+                                            <property name="title" translatable="yes">Requires</property>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkStackPage">
+                                            <property name="child">
+                                              <object class="CmbFragmentEditor" id="ui_fragment_editor">
+                                                <property name="orientation">vertical</property>
+                                              </object>
+                                            </property>
+                                            <property name="name">fragment</property>
+                                            <property name="title">&lt;/&gt;</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </property>
+                                <property name="name">ui</property>
+                                <property name="title" translatable="yes">UI Editor</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkStackPage">
+                                <property name="child">
+                                  <object class="CmbCSSEditor" id="css_editor">
+                                    <property name="hexpand">True</property>
+                                    <property name="vexpand">True</property>
+                                    <signal name="remove-css" handler="on_css_editor_remove_ui"/>
+                                  </object>
+                                </property>
+                                <property name="name">css</property>
+                                <property name="title" translatable="yes">CSS Editor</property>
+                              </object>
+                            </child>
+                          </object>
+                        </property>
+                        <property name="focusable">1</property>
+                        <property name="height-request">380</property>
+                        <property name="resize-end-child">0</property>
+                        <property name="shrink-end-child">0</property>
+                        <property name="shrink-start-child">0</property>
+                        <property name="start-child">
+                          <object class="GtkPaned">
+                            <property name="end-child">
+                              <object class="GtkBox">
+                                <property name="orientation">vertical</property>
+                                <child>
+                                  <object class="CmbTypeChooser" id="type_chooser">
+                                    <property name="spacing">2</property>
+                                    <signal name="chooser-popdown" handler="on_type_chooser_chooser_popdown"/>
+                                    <signal name="chooser-popup" handler="on_type_chooser_chooser_popup"/>
+                                    <signal name="type-selected" handler="on_type_chooser_type_selected"/>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="CmbView" id="view">
+                                    <property name="vexpand">1</property>
+                                    <signal name="placeholder-activated" handler="on_view_placeholder_activated"/>
+                                    <signal name="placeholder-selected" handler="on_view_placeholder_selected"/>
+                                  </object>
+                                </child>
+                              </object>
+                            </property>
+                            <property name="focusable">1</property>
+                            <property name="resize-start-child">0</property>
+                            <property name="shrink-end-child">0</property>
+                            <property name="shrink-start-child">0</property>
+                            <property name="start-child">
+                              <object class="GtkBox" id="inspector">
+                                <property name="focusable">1</property>
+                                <property name="orientation">vertical</property>
+                                <child>
+                                  <object class="GtkScrolledWindow">
+                                    <property name="focusable">1</property>
+                                    <property name="min-content-width">256</property>
+                                    <property name="propagate-natural-height">1</property>
+                                    <property name="propagate-natural-width">1</property>
+                                    <property name="vexpand">1</property>
+                                    <child>
+                                      <object class="CmbTreeView" id="tree_view">
+                                        <property name="focusable">1</property>
+                                        <property name="headers-clickable">False</property>
+                                        <property name="headers-visible">False</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </property>
+                          </object>
+                        </property>
+                      </object>
+                    </property>
+                    <property name="name">workspace</property>
+                    <property name="title" translatable="yes">Workspace</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkStackPage">
+                    <property name="child">
+                      <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkButton">
+                            <property name="action-name">win.show_workspace</property>
+                            <property name="focusable">1</property>
+                            <property name="halign">start</property>
+                            <property name="receives-default">1</property>
+                            <child>
+                              <object class="GtkImage">
+                                <property name="icon-name">go-previous-symbolic</property>
+                              </object>
+                            </child>
+                            <style>
+                              <class name="borderless"/>
+                            </style>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="halign">center</property>
+                            <property name="homogeneous">1</property>
+                            <property name="margin-bottom">64</property>
+                            <property name="margin-top">32</property>
+                            <property name="spacing">196</property>
+                            <property name="valign">start</property>
+                            <property name="vexpand">1</property>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="halign">center</property>
+                                <property name="hexpand">1</property>
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">32</property>
+                                <child>
+                                  <object class="GtkImage">
+                                    <property name="resource">/ar/xjuan/Cambalache/app/images/lp-logo.svg</property>
+                                    <style>
+                                      <class name="icon-size-64"/>
+                                    </style>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="label" translatable="yes">• Liberapay is a recurrent donations platform
+
+• Run by a non-profit organization
+
+• Source code is public
+
+• No commission fee
+
+• ~5% payment processing fee</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkButton">
+                                    <property name="action-name">win.liberapay</property>
+                                    <property name="focusable">1</property>
+                                    <property name="halign">center</property>
+                                    <property name="label" translatable="yes">Donate</property>
+                                    <property name="receives-default">1</property>
+                                    <style>
+                                      <class name="suggested-action"/>
+                                    </style>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="halign">center</property>
+                                <property name="hexpand">1</property>
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">32</property>
+                                <child>
+                                  <object class="GtkImage">
+                                    <property name="resource">/ar/xjuan/Cambalache/app/images/patreon-logo.svg</property>
+                                    <style>
+                                      <class name="icon-size-64"/>
+                                    </style>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="label" translatable="yes">• Patreon is a membership platform for creators
+
+• Run by private company
+
+• No source code available
+
+• ~8% commission fee
+
+• ~8% payment processing fee</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkButton">
+                                    <property name="action-name">win.patreon</property>
+                                    <property name="focusable">1</property>
+                                    <property name="halign">center</property>
+                                    <property name="label" translatable="yes">Donate</property>
+                                    <property name="receives-default">1</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <style>
+                          <class name="donate"/>
+                        </style>
+                      </object>
+                    </property>
+                    <property name="name">donate</property>
+                  </object>
+                </child>
+              </object>
+            </property>
+            <child type="overlay">
+              <object class="GtkRevealer" id="message_revealer">
+                <property name="child">
+                  <object class="GtkLabel" id="message_label">
+                    <style>
+                      <class name="message"/>
+                    </style>
+                  </object>
+                </property>
+                <property name="halign">center</property>
+                <property name="transition-type">slide-up</property>
+                <property name="valign">end</property>
+                <style>
+                  <class name="message"/>
+                </style>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <style>
+      <class name="cmb-window"/>
+    </style>
+  </template>
 </interface>
