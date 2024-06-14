@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.17.3 -->
+<!-- Created with Cambalache 0.91.0 -->
 <interface>
   <!-- interface-name cmb_view.ui -->
   <requires lib="gtk" version="4.0"/>
@@ -13,7 +13,7 @@
           <object class="GtkStackPage">
             <property name="child">
               <object class="CmbCompositor" id="compositor">
-                <property name="can-focus">True</property>s
+                <property name="can-focus">True</property>
                 <signal name="context-menu" handler="on_compositor_context_menu"/>
               </object>
             </property>
