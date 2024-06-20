@@ -14,6 +14,25 @@
     </p>
   </description>
   <releases>
+    <release date="2024-06-20" version="0.91.1">
+      <description>
+        <p>Custom compositor release</p>
+        <ul>
+          <li>New custom wayland compositor for workspace</li>
+          <li>Improve workspace performance</li>
+          <li>Fix window ordering</li>
+          <li>Enable workspace animations</li>
+          <li>Basic port to Adwaita</li>
+          <li>Support new desktop dark style</li>
+          <li>Many thanks to emersion, kennylevinsen, vyivel and the wlroots community for their support and awesome project</li>
+        </ul>
+      </description>
+      <issues>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/216">Issue #216 "Cambalache 0.90.2 Segment faults"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/213">Issue #213 "Cannot open .ui file created using Gnome Builder"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/215">Issue #215 "Port UI to LibAdwaita"</issue>
+      </issues>
+    </release>
     <release date="2024-03-29" version="0.90.2">
       <description>
         <p>Gtk 4 port</p>
