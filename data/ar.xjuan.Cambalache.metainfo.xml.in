@@ -14,15 +14,17 @@
     </p>
   </description>
   <releases>
-    <release date="2024-03-29" version="0.90.2">
+    <release date="2024-06-20" version="0.90.3">
       <description>
         <p>Gtk 4 port</p>
         <ul>
           <li>Migrate main application to Gtk 4</li>
-          <li>Update widget catalogs to SDK 46</li>
+          <li>Update widget catalogs to SDK 46 (0.90.2)</li>
           <li>Add support for child custom fragments</li>
           <li>Add add parent context menu action</li>
           <li>Mark AdwSplitButton.dropdown-tooltip translatable. (Danial Behzadi)</li>
+          <li>Add WebKitWebContext class (0.90.3)</li>
+          <li>Add brand colors (0.90.3)</li>
         </ul>
       </description>
       <issues>
