@@ -1,7 +1,84 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.91.0 -->
+<!-- Created with Cambalache 0.91.1 -->
 <interface>
-  <!-- interface-name CmbTranslatableWidget -->
+  <!-- interface-name cmb_translatable_widget.ui -->
   <requires lib="gtk" version="4.0"/>
-  <template class="CmbTranslatableWidget" parent="GtkBox"/>
+  <object class="GtkTextBuffer" id="buffer_comments"/>
+  <object class="GtkTextBuffer" id="buffer_context"/>
+  <object class="GtkTextBuffer" id="buffer_text"/>
+  <template class="CmbTranslatableWidget" parent="GtkBox">
+    <property name="margin-bottom">4</property>
+    <property name="margin-end">4</property>
+    <property name="margin-start">4</property>
+    <property name="margin-top">4</property>
+    <property name="orientation">vertical</property>
+    <property name="spacing">4</property>
+    <child>
+      <object class="GtkLabel">
+        <property name="halign">start</property>
+        <property name="label" translatable="yes">Text:</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkScrolledWindow">
+        <property name="child">
+          <object class="GtkTextView" id="text_view_value">
+            <property name="accepts-tab">0</property>
+            <property name="buffer">buffer_text</property>
+            <property name="focusable">1</property>
+          </object>
+        </property>
+        <property name="focusable">1</property>
+        <property name="height-request">60</property>
+        <property name="width-request">300</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkCheckButton" id="check_button_translatable">
+        <property name="focusable">1</property>
+        <property name="halign">start</property>
+        <property name="label" translatable="yes">translatable</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkLabel">
+        <property name="halign">start</property>
+        <property name="label" translatable="yes">Translation context:</property>
+        <property name="margin-top">8</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkScrolledWindow">
+        <property name="child">
+          <object class="GtkTextView" id="text_view_context">
+            <property name="accepts-tab">0</property>
+            <property name="buffer">buffer_context</property>
+            <property name="focusable">1</property>
+          </object>
+        </property>
+        <property name="focusable">1</property>
+        <property name="height-request">60</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkLabel">
+        <property name="halign">start</property>
+        <property name="label" translatable="yes">Comments for translators:</property>
+        <property name="margin-top">8</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkScrolledWindow">
+        <property name="child">
+          <object class="GtkTextView" id="text_view_comments">
+            <property name="accepts-tab">0</property>
+            <property name="buffer">buffer_comments</property>
+            <property name="focusable">1</property>
+          </object>
+        </property>
+        <property name="focusable">1</property>
+        <property name="height-request">60</property>
+      </object>
+    </child>
+  </template>
 </interface>
