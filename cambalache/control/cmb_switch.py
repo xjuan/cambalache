@@ -46,10 +46,15 @@ class CmbSwitch(Gtk.Switch):
 
             if type(val) is str:
                 if val.lower() in {"1", "t", "y", "true", "yes"}:
-                    self.props.active = True
+                    active = True
                 else:
-                    self.props.active = False
+                    active = False
             else:
-                self.props.active = bool(value)
+                active = bool(value)
         else:
-            self.props.active = False
+            active = False
+
+        if active == self.props.active:
+            return
+
+        self.props.active = active

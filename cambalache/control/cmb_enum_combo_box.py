@@ -59,4 +59,9 @@ class CmbEnumComboBox(Gtk.ComboBox):
 
             # Always use nick as value
             if value == enum_name or value == enum_nick:
-                self.props.active_id = enum_nick
+                active_id = enum_nick
+
+        if active_id == self.props.active_id:
+            return
+
+        self.props.active_id = active_id

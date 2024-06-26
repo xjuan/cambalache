@@ -52,4 +52,8 @@ class CmbEntry(Gtk.Entry):
 
     @cmb_value.setter
     def _set_cmb_value(self, value):
+        # We do not want to emit a change if there is none
+        if value == self.props.text:
+            return
+
         self.props.text = value if value is not None else ""

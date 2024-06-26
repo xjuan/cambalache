@@ -92,6 +92,9 @@ class CmbFlagsEntry(Gtk.Entry):
 
     @cmb_value.setter
     def _set_cmb_value(self, value):
+        if value == self.props.text:
+            return
+
         self.props.text = value if value is not None else ""
 
         self.flags = {}

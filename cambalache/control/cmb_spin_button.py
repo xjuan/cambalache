@@ -31,12 +31,12 @@ class CmbSpinButton(Gtk.SpinButton):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.connect("notify::value", self.__on_text_notify)
+        self.connect("notify::value", self.__on_value_notify)
         self.props.halign = Gtk.Align.START
         self.props.numeric = True
         self.props.width_chars = 8
 
-    def __on_text_notify(self, obj, pspec):
+    def __on_value_notify(self, obj, pspec):
         self.notify("cmb-value")
 
     @GObject.Property(type=str)
@@ -51,6 +51,9 @@ class CmbSpinButton(Gtk.SpinButton):
     @cmb_value.setter
     def _set_cmb_value(self, value):
         value = float(value)
+
+        if value == self.props.value:
+            return
 
         if value == math.inf:
             self.props.value = GLib.MAXDOUBLE
