@@ -25,6 +25,9 @@ import gi
 import os
 import json
 import time
+import fcntl
+import stat
+import atexit
 
 gi.require_version('Cambalache', '1.0')
 from gi.repository import GObject, GLib, Gio, Gtk, Cambalache
@@ -63,8 +66,24 @@ class CmbMerengueProcess(GObject.Object):
         super().__init__(**kwargs)
 
         # Create socket address object
-        self.__command_socket = os.path.join(os.path.dirname(self.wayland_display), "merengue.sock")
+        dirname = os.path.dirname(self.wayland_display)
+        self.__command_socket = os.path.join(dirname, "merengue.sock")
         socket_addr = Gio.UnixSocketAddress.new(self.__command_socket)
+
+        # Lock Socket
+        GLib.mkdir_with_parents(dirname, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
+        lockfd = os.open(f"{self.__command_socket}.lock",
+                         os.O_CREAT | os.O_CLOEXEC | os.O_RDWR,
+                         stat.S_IRUSR | stat.S_IWUSR)
+        if lockfd < 0:
+            logger.warning(f"Can not open lockfile for {self.__command_socket}, check permissions")
+            return
+
+        try:
+            fcntl.flock(lockfd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except Exception as e:
+            logger.warning(f"Can not lock lockfile for {self.__command_socket}, is it used by another compositor? {e}")
+            return
 
         # Create socket listener and add address
         self.service = Gio.SocketService()
@@ -75,13 +94,18 @@ class CmbMerengueProcess(GObject.Object):
         self.service.connect("incoming", self.__on_service_incoming)
         self.service.start()
 
+        try:
+            os.lstat(self.__command_socket)
+        except Exception as e:
+            logger.warning(f"Can not stat file {self.__command_socket} {e}")
+            return
+
         socket_addr = None
 
     def cleanup(self):
         self.stop()
-        dirname = os.path.dirname(self.__command_socket)
-        os.remove(self.__command_socket)
-        os.rmdir(dirname)
+        os.unlink(self.__command_socket)
+        os.unlink(f"{self.__command_socket}.lock")
 
     def __on_command_in(self, channel, condition):
         if condition == GLib.IOCondition.HUP or self.__command_in is None:
@@ -225,10 +249,18 @@ class CmbView(Gtk.Box):
 
         self.connect("notify::preview", self.__on_preview_notify)
 
-    def cleanup(self):
+        # Ensure we delete all socket files when exiting
+        atexit.register(self.__atexit)
+
+    def __atexit(self):
+        dirname = os.path.dirname(self.compositor.props.socket)
+
         self.__merengue_command("quit")
         self.compositor.cleanup()
         self.__merengue.cleanup()
+
+        if os.path.exists(dirname):
+            os.rmdir(dirname)
 
     def _set_dark_mode(self, dark):
         self.__dark = dark
