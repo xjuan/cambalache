@@ -14,7 +14,7 @@
     </p>
   </description>
   <releases>
-    <release date="2024-06-20" version="0.90.3">
+    <release date="2024-06-26" version="0.90.4">
       <description>
         <p>Gtk 4 port</p>
         <ul>
@@ -25,6 +25,7 @@
           <li>Mark AdwSplitButton.dropdown-tooltip translatable. (Danial Behzadi)</li>
           <li>Add WebKitWebContext class (0.90.3)</li>
           <li>Add brand colors (0.90.3)</li>
+          <li>Fix issue #220 (0.90.4)</li>
         </ul>
       </description>
       <issues>
@@ -34,6 +35,7 @@
         <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/199">Issue #199 "Copy and pasting messes references between widgets"</issue>
         <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/196">Issue #196 "postinstall.py is trying to modify files in prefix."</issue>
         <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/201">Issue #201 "AdwToolbarView needs special child types"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/201">Issue #220 "BUG: Typing cursor for style classes always in the front of style entries."</issue>
       </issues>
     </release>
     <release date="2023-09-24" version="0.16.0">
