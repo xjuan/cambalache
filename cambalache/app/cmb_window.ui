@@ -2,9 +2,10 @@
 <!-- Created with Cambalache 0.91.1 -->
 <interface>
   <!-- interface-name cmb_window.ui -->
+  <!-- interface-copyright Juan Pablo Ugarte -->
   <requires lib="gio" version="2.0"/>
-  <requires lib="gtk" version="4.0"/>
-  <requires lib="libadwaita" version="1.0"/>
+  <requires lib="gtk" version="4.14"/>
+  <requires lib="libadwaita" version="1.5"/>
   <object class="GtkFileFilter" id="import_filter">
     <mime-types>
       <mime-type>application/x-glade</mime-type>
@@ -16,6 +17,10 @@
     </patterns>
   </object>
   <menu id="main_menu">
+    <item>
+      <attribute name="action">win.create_new</attribute>
+      <attribute name="label">New Project</attribute>
+    </item>
     <section>
       <item>
         <attribute name="action">win.import</attribute>
@@ -32,9 +37,19 @@
     </section>
     <section>
       <item>
+        <attribute name="action">win.save</attribute>
+        <attribute name="label">Save</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.save_as</attribute>
+        <attribute name="label">Save As</attribute>
+      </item>
+      <item>
         <attribute name="action">win.close</attribute>
         <attribute name="label" translatable="yes">Close Project</attribute>
       </item>
+    </section>
+    <section>
       <item>
         <attribute name="action">win.debug</attribute>
         <attribute name="label" translatable="yes">Debug Project Data</attribute>
@@ -69,119 +84,49 @@
       <mime-type>application/x-cambalache-project</mime-type>
     </mime-types>
   </object>
-  <object class="GtkAboutDialog" id="about_dialog">
-    <property name="artists">Franco Dodorico
-Juan Pablo Ugarte</property>
-    <property name="authors">Juan Pablo Ugarte</property>
-    <property name="comments" translatable="yes">User Interface Maker</property>
-    <property name="copyright">© 2020-2024 Juan Pablo Ugarte</property>
-    <property name="license-type">lgpl-2-1-only</property>
-    <property name="logo-icon-name">ar.xjuan.Cambalache</property>
-    <property name="modal">True</property>
-    <property name="program-name">Cambalache</property>
-    <property name="transient-for">CmbWindow</property>
-    <property name="website">https://gitlab.gnome.org/jpu/cambalache</property>
-    <property name="website-label" translatable="yes">Source repository and issue tracker</property>
-  </object>
   <template class="CmbWindow" parent="AdwApplicationWindow">
     <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <child>
           <object class="AdwHeaderBar" id="headerbar">
+            <property name="title-widget">
+              <object class="AdwWindowTitle" id="title">
+                <property name="title">Cambalache</property>
+              </object>
+            </property>
             <child>
-              <object class="GtkBox" id="open_button_box">
-                <child>
-                  <object class="GtkButton" id="open_button">
-                    <property name="action-name">win.open</property>
-                    <property name="focusable">1</property>
-                    <property name="label" translatable="yes">_Open</property>
-                    <property name="receives-default">1</property>
-                    <property name="tooltip-text" translatable="yes">Open a project</property>
-                    <property name="use-underline">1</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkMenuButton" id="recent_button">
-                    <property name="menu-model">recent_menu</property>
-                    <child>
-                      <object class="GtkImage">
-                        <property name="icon-name">pan-down-symbolic</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <style>
-                  <class name="linked"/>
-                </style>
+              <object class="AdwSplitButton" id="open_button">
+                <property name="action-name">win.open</property>
+                <property name="dropdown-tooltip">Recent Projects</property>
+                <property name="label">_Open</property>
+                <property name="menu-model">recent_menu</property>
+                <property name="use-underline">True</property>
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="new_button">
-                <property name="action-name">win.create_new</property>
+              <object class="GtkButton" id="undo_button">
+                <property name="action-name">win.undo</property>
                 <property name="focusable">1</property>
+                <property name="has-frame">False</property>
                 <property name="receives-default">1</property>
-                <property name="tooltip-text" translatable="yes">Create a new project</property>
                 <child>
                   <object class="GtkImage">
-                    <property name="icon-name">document-new-symbolic</property>
+                    <property name="icon-name">edit-undo-symbolic</property>
                   </object>
                 </child>
               </object>
             </child>
             <child>
-              <object class="GtkSeparator"/>
-            </child>
-            <child>
-              <object class="GtkBox">
+              <object class="GtkButton" id="redo_button">
+                <property name="action-name">win.redo</property>
+                <property name="focusable">1</property>
+                <property name="has-frame">False</property>
+                <property name="receives-default">1</property>
+                <property name="use-underline">1</property>
                 <child>
-                  <object class="GtkButton" id="undo_button">
-                    <property name="action-name">win.undo</property>
-                    <property name="focusable">1</property>
-                    <property name="receives-default">1</property>
-                    <child>
-                      <object class="GtkImage">
-                        <property name="icon-name">edit-undo-symbolic</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="redo_button">
-                    <property name="action-name">win.redo</property>
-                    <property name="focusable">1</property>
-                    <property name="receives-default">1</property>
-                    <property name="use-underline">1</property>
-                    <child>
-                      <object class="GtkImage">
-                        <property name="icon-name">edit-redo-symbolic</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <style>
-                  <class name="linked"/>
-                </style>
-              </object>
-            </child>
-            <child type="title">
-              <object class="GtkBox">
-                <property name="orientation">GTK_ORIENTATION_VERTICAL</property>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="label" translatable="yes">Cambalache</property>
-                    <property name="vexpand">true</property>
-                    <style>
-                      <class name="title"/>
-                    </style>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="subtitle">
-                    <property name="visible">false</property>
-                    <style>
-                      <class name="subtitle"/>
-                    </style>
+                  <object class="GtkImage">
+                    <property name="icon-name">edit-redo-symbolic</property>
                   </object>
                 </child>
               </object>
@@ -189,6 +134,7 @@ Juan Pablo Ugarte</property>
             <child type="end">
               <object class="GtkMenuButton" id="menu_button">
                 <property name="focusable">1</property>
+                <property name="has-frame">False</property>
                 <property name="menu-model">main_menu</property>
                 <property name="receives-default">1</property>
                 <child>
@@ -199,33 +145,9 @@ Juan Pablo Ugarte</property>
               </object>
             </child>
             <child type="end">
-              <object class="GtkBox" id="save_button_box">
-                <child>
-                  <object class="GtkButton" id="cmb_save_button">
-                    <property name="action-name">win.save</property>
-                    <property name="label" translatable="yes">Save</property>
-                    <property name="tooltip-text" translatable="yes">Save project</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="save_as_button">
-                    <property name="action-name">win.save_as</property>
-                    <property name="tooltip-text" translatable="yes">Save project with a different file name</property>
-                    <child>
-                      <object class="GtkImage">
-                        <property name="icon-name">document-save-as-symbolic</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <style>
-                  <class name="linked"/>
-                </style>
-              </object>
-            </child>
-            <child type="end">
               <object class="GtkButton" id="add_button">
                 <property name="action-name">win.add_ui</property>
+                <property name="has-frame">False</property>
                 <property name="tooltip-text" translatable="yes">Add new UI to project</property>
                 <child>
                   <object class="GtkImage">
@@ -237,6 +159,7 @@ Juan Pablo Ugarte</property>
             <child type="end">
               <object class="GtkButton" id="intro_button">
                 <property name="action-name">win.intro</property>
+                <property name="has-frame">False</property>
                 <property name="tooltip-text" translatable="yes">Start interactive introduction</property>
                 <child>
                   <object class="GtkImage">

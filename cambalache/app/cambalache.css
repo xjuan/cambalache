@@ -68,7 +68,9 @@ popover.cmb-tutor image {
 button.cmb-tutor-highlight,
 modelbutton.cmb-tutor-highlight,
 buttonbox.cmb-tutor-highlight > button,
+menubutton.cmb-tutor-highlight > button,
 stackswitcher.cmb-tutor-highlight > button,
+stack.cmb-tutor-highlight,
 entry.cmb-tutor-highlight,
 treeview.cmb-tutor-highlight,
 box.cmb-tutor-highlight,
@@ -110,4 +112,8 @@ image.icon-size-32 {
 
 image.icon-size-64 {
   -gtk-icon-size: 64px;
+}
+
+windowtitle.changed {
+  font-style: italic;
 }

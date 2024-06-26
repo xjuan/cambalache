@@ -111,7 +111,6 @@ class CmbApplication(Adw.Application):
                 self.quit()
             else:
                 self.remove_window(window)
-                window.cleanup()
                 window.destroy()
 
         # Gather projects that needs saving

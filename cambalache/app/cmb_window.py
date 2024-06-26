@@ -48,9 +48,8 @@ class CmbWindow(Adw.ApplicationWindow):
     import_filter = Gtk.Template.Child()
 
     headerbar = Gtk.Template.Child()
-    subtitle = Gtk.Template.Child()
+    title = Gtk.Template.Child()
     recent_menu = Gtk.Template.Child()
-    recent_button = Gtk.Template.Child()
     undo_button = Gtk.Template.Child()
     redo_button = Gtk.Template.Child()
     stack = Gtk.Template.Child()
@@ -83,8 +82,6 @@ class CmbWindow(Adw.ApplicationWindow):
     object_layout_editor = Gtk.Template.Child()
     signal_editor = Gtk.Template.Child()
     css_editor = Gtk.Template.Child()
-
-    about_dialog = Gtk.Template.Child()
 
     # Tutor widgets
     intro_button = Gtk.Template.Child()
@@ -170,6 +167,8 @@ class CmbWindow(Adw.ApplicationWindow):
         # Add global accelerators
         action_map = [
             ("win.save", ["<Primary>s"]),
+            ("win.save_as", ["<Shift><Primary>s"]),
+            ("win.import", ["<Primary>i"]),
             ("win.export", ["<Primary>e"]),
             ("win.close", ["<Primary>w"]),
             ("win.undo", ["<Primary>z"]),
@@ -217,9 +216,6 @@ class CmbWindow(Adw.ApplicationWindow):
         self.set_help_overlay(self.shortcut_window)
 
         self.version_label.props.label = f"version {config.VERSION}"
-        self.about_dialog.props.version = config.VERSION
-        self.__update_translators()
-        self.__populate_about_dialog_supporters()
 
         GObject.Object.bind_property(
             self.np_name_entry,
@@ -271,11 +267,6 @@ class CmbWindow(Adw.ApplicationWindow):
         self.__recent_manager.connect("changed", lambda rm: self.__update_recent_menu())
         self.__update_recent_menu()
 
-    def cleanup(self):
-        self.about_dialog.destroy()
-        self.shortcut_window.destroy()
-        self.view.cleanup()
-
     def __on_view_gtk_theme_notify(self, obj, pspec):
         self.actions["workspace_theme"].set_state(GLib.Variant("s", obj.props.gtk_theme))
 
@@ -305,23 +296,31 @@ class CmbWindow(Adw.ApplicationWindow):
         self.fragment_editor.object = None
 
         if project is not None:
-            self.__on_project_filename_notify(None, None)
             self.__project.connect("notify::filename", self.__on_project_filename_notify)
             self.__project.connect("selection-changed", self.__on_project_selection_changed)
             self.__project.connect("changed", self.__on_project_changed)
-        else:
-            self.subtitle.props.visible = False
 
+        self.__update_window_title()
         self.__update_actions()
 
     def __on_project_filename_notify(self, obj, pspec):
+        self.__update_window_title()
+
+    def __update_window_title(self):
+        if self.project is None:
+            self.title.props.title = _("Cambalache")
+            self.title.props.subtitle = None
+            return
+
         if self.project.filename:
             path = self.project.filename.replace(GLib.get_home_dir(), "~")
         else:
             path = _("Untitled")
 
-        self.subtitle.props.visible = True
-        self.subtitle.props.label = path
+        prefix = "*" if self.__needs_saving() else ""
+
+        self.title.props.title = prefix + os.path.basename(path)
+        self.title.props.subtitle = os.path.dirname(path)
 
     @Gtk.Template.Callback("on_type_chooser_type_selected")
     def __on_type_chooser_type_selected(self, popover, info):
@@ -409,25 +408,6 @@ class CmbWindow(Adw.ApplicationWindow):
         sensitive = len(editable.get_chars(0, -1)) != 0
         self.np_location_chooser.set_sensitive(sensitive)
         self.np_ui_entry.set_sensitive(sensitive)
-
-    def __update_translators(self):
-        lang_country, encoding = locale.getlocale()
-        lang = lang_country.split("_")[0]
-
-        translators = {
-            "cs": ["Vojtěch Perník"],
-            "de": ["PhilProg", "Philipp Unger"],
-            "es": ["Juan Pablo Ugarte"],
-            "fr": ["rene-coty"],
-            "it": ["Lorenzo Capalbo"],
-            "nl": ["Gert"],
-            "uk": ["Volodymyr M. Lisivka"],
-        }
-
-        translator_list = translators.get(lang, None)
-
-        if translator_list:
-            self.about_dialog.props.translator_credits = "\n".join(translator_list)
 
     def __update_dark_mode(self, style_manager):
         if style_manager.props.dark:
@@ -546,9 +526,22 @@ class CmbWindow(Adw.ApplicationWindow):
         for action in ["add_object", "add_object_toplevel"]:
             self.actions[action].set_enabled(enabled)
 
-    def __update_action_save(self):
+    def __needs_saving(self):
         has_project = self.__is_project_visible()
-        self.actions["save"].set_enabled(has_project and self.project.history_index != self.__last_saved_index)
+        changed = has_project and self.project.history_index != self.__last_saved_index
+
+        return has_project and changed
+
+    def __update_action_save(self):
+        changed = self.__needs_saving()
+
+        self.__update_window_title()
+
+        self.actions["save"].set_enabled(changed)
+        if changed:
+            self.title.add_css_class("changed")
+        else:
+            self.title.remove_css_class("changed")
 
     def __update_actions(self):
         has_project = self.__is_project_visible()
@@ -574,17 +567,6 @@ class CmbWindow(Adw.ApplicationWindow):
             dialog.set_initial_folder(Gio.File.new_for_path(os.path.dirname(self.project.filename)))
 
         return dialog
-
-    def __populate_about_dialog_supporters(self):
-        gbytes = Gio.resources_lookup_data("/ar/xjuan/Cambalache/app/SUPPORTERS.md", Gio.ResourceLookupFlags.NONE)
-        supporters = gbytes.get_data().decode("UTF-8").splitlines()
-        sponsors = []
-
-        for name in supporters:
-            if name.startswith(" - "):
-                sponsors.append(name[3:])
-
-        self.about_dialog.add_credit_section(_("Supporters"), sponsors)
 
     def present_message_to_user(self, message, secondary_text=None, details=None):
         dialog = Gtk.MessageDialog(
@@ -1007,8 +989,51 @@ class CmbWindow(Adw.ApplicationWindow):
         self.project.db_move_to_fs(filename)
         Gtk.show_uri(self, f"file://{filename}", Gdk.CURRENT_TIME)
 
+    def __populate_supporters(self, about):
+        gbytes = Gio.resources_lookup_data("/ar/xjuan/Cambalache/app/SUPPORTERS.md", Gio.ResourceLookupFlags.NONE)
+        supporters = gbytes.get_data().decode("UTF-8").splitlines()
+        sponsors = []
+
+        for name in supporters:
+            if name.startswith(" - "):
+                sponsors.append(name[3:])
+
+        about.add_credit_section(_("Supporters"), sponsors)
+
+    def __update_translators(self, about):
+        lang_country, encoding = locale.getlocale()
+        lang = lang_country.split("_")[0]
+
+        translators = {
+            "cs": ["Vojtěch Perník"],
+            "de": ["PhilProg", "Philipp Unger"],
+            "es": ["Juan Pablo Ugarte"],
+            "fr": ["rene-coty"],
+            "it": ["Lorenzo Capalbo"],
+            "nl": ["Gert"],
+            "uk": ["Volodymyr M. Lisivka"],
+        }
+
+        translator_list = translators.get(lang, None)
+
+        if translator_list:
+            about.props.translator_credits = "\n".join(translator_list)
+
     def _on_about_activate(self, action, data):
-        self.about_dialog.present()
+        about = Adw.AboutWindow.new_from_appdata("/ar/xjuan/Cambalache/app/metainfo.xml", config.VERSION)
+
+        about.props.transient_for = self
+        about.props.artists = [
+            "Franco Dodorico",
+            "Juan Pablo Ugarte",
+        ]
+        about.props.copyright = "© 2020-2024 Juan Pablo Ugarte"
+        about.props.license_type = Gtk.License.LGPL_2_1_ONLY
+
+        self.__update_translators(about)
+        self.__populate_supporters(about)
+
+        about.present()
 
     def _on_add_parent_activate(self, action, data):
         obj = self.project.get_selection()[0]
@@ -1086,8 +1111,6 @@ class CmbWindow(Adw.ApplicationWindow):
             self.project.connect("object-added", self.__on_object_added, "GtkGrid")
         elif node == "add-button":
             self.project.connect("object-added", self.__on_object_added, "GtkButton")
-        elif node in ["menu_button", "main-menu"]:
-            self.menu_button.popup()
         elif node == "show-type-popover":
             widget.props.popover.popup()
         elif node == "show-type-popover-gtk":
@@ -1105,7 +1128,7 @@ class CmbWindow(Adw.ApplicationWindow):
         elif node in ["add-ui", "add-window", "add-grid", "add-button"]:
             self.tutor_waiting_for_user_action = True
             self.tutor.pause()
-        elif node in ["menu_button", "donate"]:
+        elif node in ["donate", "export_all"]:
             self.menu_button.popdown()
         elif node == "show-type-popover":
             widget.props.popover.popdown()
@@ -1169,8 +1192,6 @@ class CmbWindow(Adw.ApplicationWindow):
             item.set_action_and_target_value("win.open_recent", GLib.Variant("s", filename))
             self.recent_menu.append_item(item)
             has_items = True
-
-        self.recent_button.set_sensitive(has_items)
 
     def __load_window_state(self):
         state = self.window_settings.get_uint("state")
