@@ -706,8 +706,10 @@ on_motion_controller_motion (G_GNUC_UNUSED GtkEventControllerMotion *self,
                              gdouble y,
                              CmbCompositorPrivate *priv)
 {
-  priv->pointer_x = x;
-  priv->pointer_y = y;
+  /* Clamp pointer to widget coordinates */
+  priv->pointer_x = CLAMP(x, 0, gtk_widget_get_width (priv->widget));
+  priv->pointer_y = CLAMP(y, 0, gtk_widget_get_height (priv->widget));
+
   cmb_compositor_handle_pointer_motion(priv);
   wlr_seat_pointer_notify_frame(priv->seat);
 }
