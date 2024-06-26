@@ -26,19 +26,25 @@ from cambalache import _
 
 intro = [
     (_("Hi, I will show you around Cambalache"), "intro_button", 5),
-    (_("You can open a project"), "open_button", 3),
-    (
-        _("find recently used"),
-        "recent_button",
-        2,
-    ),
-    (_("or create a new one"), "new_button", 4),
+    (_("You can open a project and find recently used"), "open_button", 5),
     (_("Common actions like Undo"), "undo_button", 4),
     (_("Redo"), "redo_button", 2),
-    (_("Add new UI file"), "add_button", 3),
-    (_("and Save are directly accessible in the headerbar"), "cmb_save_button", 6),
-    (_("just like Save As"), "save_as_button", 2),
-    (_("and the main menu"), "menu_button", 3, "menu_button"),
+    (_("and Add new UI are directly accessible in the headerbar"), "add_button", 3),
+    (_("together with the main menu"), "menu_button", 3),
+    (
+        _("Where you can create a new project"),
+        _("New Project"),
+        5,
+        None,
+        CmbTutorPosition.LEFT,
+    ),
+    (
+        _("Import UI files"),
+        _("Import"),
+        3,
+        None,
+        CmbTutorPosition.LEFT,
+    ),
     (_("Create a project to continue"), "intro_button", 2, "add-project"),
     (_("Great!"), "intro_button", 2),
     (
@@ -68,7 +74,7 @@ intro = [
         _("Once you finish, you can export all UI files to xml here"),
         _("Export all"),
         5,
-        "main-menu",
+        None,
         CmbTutorPosition.LEFT,
     ),
     (
