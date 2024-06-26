@@ -115,7 +115,11 @@ class CmbObjectDataEditor(Gtk.Box):
 
         editor = self.__arg_editors.get(key, None)
         if editor:
-            editor.cmb_value = self.data.get_arg(key)
+            val = self.data.get_arg(key)
+
+            # Only update if there is a change
+            if val != editor.cmb_value:
+                editor.cmb_value = val
 
     def __on_data_data_added(self, parent, data):
         self.__add_data_editor(data)
