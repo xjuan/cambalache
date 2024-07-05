@@ -1,0 +1,25 @@
+From e751748bf46cb0fce6d88ca6830fd98339fc5a78 Mon Sep 17 00:00:00 2001
+From: Juan Pablo Ugarte <juanpablo@sorcero.com>
+Date: Fri, 5 Jul 2024 15:36:31 -0400
+Subject: [PATCH] Use c11 C version
+
+---
+ meson.build | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/meson.build b/meson.build
+index 80b3e243..4af24500 100644
+--- a/meson.build
++++ b/meson.build
+@@ -5,7 +5,7 @@ project(
+ 	license: 'MIT',
+ 	meson_version: '>=0.59.0',
+ 	default_options: [
+-		'c_std=' + (meson.version().version_compare('>=1.3.0') ? 'c23,c11' : 'c11'),
++		'c_std=c11',
+ 		'warning_level=2',
+ 		'werror=true',
+ 	],
+--
+2.45.2
+

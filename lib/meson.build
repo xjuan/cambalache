@@ -1,4 +1,4 @@
-wlroots_dep = dependency('wlroots', version: '>= 0.18.0')
+wlroots_dep = dependency('wlroots-0.18', version: '>= 0.18.0')
 wayland_server_dep = dependency('wayland-server', version: '>=1.22')
 epoxy_dep = dependency('epoxy', version: '>=1.5')
 xkbcommon = dependency(

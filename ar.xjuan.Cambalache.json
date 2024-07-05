@@ -70,7 +70,11 @@
             {
               "type": "git",
               "url": "https://gitlab.freedesktop.org/wlroots/wlroots.git",
-              "branch": "8abd43803bd1069c47bbbf83c8ff6042b29f1b19"
+              "branch": "master"
+            },
+            {
+              "type": "patch",
+              "path": "lib/wlroots/0001-Use-c11-C-version.patch"
             }
           ]
        },
