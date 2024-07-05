@@ -33,19 +33,23 @@ Source code lives on GNOME gitlab [here](https://gitlab.gnome.org/jpu/cambalache
 * python3-lxml - Python libxml2 bindings
 * wlroots - For workspace custom compositor
 
-## Running from sources
+## Flathub
 
-To run it without installing use run-dev.py script, it will automatically compile
-resources and create extra files needed to run.
+Flathub is the place to get and distribute apps for all of desktop Linux.
+It is powered by Flatpak, allowing Flathub apps to run on almost any Linux 
+distribution.
 
-`./run-dev.py`
+Instructions on how to install flatpak can be found [here](https://flatpak.org/setup/).
 
-The minimum requirements are Gtk 3 and lxml, Gtk 4 is only needed to have a functional Gtk 4 workspace.
+You can get the official build [here](https://flathub.org/apps/details/ar.xjuan.Cambalache)
+
+Use the following to install:
+```
+flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+flatpak install --user flathub ar.xjuan.Cambalache
+```
 
 ## Flatpak
-
-The preferred way to run Cambalache is using flatpak.
-Instructions on how to install flatpak can be found [here](https://flatpak.org/setup/).
 
 Build your bundle with the following commands
 ```
@@ -61,16 +65,6 @@ make install
 
 Will create the flatpak repository, then the bundle and install it
 
-## Flathub
-
-You can get Cambalache prebuilt bundles [here](https://flathub.org/apps/details/ar.xjuan.Cambalache)
-
-Use the following to install:
-```
-flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-flatpak install --user flathub ar.xjuan.Cambalache
-```
-
 ## Manual installation
 
 This is a regular meson package and can be installed the usual way.
@@ -82,6 +76,7 @@ meson setup --wipe --prefix=~/.local _build .
 # Build and install in ~/.local
 ninja -C _build install
 ```
+
 To run it from .local/ you might need to setup a few env variable depending on your distribution
 
 ```
@@ -107,13 +102,34 @@ xhost +local:
 docker run -v /tmp/.X11-unix:/tmp/.X11-unix cambalache
 ```
 
+NOTE: There is no official support for Docker, please use Flatpak if possible.
+
 ## MS Windows
 
 Instructions to run in MS Windows are [here](README.win.md)
 
+NOTE: There is no official support for Windows yet, these instruction should be
+taken with a grain of salt as they might not work on all Windows versions or
+be obsolete.
+
 ## MacOS
 
 Instructions to run in MacOS are [here](README.mac.md)
+
+NOTE: There is no official support for MacOS yet, these instruction should be
+taken with a grain of salt as they might not work on all MacOS versions or
+be obsolete.
+
+## Running from sources
+
+To run it without installing use run-dev.py script, it will automatically compile
+resources and create extra files needed to run assuming you have everything
+needed installed locally. (Follow manual installation to ensure you have
+everything needed)
+
+`./run-dev.py`
+
+This is meant for Cambalache development only.
 
 ## Contributing
 
