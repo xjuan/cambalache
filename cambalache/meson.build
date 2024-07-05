@@ -29,6 +29,7 @@ install_data([
     'cmb_css.py',
     'cmb_css_editor.py',
     'cmb_db.py',
+    'cmb_db_inspector.py',
     'cmb_db_migration.py',
     'cmb_fragment_editor.py',
     'cmb_layout_property.py',

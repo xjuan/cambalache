@@ -83,6 +83,7 @@ from .cmb_layout_property import CmbLayoutProperty
 from .cmb_type_info import CmbTypeInfo
 from .cmb_project import CmbProject
 
+from .cmb_db_inspector import CmbDBInspector
 from .cmb_view import CmbView
 from .cmb_tree_view import CmbTreeView
 from .cmb_object_editor import CmbObjectEditor

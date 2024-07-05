@@ -40,7 +40,7 @@ class CmbWindow(Adw.ApplicationWindow):
     __gtype_name__ = "CmbWindow"
 
     __gsignals__ = {
-        "open-project": (GObject.SignalFlags.RUN_FIRST, None, (str, str, str)),
+        "open-project": (GObject.SignalFlags.RUN_FIRST, None, (str, str)),
         "project-saved": (GObject.SignalFlags.RUN_FIRST, None, (CmbProject,)),
     }
 
@@ -684,7 +684,7 @@ class CmbWindow(Adw.ApplicationWindow):
         dialog.connect("response", on_ask_gtk_version_response)
         dialog.present()
 
-    def open_project(self, filename, target_tk=None, uiname=None):
+    def open_project(self, filename, target_tk):
         try:
             if filename is not None:
                 content_type = utils.content_type_guess(filename)
@@ -704,10 +704,6 @@ class CmbWindow(Adw.ApplicationWindow):
             if self.project is None:
                 self.project = CmbProject(filename=filename, target_tk=target_tk)
 
-            if uiname is not None:
-                ui = self.project.add_ui(uiname)
-                self.project.set_selection([ui])
-
             self.__last_saved_index = self.project.history_index
             self.__set_page("workspace")
             self.__update_actions()
@@ -721,7 +717,7 @@ class CmbWindow(Adw.ApplicationWindow):
         def dialog_callback(dialog, res):
             try:
                 file = dialog.open_finish(res)
-                self.emit("open-project", file.get_path(), None, None)
+                self.emit("open-project", file.get_path(), None)
             except Exception as e:
                 logger.warning(f"Error {e}")
 
@@ -776,7 +772,11 @@ class CmbWindow(Adw.ApplicationWindow):
 
             uipath = os.path.join(self.__np_location, uiname)
 
-        self.emit("open-project", filename, target_tk, uipath)
+        self.emit("open-project", filename, target_tk)
+
+        # Create Ui and select it
+        ui = self.project.add_ui(uipath)
+        self.project.set_selection([ui])
         self.__set_page("workspace" if self.project is not None else "cambalache")
 
     def _on_undo_activate(self, action, data):
@@ -1170,7 +1170,7 @@ class CmbWindow(Adw.ApplicationWindow):
         self.view.inspect()
 
     def _on_open_recent_activate(self, action, data):
-        self.emit("open-project", data.get_string(), None, None)
+        self.emit("open-project", data.get_string(), None)
 
     def __update_recent_menu(self):
         mime_types = ["application/x-cambalache-project"]

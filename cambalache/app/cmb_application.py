@@ -50,7 +50,7 @@ class CmbApplication(Adw.Application):
         self.add_window(window)
         return window
 
-    def open_project(self, path, target_tk=None, uiname=None):
+    def open_project(self, path, target_tk=None):
         window = None
 
         for win in self.get_windows():
@@ -60,7 +60,7 @@ class CmbApplication(Adw.Application):
         if window is None:
             window = self.__add_window()
             if path is not None:
-                window.open_project(path, target_tk=target_tk, uiname=uiname)
+                window.open_project(path, target_tk=target_tk)
 
         window.present()
 
@@ -95,11 +95,11 @@ class CmbApplication(Adw.Application):
         if self.props.active_window is None:
             self.open_project(None)
 
-    def __on_open_project(self, window, filename, target_tk, uiname):
+    def __on_open_project(self, window, filename, target_tk):
         if window.project is None:
-            window.open_project(filename, target_tk, uiname)
+            window.open_project(filename, target_tk)
         else:
-            self.open_project(filename, target_tk, uiname)
+            self.open_project(filename, target_tk)
 
     def __check_can_quit(self, window=None):
         windows = self.__get_windows() if window is None else [window]

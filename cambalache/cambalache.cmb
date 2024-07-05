@@ -35,7 +35,8 @@
 	(31,1,"CmbScrolledWindow",None,None,"Juan Pablo Ugarte",None,None,None,None,None),
 	(32,1,"CmbObjectEditor",None,None,"Juan Pablo Ugarte",None,None,None,None,None),
 	(33,None,"cmb_shortcuts.ui","app/cmb_shortcuts.ui",None,"Juan Pablo Ugarte",None,None,None,None,None),
-	(34,127,"cmb_window.ui","app/cmb_window.ui",None,"Juan Pablo Ugarte",None,None,None,None,None)
+	(34,127,"cmb_window.ui","app/cmb_window.ui",None,"Juan Pablo Ugarte",None,None,None,None,None),
+	(35,1,None,"cmb_db_inspector.ui",None,"Juan Pablo Ugarte",None,None,None,None,None)
   </ui>
   <ui_library>
 	(17,"gtk","4.0",None),
@@ -241,6 +242,10 @@
 	(28,7,"GtkScrolledWindow",None,6,None,None,None,None,None,None),
 	(28,8,"CmbSourceView","text_view",7,None,None,None,None,None,None),
 	(28,9,"GtkStackSwitcher",None,6,None,None,None,1,None,None),
+	(28,10,"GtkStackPage",None,2,None,None,None,2,None,None),
+	(28,11,"GtkBox",None,10,None,None,None,None,None,None),
+	(28,14,"GtkStackSwitcher",None,11,None,None,None,1,None,None),
+	(28,15,"CmbDBInspector","db_inspector",11,None,None,None,None,None,None),
 	(29,1,"GtkTreeView","CmbTreeView",None,None,None,None,-1,None,None),
 	(30,1,"GtkGrid","CmbUIRequiresEditor",None,None,None,None,-1,None,None),
 	(31,1,"GtkScrolledWindow","CmbScrolledWindow",None,None,None,None,-1,None,None),
@@ -262,7 +267,6 @@
 	(34,2,"(menu)","main_menu",None,None,None,None,None,None,None),
 	(34,3,"(section)",None,2,None,None,None,None,None,None),
 	(34,7,"(section)",None,2,None,None,None,1,None,None),
-	(34,9,"(item)",None,7,None,None,None,1,None,None),
 	(34,10,"(item)",None,7,None,None,None,2,None,None),
 	(34,11,"(item)",None,7,None,None,None,3,None,None),
 	(34,12,"(item)",None,7,None,None,None,4,None,None),
@@ -374,7 +378,10 @@
 	(34,247,"(section)",None,2,None,None,None,-1,None,None),
 	(34,248,"(item)",None,247,None,None,None,2,None,None),
 	(34,249,"(item)",None,247,None,None,None,None,None,None),
-	(34,250,"(item)",None,247,None,None,None,1,None,None)
+	(34,250,"(item)",None,247,None,None,None,1,None,None),
+	(35,1,"GtkBox","CmbDBInspector",None,None,None,None,-1,None,None),
+	(35,4,"GtkStack","stack",1,None,None,None,1,None,None),
+	(35,6,"GtkStackSidebar",None,1,None,None,None,None,None,None)
   </object>
   <object_property>
 	(17,4,"GtkBox","spacing","4",None,None,None,None,None,None,None,None,None),
@@ -699,6 +706,15 @@
 	(28,9,"GtkWidget","halign","center",None,None,None,None,None,None,None,None,None),
 	(28,9,"GtkWidget","margin-bottom","4",None,None,None,None,None,None,None,None,None),
 	(28,9,"GtkWidget","margin-top","4",None,None,None,None,None,None,None,None,None),
+	(28,10,"GtkStackPage","child",None,None,None,None,None,11,None,None,None,None),
+	(28,10,"GtkStackPage","name","data_model",None,None,None,None,None,None,None,None,None),
+	(28,10,"GtkStackPage","title","Data Model",1,None,None,None,None,None,None,None,None),
+	(28,11,"GtkOrientable","orientation","vertical",None,None,None,None,None,None,None,None,None),
+	(28,14,"GtkStackSwitcher","stack","2",None,None,None,None,None,None,None,None,None),
+	(28,14,"GtkWidget","halign","center",None,None,None,None,None,None,None,None,None),
+	(28,14,"GtkWidget","margin-bottom","4",None,None,None,None,None,None,None,None,None),
+	(28,14,"GtkWidget","margin-top","4",None,None,None,None,None,None,None,None,None),
+	(28,15,"GtkWidget","vexpand","True",None,None,None,None,None,None,None,None,None),
 	(33,1,"GtkShortcutsWindow","section-name","shortcuts",None,None,None,None,None,None,None,None,None),
 	(33,2,"GtkShortcutsSection","section-name","shortcuts",None,None,None,None,None,None,None,None,None),
 	(33,3,"GtkShortcutsGroup","title","Project",1,None,None,None,None,None,None,None,None),
@@ -723,8 +739,6 @@
 	(33,12,"GtkShortcutsShortcut","title","Add row",1,None,None,None,None,None,None,None,None),
 	(33,13,"GtkShortcutsShortcut","accelerator","&lt;Control&gt;&lt;shift&gt;Delete",None,None,None,None,None,None,None,None,None),
 	(33,13,"GtkShortcutsShortcut","title","Remove row",1,None,None,None,None,None,None,None,None),
-	(34,9,"(item)","action","win.debug",None,None,None,None,None,None,None,None,None),
-	(34,9,"(item)","label","Debug Project Data",1,None,None,None,None,None,None,None,None),
 	(34,10,"(item)","action","win.intro",None,None,None,None,None,None,None,None,None),
 	(34,10,"(item)","label","Interactive intro",1,None,None,None,None,None,None,None,None),
 	(34,11,"(item)","action","win.contact",None,None,None,None,None,None,None,None,None),
@@ -977,7 +991,11 @@
 	(34,249,"(item)","action","win.import",None,None,None,None,None,None,None,None,None),
 	(34,249,"(item)","label","Import",1,None,None,None,None,None,None,None,None),
 	(34,250,"(item)","action","win.export",None,None,None,None,None,None,None,None,None),
-	(34,250,"(item)","label","Export all",1,None,None,None,None,None,None,None,None)
+	(34,250,"(item)","label","Export all",1,None,None,None,None,None,None,None,None),
+	(35,4,"GtkStack","transition-type","crossfade",None,None,None,None,None,None,None,None,None),
+	(35,4,"GtkWidget","halign","start",None,None,None,None,None,None,None,None,None),
+	(35,4,"GtkWidget","valign","start",None,None,None,None,None,None,None,None,None),
+	(35,6,"GtkStackSidebar","stack","4",None,None,None,None,None,None,None,None,None)
   </object_property>
   <object_layout_property>
 	(20,5,6,"GtkGridLayoutChild","column","0",None,None,None,None),

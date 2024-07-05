@@ -51,10 +51,6 @@
     </section>
     <section>
       <item>
-        <attribute name="action">win.debug</attribute>
-        <attribute name="label" translatable="yes">Debug Project Data</attribute>
-      </item>
-      <item>
         <attribute name="action">win.intro</attribute>
         <attribute name="label" translatable="yes">Interactive intro</attribute>
       </item>

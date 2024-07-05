@@ -231,6 +231,7 @@ class CmbView(Gtk.Box):
     stack = Gtk.Template.Child()
     compositor = Gtk.Template.Child()
     text_view = Gtk.Template.Child()
+    db_inspector = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         self.__project = None
@@ -471,6 +472,7 @@ class CmbView(Gtk.Box):
             self.__restart_project = None
 
         self.__project = project
+        self.db_inspector.project = project
 
         self.__update_view()
 
