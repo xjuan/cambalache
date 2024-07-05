@@ -69,6 +69,8 @@ class MrgGtkWindow(MrgGtkBin):
             else:
                 self.object.show_all()
 
+            CambalachePrivate.widget_set_application_id(self.object, f"Cmb:{self.ui_id}.{self.object_id}")
+
             # Add gtk version CSS class
             if Gtk.MAJOR_VERSION == 4:
                 self.object.add_css_class("gtk4")
@@ -82,6 +84,3 @@ class MrgGtkWindow(MrgGtkBin):
         # TODO: find a way to get object name instead of ID
         type_name = GObject.type_name(self.object.__gtype__)
         self.object.props.title = type_name
-
-        CambalachePrivate.widget_set_application_id(self.object,
-                                                    f"Cmb:{self.ui_id}.{self.object_id}")

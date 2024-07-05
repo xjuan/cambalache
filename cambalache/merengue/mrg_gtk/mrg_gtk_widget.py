@@ -96,6 +96,8 @@ class MrgGtkWidget(MrgController):
 
         self.window.show()
 
+        CambalachePrivate.widget_set_application_id(self.window, f"Cmb:{self.ui_id}.{self.object_id}")
+
     def on_selected_changed(self):
         if self.object is None:
             return
