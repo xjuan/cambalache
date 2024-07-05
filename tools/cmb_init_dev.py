@@ -235,17 +235,19 @@ def compile_libs():
     for prog in ["meson", "ninja", "cc", "pkg-config", "g-ir-compiler", "g-ir-scanner"]:
         if GLib.find_program_in_path(prog) is None:
             print(f"{prog} is needed to compile Cambalache private library")
-            return
+            return -1
 
     builddir = os.path.join(localdir, "build")
+    ninja = os.path.join(builddir, "build.ninja")
 
-    if not os.path.exists(builddir):
+    if not os.path.exists(ninja):
         GLib.mkdir_with_parents(builddir, 0o700)
         os.system(f"meson setup --wipe --buildtype=debug --prefix={localdir} {builddir}")
 
     result = subprocess.run(['ninja', '-C', builddir], stdout=subprocess.PIPE)
-    if result.returncode == 0 and "ninja: no work to do." not in result.stdout.decode('utf-8'):
-        os.system(f"ninja -C {builddir} install")
+    if result.returncode == 0:
+        if "ninja: no work to do." not in result.stdout.decode('utf-8'):
+            os.system(f"ninja -C {builddir} install")
     else:
         print(result.stdout.decode('utf-8'))
 
