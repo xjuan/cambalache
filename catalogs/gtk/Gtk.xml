@@ -2,11 +2,11 @@
 <!--
  Gtk Extra meta data
 
- Copyright (C) 2021-2023  Juan Pablo Ugarte
+ Copyright (C) 2021-2024  Juan Pablo Ugarte
 -->
 <meta xmlns:Cmb="cambalache">
   <types>
-    <GtkWidget>
+    <GtkWidget abstract="False" workspace-type="GtkBox">
       <data>
         <style>
           <class name="gchararray"/>

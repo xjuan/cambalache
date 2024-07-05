@@ -376,7 +376,7 @@
 	("GtkVSeparator","GtkSeparator","gtk+",None,"3.2",None,1,None,None,None),
 	("GtkViewport","GtkBin","gtk+",None,None,None,1,"container","layout",None),
 	("GtkVolumeButton","GtkScaleButton","gtk+",None,None,None,1,"container","control",None),
-	("GtkWidget","GObject","gtk+",None,None,1,1,None,None,None),
+	("GtkWidget","GObject","gtk+",None,None,None,1,None,None,"GtkBox"),
 	("GtkWidgetHelpType","enum","gtk+",None,None,None,None,None,None,None),
 	("GtkWindow","GtkBin","gtk+",None,None,None,1,"container","toplevel",None),
 	("GtkWindowGroup","GObject","gtk+",None,None,None,1,None,"model",None),
