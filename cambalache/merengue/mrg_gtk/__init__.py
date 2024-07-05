@@ -46,6 +46,7 @@ from .mrg_gtk_popover import MrgGtkPopover
 from .mrg_gtk_revealer import MrgGtkRevealer
 from .mrg_gtk_scrolled_window import MrgGtkScrolledWindow
 from .mrg_gtk_stack import MrgGtkStack
+from .mrg_gtk_stack_page import MrgGtkStackPage
 from .mrg_gtk_viewport import MrgGtkViewport
 from .mrg_gtk_widget import MrgGtkWidget
 from .mrg_gtk_window import MrgGtkWindow

@@ -64,6 +64,7 @@ install_data([
   'mrg_gtk/mrg_gtk_revealer.py',
   'mrg_gtk/mrg_gtk_scrolled_window.py',
   'mrg_gtk/mrg_gtk_stack.py',
+  'mrg_gtk/mrg_gtk_stack_page.py',
   'mrg_gtk/mrg_gtk_viewport.py',
   'mrg_gtk/mrg_gtk_widget.py',
   'mrg_gtk/mrg_gtk_window.py',

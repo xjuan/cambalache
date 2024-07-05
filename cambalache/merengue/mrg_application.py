@@ -243,8 +243,10 @@ class MrgApplication(Gtk.Application):
             obj = controller.object
 
             if obj:
+                controller.selected = True
+
+                # TODO: move this logic to MrgGtkWidget
                 if issubclass(type(obj), Gtk.Widget):
-                    controller.selected = True
                     self._show_widget(controller)
 
                 if issubclass(type(obj), Gtk.Window):
