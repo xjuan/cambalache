@@ -203,6 +203,7 @@ class CmbWindow(Adw.ApplicationWindow):
                 ],
             ),
             ("win.show-help-overlay", ["<Primary>question"]),
+            ("win.debug", ["<Shift><Primary>d"]),
         ]
 
         app = Gio.Application.get_default()
