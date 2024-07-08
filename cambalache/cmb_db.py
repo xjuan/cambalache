@@ -1722,7 +1722,18 @@ class CmbDB(GObject.GObject):
 
         return obj
 
-    def __export_object_data(self, ui_id, object_id, owner_id, name, info, node, parent_id):
+    def __get_object_name(self, ui_id, object_id, merengue=False):
+        if object_id is None:
+            return None
+
+        if merengue:
+            # Ignore properties that reference an unknown object
+            return f"__cmb__{ui_id}.{object_id}"
+
+        row = self.conn.execute("SELECT name FROM object WHERE ui_id=? AND object_id=?;", (ui_id, object_id)).fetchone()
+        return row[0] if row is not None else None
+
+    def __export_object_data(self, ui_id, object_id, owner_id, name, info, node, parent_id, merengue=False):
         c = self.conn.cursor()
         cc = self.conn.cursor()
 
@@ -1743,14 +1754,22 @@ class CmbDB(GObject.GObject):
 
             for row in cc.execute(
                 """
-                SELECT key, value
-                FROM object_data_arg
-                WHERE ui_id=? AND object_id=? AND owner_id=? AND data_id=? AND id=? AND value IS NOT NULL;
+                SELECT od.key, od.value, td.type_id
+                FROM object_data_arg AS od, type_data_arg as td
+                WHERE od.owner_id = td.owner_id AND od.data_id = td.data_id AND
+                      od.ui_id=? AND od.object_id=? AND od.owner_id=? AND od.data_id=? AND
+                      od.id=? AND od.value IS NOT NULL;
                 """,
                 (ui_id, object_id, owner_id, info.data_id, id),
             ):
-                key, value = row
-                ntag.set(key, value)
+                key, value, type_id = row
+
+                arg_info = self.type_info.get(type_id, None)
+                if arg_info and arg_info.is_object:
+                    value = self.__get_object_name(ui_id, value, merengue=merengue)
+
+                if value:
+                    ntag.set(key, value)
 
             if translatable:
                 self.__node_set(ntag, "translatable", "yes")
@@ -1763,7 +1782,7 @@ class CmbDB(GObject.GObject):
         c.close()
         cc.close()
 
-    def __export_type_data(self, ui_id, object_id, owner_id, info, node):
+    def __export_type_data(self, ui_id, object_id, owner_id, info, node, merengue=False):
         if len(info.data.keys()) == 0:
             return
 
@@ -1782,7 +1801,7 @@ class CmbDB(GObject.GObject):
                 self.__node_add_comment(ntag, comment)
 
                 for child in taginfo.children:
-                    self.__export_object_data(ui_id, object_id, owner_id, child, taginfo.children[child], ntag, id)
+                    self.__export_object_data(ui_id, object_id, owner_id, child, taginfo.children[child], ntag, id, merengue=merengue)
 
     def __export_object(self, ui_id, object_id, merengue=False, template_id=None, ignore_id=False):
         c = self.conn.cursor()
@@ -1905,17 +1924,12 @@ class CmbDB(GObject.GObject):
                     # Ignore references to object in template mode since the object could not exists in this UI
                     continue
                 else:
-                    if merengue:
-                        # Ignore properties that reference an unknown object
-                        if val is None:
-                            continue
-                        value = f"__cmb__{ui_id}.{val}"
-                    else:
-                        cc.execute("SELECT name FROM object WHERE ui_id=? AND object_id=?;", (ui_id, val))
-                        row = cc.fetchone()
-                        if row is None:
-                            continue
-                        value = row[0]
+                    obj_name = self.__get_object_name(ui_id, val, merengue=merengue)
+
+                    # Ignore properties that reference an unknown object
+                    if obj_name is None:
+                        continue
+                    value = obj_name
             else:
                 value = val
 
@@ -1931,12 +1945,7 @@ class CmbDB(GObject.GObject):
                 self.__node_set(node, "comments", translation_comments)
 
             if bind_source_id and bind_owner_id and bind_property_id:
-                if merengue:
-                    bind_source = f"__cmb__{ui_id}.{bind_source_id}"
-                else:
-                    cc.execute("SELECT name FROM object WHERE ui_id=? AND object_id=?;", (ui_id, bind_source_id))
-                    row = cc.fetchone()
-                    bind_source = row[0] if row else None
+                bind_source = self.__get_object_name(ui_id, bind_source_id, merengue=merengue)
 
                 if bind_source:
                     self.__node_set(node, "bind-source", bind_source)
@@ -2051,11 +2060,11 @@ class CmbDB(GObject.GObject):
 
         # Custom buildable tags
         # Iterate over all hierarchy extra data
-        self.__export_type_data(ui_id, object_id, type_id, info, obj)
+        self.__export_type_data(ui_id, object_id, type_id, info, obj, merengue=merengue)
         for parent in info.hierarchy:
             pinfo = self.type_info.get(parent, None)
             if pinfo:
-                self.__export_type_data(ui_id, object_id, parent, pinfo, obj)
+                self.__export_type_data(ui_id, object_id, parent, pinfo, obj, merengue=merengue)
 
         # Dump custom fragments
         self.__export_custom_fragment(obj, custom_fragment)
