@@ -243,7 +243,7 @@ class CmbObjectDataEditor(Gtk.Box):
 
         # Value
         if info.type_id:
-            editor = cmb_create_editor(project, info.type_id, data=self.data)
+            editor = cmb_create_editor(project, info.type_id, data=self.data, parent=self.object)
             self.__value_editor = editor
 
             if self.data:
@@ -263,7 +263,7 @@ class CmbObjectDataEditor(Gtk.Box):
         for arg in info.args:
             arg_info = info.args[arg]
 
-            editor = cmb_create_editor(project, arg_info.type_id)
+            editor = cmb_create_editor(project, arg_info.type_id, parent=self.object)
             self.__arg_editors[arg_info.key] = editor
 
             # Initialize value

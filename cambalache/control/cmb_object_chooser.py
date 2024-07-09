@@ -25,65 +25,76 @@ from cambalache import _
 from gi.repository import GObject, Gtk
 
 from ..cmb_object import CmbObject
-from ..cmb_property import CmbProperty
+from ..cmb_project import CmbProject
 from ..cmb_type_chooser_popover import CmbTypeChooserPopover
 
 
 class CmbObjectChooser(Gtk.Entry):
     __gtype_name__ = "CmbObjectChooser"
 
+    project = GObject.Property(type=CmbProject, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
     parent = GObject.Property(type=CmbObject, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    prop = GObject.Property(type=CmbProperty, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    is_inline = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    inline_object_id = GObject.Property(type=str, default=None, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    inline_property_id = GObject.Property(type=str, default=None, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    type_id = GObject.Property(type=str, default=None, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self, **kwargs):
-        self._value = None
+        self.__object_id = None
+        self.__updating = None
         super().__init__(**kwargs)
         self.connect("notify::text", self.__on_text_notify)
 
-        if self.prop is None:
+        if self.type_id is None:
             self.props.placeholder_text = "<GObject>"
             return
 
-        self.__is_inline_object = self.prop.project.target_tk == "gtk-4.0" and not self.prop.info.disable_inline_object
-
-        if self.__is_inline_object:
+        if self.is_inline:
             self.connect("icon-press", self.__on_icon_pressed)
             self.parent.connect("property-changed", lambda o, p: self.__update_icons())
             self.__update_icons()
         else:
-            self.props.placeholder_text = f"<{self.prop.info.type_id}>"
+            self.props.placeholder_text = f"<{self.type_id}>"
 
     def __on_text_notify(self, obj, pspec):
-        if self.prop and self.prop.inline_object_id:
+        if self.__updating or self.inline_object_id:
             return
 
         obj = self.parent.project.get_object_by_name(self.parent.ui_id, self.props.text)
-        self._value = obj.object_id if obj else None
+        value = obj.object_id if obj else None
 
-        self.notify("cmb-value")
+        if self.__object_id != value:
+            self.__object_id = value
+            self.notify("cmb-value")
 
     @GObject.Property(type=str)
     def cmb_value(self):
-        return self._value
+        return str(self.__object_id) if self.__object_id else None
 
     @cmb_value.setter
     def _set_cmb_value(self, value):
         parent = self.parent
+        value = value if value else None
 
-        self._value = int(value) if value else None
+        if self.__object_id == value:
+            return
 
-        if self._value:
-            obj = parent.project.get_object_by_id(parent.ui_id, self._value)
+        self.__object_id = value
+
+        self.__updating = True
+        if self.__object_id:
+            obj = parent.project.get_object_by_id(parent.ui_id, self.__object_id)
             self.props.text = obj.name if obj else ""
         else:
             self.props.text = ""
+        self.__updating = False
 
     def __update_icons(self):
-        if not self.__is_inline_object:
+        if not self.is_inline:
             return
 
-        if self.prop.inline_object_id:
-            obj = self.parent.project.get_object_by_id(self.parent.ui_id, self.prop.inline_object_id)
+        if self.inline_object_id:
+            obj = self.parent.project.get_object_by_id(self.parent.ui_id, self.inline_object_id)
             type = obj.type_id
             self.props.secondary_icon_name = "edit-clear-symbolic"
             self.props.secondary_icon_tooltip_text = _("Clear property")
@@ -93,7 +104,7 @@ class CmbObjectChooser(Gtk.Entry):
         else:
             self.props.secondary_icon_name = "list-add-symbolic"
             self.props.secondary_icon_tooltip_text = _("Add inline object")
-            self.props.placeholder_text = f"<{self.prop.info.type_id}>"
+            self.props.placeholder_text = f"<{self.type_id}>"
             self.props.editable = True
             self.props.can_focus = True
 
@@ -103,20 +114,19 @@ class CmbObjectChooser(Gtk.Entry):
 
     def __on_type_selected(self, popover, info):
         parent = self.parent
-        parent.project.add_object(parent.ui_id, info.type_id, parent_id=parent.object_id, inline_property=self.prop.property_id)
+        parent.project.add_object(parent.ui_id, info.type_id, parent_id=parent.object_id, inline_property=self.inline_property_id)
         self.__update_icons()
 
     def __on_icon_pressed(self, widget, icon_pos):
         parent = self.parent
         project = parent.project
-        prop = self.prop
 
-        if self.prop.inline_object_id:
-            obj = project.get_object_by_id(self.parent.ui_id, prop.inline_object_id)
+        if self.inline_object_id:
+            obj = project.get_object_by_id(self.parent.ui_id, self.inline_object_id)
             project.remove_object(obj)
             self.__update_icons()
         else:
-            chooser = CmbTypeChooserPopover(parent_type_id=parent.type_id, derived_type_id=prop.info.type_id)
+            chooser = CmbTypeChooserPopover(parent_type_id=parent.type_id, derived_type_id=self.type_id)
             chooser.set_parent(self)
             chooser.project = project
             chooser.connect("type-selected", self.__on_type_selected)

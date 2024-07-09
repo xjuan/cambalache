@@ -37,7 +37,7 @@ from .cmb_switch import CmbSwitch
 from .cmb_text_view import CmbTextView
 
 
-def cmb_create_editor(project, type_id, prop=None, data=None):
+def cmb_create_editor(project, type_id, prop=None, data=None, parent=None):
     def get_min_max_for_type(type_id):
         if type_id == "gchar":
             return (GLib.MININT8, GLib.MAXINT8)
@@ -130,9 +130,22 @@ def cmb_create_editor(project, type_id, prop=None, data=None):
         editor = CmbEntry(hexpand=True, placeholder_text=f"<{type_id}>")
     elif info:
         if info.is_object or info.parent_id == "interface":
-            # TODO: replace prop with project and is_inline
-            editor = CmbObjectChooser(parent=prop.object, prop=prop)
-        if info.parent_id == "enum":
+            if prop is None:
+                editor = CmbObjectChooser(
+                    project=project,
+                    parent=parent,
+                    type_id=type_id,
+                )
+            else:
+                editor = CmbObjectChooser(
+                    project=project,
+                    parent=prop.object,
+                    is_inline=project.target_tk == "gtk-4.0" and not prop.info.disable_inline_object,
+                    inline_object_id=prop.inline_object_id,
+                    inline_property_id=prop.property_id,
+                    type_id=type_id,
+                )
+        elif info.parent_id == "enum":
             editor = CmbEnumComboBox(info=info)
         elif info.parent_id == "flags":
             editor = CmbFlagsEntry(info=info)
