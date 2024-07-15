@@ -55,7 +55,7 @@
 #include <gdk/wayland/gdkwayland.h>
 #endif
 
-#ifdef GDK_WINDOWING_X11
+#if defined(GDK_WINDOWING_X11) && defined(HAVE_X11_XCB)
 #include <gdk/x11/gdkx.h>
 #include <X11/Xlib-xcb.h>
 #include <xkbcommon/xkbcommon-x11.h>
@@ -1167,7 +1167,7 @@ cmb_compositor_keyboard_init(CmbCompositorPrivate *priv)
     }
 #endif
 
-#ifdef GDK_WINDOWING_X11
+#if defined(GDK_WINDOWING_X11) && defined(HAVE_X11_XCB)
   if (GDK_IS_X11_DEVICE_XI2 (gkeyboard))
     {
       struct xkb_context *context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);

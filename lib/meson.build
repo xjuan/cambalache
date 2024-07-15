@@ -14,8 +14,8 @@ xkbcommon = dependency(
 
 wayland_server_dep = dependency('wayland-server', version: '>=1.22')
 pixman_dep = dependency('pixman-1', version: '>=0.42.0')
-xkbcommon_x11_dep = dependency('xkbcommon-x11', version: '>=1.5')
-x11_xcb_dep = dependency('x11-xcb', version: '>=1.8.7')
+xkbcommon_x11_dep = dependency('xkbcommon-x11', version: '>=1.5', required : false)
+x11_xcb_dep = dependency('x11-xcb', version: '>=1.8.7', required : false)
 
 wayland_protos = dependency('wayland-protocols',
   version: '>=1.32',
@@ -29,6 +29,23 @@ wayland_scanner = find_program(
   wayland_scanner_dep.get_variable('wayland_scanner'),
   native: true,
 )
+
+lib_dependencies = [
+  gtk4_dep,
+  wlroots_dep,
+  xkbcommon,
+  wayland_server_dep,
+  epoxy_dep,
+  wayland_server_dep,
+  pixman_dep
+]
+
+lib_c_args = []
+
+if xkbcommon_x11_dep.found() and x11_xcb_dep.found()
+  lib_dependencies += [xkbcommon_x11_dep, x11_xcb_dep]
+  lib_c_args += ['-DHAVE_X11_XCB=1']
+endif
 
 xdg_shell_c = custom_target(
   'xdg_shell_c',
@@ -62,17 +79,8 @@ headers = [
 
 cambalache = shared_library('cambalache-1',
   sources + wayland_protocol_sources,
-  dependencies: [
-    gtk4_dep,
-    wlroots_dep,
-    xkbcommon,
-    wayland_server_dep,
-    epoxy_dep,
-    wayland_server_dep,
-    pixman_dep,
-    xkbcommon_x11_dep,
-    x11_xcb_dep
-  ],
+  dependencies: lib_dependencies,
+  c_args : lib_c_args,
   install: true,
 )
 
