@@ -24,7 +24,7 @@
 import os
 
 from cambalache import _
-from gi.repository import GObject, Gtk
+from gi.repository import GObject, Gio, Gtk
 
 
 class CmbFileEntry(Gtk.Entry):
@@ -35,7 +35,7 @@ class CmbFileEntry(Gtk.Entry):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.title = (_("Select File"),)
+        self.title = _("Select File")
         self.filter = None
         self.props.placeholder_text = "<GFile>"
         self.props.secondary_icon_name = "document-open-symbolic"
@@ -43,19 +43,24 @@ class CmbFileEntry(Gtk.Entry):
         self.connect("notify::text", self.__on_text_notify)
         self.connect("icon-press", self.__on_icon_pressed)
 
-    def __on_icon_pressed(self, widget, icon_pos, event):
-        # Create Open Dialog
-        dialog = Gtk.FileChooserNative(
-            title=self.title, transient_for=self.get_toplevel(), action=Gtk.FileChooserAction.OPEN, filter=self.filter
+    def __on_icon_pressed(self, widget, icon_pos):
+        dialog = Gtk.FileDialog(
+            modal=True,
+            title=self.title,
+            default_filter=self.filter,
         )
 
         if self.dirname is not None:
-            dialog.set_current_folder(self.dirname)
+            dialog.set_initial_folder(Gio.File.new_for_path(self.dirname))
 
-        if dialog.run() == Gtk.ResponseType.ACCEPT:
-            self.props.text = os.path.relpath(dialog.get_filename(), start=self.dirname)
+        def dialog_callback(dialog, res):
+            try:
+                file = dialog.open_finish(res)
+                self.props.text = os.path.relpath(file.get_path(), start=self.dirname)
+            except Exception:
+                pass
 
-        dialog.destroy()
+        dialog.open(self.get_root(), None, dialog_callback)
 
     def __on_text_notify(self, obj, pspec):
         self.notify("cmb-value")
