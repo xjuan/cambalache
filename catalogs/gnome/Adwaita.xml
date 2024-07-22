@@ -104,8 +104,16 @@
       </properties>
     </AdwStatusPage>
 
+    <AdwViewStack>
+      <children-constraints>
+        <constraint shortcut="True">AdwViewStackPage</constraint>
+      </children-constraints>
+    </AdwViewStack>
+
     <AdwViewStackPage>
       <properties>
+        <property id="child" required="True"
+                  workspace-default="&lt;object class=&quot;GtkLabel&quot;&gt;&lt;property name=&quot;label&quot;&gt;Empty Page&lt;/property&gt;&lt;/object&gt;"/>
         <property id="icon-name" type="CmbIconName"/>
         <property id="title" translatable="True"/>
       </properties>
