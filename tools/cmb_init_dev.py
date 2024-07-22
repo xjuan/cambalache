@@ -36,22 +36,37 @@ sys.path.insert(1, basedir)
 datadir = os.path.join(basedir, "data")
 catalogsdir = os.path.join(basedir, ".catalogs")
 cambalachedir = os.path.join(basedir, "cambalache")
-xdgdatadir = os.environ.get("XDG_DATA_DIRS", "/usr/local/share/:/usr/share/") + f":{datadir}"
+xdgdatadir = ':'.join([
+    datadir,
+    os.getenv("XDG_DATA_DIRS", ""),
+    '/usr/local/share/',
+    '/usr/share/',
+])
 
+arch_triplet = subprocess.check_output(['cc', '-dumpmachine']).decode('utf-8').strip()
 localdir = os.path.join(basedir, ".local")
-locallibdir = os.path.join(localdir, "lib", "x86_64-linux-gnu")
+locallibdir = os.path.join(localdir, "lib", arch_triplet)
 localgitypelibdir = os.path.join(locallibdir, "girepository-1.0")
+
+locallibdir = ':'.join([locallibdir, os.getenv("LD_LIBRARY_PATH", "")])
+localgitypelibdir = ':'.join([localgitypelibdir, os.getenv("GI_TYPELIB_PATH", "")])
+settingsdir = ':'.join([datadir, os.getenv("GSETTINGS_SCHEMA_DIR", "")])
+xdgdatadir = ':'.join([xdgdatadir, os.getenv("XDG_DATA_DIRS", "")])
+
 os.environ["LD_LIBRARY_PATH"] = locallibdir
 os.environ["GI_TYPELIB_PATH"] = localgitypelibdir
-os.environ["PKG_CONFIG_PATH"] = os.path.join(locallibdir, "pkgconfig")
-os.environ["GSETTINGS_SCHEMA_DIR"] = datadir
+os.environ["PKG_CONFIG_PATH"] = ':'.join([
+    os.path.join(locallibdir, "pkgconfig"),
+    os.getenv("PKG_CONFIG_PATH", ""),
+])
+os.environ["GSETTINGS_SCHEMA_DIR"] = settingsdir
 os.environ["XDG_DATA_DIRS"] = xdgdatadir
 os.environ[
     "MERENGUE_DEV_ENV"
 ] = f"""{{
     "LD_LIBRARY_PATH": "{locallibdir}",
     "GI_TYPELIB_PATH": "{localgitypelibdir}",
-    "GSETTINGS_SCHEMA_DIR": "{datadir}",
+    "GSETTINGS_SCHEMA_DIR": "{settingsdir}",
     "XDG_DATA_DIRS": "{xdgdatadir}"
 }}"""
 
