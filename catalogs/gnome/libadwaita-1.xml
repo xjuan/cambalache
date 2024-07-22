@@ -402,6 +402,9 @@
 	("AdwToolbarView","bottom",1,None),
 	("AdwToolbarView","top",1,None)
   </type_child_type>
+  <type_child_constraint>
+	("AdwViewStack","AdwViewStackPage",1,1)
+  </type_child_constraint>
   <property>
 	("AdwAboutDialog","application-icon","gchararray",None,None,None,"",None,None,"1.5",None,None,None,None,None,None),
 	("AdwAboutDialog","application-name","gchararray",None,None,None,"",None,None,"1.5",None,None,None,None,None,None),
@@ -713,7 +716,7 @@
 	("AdwViewStack","visible-child","GtkWidget",1,None,None,None,None,None,None,None,None,None,None,None,None),
 	("AdwViewStack","visible-child-name","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None),
 	("AdwViewStackPage","badge-number","guint",None,None,None,"0","0","4294967295",None,None,None,None,None,None,None),
-	("AdwViewStackPage","child","GtkWidget",1,1,None,None,None,None,None,None,None,None,None,None,None),
+	("AdwViewStackPage","child","GtkWidget",1,1,None,None,None,None,None,None,None,None,None,1,"&lt;object class=\"GtkLabel\"&gt;&lt;property name=\"label\"&gt;Empty Page&lt;/property&gt;&lt;/object&gt;"),
 	("AdwViewStackPage","icon-name","CmbIconName",None,None,None,None,None,None,None,None,None,None,None,None,None),
 	("AdwViewStackPage","name","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None),
 	("AdwViewStackPage","needs-attention","gboolean",None,None,None,"False",None,None,None,None,None,None,None,None,None),
