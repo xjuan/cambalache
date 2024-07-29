@@ -72,6 +72,7 @@ def getLogger(name):
     return logger
 
 
+from .cmb_objects_base import CmbBaseObject
 from .cmb_css import CmbCSS
 from .cmb_ui import CmbUI
 from .cmb_object import CmbObject
@@ -85,7 +86,7 @@ from .cmb_project import CmbProject
 
 from .cmb_db_inspector import CmbDBInspector
 from .cmb_view import CmbView
-from .cmb_tree_view import CmbTreeView
+from .cmb_column_view import CmbColumnView
 from .cmb_object_editor import CmbObjectEditor
 from .cmb_signal_editor import CmbSignalEditor
 from .cmb_ui_editor import CmbUIEditor

@@ -58,3 +58,11 @@ CmbPropertyLabel.modified > box > label {
 CmbPropertyLabel.warning > box > label {
   text-decoration: underline wavy @warning_color;
 }
+
+row.drop-before:drop(active) {
+  box-shadow: 0px 1px 0px @theme_selected_bg_color inset;
+}
+
+row.drop-after:drop(active) {
+  box-shadow: 0px -1px 0px @theme_selected_bg_color inset;
+}

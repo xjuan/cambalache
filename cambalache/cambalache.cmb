@@ -30,13 +30,13 @@
 	(26,1,"cmb_css_editor.ui","cmb_css_editor.ui",None,"Juan Pablo Ugarte",None,None,None,None,None),
 	(27,15,"cmb_context_menu.ui","cmb_context_menu.ui",None,"Juan Pablo Ugarte",None,None,None,None,None),
 	(28,1,"cmb_view.ui","cmb_view.ui",None,"Juan Pablo Ugarte",None,None,None,None,None),
-	(29,1,"CmbTreeView",None,None,"Juan Pablo Ugarte",None,None,None,None,None),
 	(30,1,"CmbUIRequiresEditor",None,None,"Juan Pablo Ugarte",None,None,None,None,None),
 	(31,1,"CmbScrolledWindow",None,None,"Juan Pablo Ugarte",None,None,None,None,None),
 	(32,1,"CmbObjectEditor",None,None,"Juan Pablo Ugarte",None,None,None,None,None),
 	(33,None,"cmb_shortcuts.ui","app/cmb_shortcuts.ui",None,"Juan Pablo Ugarte",None,None,None,None,None),
 	(34,127,"cmb_window.ui","app/cmb_window.ui",None,"Juan Pablo Ugarte",None,None,None,None,None),
-	(35,1,None,"cmb_db_inspector.ui",None,"Juan Pablo Ugarte",None,None,None,None,None)
+	(35,1,None,"cmb_db_inspector.ui",None,"Juan Pablo Ugarte",None,None,None,None,None),
+	(36,1,None,"cmb_column_view.ui",None,None,None,None,None,None,None)
   </ui>
   <ui_library>
 	(17,"gtk","4.0",None),
@@ -246,7 +246,6 @@
 	(28,11,"GtkBox",None,10,None,None,None,None,None,None),
 	(28,14,"GtkStackSwitcher",None,11,None,None,None,1,None,None),
 	(28,15,"CmbDBInspector","db_inspector",11,None,None,None,None,None,None),
-	(29,1,"GtkTreeView","CmbTreeView",None,None,None,None,-1,None,None),
 	(30,1,"GtkGrid","CmbUIRequiresEditor",None,None,None,None,-1,None,None),
 	(31,1,"GtkScrolledWindow","CmbScrolledWindow",None,None,None,None,-1,None,None),
 	(32,1,"GtkBox","CmbObjectEditor",None,None,None,None,-1,None,None),
@@ -348,8 +347,6 @@
 	(34,216,"CmbTypeChooser","type_chooser",215,None,None,None,None,None,None),
 	(34,217,"CmbView","view",215,None,None,None,1,None,None),
 	(34,218,"GtkBox","inspector",214,None,None,None,None,None,None),
-	(34,219,"GtkScrolledWindow",None,218,None,None,None,None,None,None),
-	(34,220,"CmbTreeView","tree_view",219,None,None,None,None,None,None),
 	(34,221,"GtkStackPage",None,156,None,None,None,3,None,None),
 	(34,222,"GtkBox",None,221,None,None,None,None,None,None),
 	(34,223,"GtkButton",None,222,None,None,None,None,None,None),
@@ -379,9 +376,12 @@
 	(34,248,"(item)",None,247,None,None,None,2,None,None),
 	(34,249,"(item)",None,247,None,None,None,None,None,None),
 	(34,250,"(item)",None,247,None,None,None,1,None,None),
+	(34,251,"CmbScrolledWindow",None,218,None,None,None,None,None,None),
+	(34,252,"CmbColumnView","column_view",251,None,None,None,None,None,None),
 	(35,1,"GtkBox","CmbDBInspector",None,None,None,None,-1,None,None),
 	(35,4,"GtkStack","stack",1,None,None,None,1,None,None),
-	(35,6,"GtkStackSidebar",None,1,None,None,None,None,None,None)
+	(35,6,"GtkStackSidebar",None,1,None,None,None,None,None,None),
+	(36,1,"GtkColumnView","CmbColumnView",None,None,None,None,-1,None,None)
   </object>
   <object_property>
 	(17,4,"GtkBox","spacing","4",None,None,None,None,None,None,None,None,None),
@@ -910,16 +910,7 @@
 	(34,215,"GtkOrientable","orientation","vertical",None,None,None,None,None,None,None,None,None),
 	(34,216,"GtkBox","spacing","2",None,None,None,None,None,None,None,None,None),
 	(34,217,"GtkWidget","vexpand","1",None,None,None,None,None,None,None,None,None),
-	(34,218,"GtkOrientable","orientation","vertical",None,None,None,None,None,None,None,None,None),
 	(34,218,"GtkWidget","focusable","1",None,None,None,None,None,None,None,None,None),
-	(34,219,"GtkScrolledWindow","min-content-width","256",None,None,None,None,None,None,None,None,None),
-	(34,219,"GtkScrolledWindow","propagate-natural-height","1",None,None,None,None,None,None,None,None,None),
-	(34,219,"GtkScrolledWindow","propagate-natural-width","1",None,None,None,None,None,None,None,None,None),
-	(34,219,"GtkWidget","focusable","1",None,None,None,None,None,None,None,None,None),
-	(34,219,"GtkWidget","vexpand","1",None,None,None,None,None,None,None,None,None),
-	(34,220,"GtkTreeView","headers-clickable","False",None,None,None,None,None,None,None,None,None),
-	(34,220,"GtkTreeView","headers-visible","False",None,None,None,None,None,None,None,None,None),
-	(34,220,"GtkWidget","focusable","1",None,None,None,None,None,None,None,None,None),
 	(34,221,"GtkStackPage","child",None,None,None,None,None,222,None,None,None,None),
 	(34,221,"GtkStackPage","name","donate",None,None,None,None,None,None,None,None,None),
 	(34,222,"GtkOrientable","orientation","vertical",None,None,None,None,None,None,None,None,None),
@@ -992,6 +983,9 @@
 	(34,249,"(item)","label","Import",1,None,None,None,None,None,None,None,None),
 	(34,250,"(item)","action","win.export",None,None,None,None,None,None,None,None,None),
 	(34,250,"(item)","label","Export all",1,None,None,None,None,None,None,None,None),
+	(34,251,"GtkScrolledWindow","min-content-width","200",None,None,None,None,None,None,None,None,None),
+	(34,251,"GtkScrolledWindow","propagate-natural-height","True",None,None,None,None,None,None,None,None,None),
+	(34,251,"GtkScrolledWindow","propagate-natural-width","True",None,None,None,None,None,None,None,None,None),
 	(35,4,"GtkStack","transition-type","crossfade",None,None,None,None,None,None,None,None,None),
 	(35,4,"GtkWidget","halign","start",None,None,None,None,None,None,None,None,None),
 	(35,4,"GtkWidget","valign","start",None,None,None,None,None,None,None,None,None),

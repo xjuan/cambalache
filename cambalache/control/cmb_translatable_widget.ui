@@ -2,6 +2,7 @@
 <!-- Created with Cambalache 0.91.1 -->
 <interface>
   <!-- interface-name cmb_translatable_widget.ui -->
+  <!-- interface-copyright Philipp Unger -->
   <requires lib="gtk" version="4.0"/>
   <object class="GtkTextBuffer" id="buffer_comments"/>
   <object class="GtkTextBuffer" id="buffer_context"/>

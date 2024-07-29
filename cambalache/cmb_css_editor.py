@@ -136,7 +136,7 @@ class CmbCSSEditor(Gtk.Grid):
         # Generate a check button for each UI
         for ui in ui_list:
             check = Gtk.CheckButton(
-                label=ui.get_display_name(), active=ui.ui_id in provider_for, halign=Gtk.Align.START, visible=True
+                label=ui.display_name, active=ui.ui_id in provider_for, halign=Gtk.Align.START, visible=True
             )
             check.connect("toggled", self.__on_check_button_toggled, ui)
             self.ui_box.append(check)

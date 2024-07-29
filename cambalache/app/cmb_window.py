@@ -71,7 +71,7 @@ class CmbWindow(Adw.ApplicationWindow):
 
     # Workspace
     view = Gtk.Template.Child()
-    tree_view = Gtk.Template.Child()
+    column_view = Gtk.Template.Child()
     type_chooser = Gtk.Template.Child()
     editor_stack = Gtk.Template.Child()
     ui_editor = Gtk.Template.Child()
@@ -284,8 +284,8 @@ class CmbWindow(Adw.ApplicationWindow):
 
         self.__project = project
         self.view.project = project
-        self.tree_view.props.model = project
         self.type_chooser.project = project
+        self.column_view.project = project
 
         # Clear Editors
         self.ui_editor.object = None
@@ -828,7 +828,7 @@ class CmbWindow(Adw.ApplicationWindow):
             modal=True,
             message_type=Gtk.MessageType.QUESTION,
             buttons=Gtk.ButtonsType.YES_NO,
-            text=_("Do you really want to remove {name}?").format(name=obj.get_display_name()),
+            text=_("Do you really want to remove {name}?").format(name=obj.display_name),
         )
 
         def on_dialog_response(dialog, response):

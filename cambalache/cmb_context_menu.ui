@@ -1,7 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.91.0 -->
+<!-- Created with Cambalache 0.91.1 -->
 <interface>
   <!-- interface-name cmb_context_menu.ui -->
+  <!-- interface-copyright Juan Pablo Ugarte -->
   <requires lib="gio" version="2.0"/>
   <requires lib="gtk" version="4.0"/>
   <menu id="menu_model">

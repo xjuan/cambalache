@@ -22,35 +22,25 @@
 #
 
 from gi.repository import GObject, Gtk
-from cambalache import _, CmbObject, CmbUI
+from cambalache import CmbObject, CmbUI, CmbBaseObject
 
 
-class CmbToplevelChooser(Gtk.ComboBox):
+class CmbToplevelChooser(Gtk.DropDown):
     __gtype_name__ = "CmbToplevelChooser"
 
     object = GObject.Property(type=CmbUI, flags=GObject.ParamFlags.READWRITE)
     derivable_only = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
-        self.filter = None
-
         super().__init__(**kwargs)
+
+        self.__update_model()
+
+        self.__expression = Gtk.PropertyExpression.new(CmbBaseObject, None, "display-name")
+        self.props.expression = self.__expression
+
         self.connect("notify::object", self.__on_object_notify)
-        self.connect("changed", self.__on_changed)
-
-        renderer = Gtk.CellRendererText()
-        self.pack_start(renderer, True)
-        self.set_cell_data_func(renderer, self.__name_cell_data_func, None)
-
-    def __name_cell_data_func(self, column, cell, model, iter_, data):
-        obj = model.get_value(iter_, 0)
-
-        if type(obj) is not CmbObject:
-            return
-
-        name = f"{obj.name} " if obj.name else ""
-        extra = _("(template)") if not obj.parent_id and obj.ui.template_id == obj.object_id else obj.type_id
-        cell.set_property("markup", f"{name}<i>{extra}</i>")
+        self.connect("notify::selected-item", self.__on_selected_item_notify)
 
     def __filter_func(self, model, iter, data):
         obj = model[iter][0]
@@ -66,45 +56,37 @@ class CmbToplevelChooser(Gtk.ComboBox):
 
         return False
 
-    def __on_object_notify(self, obj, pspec):
-        self.props.model = None
-        self.filter = None
-
+    def __update_model(self):
         if self.object is None:
             return
 
-        project = self.object.project
-        iter = project.get_iter_from_object(self.object)
-        path = project.get_path(iter)
+        self.props.model = self.object.children_model
 
-        # Create filter and set visible function before using it
-        self.filter = project.filter_new(path)
-        self.filter.set_visible_func(self.__filter_func)
+    def __on_object_notify(self, obj, pspec):
+        self.props.model = None
+        self.__update_model()
 
-        # Use filter as model
-        self.props.model = self.filter
-
-    def __on_changed(self, combo):
+    def __on_selected_item_notify(self, obj, pspec):
         self.notify("cmb-value")
 
     @GObject.Property(type=int)
     def cmb_value(self):
-        if self.filter is None:
+        item = self.get_selected_item()
+        if item is None:
             return 0
 
-        iter = self.get_active_iter()
-        if iter is None:
-            return 0
-
-        row = self.filter[iter]
-        return row[0].object_id if row else 0
+        return item.object_id
 
     @cmb_value.setter
     def _set_cmb_value(self, value):
         if self.object is None:
             return
 
-        iter = self.object.project.get_iter_from_object_id(self.object.ui_id, value)
-        if iter:
-            valid, filter_iter = self.filter.convert_child_iter_to_iter(iter)
-            self.set_active_iter(filter_iter if valid else None)
+        item = self.object.project.get_object_by_id(self.object.ui_id, value)
+
+        if item:
+            found, position = self.props.model.find(item)
+            if found:
+                self.set_selected(position)
+        else:
+            self.set_selected(Gtk.INVALID_LIST_POSITION)

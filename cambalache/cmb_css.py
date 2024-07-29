@@ -51,7 +51,8 @@ class CmbCSS(CmbBaseCSS):
         if pspec.name == "filename":
             self.load_css()
 
-    def get_display_name(self):
+    @GObject.Property(type=str)
+    def display_name(self):
         return self.filename if self.filename else _("Unnamed CSS {css_id}").format(css_id=self.css_id)
 
     @GObject.Property(type=int)

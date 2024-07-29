@@ -21,9 +21,9 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-from gi.repository import GObject
+from gi.repository import GObject, Gio
 
-from .cmb_objects_base import CmbBaseUI
+from .cmb_objects_base import CmbBaseUI, CmbBaseObject
 from cambalache import getLogger, _
 
 logger = getLogger(__name__)
@@ -36,6 +36,8 @@ class CmbUI(CmbBaseUI):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        self.children_model = Gio.ListStore(item_type=CmbBaseObject)
 
         self.connect("notify", self.__on_notify)
 
@@ -114,7 +116,8 @@ class CmbUI(CmbBaseUI):
 
         c.close()
 
-    def get_display_name(self):
+    @GObject.Property(type=str)
+    def display_name(self):
         if self.filename:
             return self.filename
 

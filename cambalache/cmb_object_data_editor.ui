@@ -1,7 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.91.0 -->
+<!-- Created with Cambalache 0.91.1 -->
 <interface>
   <!-- interface-name cmb_object_data_editor.ui -->
+  <!-- interface-copyright Juan Pablo Ugarte -->
   <requires lib="gtk" version="4.0"/>
   <template class="CmbObjectDataEditor" parent="GtkBox">
     <property name="orientation">vertical</property>
@@ -69,7 +70,7 @@
       <object class="GtkGrid" id="grid">
         <property name="column-spacing">4</property>
         <property name="row-spacing">4</property>
-        <property name="vexpand">0</property>
+        <property name="vexpand">1</property>
       </object>
     </child>
   </template>

@@ -1,7 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.91.0 -->
+<!-- Created with Cambalache 0.91.1 -->
 <interface>
   <!-- interface-name cmb_shortcuts.ui -->
+  <!-- interface-copyright Juan Pablo Ugarte -->
   <requires lib="gtk" version="4.0"/>
   <object class="GtkShortcutsWindow" id="shortcuts">
     <property name="section-name">shortcuts</property>

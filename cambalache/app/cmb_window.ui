@@ -614,20 +614,13 @@
                             <property name="start-child">
                               <object class="GtkBox" id="inspector">
                                 <property name="focusable">1</property>
-                                <property name="orientation">vertical</property>
                                 <child>
-                                  <object class="GtkScrolledWindow">
-                                    <property name="focusable">1</property>
-                                    <property name="min-content-width">256</property>
-                                    <property name="propagate-natural-height">1</property>
-                                    <property name="propagate-natural-width">1</property>
-                                    <property name="vexpand">1</property>
+                                  <object class="CmbScrolledWindow">
+                                    <property name="min-content-width">200</property>
+                                    <property name="propagate-natural-height">True</property>
+                                    <property name="propagate-natural-width">True</property>
                                     <child>
-                                      <object class="CmbTreeView" id="tree_view">
-                                        <property name="focusable">1</property>
-                                        <property name="headers-clickable">False</property>
-                                        <property name="headers-visible">False</property>
-                                      </object>
+                                      <object class="CmbColumnView" id="column_view"/>
                                     </child>
                                   </object>
                                 </child>

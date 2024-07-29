@@ -25,6 +25,7 @@ configure_file(
 
 install_data([
     'cmb_base.py',
+    'cmb_column_view.py',
     'cmb_context_menu.py',
     'cmb_css.py',
     'cmb_css_editor.py',
@@ -44,7 +45,6 @@ install_data([
     'cmb_property.py',
     'cmb_property_label.py',
     'cmb_signal_editor.py',
-    'cmb_tree_view.py',
     'cmb_type_chooser.py',
     'cmb_type_chooser_popover.py',
     'cmb_type_chooser_widget.py',

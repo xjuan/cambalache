@@ -58,38 +58,39 @@ class TableView(Gtk.ColumnView):
 
         self.set_model(Gtk.NoSelection(model=self.model))
 
-        for prop in ItemClass.__properties__:
+        for property_id in ItemClass.__properties__:
             factory = Gtk.SignalListItemFactory()
             factory.connect("setup", self._on_factory_setup)
-            factory.connect("bind", self._on_factory_bind, prop)
-            factory.connect("unbind", self._on_factory_unbind, prop)
-            factory.connect("teardown", self._on_factory_teardown)
+            factory.connect("bind", self._on_factory_bind, property_id)
+            factory.connect("unbind", self._on_factory_unbind)
 
-            col = Gtk.ColumnViewColumn(title=prop, factory=factory)
+            col = Gtk.ColumnViewColumn(title=property_id, factory=factory)
             col.props.resizable = True
             self.append_column(col)
 
         self.connect("map", self.__on_map)
 
+    def __update_label(self, item, label, property_id):
+        val = str(item.get_property(property_id))
+        label.set_text(val if val else "")
+
+    def __on_item_notify(self, item, pspec, label):
+        self.__update_label(item, label, pspec.name)
+
     def _on_factory_setup(self, factory, list_item):
-        cell = Gtk.Label(xalign=0)
-        cell._binding = None
-        list_item.set_child(cell)
+        label = Gtk.Label(xalign=0)
+        list_item.set_child(label)
 
-    def _on_factory_bind(self, factory, list_item, what):
-        cell = list_item.get_child()
+    def _on_factory_bind(self, factory, list_item, property_id):
+        label = list_item.get_child()
         item = list_item.get_item()
-        cell._binding = item.bind_property(what, cell, "label", GObject.BindingFlags.SYNC_CREATE)
 
-    def _on_factory_unbind(self, factory, list_item, what):
-        cell = list_item.get_child()
-        if cell._binding:
-            cell._binding.unbind()
-            cell._binding = None
+        self.__update_label(item, label, property_id)
+        item.connect(f"notify::{property_id}", self.__on_item_notify, label)
 
-    def _on_factory_teardown(self, factory, list_item):
-        cell = list_item.get_child()
-        cell._binding = None
+    def _on_factory_unbind(self, factory, list_item):
+        item = list_item.get_item()
+        item.disconnect_by_func(self.__on_item_notify)
 
     def refresh(self):
         ItemClass = self.__item_class

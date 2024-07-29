@@ -21,7 +21,7 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-from gi.repository import GObject
+from gi.repository import GObject, Gio
 
 from .cmb_objects_base import CmbBaseObject, CmbSignal
 from .cmb_property import CmbProperty
@@ -68,8 +68,14 @@ class CmbObject(CmbBaseObject):
         if self.project is None:
             return
 
+        # List of children
+        self.children_model = Gio.ListStore(item_type=CmbObject)
+
+        self._parent_id = self.parent_id
+
         # Append object to project automatically
         self.project._append_object(self)
+        self._append()
 
         self.__populate_properties()
         self.__populate_layout_properties()
@@ -80,6 +86,41 @@ class CmbObject(CmbBaseObject):
 
     def __str__(self):
         return f"CmbObject<{self.type_id}> {self.ui_id}:{self.object_id}"
+
+    def _append(self):
+        ui_id = self.ui_id
+        object_id = self.object_id
+        parent_id = self.parent_id
+        position = self.position
+
+        if parent_id:
+            # Set which parent property makes a reference to this inline object
+            row = self.project.db.execute(
+                "SELECT property_id FROM object_property WHERE ui_id=? AND inline_object_id=?;", (ui_id, object_id)
+            ).fetchone()
+            self.inline_property_id = row[0] if row else None
+            model = self.parent.children_model
+        else:
+            model = self.ui.children_model
+
+        if position >= 0:
+            # Map DB position to list position
+            if parent_id:
+                row = self.project.db.execute(
+                    "SELECT count(object_id) FROM object WHERE ui_id=? AND parent_id=? AND position < ?;",
+                    (ui_id, parent_id, position)
+                ).fetchone()
+                position = row[0]
+            else:
+                row = self.project.db.execute(
+                    "SELECT count(object_id) FROM object WHERE ui_id=? AND parent_id IS NULL AND position < ?;",
+                    (ui_id, position)
+                ).fetchone()
+                position = row[0]
+
+            model.insert(position, self)
+        else:
+            model.append(self)
 
     def __populate_type_properties(self, name):
         property_info = self.project.get_type_properties(name)
@@ -218,6 +259,17 @@ class CmbObject(CmbBaseObject):
 
     @parent_id.setter
     def _set_parent_id(self, value):
+        # FIXME: implement GListModel to avoid having to update children position
+        if self._parent_id:
+            old_parent = self.project.get_object_by_id(self.ui_id, self._parent_id)
+            children_model = old_parent.children_model
+        else:
+            children_model = self.ui.children_model
+
+        found, position = children_model.find(self)
+        if found:
+            children_model.remove(position)
+
         self.db_set(
             "UPDATE object SET parent_id=? WHERE (ui_id, object_id) IS (?, ?);",
             (
@@ -226,7 +278,9 @@ class CmbObject(CmbBaseObject):
             ),
             value if value != 0 else None,
         )
+        self._parent_id = value if value != 0 else None
 
+        self._append()
         self.__populate_layout_properties()
 
     @GObject.Property(type=CmbUI)
@@ -371,6 +425,16 @@ class CmbObject(CmbBaseObject):
             _("Reorder object {name} from position {old} to {new}").format(name=name, old=child.position, new=position)
         )
 
+        # Reorder child in store
+        found, index = self.children_model.find(child)
+        if found:
+            self.children_model.remove(index)
+
+        n_items = self.children_model.get_n_items()
+        if position > n_items:
+            position = n_items
+        self.children_model.insert(position, child)
+
         children = []
 
         # Get children in order
@@ -430,8 +494,18 @@ class CmbObject(CmbBaseObject):
             prop.notify("value")
             self._property_changed(prop)
 
-    def get_display_name(self):
-        return self.name if self.name is not None else self.type_id
+    @GObject.Property(type=str)
+    def display_name(self):
+        inline_prop = self.inline_property_id
+        inline_prop = f"<b>{inline_prop}</b> " if inline_prop else ""
+        name = f"{self.name} " if self.name else ""
+        extra = _("(template)") if not self.parent_id and self.ui.template_id == self.object_id else self.type_id
+        display_name = f"{inline_prop}{name}<i>{extra}</i>"
+
+        if self.version_warning:
+            return f'<span underline="error">{display_name}</span>'
+        else:
+            return display_name
 
     def __update_version_warning(self):
         target = self.ui.get_target(self.info.library_id)
