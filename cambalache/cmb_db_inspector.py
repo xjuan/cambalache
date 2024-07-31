@@ -31,15 +31,95 @@ class CmbDBTable(GObject.Object):
         super().__init__(**kwargs)
 
     def do_get_property(self, prop):
+        # TODO: read from DB directly
         if prop.name not in self.__properties_set__:
             raise AttributeError('unknown property %s' % prop.name)
         return self.__properties[prop.name]
 
     def do_set_property(self, prop, value):
+        # TODO: only store PK values when using DB
         if prop.name not in self.__properties_set__:
             raise AttributeError('unknown property %s' % prop.name)
         self.__properties[prop.name] = value
         self.notify(prop.name)
+
+
+class CmbDBStore(GObject.GObject, Gio.ListModel):
+    __gtype_name__ = 'CmbDBStore'
+
+    project = GObject.Property(type=CmbProject, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+
+    def __init__(self, ItemClass, **kwargs):
+        super().__init__(**kwargs)
+
+        self.__item_class = ItemClass
+        self.__history_index = None
+        self._objects = []
+
+    def do_get_item(self, position):
+        self.__check_refresh()
+        return self._objects[position] if position < len(self._objects) else None
+
+    def do_get_item_type(self):
+        return self.__item_class
+
+    def do_get_n_items(self):
+        self.__check_refresh()
+        return len(self._objects)
+
+    def __check_refresh(self):
+        history_index = self.project.history_index
+
+        # Nothing to update if history did not changed
+        if history_index == self.__history_index:
+            return
+
+        ItemClass = self.__item_class
+        properties = ItemClass.__properties__
+        table = ItemClass.__table__
+        needs_update = False
+
+        # Basic optimization, only update if something changed in this table
+        # TODO: this could be optimized more by check command to know exactly which row changed
+        if self.__history_index is None or table in ["history", "global"]:
+            needs_update = True
+        else:
+            change_table = table[7:] if table.startswith("history_") else table
+
+            # TODO: detect command compression
+            for row in self.project.db.execute(
+                "SELECT table_name FROM history WHERE history_id >= ? ORDER BY history_id;", (self.__history_index, )
+            ):
+                table_name, = row
+                if table_name == change_table:
+                    needs_update = True
+                    break
+
+        self.__history_index = history_index
+
+        if not needs_update:
+            return
+
+        # Emit signal to clear model
+        n_items = len(self._objects)
+        if n_items:
+            self._objects = []
+            self.items_changed(0, n_items, 0)
+
+        if len(ItemClass.__pk__):
+            pk_columns = ",".join(ItemClass.__pk__)
+        else:
+            pk_columns = "rowid"
+
+        for row in self.project.db.execute(f"SELECT * FROM {table} ORDER BY {pk_columns};"):
+            item = ItemClass()
+            for i, val in enumerate(row):
+                item.set_property(properties[i], val)
+
+            self._objects.append(item)
+
+        # Emit signal to populate model
+        self.items_changed(0, 0, len(self._objects))
 
 
 class TableView(Gtk.ColumnView):
@@ -51,12 +131,8 @@ class TableView(Gtk.ColumnView):
         self.props.show_row_separators = True
         self.props.show_column_separators = True
         self.props.reorderable = False
-
+        self.__model = None
         self.__item_class = ItemClass
-        self.__table__ = ItemClass.__table__
-        self.model = Gio.ListStore(item_type=ItemClass)
-
-        self.set_model(Gtk.NoSelection(model=self.model))
 
         for property_id in ItemClass.__properties__:
             factory = Gtk.SignalListItemFactory()
@@ -68,7 +144,9 @@ class TableView(Gtk.ColumnView):
             col.props.resizable = True
             self.append_column(col)
 
+        # TODO: keep track of project changes only while we are showing this model
         self.connect("map", self.__on_map)
+        self.project.connect("changed", self.__on_project_changed)
 
     def __update_label(self, item, label, property_id):
         val = str(item.get_property(property_id))
@@ -92,20 +170,20 @@ class TableView(Gtk.ColumnView):
         item = list_item.get_item()
         item.disconnect_by_func(self.__on_item_notify)
 
-    def refresh(self):
-        ItemClass = self.__item_class
-        properties = ItemClass.__properties__
-        self.model.remove_all()
-
-        for row in self.project.db.execute(f"SELECT * FROM {ItemClass.__table__};"):
-            item = ItemClass()
-            for i, val in enumerate(row):
-                item.set_property(properties[i], val)
-
-            self.model.append(item)
-
     def __on_map(self, w):
-        self.refresh()
+        # Trigger check refresh
+        if self.__model is not None:
+            self.__model.get_n_items()
+            return
+
+        # Load model when widget is shown
+        self.__model = CmbDBStore(self.__item_class, project=self.project)
+        self.set_model(Gtk.NoSelection(model=self.__model))
+
+    def __on_project_changed(self, project):
+        # Trigger check refresh
+        if self.__model is not None and self.is_visible():
+            self.__model.get_n_items()
 
 
 @Gtk.Template(resource_path="/ar/xjuan/Cambalache/cmb_db_inspector.ui")
@@ -142,27 +220,34 @@ class CmbDBInspector(Gtk.Box):
             klass = self.__class_from_table(table)
             self.__table_classes[table] = klass
 
-    def _gproperties_from_table(self, table):
+    def _metadata_from_table(self, table):
         db = self.project.db
         properties = []
         gproperties = {}
+        pk_list = []
 
         for row in db.execute(f"PRAGMA table_info({table});"):
             col = row[1]
+            pk = row[5]
+
             name = col.replace("_", "-")
             properties.append(name)
             gproperties[name] = (str, "", "", None, GObject.ParamFlags.READWRITE)
 
-        return properties, gproperties
+            if pk:
+                pk_list.append(col)
+
+        return properties, gproperties, pk_list
 
     def __class_from_table(self, table):
         class_name = f"CmbDBTable_{table}"
-        properties, gproperties = self._gproperties_from_table(table)
+        properties, gproperties, pk = self._metadata_from_table(table)
         klass = type(class_name, (CmbDBTable,), dict(
             __table__=table,
             __gproperties__=gproperties,
             __properties__=properties,
-            __properties_set__=set(properties))
+            __properties_set__=set(properties),
+            __pk__=pk)
         )
         return klass
 
