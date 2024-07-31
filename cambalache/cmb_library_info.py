@@ -21,10 +21,13 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
+from gi.repository import GObject
 from .cmb_objects_base import CmbBaseLibraryInfo
 
 
 class CmbLibraryInfo(CmbBaseLibraryInfo):
+    third_party = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 

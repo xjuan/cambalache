@@ -222,15 +222,12 @@ class CmbProject(GObject.Object):
             info.parent = self.type_info.get(info.parent_id, None)
 
     def __init_library_info(self, c):
-        for row in c.execute(
-            """
-            SELECT * FROM library
-            WHERE library_id NOT IN ('gobject', 'pango', 'gdkpixbuf', 'gio', 'gdk', 'gtk', 'gtk+')
-            ORDER BY library_id;
-            """
-        ):
+        for row in c.execute("SELECT * FROM library ORDER BY library_id;"):
             library_id = row[0]
-            self.library_info[library_id] = CmbLibraryInfo.from_row(self, *row)
+
+            info = CmbLibraryInfo.from_row(self, *row)
+            info.third_party = library_id not in ("gobject", "pango", "gdkpixbuf", "gio", "gdk", "gtk", "gtk+")
+            self.library_info[library_id] = info
 
     def __init_data(self):
         if self.target_tk is None:

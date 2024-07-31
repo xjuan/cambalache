@@ -565,8 +565,11 @@ class CmbView(Gtk.Box):
         if self.project is None:
             return
 
-        for id in self.project.library_info:
-            info = self.project.library_info[id]
+        for id, info in self.project.library_info.items():
+            # Only load 3rd party libraries, Gtk ones are already loaded
+            if not info.third_party:
+                continue
+
             self.__merengue_command(
                 "load_namespace",
                 args={
