@@ -25,6 +25,7 @@ from gi.repository import GObject
 
 from .cmb_objects_base import CmbBaseProperty, CmbPropertyInfo
 from . import utils
+from cambalache import _
 
 
 class CmbProperty(CmbBaseProperty):
@@ -161,6 +162,17 @@ class CmbProperty(CmbBaseProperty):
 
     def _update_version_warning(self):
         target = self.object.ui.get_target(self.library_id)
-        self.version_warning = utils.get_version_warning(
+        warning = utils.get_version_warning(
             target, self.info.version, self.info.deprecated_version, self.property_id
-        )
+        ) or ""
+
+        if self.project.target_tk == "gtk-4.0" and self.info.type_id == "GFile":
+            target = self.object.ui.get_target("gtk")
+            if target is not None:
+                version = utils.parse_version(target)
+                if version is None or utils.version_cmp(version, (4, 16, 0)) < 0:
+                    if len(warning):
+                        warning += "\n"
+                    warning += _("Warning: GFile uri needs to be absolute for Gtk < 4.16")
+
+        self.version_warning = warning if len(warning) else None
