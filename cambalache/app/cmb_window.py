@@ -300,6 +300,7 @@ class CmbWindow(Adw.ApplicationWindow):
             self.__project.connect("notify::filename", self.__on_project_filename_notify)
             self.__project.connect("selection-changed", self.__on_project_selection_changed)
             self.__project.connect("changed", self.__on_project_changed)
+            self.__on_project_selection_changed(project)
 
         self.__update_window_title()
         self.__update_actions()
