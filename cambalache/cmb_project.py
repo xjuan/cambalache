@@ -1183,7 +1183,8 @@ class CmbProject(GObject.Object):
 
     def __object_update_row(self, ui, object_id):
         obj = self.get_object_by_id(ui.ui_id, object_id)
-        obj.notify("display-name")
+        if obj:
+            obj.notify("display-name")
         ui.notify("display-name")
 
     def __update_template_type_info(self, ui):
