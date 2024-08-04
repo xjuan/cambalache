@@ -25,8 +25,7 @@ import importlib
 
 # We need to use lxml to get access to nsmap
 from lxml import etree
-from .toposort import toposort_flatten
-
+from graphlib import TopologicalSorter, CycleError
 from gi.repository import GObject
 
 CmbUtils = None
@@ -160,7 +159,11 @@ class GirData:
                 types_deps[gtype] = {dep}
 
         # Types in topological order, to avoid FK errors
-        self.sorted_types = toposort_flatten(types_deps)
+        try:
+            ts = TopologicalSorter(types_deps)
+            self.sorted_types = tuple(ts.static_order())
+        except CycleError as e:
+            raise Exception(f"WEIRD! Found dependency cycle sorting types {e}")
 
     def _type_is_a(self, type, is_a_type):
         if type == is_a_type:
@@ -214,18 +217,92 @@ class GirData:
 
         return None
 
-    def _get_default_value_from_pspec(self, pspec):
+    def _type_get_properties_overrides(self, name):
+        if name == "GObject":
+            return []
+
+        class_type = GObject.type_from_name(name)
+        parent_type = GObject.type_parent(class_type)
+        parent_name = GObject.type_name(parent_type)
+
+        class_interfaces = GObject.type_interfaces(class_type)
+        parent_interfaces = GObject.type_interfaces(parent_type)
+
+        instance = self._get_instance_from_type(name)
+        if instance is None:
+            return []
+
+        parent_instance = self._get_instance_from_type(parent_name)
+        retval = []
+
+        for pspec in instance.list_properties():
+            writable = pspec.flags & GObject.ParamFlags.WRITABLE
+            readable = pspec.flags & GObject.ParamFlags.READABLE
+            owner = pspec.owner_type
+
+            # Ignore properties that can not be written or read
+            if not writable or not readable:
+                continue
+
+            # Object, Boxed and GType params do not have a default value
+            if GObject.type_is_a(pspec.value_type, GObject.TYPE_BOXED):
+                continue
+
+            if GObject.type_is_a(pspec.value_type, GObject.TYPE_GTYPE):
+                continue
+
+            value_type = GObject.type_name(pspec.value_type)
+            if GObject.type_is_a(pspec.value_type, GObject.TYPE_OBJECT) and value_type not in self.types:
+                continue
+
+            instance_default = getattr(instance.props, pspec.name)
+            if pspec.default_value == instance_default:
+                continue
+
+            if owner == class_type or (owner in class_interfaces and owner not in parent_interfaces):
+                # This is a property declared in this class
+                # We need to make sure the default declared in the pspec is the same as the instance
+                retval.append({
+                    "property_id": pspec.name,
+                    "instance_default": self._get_default_value_from_pspec(pspec, instance_default)
+                })
+            else:
+                parent_instance_default = getattr(parent_instance.props, pspec.name) if parent_instance else None
+
+                # Ignore GObject properties for now
+                # if a subclass sets a parent object property that probably means we should disable it because its being used.
+                if GObject.type_is_a(pspec.value_type, GObject.TYPE_OBJECT):
+                    if parent_instance_default is None and instance_default is not None:
+                        retval.append({
+                            "property_id": pspec.name,
+                            "non_null_object": True
+                        })
+                    continue
+
+                if parent_instance_default == instance_default:
+                    continue
+
+                retval.append({
+                    "property_id": pspec.name,
+                    "new_default": self._get_default_value_from_pspec(pspec, instance_default)
+                })
+
+        return retval
+
+    def _get_default_value_from_pspec(self, pspec, default_value=None):
         if pspec is None:
             return None
 
-        if pspec.value_type == GObject.TYPE_BOOLEAN:
-            return "True" if pspec.default_value != 0 else "False"
-        elif GObject.type_is_a(pspec.value_type, GObject.TYPE_ENUM):
-            return CmbUtils.pspec_enum_get_default_nick(pspec.value_type, pspec.default_value)
-        elif GObject.type_is_a(pspec.value_type, GObject.TYPE_FLAGS):
-            return CmbUtils.pspec_flags_get_default_nick(pspec.value_type, pspec.default_value)
+        default_value = default_value or pspec.default_value
 
-        return pspec.default_value
+        if pspec.value_type == GObject.TYPE_BOOLEAN:
+            return "True" if default_value != 0 else "False"
+        elif GObject.type_is_a(pspec.value_type, GObject.TYPE_ENUM):
+            return CmbUtils.pspec_enum_get_default_nick(pspec.value_type, default_value)
+        elif GObject.type_is_a(pspec.value_type, GObject.TYPE_FLAGS):
+            return CmbUtils.pspec_flags_get_default_nick(pspec.value_type, default_value)
+
+        return default_value
 
     def _cmb_types_init(self):
         if self.lib not in ["gtk+", "gtk"]:
@@ -404,7 +481,7 @@ class GirData:
 
         return retval
 
-    def _get_type_data(self, element, name, use_instance=True):
+    def _get_type_data(self, element, name, use_instance=True, skip_types=[]):
         parent = element.get("parent")
 
         if parent and parent.find(".") < 0:
@@ -420,6 +497,7 @@ class GirData:
             constructor = element
 
         is_container = False
+        overrides = None
 
         nons_name = name.removeprefix(self.prefix)
         GObject.type_ensure(getattr(self.mod, nons_name).__gtype__)
@@ -429,6 +507,8 @@ class GirData:
             instance = self._get_instance_from_type(name)
             if instance is not None:
                 is_container = CmbUtils.implements_buildable_add_child(instance)
+                if parent not in skip_types:
+                    overrides = self._type_get_properties_overrides(name)
 
         return {
             "parent": parent,
@@ -440,6 +520,7 @@ class GirData:
             "properties": self._type_get_properties(element, props),
             "signals": self._type_get_signals(element),
             "interfaces": self._type_get_interfaces(element),
+            "overrides": overrides,
         }
 
     def _get_boxed_types(self, boxed_types=[]):
@@ -463,7 +544,7 @@ class GirData:
                 continue
 
             if types is None or name in types:
-                data = self._get_type_data(child, name, name not in skip_types)
+                data = self._get_type_data(child, name, name not in skip_types, skip_types=skip_types)
                 if name and data is not None:
                     retval[name] = data
 

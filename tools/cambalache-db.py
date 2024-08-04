@@ -443,6 +443,19 @@ class CambalacheDb:
 
         return retval if n else None
 
+    def get_property_overrides(self):
+        retval = {}
+        for name in self.lib.sorted_types:
+            if name not in self.lib.types:
+                continue
+            data = self.lib.types[name]
+            overrides = data.get("overrides", None)
+
+            if overrides:
+                retval[name] = overrides
+
+        return retval if len(retval) else None
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate Cambalache library data")
@@ -468,6 +481,8 @@ if __name__ == "__main__":
     parser.add_argument("--boxed-types", metavar="T", type=str, nargs="+", help="Boxed Types to include", default=[])
 
     parser.add_argument("--exclude-objects", help="Exclude objects in output", action="store_true")
+
+    parser.add_argument("--show-property-overrides", help="Show properties pspec changes", action="store_true")
 
     parser.add_argument(
         "--skip-types",
@@ -510,13 +525,22 @@ if __name__ == "__main__":
         db.populate_extra_data_from_xml(args.extra_data)
 
     if len(db.lib.ignored_pspecs):
-        print("Ignored pspecs: ", db.lib.ignored_pspecs)
+        print(
+            "Ignored pspecs: ",
+            json.dumps(list(db.lib.ignored_pspecs), indent=2, sort_keys=True),
+        )
 
     if len(db.lib.ignored_types):
-        print("Ignored types: ", db.lib.ignored_types)
+        print(
+            "Ignored types: ",
+            json.dumps(list(db.lib.ignored_types), indent=2, sort_keys=True),
+        )
 
     if len(db.lib.ignored_boxed_types):
-        print("Ignored boxed types: ", db.lib.ignored_boxed_types)
+        print(
+            "Ignored boxed types: ",
+            json.dumps(list(db.lib.ignored_boxed_types), indent=2, sort_keys=True),
+        )
 
     ignored_named_icons = db.get_ignored_named_icons()
     if ignored_named_icons:
@@ -538,5 +562,13 @@ if __name__ == "__main__":
             'Possible translatable properties (You need to specify translatable="True"): ',
             json.dumps(translatable_properties, indent=2, sort_keys=True),
         )
+
+    if args.show_property_overrides:
+        overrides = db.get_property_overrides()
+        if overrides:
+            print(
+                'Properties Overrides',
+                json.dumps(overrides, indent=2, sort_keys=True),
+            )
 
     db.dump(args.output)
