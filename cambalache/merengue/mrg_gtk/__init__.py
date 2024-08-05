@@ -31,6 +31,7 @@ if Gtk.MAJOR_VERSION == 3:
     from .mrg_gtk_menu import MrgGtkMenu
 elif Gtk.MAJOR_VERSION == 4:
     from .mrg_gtk_center_box import MrgGtkCenterBox
+    from .mrg_gtk_stack_page import MrgGtkStackPage
 
 from .mrg_gtk_box import MrgGtkBox
 from .mrg_gtk_expander import MrgGtkExpander
@@ -46,7 +47,6 @@ from .mrg_gtk_popover import MrgGtkPopover
 from .mrg_gtk_revealer import MrgGtkRevealer
 from .mrg_gtk_scrolled_window import MrgGtkScrolledWindow
 from .mrg_gtk_stack import MrgGtkStack
-from .mrg_gtk_stack_page import MrgGtkStackPage
 from .mrg_gtk_viewport import MrgGtkViewport
 from .mrg_gtk_widget import MrgGtkWidget
 from .mrg_gtk_window import MrgGtkWindow
