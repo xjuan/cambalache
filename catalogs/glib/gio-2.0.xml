@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <!DOCTYPE cambalache-catalog SYSTEM "cambalache-catalog.dtd">
-<cambalache-catalog name="gio" namespace="Gio" prefix="G" version="2.0" targets="2.0,2.32,2.44">
+<cambalache-catalog name="gio" namespace="Gio" prefix="G" version="2.0" targets="2.0,2.32,2.44" depends="gobject-2.0">
   <type>
 	("GAppInfoCreateFlags","flags","gio",None,None,None,None,None,None,None),
 	("GApplicationFlags","flags","gio",None,None,None,None,None,None,None),

@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <!DOCTYPE cambalache-catalog SYSTEM "cambalache-catalog.dtd">
-<cambalache-catalog name="gtk" namespace="Gtk" prefix="Gtk" version="4.0" targets="4.0,4.10,4.12,4.14,4.2,4.4,4.6,4.8" depends="gobject-2.0">
+<cambalache-catalog name="gtk" namespace="Gtk" prefix="Gtk" version="4.0" targets="4.0,4.10,4.12,4.14,4.2,4.4,4.6,4.8" depends="gdk-4.0,gsk-4.0">
   <type>
 	("CmbIconName","gchararray","gtk",None,None,None,None,None,None,None),
 	("GtkATContext","GObject","gtk",None,None,1,1,None,None,None),

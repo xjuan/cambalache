@@ -51,6 +51,7 @@ glib/gobject-2.0.xml: glib/GObject.xml
 
 glib/gio-2.0.xml: glib/Gio.xml
 	${CAMBALACHE_DB} \
+		--dependencies gobject-2.0 \
 		--gir /usr/share/gir-1.0/Gio-2.0.gir \
 		--types GFile GListStore GListModel GMenuModel \
 		--extra-data glib/Gio.xml \
@@ -59,7 +60,7 @@ glib/gio-2.0.xml: glib/Gio.xml
 
 gdkpixbuf/gdkpixbuf-2.0.xml:
 	${CAMBALACHE_DB} \
-		--dependencies gobject-2.0 \
+		--dependencies gio-2.0 \
 		--gir /usr/share/gir-1.0/GdkPixbuf-2.0.gir \
 		--types GdkPixbuf \
 		--exclude-objects \
@@ -67,14 +68,14 @@ gdkpixbuf/gdkpixbuf-2.0.xml:
 
 pango/pango-1.0.xml:
 	${CAMBALACHE_DB} \
-		--dependencies gobject-2.0 \
+		--dependencies gio-2.0 \
 		--gir /usr/share/gir-1.0/Pango-1.0.gir \
 		--exclude-objects \
 		--output $@
 
 gtk/gdk-3.0.xml:
 	${CAMBALACHE_DB} \
-		--dependencies gdkpixbuf-2.0 \
+		--dependencies pango-1.0 gdkpixbuf-2.0 \
 		--gir /usr/share/gir-1.0/Gdk-3.0.gir \
 		--boxed-types GdkColor GdkRGBA \
 		--exclude-objects \
@@ -83,7 +84,7 @@ gtk/gdk-3.0.xml:
 gtk/gdk-4.0.xml:
 	${CAMBALACHE_DB} \
 		--target-gtk4 \
-		--dependencies gdkpixbuf-2.0 \
+		--dependencies pango-1.0 gdkpixbuf-2.0 \
 		--gir /usr/share/gir-1.0/Gdk-4.0.gir \
 		--boxed-types GdkRGBA GdkContentFormats\
 		--exclude-objects \
@@ -92,7 +93,7 @@ gtk/gdk-4.0.xml:
 gtk/gsk-4.0.xml:
 	${CAMBALACHE_DB} \
 		--target-gtk4 \
-		--dependencies gobject-2.0 \
+		--dependencies pango-1.0 gdkpixbuf-2.0 \
 		--gir /usr/share/gir-1.0/Gsk-4.0.gir \
 		--boxed-types GskTransform \
 		--exclude-objects \
@@ -100,7 +101,7 @@ gtk/gsk-4.0.xml:
 
 gtk/gtk+-3.0.xml: gtk/Gtk.xml ${GTK3_DEPS}
 	${CAMBALACHE_DB} \
-		--dependencies gobject-2.0 \
+		--dependencies gdk-3.0 \
 		--gir /usr/share/gir-1.0/Gtk-3.0.gir \
 		--external-catalogs ${GTK3_DEPS} \
 		--extra-data gtk/Gtk.xml \
@@ -109,7 +110,7 @@ gtk/gtk+-3.0.xml: gtk/Gtk.xml ${GTK3_DEPS}
 gtk/gtk-4.0.xml: gtk/Gtk.xml ${GTK4_DEPS}
 	${CAMBALACHE_DB} \
 		--target-gtk4 \
-		--dependencies gobject-2.0 \
+		--dependencies gdk-4.0 gsk-4.0 \
 		--gir /usr/share/gir-1.0/Gtk-4.0.gir \
 		--external-catalogs ${GTK4_DEPS} \
 		--extra-data gtk/Gtk.xml \
