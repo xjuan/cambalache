@@ -28,6 +28,7 @@ import ast
 
 from lxml import etree
 from lxml.builder import E
+from graphlib import TopologicalSorter, CycleError
 from gi.repository import GLib, Gio, GObject
 from cambalache import config, getLogger, _
 from . import cmb_db_migration, utils
@@ -44,22 +45,6 @@ def _get_text_resource(name):
 BASE_SQL = _get_text_resource("db/cmb_base.sql")
 PROJECT_SQL = _get_text_resource("db/cmb_project.sql")
 HISTORY_SQL = _get_text_resource("db/cmb_history.sql")
-
-GOBJECT_XML = os.path.join(config.catalogsdir, "gobject-2.0.xml")
-GIO_XML = os.path.join(config.catalogsdir, "gio-2.0.xml")
-GDKPIXBUF_XML = os.path.join(config.catalogsdir, "gdkpixbuf-2.0.xml")
-PANGO_XML = os.path.join(config.catalogsdir, "pango-1.0.xml")
-GDK3_XML = os.path.join(config.catalogsdir, "gdk-3.0.xml")
-GDK4_XML = os.path.join(config.catalogsdir, "gdk-4.0.xml")
-GSK4_XML = os.path.join(config.catalogsdir, "gsk-4.0.xml")
-GTK3_XML = os.path.join(config.catalogsdir, "gtk+-3.0.xml")
-GTK4_XML = os.path.join(config.catalogsdir, "gtk-4.0.xml")
-
-WEBKIT2GTK_4_1_XML = os.path.join(config.catalogsdir, "webkit2gtk-4.1.xml")
-WEBKITGTK_6_0_XML = os.path.join(config.catalogsdir, "webkitgtk-6.0.xml")
-
-LIBHANDY_XML = os.path.join(config.catalogsdir, "libhandy-1.xml")
-LIBADWAITA_XML = os.path.join(config.catalogsdir, "libadwaita-1.xml")
 
 
 class CmbDB(GObject.GObject):
@@ -381,41 +366,105 @@ class CmbDB(GObject.GObject):
             )
 
     def __init_data(self):
-        if self.target_tk not in ["gtk+-3.0", "gtk-4.0"]:
-            raise Exception(f"Unknown target tk {self.target_tk}")
+        supported_targets = {"gtk+-3.0", "gtk-4.0"}
+
+        if self.target_tk not in supported_targets:
+            raise Exception(f"Unknown target toolkit {self.target_tk}")
+
+        exclude_catalogs = {"gdk-3.0", "gtk+-3.0"} if self.target_tk == "gtk-4.0" else {"gdk-4.0", "gsk-4.0", "gtk-4.0"}
 
         # Add special type for external object references. See gtk_builder_expose_object()
         self.execute("INSERT INTO type (type_id, parent_id) VALUES (?, 'object');", (EXTERNAL_TYPE,))
 
-        # Add GObject
-        self.load_catalog(GOBJECT_XML)
+        # Dictionary of catalog XML trees
+        catalogs_tree = {}
 
-        # Add Gio data
-        self.load_catalog(GIO_XML)
+        # Catalog dependencies
+        catalog_graph = {}
 
-        # Add GdkPixbuf and Pango data
-        self.load_catalog(GDKPIXBUF_XML)
-        self.load_catalog(PANGO_XML)
+        catalog_dirs = [os.path.join(dir, "cambalache", "catalogs") for dir in GLib.get_system_data_dirs()]
+        catalog_dirs.append(os.path.join(GLib.get_home_dir(), ".cambalache", "catalogs"))
 
-        # Add gtk data
-        if self.target_tk == "gtk+-3.0":
-            self.load_catalog(GDK3_XML)
-            self.load_catalog(GTK3_XML)
-            # FIXME: this should be optional
-            self.load_catalog(WEBKIT2GTK_4_1_XML)
-            self.load_catalog(LIBHANDY_XML)
-        elif self.target_tk == "gtk-4.0":
-            self.load_catalog(GDK4_XML)
-            self.load_catalog(GSK4_XML)
-            self.load_catalog(GTK4_XML)
-            # FIXME: this should be optional
-            self.load_catalog(WEBKITGTK_6_0_XML)
-            self.load_catalog(LIBADWAITA_XML)
+        # Collect and parse all catalogs in all system data directories
+        for catalogs_dir in catalog_dirs:
+            if not os.path.exists(catalogs_dir) or not os.path.isdir(catalogs_dir):
+                continue
+
+            # Collect and parse all catalogs in directory
+            for catalog in os.listdir(catalogs_dir):
+                catalog_path = os.path.join(catalogs_dir, catalog)
+                content_type = utils.content_type_guess(catalog_path)
+
+                if content_type != "application/xml":
+                    continue
+
+                tree = etree.parse(catalog_path)
+
+                if tree.docinfo.doctype != "<!DOCTYPE cambalache-catalog SYSTEM \"cambalache-catalog.dtd\">":
+                    continue
+
+                root = tree.getroot()
+                name = root.get("name", None)
+                version = root.get("version", None)
+                dependecies = root.get("depends", None)
+                name_version = f"{name}-{version}"
+
+                if name_version in catalog_graph:
+                    continue
+
+                catalogs_tree[name_version] = (tree, catalog_path)
+
+                # Ignore different gtk catalog from target_tk
+                if name_version in exclude_catalogs:
+                    continue
+
+                depends = set()
+                if dependecies is not None:
+                    for dependency in dependecies.split(","):
+                        # Ignore catalogs that depends on the wrong gtk version
+                        if dependency in exclude_catalogs:
+                            exclude_catalogs.add(name_version)
+                            depends = None
+                            break
+                        depends.add(dependency)
+
+                if depends is not None:
+                    catalog_graph[name_version] = depends
+
+        if self.target_tk not in catalog_graph:
+            raise Exception(f"Could not find {self.target_tk} catalog")
+
+        try:
+            ts = TopologicalSorter(catalog_graph)
+            sorted_catalogs = tuple(ts.static_order())
+        except CycleError as e:
+            raise Exception(f"Could not load catalogs because of dependency cycle {e}")
+
+        # Load catalogs in topological order
+        for name_version in sorted_catalogs:
+            # Ignore edges not in the root list
+            if name_version not in catalog_graph:
+                continue
+
+            deps = catalog_graph[name_version]
+
+            # Check all dependencies for it are available
+            for dep in deps:
+                if dep not in catalog_graph:
+                    deps = None
+                    break
+
+            # Ignore catalogs with not all deps
+            if deps is None:
+                continue
+
+            # Load catalog
+            tree, path = catalogs_tree.get(name_version, (None, None))
+            if tree:
+                self.load_catalog_from_tree(tree, path)
 
         # Add builtins, (menu depends on gio)
         self.__init_builtin_types()
-
-        # TODO: Load all libraries that depend on self.target_tk
 
     @staticmethod
     def get_target_from_file(filename):
@@ -556,8 +605,7 @@ class CmbDB(GObject.GObject):
         self.ignore_check_constraints = False
         c.close()
 
-    def load_catalog(self, filename):
-        tree = etree.parse(filename)
+    def load_catalog_from_tree(self, tree, filename):
         root = tree.getroot()
 
         name = root.get("name", None)

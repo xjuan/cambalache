@@ -1,5 +1,4 @@
 VERSION = '@VERSION@'
 FILE_FORMAT_VERSION = '@fileformatversion@'
 pkgdatadir = '@pkgdatadir@'
-catalogsdir = '@catalogsdir@'
 merenguedir = '@merenguedir@'
