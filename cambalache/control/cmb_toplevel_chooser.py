@@ -34,6 +34,15 @@ class CmbToplevelChooser(Gtk.DropDown):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
+        # TODO: Remove me once we depend on Gtk 4.16
+        if not hasattr(self.props, "autoselect"):
+            self.props.sensitive = False
+            self.props.tooltip_text = "This widget requires Gtk >= 4.16"
+            return
+
+        self.props.autoselect = False
+        self.props.can_unselect = True
+
         self.__update_model()
 
         self.__expression = Gtk.PropertyExpression.new(CmbBaseObject, None, "display-name")
