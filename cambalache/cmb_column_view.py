@@ -164,13 +164,16 @@ class CmbColumnView(Gtk.ColumnView):
             self.single_selection.props.model = None
 
     def __on_selected_item_notify(self, single_selection, pspec):
-        if self.__in_selection_change:
+        if self.__in_selection_change or self.__project is None:
             return
 
         list_item = single_selection.get_selected_item()
 
-        item = list_item.get_item()
-        self.__project.set_selection([item])
+        if list_item:
+            item = list_item.get_item()
+            self.__project.set_selection([item])
+        else:
+            self.__project.set_selection([])
 
     def __on_item_notify(self, item, pspec, label):
         self.__update_label(item, label, pspec.name)
