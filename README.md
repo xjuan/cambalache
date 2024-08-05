@@ -31,7 +31,7 @@ Source code lives on GNOME gitlab [here](https://gitlab.gnome.org/jpu/cambalache
 * [GTK](http://www.gtk.org) 3 and 4
 * python-gi - Python GTK bindings
 * python3-lxml - Python libxml2 bindings
-* wlroots - For workspace custom compositor
+* [casilda](https://gitlab.gnome.org/jpu/casilda) - Workspace custom compositor
 
 ## Flathub
 

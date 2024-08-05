@@ -29,8 +29,8 @@ import fcntl
 import stat
 import atexit
 
-gi.require_version('Cambalache', '1.0')
-from gi.repository import GObject, GLib, Gio, Gtk, Cambalache
+gi.require_version('Casilda', '0.1')
+from gi.repository import GObject, GLib, Gio, Gdk, Gtk, Casilda
 
 from . import config
 from .cmb_ui import CmbUI
@@ -43,7 +43,7 @@ logger = getLogger(__name__)
 
 basedir = os.path.dirname(__file__) or "."
 
-GObject.type_ensure(Cambalache.Compositor.__gtype__)
+GObject.type_ensure(Casilda.Compositor.__gtype__)
 
 
 class CmbMerengueProcess(GObject.Object):
@@ -257,7 +257,6 @@ class CmbView(Gtk.Box):
         dirname = os.path.dirname(self.compositor.props.socket)
 
         self.__merengue_command("quit")
-        self.compositor.cleanup()
         self.__merengue.cleanup()
 
         if os.path.exists(dirname):
@@ -265,10 +264,9 @@ class CmbView(Gtk.Box):
 
     def _set_dark_mode(self, dark):
         self.__dark = dark
-        if dark:
-            self.compositor.set_bg_color(0.18, 0.18, 0.18)
-        else:
-            self.compositor.set_bg_color(1, 1, 1)
+        bg_color = Gdk.RGBA()
+        bg_color.parse("gray18" if dark else "white")
+        self.compositor.props.bg_color = bg_color
 
     def __merengue_command(self, command, payload=None, args=None):
         self.__merengue.write_command(command, payload, args)
@@ -466,7 +464,9 @@ class CmbView(Gtk.Box):
             self.__merengue.stop()
 
         if self.__restart_project is None:
-            self.compositor.forget_toplevel_state()
+            pass
+            # FIXME: recreate compositor?
+            # self.compositor.forget_toplevel_state()
         else:
             project = self.__restart_project
             self.__restart_project = None
