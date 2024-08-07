@@ -28,6 +28,7 @@ import time
 import fcntl
 import stat
 import atexit
+import shutil
 
 gi.require_version('Casilda', '0.1')
 from gi.repository import GObject, GLib, Gio, Gdk, Gtk, Casilda
@@ -53,7 +54,6 @@ class CmbMerengueProcess(GObject.Object):
     }
 
     gtk_version = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
-    wayland_display = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         self.__command_queue = []
@@ -62,11 +62,27 @@ class CmbMerengueProcess(GObject.Object):
         self.__on_command_in_source = None
         self.__connection = None
         self.__pid = 0
+        self.__wayland_display = None
+        self.__command_socket = None
+        self.__service = None
 
         super().__init__(**kwargs)
 
+    @GObject.Property(type=str)
+    def wayland_display(self):
+        return self.__wayland_display
+
+    @wayland_display.setter
+    def _set_wayland_display(self, wayland_display):
+        self.cleanup()
+
+        self.__wayland_display = wayland_display
+
+        if wayland_display is None:
+            return
+
         # Create socket address object
-        dirname = os.path.dirname(self.wayland_display)
+        dirname = os.path.dirname(wayland_display)
         self.__command_socket = os.path.join(dirname, "merengue.sock")
         socket_addr = Gio.UnixSocketAddress.new(self.__command_socket)
 
@@ -86,26 +102,29 @@ class CmbMerengueProcess(GObject.Object):
             return
 
         # Create socket listener and add address
-        self.service = Gio.SocketService()
-        self.service.add_address(socket_addr,
-                                 Gio.SocketType.STREAM,
-                                 Gio.SocketProtocol.DEFAULT,
-                                 None)
-        self.service.connect("incoming", self.__on_service_incoming)
-        self.service.start()
+        self.__service = Gio.SocketService()
+        self.__service.add_address(socket_addr,
+                                   Gio.SocketType.STREAM,
+                                   Gio.SocketProtocol.DEFAULT,
+                                   None)
+        self.__service.connect("incoming", self.__on_service_incoming)
+        self.__service.start()
 
         try:
             os.lstat(self.__command_socket)
         except Exception as e:
             logger.warning(f"Can not stat file {self.__command_socket} {e}")
-            return
 
         socket_addr = None
 
     def cleanup(self):
         self.stop()
-        os.unlink(self.__command_socket)
-        os.unlink(f"{self.__command_socket}.lock")
+        if self.__command_socket:
+            os.unlink(self.__command_socket)
+            os.unlink(f"{self.__command_socket}.lock")
+        if self.__service:
+            self.__service.start()
+            self.__service = None
 
     def __on_command_in(self, channel, condition):
         if condition == GLib.IOCondition.HUP or self.__command_in is None:
@@ -230,6 +249,8 @@ class CmbView(Gtk.Box):
 
     stack = Gtk.Template.Child()
     compositor = Gtk.Template.Child()
+    compositor_offload = Gtk.Template.Child()
+    error_message = Gtk.Template.Child()
     text_view = Gtk.Template.Child()
     db_inspector = Gtk.Template.Child()
 
@@ -243,6 +264,13 @@ class CmbView(Gtk.Box):
         self.menu = self.__create_context_menu()
 
         super().__init__(**kwargs)
+
+        self.__click_gesture = Gtk.GestureClick(
+            propagation_phase=Gtk.PropagationPhase.CAPTURE,
+            button=3
+        )
+        self.__click_gesture.connect("pressed", self.__on_click_gesture_pressed)
+        self.compositor_offload.add_controller(self.__click_gesture)
 
         self.__merengue = CmbMerengueProcess(wayland_display=self.compositor.props.socket)
         self.__merengue.connect("exit", self.__on_process_exit)
@@ -260,7 +288,7 @@ class CmbView(Gtk.Box):
         self.__merengue.cleanup()
 
         if os.path.exists(dirname):
-            os.rmdir(dirname)
+            shutil.rmtree(dirname)
 
     def _set_dark_mode(self, dark):
         self.__dark = dark
@@ -437,6 +465,16 @@ class CmbView(Gtk.Box):
     def __on_object_data_arg_changed(self, project, data, value):
         self.__merengue_update_ui(data.ui_id)
 
+    def __set_error_message(self, message):
+        if message:
+            self.error_message.props.label = message
+            self.compositor.set_visible(False)
+            self.error_message.set_visible(True)
+        else:
+            self.error_message.props.label = ""
+            self.compositor.set_visible(True)
+            self.error_message.set_visible(False)
+
     @GObject.Property(type=GObject.GObject)
     def project(self):
         return self.__project
@@ -502,7 +540,7 @@ class CmbView(Gtk.Box):
                 self.__merengue.version = "4.0"
 
             # Clear any error
-            self.compositor.props.error_message = None
+            self.__set_error_message(None)
             self.__merengue.start()
 
             # Update css themes
@@ -517,9 +555,9 @@ class CmbView(Gtk.Box):
         self.__theme = theme
         self.__merengue_command("gtk_settings_set", args={"property": "gtk-theme-name", "value": theme})
 
-    @Gtk.Template.Callback("on_compositor_context_menu")
-    def __on_compositor_context_menu(self, compositor, x, y):
-        self.menu.popup_at(x, y)
+    def __on_click_gesture_pressed(self, gesture, n_press, x, y):
+        if gesture.get_current_button() == 3:
+            self.menu.popup_at(x, y)
 
     def inspect(self):
         self.stack.props.visible_child_name = "ui_xml"
@@ -544,7 +582,7 @@ class CmbView(Gtk.Box):
             self.__merengue_last_exit = time.monotonic()
         else:
             if (time.monotonic() - self.__merengue_last_exit) < 1:
-                self.compositor.props.error_message = _("Workspace process error\nStopping auto restart")
+                self.__set_error_message(_("Workspace process error\nStopping auto restart"))
                 self.__merengue_last_exit = None
                 return
 

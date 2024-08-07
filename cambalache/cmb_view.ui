@@ -3,7 +3,7 @@
 <interface>
   <!-- interface-name cmb_view.ui -->
   <!-- interface-copyright Juan Pablo Ugarte -->
-  <requires lib="gtk" version="4.0"/>
+  <requires lib="gtk" version="4.14"/>
   <template class="CmbView" parent="GtkBox">
     <child>
       <object class="GtkStack" id="stack">
@@ -13,9 +13,27 @@
         <child>
           <object class="GtkStackPage">
             <property name="child">
-              <object class="CasildaCompositor" id="compositor">
-                <property name="can-focus">True</property>
-                <signal name="context-menu" handler="on_compositor_context_menu"/>
+              <object class="GtkBox">
+                <child>
+                  <object class="GtkGraphicsOffload" id="compositor_offload">
+                    <property name="child">
+                      <object class="CasildaCompositor" id="compositor">
+                        <property name="hexpand">True</property>
+                        <property name="vexpand">True</property>
+                      </object>
+                    </property>
+                    <property name="hexpand">True</property>
+                    <property name="vexpand">True</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="error_message">
+                    <property name="halign">center</property>
+                    <property name="hexpand">True</property>
+                    <property name="valign">center</property>
+                    <property name="vexpand">True</property>
+                  </object>
+                </child>
               </object>
             </property>
             <property name="name">ui_view</property>
