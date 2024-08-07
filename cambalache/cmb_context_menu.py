@@ -69,6 +69,10 @@ class CmbContextMenu(Gtk.PopoverMenu):
                 "GtkAligment",
                 "GtkEventBox"
             ]
+        else:
+            types += [
+                "GtkGraphicsOffload",
+            ]
 
         self.add_submenu.remove_all()
 
