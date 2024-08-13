@@ -88,7 +88,7 @@ find_program('gtk4-broadwayd', required: true)
 gtk3_dep = dependency('pygobject-3.0', version: '>= 3.48.0')
 gtk3_dep = dependency('gtk+-3.0', version: '>= 3.24.0')
 gtk4_dep = dependency('gtk4', version: '>= 4.14.0')
-casilda_dep = dependency('casilda-0.1', version: '>= 0.1.0')
+casilda_dep = dependency('casilda-0.1', version: '>= 0.1.0', fallback: ['casilda', 'casilda_dep'])
 handy_dep = dependency('libhandy-1', version: '>= 1.8.0')
 adw_dep = dependency('libadwaita-1', version: '>= 1.5.0')
 
