@@ -51,7 +51,16 @@ flatpak install --user flathub ar.xjuan.Cambalache
 
 ## Flatpak
 
+Use the following commands to install build dependencies:
+
+```
+flatpak remote-add --user --if-not-exists gnome-nightly https://nightly.gnome.org/gnome-nightly.flatpakrepo
+flatpak install --user org.gnome.Sdk//master
+flatpak install --user org.gnome.Platform//master
+```
+
 Build your bundle with the following commands
+
 ```
 flatpak-builder --force-clean --repo=repo build ar.xjuan.Cambalache.json
 flatpak build-bundle repo cambalache.flatpak ar.xjuan.Cambalache
@@ -64,6 +73,11 @@ make install
 ```
 
 Will create the flatpak repository, then the bundle and install it
+
+Run as:
+```
+flatpak run --user ar.xjuan.Cambalache//master
+```
 
 ## Manual installation
 
