@@ -21,7 +21,7 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-from gi.repository import GObject, Gio, Gtk
+from gi.repository import GLib, GObject, Gio, Gtk
 from cambalache import CmbProject
 
 
@@ -32,13 +32,13 @@ class CmbDBTable(GObject.Object):
 
     def do_get_property(self, prop):
         # TODO: read from DB directly
-        if prop.name not in self.__properties_set__:
+        if not prop.name.startswith("cmb-int-") and prop.name not in self.__properties_set__:
             raise AttributeError('unknown property %s' % prop.name)
         return self.__properties[prop.name]
 
     def do_set_property(self, prop, value):
         # TODO: only store PK values when using DB
-        if prop.name not in self.__properties_set__:
+        if not prop.name.startswith("cmb-int-") and prop.name not in self.__properties_set__:
             raise AttributeError('unknown property %s' % prop.name)
         self.__properties[prop.name] = value
         self.notify(prop.name)
@@ -76,12 +76,13 @@ class CmbDBStore(GObject.GObject, Gio.ListModel):
 
         ItemClass = self.__item_class
         properties = ItemClass.__properties__
+        int_properties = ItemClass.__int_properties__
         table = ItemClass.__table__
         needs_update = False
 
         # Basic optimization, only update if something changed in this table
         # TODO: this could be optimized more by check command to know exactly which row changed
-        if self.__history_index is None or table in ["history", "global"]:
+        if self.__history_index is None or table in ["history", "global", "__profile__"]:
             needs_update = True
         else:
             change_table = table[7:] if table.startswith("history_") else table
@@ -114,7 +115,10 @@ class CmbDBStore(GObject.GObject, Gio.ListModel):
         for row in self.project.db.execute(f"SELECT * FROM {table} ORDER BY {pk_columns};"):
             item = ItemClass()
             for i, val in enumerate(row):
-                item.set_property(properties[i], val)
+                property_id = properties[i]
+                if property_id in int_properties:
+                    item.set_property(f"cmb-int-{property_id}", val if val is not None else 0)
+                item.set_property(property_id, val)
 
             self._objects.append(item)
 
@@ -132,6 +136,7 @@ class TableView(Gtk.ColumnView):
         self.props.show_column_separators = True
         self.props.reorderable = False
         self.__model = None
+        self.__filter_model = None
         self.__item_class = ItemClass
 
         for property_id in ItemClass.__properties__:
@@ -141,7 +146,18 @@ class TableView(Gtk.ColumnView):
             factory.connect("unbind", self._on_factory_unbind)
 
             col = Gtk.ColumnViewColumn(title=property_id, factory=factory)
-            col.props.resizable = True
+
+            if property_id in ItemClass.__int_properties__:
+                property_expression = Gtk.PropertyExpression.new(ItemClass, None, f"cmb-int-{property_id}")
+                sorter = Gtk.NumericSorter()
+            else:
+                property_expression = Gtk.PropertyExpression.new(ItemClass, None, property_id)
+                sorter = Gtk.StringSorter()
+                col.props.resizable = True
+                col.props.expand = True
+
+            sorter.set_expression(property_expression)
+            col.set_sorter(sorter)
             self.append_column(col)
 
         # TODO: keep track of project changes only while we are showing this model
@@ -156,7 +172,7 @@ class TableView(Gtk.ColumnView):
         self.__update_label(item, label, pspec.name)
 
     def _on_factory_setup(self, factory, list_item):
-        label = Gtk.Label(xalign=0)
+        label = Gtk.Inscription()
         list_item.set_child(label)
 
     def _on_factory_bind(self, factory, list_item, property_id):
@@ -178,7 +194,8 @@ class TableView(Gtk.ColumnView):
 
         # Load model when widget is shown
         self.__model = CmbDBStore(self.__item_class, project=self.project)
-        self.set_model(Gtk.NoSelection(model=self.__model))
+        self.__filter_model = Gtk.SortListModel(model=self.__model, sorter=self.get_sorter())
+        self.set_model(Gtk.NoSelection(model=self.__filter_model))
 
     def __on_project_changed(self, project):
         # Trigger check refresh
@@ -224,29 +241,36 @@ class CmbDBInspector(Gtk.Box):
         db = self.project.db
         properties = []
         gproperties = {}
+        int_properties = set()
         pk_list = []
 
         for row in db.execute(f"PRAGMA table_info({table});"):
             col = row[1]
+            col_type = row[2]
             pk = row[5]
 
             name = col.replace("_", "-")
             properties.append(name)
+            if col_type == "INTEGER":
+                int_properties.add(name)
+                gproperties[f"cmb-int-{name}"] = (int, "", "", GLib.MININT, GLib.MAXINT, 0, GObject.ParamFlags.READWRITE)
+
             gproperties[name] = (str, "", "", None, GObject.ParamFlags.READWRITE)
 
             if pk:
                 pk_list.append(col)
 
-        return properties, gproperties, pk_list
+        return properties, gproperties, int_properties, pk_list
 
     def __class_from_table(self, table):
         class_name = f"CmbDBTable_{table}"
-        properties, gproperties, pk = self._metadata_from_table(table)
+        properties, gproperties, int_properties, pk = self._metadata_from_table(table)
         klass = type(class_name, (CmbDBTable,), dict(
             __table__=table,
             __gproperties__=gproperties,
             __properties__=properties,
             __properties_set__=set(properties),
+            __int_properties__= int_properties,
             __pk__=pk)
         )
         return klass
