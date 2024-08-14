@@ -329,13 +329,13 @@ class CmbWindow(Adw.ApplicationWindow):
         selection = self.project.get_selection()
         obj = selection[0] if len(selection) else None
 
-        if obj and type(obj) not in [CmbObject, CmbUI]:
+        if obj is not None and not isinstance(obj, CmbObject) and not isinstance(obj, CmbUI):
             return
 
         device = self.get_display().get_default_seat().get_keyboard()
 
         # If alt is pressed, force adding object to selection
-        if device and bool(device.props.modifier_state & Gdk.ModifierType.ALT_MASK):
+        if device is not None and bool(device.props.modifier_state & Gdk.ModifierType.ALT_MASK):
             if obj:
                 parent_id = obj.object_id if isinstance(obj, CmbObject) else None
                 self.project.add_object(obj.ui_id, info.type_id, None, parent_id)
@@ -346,7 +346,7 @@ class CmbWindow(Adw.ApplicationWindow):
             # Select type and let user choose which placeholder to use
             self.type_chooser.props.selected_type = info
             self.__update_action_add_object()
-        elif obj:
+        elif obj is not None:
             # Create toplevel object/window
             self.project.add_object(obj.ui_id, info.type_id)
 
@@ -509,6 +509,7 @@ class CmbWindow(Adw.ApplicationWindow):
             editor.props.visible = is_not_builtin
 
         self.__update_action_add_object()
+        self.__update_action_remove_parent()
 
     def __update_action_intro(self):
         enabled = False
@@ -527,6 +528,20 @@ class CmbWindow(Adw.ApplicationWindow):
 
         for action in ["add_object", "add_object_toplevel"]:
             self.actions[action].set_enabled(enabled)
+
+    def __update_action_remove_parent(self):
+        if self.project is None:
+            self.actions["remove_parent"].set_enabled(False)
+            return
+
+        selection = self.project.get_selection()
+        obj = selection[0] if len(selection) else None
+
+        if obj is not None and isinstance(obj, CmbObject) and obj.parent_id and obj.parent.n_items == 1:
+            self.actions["remove_parent"].set_enabled(True)
+            return
+
+        self.actions["remove_parent"].set_enabled(False)
 
     def __needs_saving(self):
         has_project = self.__is_project_visible()
@@ -556,6 +571,7 @@ class CmbWindow(Adw.ApplicationWindow):
         self.__update_action_clipboard()
         self.__update_action_undo_redo()
         self.__update_action_add_object()
+        self.__update_action_remove_parent()
 
     def __file_open_dialog_new(self, title, filter_obj=None, accept_label=None):
         dialog = Gtk.FileDialog(
