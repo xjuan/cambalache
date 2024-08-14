@@ -22,7 +22,7 @@
 #
 
 from gi.repository import GObject, Gtk
-from cambalache import CmbObject, CmbUI, CmbBaseObject
+from cambalache import CmbObject, CmbUI
 
 
 class CmbToplevelChooser(Gtk.DropDown):
@@ -45,31 +45,25 @@ class CmbToplevelChooser(Gtk.DropDown):
 
         self.__update_model()
 
-        self.__expression = Gtk.PropertyExpression.new(CmbBaseObject, None, "display-name")
+        self.__expression = Gtk.PropertyExpression.new(CmbObject, None, "display-name-type")
         self.props.expression = self.__expression
 
         self.connect("notify::object", self.__on_object_notify)
         self.connect("notify::selected-item", self.__on_selected_item_notify)
 
-    def __filter_func(self, model, iter, data):
-        obj = model[iter][0]
-
-        if self.object.ui_id != obj.ui_id:
-            return False
-
-        if type(obj) is CmbObject:
-            if self.derivable_only:
-                return obj.info.derivable and obj.parent_id == 0
-            else:
-                return obj.parent_id == 0
-
-        return False
-
     def __update_model(self):
         if self.object is None:
+            self.props.model = None
             return
 
-        self.props.model = self.object.children_model
+        if self.derivable_only:
+            model = Gtk.FilterListModel(
+                model=self.object,
+                filter=Gtk.CustomFilter.new(lambda i, d: i.info.derivable, None)
+            )
+            self.props.model = model
+        else:
+            self.props.model = self.object
 
     def __on_object_notify(self, obj, pspec):
         self.props.model = None

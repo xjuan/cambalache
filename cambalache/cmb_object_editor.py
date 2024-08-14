@@ -282,15 +282,15 @@ It has to be exposed by your application with GtkBuilder expose_object method."
         if obj == self.__object:
             return
 
-        if self.__object:
+        if self.__object is not None:
             self.__object.disconnect_by_func(self.__on_object_notify)
             self.__object.ui.disconnect_by_func(self.__on_object_ui_notify)
 
         self.__object = obj
 
-        if obj:
-            self.__object.connect("notify", self.__on_object_notify)
-            self.__object.ui.connect("notify", self.__on_object_ui_notify)
+        if obj is not None:
+            obj.connect("notify", self.__on_object_notify)
+            obj.ui.connect("notify", self.__on_object_ui_notify)
 
         self.__update_view()
 

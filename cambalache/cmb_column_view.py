@@ -34,6 +34,7 @@ class CmbColumnView(Gtk.ColumnView):
 
     def __init__(self, **kwargs):
         self.__project = None
+        self.__tree_model = None
         self.__in_selection_change = False
         self.single_selection = Gtk.SingleSelection()
 
@@ -104,12 +105,11 @@ class CmbColumnView(Gtk.ColumnView):
 
     def __object_ancestor_expand(self, obj):
         ancestors = self.__get_object_ancestors(obj)
-        tree_model = self.__project.tree_model
         i = 0
 
         # Iterate over tree model
         # NOTE: only visible/expanded rows are returned
-        list_row = tree_model.get_row(i)
+        list_row = self.__tree_model.get_row(i)
         while list_row:
             item = list_row.get_item()
 
@@ -121,7 +121,7 @@ class CmbColumnView(Gtk.ColumnView):
                 list_row.set_expanded(True)
 
             i += 1
-            list_row = tree_model.get_row(i)
+            list_row = self.__tree_model.get_row(i)
 
         return None
 
@@ -157,11 +157,26 @@ class CmbColumnView(Gtk.ColumnView):
 
         self.__project = project
 
-        if project:
-            self.single_selection.props.model = project.tree_model
+        if project is not None:
+            self.__tree_model = Gtk.TreeListModel.new(
+                project,
+                False,
+                False,
+                self.__tree_model_create_func,
+                None
+            )
+            self.single_selection.props.model = self.__tree_model
             self.__project.connect("selection-changed", self.__on_project_selection_changed)
         else:
             self.single_selection.props.model = None
+
+    def __tree_model_create_func(self, item, data):
+        if isinstance(item, CmbObject):
+            return item
+        elif isinstance(item, CmbUI):
+            return item
+
+        return None
 
     def __on_selected_item_notify(self, single_selection, pspec):
         if self.__in_selection_change or self.__project is None:
@@ -250,8 +265,8 @@ class CmbColumnView(Gtk.ColumnView):
             expander.props.hide_expander = True
             return
 
-        expander.props.hide_expander = item.children_model.props.n_items == 0
-        item.children_model.connect("notify::n-items", self.__on_list_store_n_items_notify, expander)
+        expander.props.hide_expander = item.props.n_items == 0
+        item.connect("notify::n-items", self.__on_list_store_n_items_notify, expander)
 
     def _on_factory_unbind(self, factory, list_item):
         row = list_item.get_item()
@@ -261,7 +276,7 @@ class CmbColumnView(Gtk.ColumnView):
         item.disconnect_by_func(self.__on_item_notify)
 
         if isinstance(item, CmbObject) or isinstance(item, CmbUI):
-            item.children_model.disconnect_by_func(self.__on_list_store_n_items_notify)
+            item.disconnect_by_func(self.__on_list_store_n_items_notify)
 
         if expander is None:
             return
@@ -425,12 +440,23 @@ class CmbColumnView(Gtk.ColumnView):
         else:
             msg = None
 
-        if drop_before:
-            position = item.position
-        else:
-            position = item.position + 1
+        parent = item.parent
 
-        item.parent.reorder_child(origin_item, position)
+        origin_position = origin_item.position
+        target_position = item.position
+
+        if origin_position > target_position:
+            if drop_before:
+                position = item.position
+            else:
+                position = item.position + 1
+        else:
+            if drop_before:
+                position = item.position - 1
+            else:
+                position = item.position
+
+        parent.reorder_child(origin_item, position)
 
         if msg:
             self.__project.history_pop()
@@ -458,7 +484,7 @@ class CmbColumnView(Gtk.ColumnView):
         return None
 
     def __on_activate(self, column_view, position):
-        item = self.__project.tree_model.get_item(position)
+        item = self.__tree_model.get_item(position)
         item.set_expanded(not item.get_expanded())
 
     def do_query_tooltip(self, x, y, keyboard_mode, tooltip):

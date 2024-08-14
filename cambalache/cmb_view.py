@@ -465,6 +465,9 @@ class CmbView(Gtk.Box):
     def __on_object_data_arg_changed(self, project, data, value):
         self.__merengue_update_ui(data.ui_id)
 
+    def __on_object_child_reordered(self, project, obj, child, old_position, new_position):
+        self.__merengue_update_ui(obj.ui_id)
+
     def __set_error_message(self, message):
         if message:
             self.error_message.props.label = message
@@ -494,6 +497,7 @@ class CmbView(Gtk.Box):
             self.__project.disconnect_by_func(self.__on_object_data_removed)
             self.__project.disconnect_by_func(self.__on_object_data_data_removed)
             self.__project.disconnect_by_func(self.__on_object_data_arg_changed)
+            self.__project.disconnect_by_func(self.__on_object_child_reordered)
             self.__project.disconnect_by_func(self.__on_project_selection_changed)
             self.__project.disconnect_by_func(self.__on_css_added)
             self.__project.disconnect_by_func(self.__on_css_removed)
@@ -527,6 +531,7 @@ class CmbView(Gtk.Box):
             project.connect("object-data-removed", self.__on_object_data_removed)
             project.connect("object-data-data-removed", self.__on_object_data_data_removed)
             project.connect("object-data-arg-changed", self.__on_object_data_arg_changed)
+            project.connect("object-child-reordered", self.__on_object_child_reordered)
             project.connect("selection-changed", self.__on_project_selection_changed)
             project.connect("css-added", self.__on_css_added)
             project.connect("css-removed", self.__on_css_removed)
