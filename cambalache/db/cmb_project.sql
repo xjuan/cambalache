@@ -120,15 +120,18 @@ CREATE TABLE object (
   internal TEXT,
   type TEXT,
   comment TEXT,
-  position INTEGER NOT NULL ON CONFLICT REPLACE DEFAULT 0,
+  position INTEGER NOT NULL CHECK(position >= 0),
   custom_fragment TEXT,
   custom_child_fragment TEXT,
   PRIMARY KEY(ui_id, object_id),
   FOREIGN KEY(ui_id, parent_id) REFERENCES object(ui_id, object_id) ON DELETE CASCADE
+  UNIQUE(ui_id, parent_id, position)
 ) WITHOUT ROWID;
 
 CREATE INDEX object_type_id_fk ON object (type_id);
 CREATE INDEX object_parent_id_fk ON object (ui_id, parent_id);
+CREATE INDEX object_ui_id_parent_id_position_idx ON object (ui_id, parent_id, position);
+
 
 /* Update template name:
  * References to type will be automatically updated because of ON UPDATE CASCADE

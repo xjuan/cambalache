@@ -37,24 +37,24 @@ def migrate_table_data_to_0_7_5(c, table, data):
     if table == "object":
         c.execute(
             """
-            UPDATE object SET position=new.position - 1
+            UPDATE temp.object SET position=new.position - 1
             FROM (
                 SELECT row_number() OVER (PARTITION BY parent_id ORDER BY object_id) position, ui_id, object_id
-                FROM object
+                FROM temp.object
                 WHERE parent_id IS NOT NULL
             ) AS new
-            WHERE object.ui_id=new.ui_id AND object.object_id=new.object_id;
+            WHERE temp.object.ui_id=new.ui_id AND temp.object.object_id=new.object_id;
             """
         )
         c.execute(
             """
-            UPDATE object SET position=new.position - 1
+            UPDATE temp.object SET position=new.position - 1
             FROM (
                 SELECT row_number() OVER (PARTITION BY ui_id ORDER BY object_id) position, ui_id, object_id
-                FROM object
+                FROM temp.object
                 WHERE parent_id IS NULL
             ) AS new
-            WHERE object.ui_id=new.ui_id AND object.object_id=new.object_id;
+            WHERE temp.object.ui_id=new.ui_id AND temp.object.object_id=new.object_id;
             """
         )
 
@@ -72,9 +72,9 @@ def migrate_table_data_to_0_9_0(c, table, data):
         # Remove all object properties with a 0 as value
         c.execute(
             """
-            DELETE FROM object_property AS op
+            DELETE FROM temp.object_property AS op
             WHERE value = 0 AND
-                (SELECT property_id FROM property WHERE owner_id=op.owner_id AND property_id=op.property_id AND is_object)
+                (SELECT property_id FROM temp.property WHERE owner_id=op.owner_id AND property_id=op.property_id AND is_object)
             IS NOT NULL;
             """
         )
@@ -116,9 +116,9 @@ def migrate_table_data_to_0_17_3(c, table, data):
     if table in ["object_property", "object_layout_property", "object_data"]:
         c.executescript(
             f"""
-            UPDATE {table} SET translatable=1
+            UPDATE temp.{table} SET translatable=1
             WHERE translatable IS NOT NULL AND lower(translatable) IN (1, 'y', 'yes', 't', 'true');
-            UPDATE {table} SET translatable=NULL
+            UPDATE temp.{table} SET translatable=NULL
             WHERE translatable IS NOT NULL AND translatable != 1;
             """
         )
@@ -127,8 +127,13 @@ def migrate_table_data_to_0_17_3(c, table, data):
         for prop in ["swap", "after"]:
             c.executescript(
                 f"""
-                UPDATE object_signal SET {prop}=1
+                UPDATE temp.object_signal SET {prop}=1
                 WHERE {prop} IS NOT NULL AND lower({prop}) IN (1, 'y', 'yes', 't', 'true');
-                UPDATE object_signal SET {prop}=NULL WHERE {prop} IS NOT NULL AND after != 1;
+                UPDATE temp.object_signal SET {prop}=NULL WHERE {prop} IS NOT NULL AND after != 1;
                 """
             )
+
+
+def migrate_table_data_to_0_91_2(c, table, data):
+    # Ensure every object has a position
+    migrate_table_data_to_0_7_5(c, table, data)

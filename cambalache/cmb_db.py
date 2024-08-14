@@ -128,6 +128,7 @@ class CmbDB(GObject.GObject):
         val = "ON" if value else "OFF"
         self.conn.commit()
         self.conn.execute(f"PRAGMA ignore_check_constraints={val};")
+        self.conn.execute("PRAGMA quick_check;")
 
     def __sqlite_connect(self, path):
         conn = sqlite3.connect(path)
@@ -554,21 +555,39 @@ class CmbDB(GObject.GObject):
         if version < (0, 17, 3):
             cmb_db_migration.migrate_table_data_to_0_17_3(c, table, data)
 
+        if version < (0, 91, 2):
+            cmb_db_migration.migrate_table_data_to_0_91_2(c, table, data)
+
     def __load_table_from_tuples(self, c, table, tuples, version=None):
         data = ast.literal_eval(f"[{tuples}]") if tuples else []
 
         if len(data) == 0:
             return
 
+        # version is None for catalog tables
+        if version is None or self.version == version:
+            cols = ", ".join(["?" for col in data[0]])
+            c.executemany(f"INSERT INTO {table} VALUES ({cols})", data)
+            return
+
         # Ensure table data has the right amount of columns
         data = self.__ensure_table_data_columns(version, table, data)
+        cols = ", ".join(["?" for col in data[0]])
+
+        # Create temp table without any constraints
+        c.execute(f"CREATE TEMP TABLE {table} AS SELECT * FROM {table} LIMIT 0;")
 
         # Load table data
-        cols = ", ".join(["?" for col in data[0]])
-        c.executemany(f"INSERT INTO {table} VALUES ({cols})", data)
+        c.executemany(f"INSERT INTO temp.{table} VALUES ({cols})", data)
 
         # Migrate data to current format
         self.__migrate_table_data(c, version, table, data)
+
+        # Copy data from temp table
+        c.execute(f"INSERT INTO main.{table} SELECT * FROM temp.{table};")
+
+        # Drop temp table
+        c.execute(f"DROP TABLE temp.{table};")
 
     def load(self, filename):
         # TODO: drop all data before loading?
@@ -681,10 +700,10 @@ class CmbDB(GObject.GObject):
                     # FIXME: find a better way to escape string
                     val = c.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
                     r += f'"{val}"'
-                elif c:
-                    r += str(c)
-                else:
+                elif c is None:
                     r += "None"
+                else:
+                    r += str(c)
 
             return f"\t({r})"
 
@@ -774,6 +793,9 @@ class CmbDB(GObject.GObject):
     def execute(self, *args):
         return self.conn.execute(*args)
 
+    def executescript(self, *args):
+        return self.conn.executescript(*args)
+
     def add_ui(self, name, filename, requirements={}, comment=None):
         c = self.conn.cursor()
         c.execute("INSERT INTO ui (name, filename, comment) VALUES (?, ?, ?);", (name, filename, comment))
@@ -819,16 +841,11 @@ class CmbDB(GObject.GObject):
         )
         object_id = c.fetchone()[0]
 
-        if position is None:
-            c.execute(
-                """
-                SELECT count(object_id)
-                FROM object
-                WHERE ui_id=? AND parent_id=? AND object_id NOT IN
-                  (SELECT inline_object_id FROM object_property WHERE inline_object_id IS NOT NULL AND ui_id=? AND object_id=?);
-                """,
-                (ui_id, parent_id, ui_id, parent_id),
-            )
+        if position is None or position < 0:
+            if parent_id is None:
+                c.execute("SELECT count(object_id) FROM object WHERE ui_id=? AND parent_id IS NULL;", (ui_id, ))
+            else:
+                c.execute("SELECT count(object_id) FROM object WHERE ui_id=? AND parent_id=?;", (ui_id, parent_id))
             position = c.fetchone()[0]
 
         c.execute(
@@ -1549,6 +1566,30 @@ class CmbDB(GObject.GObject):
                 op.bind_property_id = p.property_id AND
                 op.bind_owner_id = a.type_id AND
                 p.owner_id = a.parent_id
+            """,
+            (ui_id,),
+        )
+
+        # Fix data arg references to objects
+        self.conn.execute(
+            """
+            WITH RECURSIVE ancestor(type_id, generation, parent_id) AS (
+              SELECT type_id, 1, parent_id FROM type
+                WHERE parent_id IS NOT NULL AND
+                      parent_id != 'enum' AND
+                      parent_id != 'flags'
+              UNION ALL
+              SELECT ancestor.type_id, generation + 1, type.parent_id
+                FROM type JOIN ancestor ON type.type_id = ancestor.parent_id
+                WHERE type.parent_id IS NOT NULL
+            )
+            UPDATE object_data_arg AS oda SET value=o.object_id
+            FROM object AS o, type_data_arg AS tda, type AS t, ancestor AS a
+            WHERE
+                oda.ui_id=? AND oda.ui_id=o.ui_id AND oda.value=o.name AND
+                oda.owner_id=tda.owner_id AND oda.data_id=tda.data_id AND oda.key=tda.key AND
+                tda.type_id=t.type_id AND
+                t.type_id=a.type_id AND a.generation=1 AND a.parent_id IN ('GObject', 'interface')
             """,
             (ui_id,),
         )
@@ -2328,6 +2369,21 @@ class CmbDB(GObject.GObject):
 
     def clear_history(self):
         self.conn.executescript(self.__clear_history)
+
+    def update_children_position(self, ui_id, parent_id=None):
+        parent_clause = "parent_id IS NULL" if parent_id is None else "parent_id=?"
+        self.execute(
+            f"""
+            UPDATE object SET position=new.position - 1
+            FROM (
+                SELECT row_number() OVER (PARTITION BY parent_id ORDER BY object_id) position, ui_id, object_id
+                FROM object
+                WHERE ui_id=? AND {parent_clause}
+            ) AS new
+            WHERE object.ui_id=new.ui_id AND object.object_id=new.object_id;
+            """,
+            (ui_id, ) if parent_id is None else (ui_id, parent_id)
+        )
 
 
 # Function used in SQLite
