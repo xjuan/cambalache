@@ -24,7 +24,7 @@
 import os
 import time
 
-from gi.repository import GObject, Gio, Gtk
+from gi.repository import GObject, Gio
 
 from lxml import etree
 
@@ -45,7 +45,7 @@ from cambalache import getLogger, _, N_
 logger = getLogger(__name__)
 
 
-class CmbProject(GObject.Object):
+class CmbProject(GObject.Object, Gio.ListModel):
     __gtype_name__ = "CmbProject"
 
     __gsignals__ = {
@@ -70,6 +70,7 @@ class CmbProject(GObject.Object):
         "object-signal-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, CmbSignal)),
         "object-signal-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, CmbSignal)),
         "object-signal-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, CmbSignal)),
+        "object-child-reordered": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, CmbObject, int, int)),
         "object-data-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, CmbObjectData)),
         "object-data-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, CmbObjectData)),
         "object-data-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObjectData,)),
@@ -95,10 +96,14 @@ class CmbProject(GObject.Object):
         # Library Info
         self.library_info = {}
 
+        # GListModel
+        self.__items = []
+
         # Selection
         self.__selection = []
 
-        # Create TreeModel store
+        # Objects hash tables
+        # FIXME: Use an int key instead of a string (ui_id << 18 || object_id)
         self.__object_id = {}
         self.__css_id = {}
 
@@ -120,30 +125,12 @@ class CmbProject(GObject.Object):
         if self.target_tk is None or self.target_tk == "":
             raise Exception("Either target_tk or filename are required")
 
-        self.root_model = Gio.ListStore(item_type=CmbBase)
-
-        self.tree_model = Gtk.TreeListModel.new(
-            self.root_model,
-            False,
-            False,
-            self.__tree_model_create_func,
-            None
-        )
-
         # DataModel is only used internally
         self.db = CmbDB(target_tk=self.target_tk)
         self.db.type_info = self.type_info
         self.__init_data()
 
         self.__load()
-
-    def __tree_model_create_func(self, item, data):
-        if isinstance(item, CmbObject):
-            return item.children_model
-        elif isinstance(item, CmbUI):
-            return item.children_model
-
-        return None
 
     @GObject.Property(type=bool, default=False)
     def history_enabled(self):
@@ -248,28 +235,20 @@ class CmbProject(GObject.Object):
         self.db.load(self.filename)
         self.history_enabled = True
 
-        self.__populate_objects()
+        self.__populate_items()
 
-    def __populate_objects(self, ui_id=None):
+    def __populate_items(self, ui_id=None):
         c = self.db.cursor()
-        cc = self.db.cursor()
 
         if ui_id:
             rows = c.execute("SELECT * FROM ui WHERE ui_id=?;", (ui_id,))
         else:
             rows = c.execute("SELECT * FROM ui;")
 
-        uis = []
-
         # Populate tree view ui first
         for row in rows:
-            uis.append(self.__add_ui(False, *row))
-
-        # Populate tree view objects
-        for ui in uis:
-            # Update UI objects
-            for obj in cc.execute("SELECT * FROM object WHERE ui_id=? ORDER BY parent_id, position, object_id;", (ui.ui_id,)):
-                self.__add_object(False, *obj)
+            ui = self.__add_ui(True, *row)
+            ui.notify("n-items")
 
         # Populate CSS
         if ui_id is None:
@@ -277,10 +256,9 @@ class CmbProject(GObject.Object):
 
             # Populate tree view
             for row in rows:
-                self.__add_css(False, *row)
+                self.__add_css(True, *row)
 
         c.close()
-        cc.close()
 
     @GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
     def filename(self):
@@ -372,7 +350,7 @@ class CmbProject(GObject.Object):
         import_end = time.monotonic()
 
         # Populate UI
-        self.__populate_objects(ui_id)
+        self.__populate_items(ui_id)
 
         self.history_pop()
 
@@ -469,8 +447,6 @@ class CmbProject(GObject.Object):
         ui = CmbUI(project=self, ui_id=ui_id)
 
         self.__object_id[ui_id] = ui
-        self.root_model.append(ui)
-
         self.__update_template_type_info(ui)
 
         if emit:
@@ -493,13 +469,7 @@ class CmbProject(GObject.Object):
 
     def __remove_ui(self, ui):
         self.__object_id.pop(ui.ui_id, None)
-
         self.__selection_remove(ui)
-
-        found, position = self.root_model.find(ui)
-        if found:
-            self.root_model.remove(position)
-
         self.emit("ui-removed", ui)
 
     def remove_ui(self, ui):
@@ -535,9 +505,6 @@ class CmbProject(GObject.Object):
     def __add_css(self, emit, css_id, filename=None, priority=None, is_global=None):
         css = CmbCSS(project=self, css_id=css_id)
         self.__css_id[css_id] = css
-
-        self.root_model.append(css)
-
         if emit:
             self.emit("css-added", css)
 
@@ -559,11 +526,6 @@ class CmbProject(GObject.Object):
     def __remove_css(self, css):
         self.__css_id.pop(css.css_id, None)
         self.__selection_remove(css)
-
-        found, position = self.root_model.find(css)
-        if found:
-            self.root_model.remove(position)
-
         self.emit("css-removed", css)
 
     def remove_css(self, css):
@@ -578,9 +540,6 @@ class CmbProject(GObject.Object):
 
     def get_css_providers(self):
         return list(self.__css_id.values())
-
-    def _append_object(self, obj):
-        self.__object_id[f"{obj.ui_id}.{obj.object_id}"] = obj
 
     def __add_object(
         self,
@@ -598,8 +557,18 @@ class CmbProject(GObject.Object):
         custom_child_fragment=None,
     ):
         obj = CmbObject(project=self, ui_id=ui_id, object_id=object_id, info=self.type_info[obj_type])
+        self.__object_id[f"{ui_id}.{object_id}"] = obj
 
         if emit:
+            parent = obj.parent
+            if parent is not None:
+                parent.items_changed(obj.list_position, 0, 1)
+                parent.notify("n-items")
+            else:
+                ui = obj.ui
+                ui.items_changed(obj.list_position, 0, 1)
+                ui.notify("n-items")
+
             self.emit("object-added", obj)
 
         return obj
@@ -629,7 +598,7 @@ class CmbProject(GObject.Object):
             return True
 
     def add_object(
-        self, ui_id, obj_type, name=None, parent_id=None, layout=None, position=-1, child_type=None, inline_property=None
+        self, ui_id, obj_type, name=None, parent_id=None, layout=None, position=None, child_type=None, inline_property=None
     ):
         if parent_id:
             parent = self.get_object_by_id(ui_id, parent_id)
@@ -675,24 +644,21 @@ class CmbProject(GObject.Object):
 
         self.__selection_remove(obj)
 
-        # obj.parent_id is not available after removing object from DB
-        if obj._parent_id:
-            parent = self.get_object_by_id(ui_id, obj._parent_id)
-            model = parent.children_model
-        else:
-            model = obj.ui.children_model
-
-        found, position = model.find(obj)
-        if found:
-            model.remove(position)
-
         self.__object_id.pop(f"{ui_id}.{object_id}", None)
+
         self.emit("object-removed", obj)
 
     def remove_object(self, obj):
         try:
             template_ui = None
             template_instances = None
+
+            ui_id = obj.ui_id
+            object_id = obj.object_id
+            parent_id = obj.parent_id
+
+            # We need to call this before removing an object from the DB to know where is was in the GListModel
+            obj._save_last_known_parent_and_position()
 
             if obj.ui.template_id == obj.object_id:
                 template_ui = obj.ui
@@ -702,6 +668,7 @@ class CmbProject(GObject.Object):
                     obj_ui_id, obj_object_id = row
                     tmpl_obj = self.get_object_by_id(obj_ui_id, obj_object_id)
                     if tmpl_obj:
+                        tmpl_obj._save_last_known_parent_and_position()
                         template_instances.append(tmpl_obj)
 
             name = obj.name if obj.name is not None else obj.type_id
@@ -710,12 +677,16 @@ class CmbProject(GObject.Object):
             if template_instances is not None and len(template_instances):
                 self.db.execute("DELETE FROM object WHERE type_id=?;", (obj.name, ))
 
-            self.db.execute("DELETE FROM object WHERE ui_id=? AND object_id=?;", (obj.ui_id, obj.object_id))
+            self.db.execute("DELETE FROM object WHERE ui_id=? AND object_id=?;", (ui_id, object_id))
+
+            # Update position
+            self.db.update_children_position(ui_id, parent_id)
+
             self.history_pop()
             self.db.commit()
         except Exception as e:
             logger.warning(f"Error removing object {obj}: {e}")
-        else:
+        finally:
             self.__remove_object(obj, template_ui, template_instances)
 
     def get_selection(self):
@@ -726,18 +697,40 @@ class CmbProject(GObject.Object):
             return
 
         for obj in selection:
-            if type(obj) not in [CmbUI, CmbCSS, CmbObject]:
+            if isinstance(obj, CmbUI):
+                pass
+            elif isinstance(obj, CmbObject):
+                pass
+            elif isinstance(obj, CmbCSS):
+                pass
+            else:
                 return
 
         self.__selection = selection
         self.emit("selection-changed")
 
     def get_object_by_key(self, key):
-        return self.__object_id.get(key, None)
+        if type(key) is int:
+            return self.__object_id.get(key, None)
+
+        obj = self.__object_id.get(key, None)
+
+        if obj is not None:
+            return obj
+
+        ui_id, object_id = [int(x) for x in key.split(".")]
+        row = self.db.execute("SELECT * FROM object WHERE ui_id=? AND object_id=?;", (ui_id, object_id)).fetchone()
+        if row:
+            return self.__add_object(False, *row)
+
+        # FIXME: return dummy object?
+        return None
 
     def get_object_by_id(self, ui_id, object_id=None):
-        key = f"{ui_id}.{object_id}" if object_id is not None else ui_id
-        return self.get_object_by_key(key)
+        if object_id is None:
+            return self.get_object_by_key(ui_id)
+
+        return self.get_object_by_key(f"{ui_id}.{object_id}")
 
     def get_object_by_name(self, ui_id, name):
         c = self.db.execute("SELECT object_id FROM object WHERE ui_id=? AND name=?;", (ui_id, name))
@@ -791,10 +784,18 @@ class CmbProject(GObject.Object):
         if command == "INSERT":
             c.execute(commands["DELETE" if undo else "INSERT"], (self.history_index,))
         elif command == "DELETE":
+            if not undo and table == "object":
+                # Update last known parent and position before deleting an object
+                pk = c.execute(commands["PK"], (self.history_index,)).fetchone()
+                obj = self.get_object_by_id(pk[0], pk[1])
+                obj._save_last_known_parent_and_position()
+
             c.execute(commands["INSERT" if undo else "DELETE"], (self.history_index,))
         elif command == "UPDATE":
             old_data = 1 if undo else 0
+            self.db.ignore_check_constraints = True
             c.execute(commands["UPDATE"], (self.history_index, old_data, self.history_index, old_data))
+            self.db.ignore_check_constraints = False
         elif command == "PUSH" or command == "POP":
             pass
         else:
@@ -879,6 +880,8 @@ class CmbProject(GObject.Object):
             elif table in ["object", "ui", "css"]:
                 c.execute(commands["COUNT"], (self.history_index,))
                 count = c.fetchone()
+                c.execute(commands["DATA"], (self.history_index,))
+                row = c.fetchone()
 
                 if count[0] == 0:
                     if table == "object":
@@ -891,8 +894,6 @@ class CmbProject(GObject.Object):
                         obj = self.get_css_by_id(pk[0])
                         self.__remove_css(obj)
                 else:
-                    c.execute(commands["DATA"], (self.history_index,))
-                    row = c.fetchone()
                     if table == "ui":
                         self.__add_ui(True, *row)
                     elif table == "object":
@@ -1306,6 +1307,9 @@ class CmbProject(GObject.Object):
     def _object_data_changed(self, data):
         self.emit("object-data-changed", data)
 
+    def _object_child_reordered(self, obj, child, old_position, new_position):
+        self.emit("object-child-reordered", obj, child, old_position, new_position)
+
     def _css_changed(self, obj, field):
         self.emit("css-changed", obj, field)
 
@@ -1382,35 +1386,16 @@ class CmbProject(GObject.Object):
                 self.history_push(_("Cut {n_objects} object").format(n_objects=n_objects))
 
             for obj in selection:
+                obj._save_last_known_parent_and_position()
                 self.db.execute("DELETE FROM object WHERE ui_id=? AND object_id=?;", (obj.ui_id, obj.object_id))
 
             self.history_pop()
             self.db.commit()
         except Exception:
             pass
-        else:
+        finally:
             for obj in selection:
                 self.__remove_object(obj)
-
-    def __add_object_recursive(self, emit, ui_id, object_id):
-        for row in self.db.execute(
-            """
-            WITH RECURSIVE ancestor(object_id) AS (
-              SELECT object_id
-              FROM object
-              WHERE ui_id=? AND object_id=?
-              UNION
-              SELECT object.object_id
-              FROM object JOIN ancestor ON object.parent_id=ancestor.object_id
-              WHERE ui_id=?
-            )
-            SELECT object_id FROM ancestor;
-            """,
-            (ui_id, object_id, ui_id),
-        ):
-            child_id = row[0]
-            c = self.db.execute("SELECT * FROM object WHERE ui_id=? AND object_id=?;", (ui_id, child_id))
-            self.__add_object(emit, *c.fetchone())
 
     def add_parent(self, type_id, obj):
         try:
@@ -1418,9 +1403,13 @@ class CmbProject(GObject.Object):
 
             ui_id = obj.ui_id
             object_id = obj.object_id
-            grand_parent_id = obj.parent_id
+            grand_parent_id = obj.parent_id or None
             position = obj.position
+            list_position = obj.list_position
             child_type = obj.type
+
+            self.db.ignore_check_constraints = True
+            self.db.execute("UPDATE object SET position=-1 WHERE ui_id=? AND object_id=?;", (ui_id, object_id))
 
             new_parent_id = self.db.add_object(
                 ui_id,
@@ -1436,35 +1425,56 @@ class CmbProject(GObject.Object):
                 (new_parent_id, ui_id, object_id)
             )
 
+            self.db.execute("UPDATE object SET position=0 WHERE ui_id=? AND object_id=?;", (ui_id, object_id))
+            self.db.ignore_check_constraints = False
+
             # Move all layout properties from obj to parent
-            self.db.execute(
-                "UPDATE object_layout_property SET child_id=? WHERE ui_id=? AND object_id=? AND child_id=?;",
-                (new_parent_id, ui_id, grand_parent_id, object_id)
-            )
+            if grand_parent_id is not None:
+                self.db.execute(
+                    "UPDATE object_layout_property SET child_id=? WHERE ui_id=? AND object_id=? AND child_id=?;",
+                    (new_parent_id, ui_id, grand_parent_id, object_id)
+                )
 
             self.history_pop()
             self.db.commit()
         except Exception as e:
             print(f"Error adding parent {type_id} to object {obj} {e}")
         finally:
-            # Update treemodel
-            self.__remove_object(obj)
             new_parent = self.__add_object(False, ui_id, new_parent_id, type_id, None, grand_parent_id, position=position)
-            self.__add_object_recursive(False, ui_id, object_id)
+
+            if new_parent.parent is not None:
+                new_parent.parent.items_changed(list_position, 1, 1)
+            else:
+                new_parent.ui.items_changed(list_position, 1, 1)
+
+            self.emit("object-added", new_parent)
+            new_parent.notify("n-items")
             self.set_selection([new_parent])
 
     def remove_parent(self, obj):
+        if obj is None:
+            return
+
+        parent = obj.parent
+
+        if parent is None or parent.n_items > 1:
+            return
+
         try:
             self.history_push(_("Remove parent of {name}").format(name=obj.display_name))
 
             ui_id = obj.ui_id
             object_id = obj.object_id
 
-            parent = obj.parent
+            grand_parent = parent.parent
             grand_parent_id = parent.parent_id
 
             # Object to remove
             parent_id = obj.parent_id
+
+            # Position where the child will be
+            position = parent.position
+            list_position = parent.list_position
 
             # Remove all object layout properties
             self.db.execute(
@@ -1473,17 +1483,28 @@ class CmbProject(GObject.Object):
             )
 
             # Move all layout properties from parent to object
-            self.db.execute(
-                "UPDATE object_layout_property SET child_id=? WHERE ui_id=? AND object_id=? AND child_id=?;",
-                (object_id, ui_id, grand_parent_id, parent_id)
-            )
+            if grand_parent_id:
+                self.db.execute(
+                    "UPDATE object_layout_property SET child_id=? WHERE ui_id=? AND object_id=? AND child_id=?;",
+                    (object_id, ui_id, grand_parent_id, parent_id)
+                )
 
-            self.db.execute(
-                "UPDATE object SET parent_id=? WHERE ui_id=? AND object_id=?;",
-                (grand_parent_id, ui_id, object_id)
-            )
+            self.db.ignore_check_constraints = True
+            self.db.execute("UPDATE object SET position=-1 WHERE ui_id=? AND object_id=?;", (ui_id, parent_id))
+
+            if grand_parent_id:
+                self.db.execute(
+                    "UPDATE object SET parent_id=?, position=? WHERE ui_id=? AND object_id=?;",
+                    (grand_parent_id, position, ui_id, object_id)
+                )
+            else:
+                self.db.execute(
+                    "UPDATE object SET parent_id=NULL, position=? WHERE ui_id=? AND object_id=?;",
+                    (position, ui_id, object_id)
+                )
 
             self.db.execute("DELETE FROM object WHERE ui_id=? AND object_id=?;", (ui_id, parent_id))
+            self.db.ignore_check_constraints = False
 
             self.history_pop()
             self.db.commit()
@@ -1491,7 +1512,11 @@ class CmbProject(GObject.Object):
             print(f"Error removing parent of object {obj} {e}")
         finally:
             self.__remove_object(parent)
-            self.__add_object_recursive(False, ui_id, object_id)
+            if grand_parent is None:
+                parent.ui.items_changed(list_position, 1, 1)
+            else:
+                grand_parent.items_changed(list_position, 1, 1)
+
             self.set_selection([obj])
             obj.notify("parent-id")
 
@@ -1517,9 +1542,15 @@ class CmbProject(GObject.Object):
 
     # Default handlers
     def do_ui_added(self, ui):
+        nitems = len(self.__items)
+        self.__items.append(ui)
+        self.items_changed(nitems, 0, 1)
         self.emit("changed")
 
     def do_ui_removed(self, ui):
+        i = self.__items.index(ui)
+        self.__items.pop(i)
+        self.items_changed(i, 1, 0)
         self.emit("changed")
 
     def do_ui_changed(self, ui, field):
@@ -1529,9 +1560,15 @@ class CmbProject(GObject.Object):
         self.emit("changed")
 
     def do_css_added(self, css):
+        nitems = len(self.__items)
+        self.__items.append(css)
+        self.items_changed(nitems, 0, 1)
         self.emit("changed")
 
     def do_css_removed(self, css):
+        i = self.__items.index(css)
+        self.__items.pop(i)
+        self.items_changed(i, 1, 0)
         self.emit("changed")
 
     def do_css_changed(self, css, field):
@@ -1541,6 +1578,21 @@ class CmbProject(GObject.Object):
         self.emit("changed")
 
     def do_object_removed(self, obj):
+        if obj._last_known is None:
+            self.emit("changed")
+            return
+
+        parent, position = obj._last_known
+
+        # Emit GListModel signal to update model
+        if parent is not None:
+            parent.items_changed(position, 1, 0)
+            parent.notify("n-items")
+        else:
+            ui = obj.ui
+            ui.items_changed(position, 1, 0)
+            ui.notify("n-items")
+
         self.emit("changed")
 
     def do_object_changed(self, obj, field):
@@ -1581,4 +1633,14 @@ class CmbProject(GObject.Object):
 
     def do_object_data_arg_changed(self, data, arg):
         self.emit("changed")
+
+    # GListModel iface
+    def do_get_item(self, position):
+        return self.__items[position] if position < len(self.__items) else None
+
+    def do_get_item_type(self):
+        return CmbBase
+
+    def do_get_n_items(self):
+        return len(self.__items)
 

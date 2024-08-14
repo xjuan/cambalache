@@ -23,6 +23,7 @@
 
 from gi.repository import GObject, Gio
 
+from .cmb_list_error import CmbListError
 from .cmb_objects_base import CmbBaseObject, CmbSignal
 from .cmb_property import CmbProperty
 from .cmb_layout_property import CmbLayoutProperty
@@ -35,7 +36,7 @@ from cambalache import getLogger, _
 logger = getLogger(__name__)
 
 
-class CmbObject(CmbBaseObject):
+class CmbObject(CmbBaseObject, Gio.ListModel):
     info = GObject.Property(type=CmbTypeInfo, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
 
     __gsignals__ = {
@@ -46,20 +47,23 @@ class CmbObject(CmbBaseObject):
         "signal-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbSignal,)),
         "data-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbObjectData,)),
         "data-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObjectData,)),
+        "child-reordered": (GObject.SignalFlags.RUN_FIRST, None, (CmbBaseObject, int, int)),
     }
 
     def __init__(self, **kwargs):
-        self.properties = []
-        self.properties_dict = {}
-        self.layout = []
-        self.layout_dict = {}
-        self.signals = []
-        self.signals_dict = {}
-        self.data = []
-        self.data_dict = {}
+        self.__properties = None
+        self.__properties_dict = None
+        self.__layout = None
+        self.__layout_dict = None
+        self.__signals = None
+        self.__signals_dict = None
+        self.__data = None
+        self.__data_dict = None
         self.position_layout_property = None
         self.inline_property_id = None
         self.version_warning = None
+
+        self._last_known = None
 
         super().__init__(**kwargs)
 
@@ -68,30 +72,57 @@ class CmbObject(CmbBaseObject):
         if self.project is None:
             return
 
-        # List of children
-        self.children_model = Gio.ListStore(item_type=CmbObject)
-
-        self._parent_id = self.parent_id
-
-        # Append object to project automatically
-        self.project._append_object(self)
-        self._append()
-
-        self.__populate_properties()
-        self.__populate_layout_properties()
-        self.__populate_signals()
-        self.__populate_data()
+        self.__update_inline_property_id()
         self.__update_version_warning()
         self.ui.connect("library-changed", self._on_ui_library_changed)
 
     def __str__(self):
         return f"CmbObject<{self.type_id}> {self.ui_id}:{self.object_id}"
 
-    def _append(self):
+    @property
+    def properties(self):
+        self.__populate_properties()
+        return self.__properties
+
+    @property
+    def properties_dict(self):
+        self.__populate_properties()
+        return self.__properties_dict
+
+    @property
+    def layout(self):
+        self.__populate_layout()
+        return self.__layout
+
+    @property
+    def layout_dict(self):
+        self.__populate_layout()
+        return self.__layout_dict
+
+    @property
+    def signals(self):
+        self.__populate_signals()
+        return self.__signals
+
+    @property
+    def signals_dict(self):
+        self.__populate_signals()
+        return self.__signals_dict
+
+    @property
+    def data(self):
+        self.__populate_data()
+        return self.__data
+
+    @property
+    def data_dict(self):
+        self.__populate_data()
+        return self.__data_dict
+
+    def __update_inline_property_id(self):
         ui_id = self.ui_id
         object_id = self.object_id
         parent_id = self.parent_id
-        position = self.position
 
         if parent_id:
             # Set which parent property makes a reference to this inline object
@@ -99,28 +130,6 @@ class CmbObject(CmbBaseObject):
                 "SELECT property_id FROM object_property WHERE ui_id=? AND inline_object_id=?;", (ui_id, object_id)
             ).fetchone()
             self.inline_property_id = row[0] if row else None
-            model = self.parent.children_model
-        else:
-            model = self.ui.children_model
-
-        if position >= 0:
-            # Map DB position to list position
-            if parent_id:
-                row = self.project.db.execute(
-                    "SELECT count(object_id) FROM object WHERE ui_id=? AND parent_id=? AND position < ?;",
-                    (ui_id, parent_id, position)
-                ).fetchone()
-                position = row[0]
-            else:
-                row = self.project.db.execute(
-                    "SELECT count(object_id) FROM object WHERE ui_id=? AND parent_id IS NULL AND position < ?;",
-                    (ui_id, position)
-                ).fetchone()
-                position = row[0]
-
-            model.insert(position, self)
-        else:
-            model.append(self)
 
     def __populate_type_properties(self, name):
         property_info = self.project.get_type_properties(name)
@@ -141,12 +150,17 @@ class CmbObject(CmbBaseObject):
             )
 
             # List of property
-            self.properties.append(prop)
+            self.__properties.append(prop)
 
             # Dictionary of properties
-            self.properties_dict[property_name] = prop
+            self.__properties_dict[property_name] = prop
 
     def __populate_properties(self):
+        if self.__properties is not None:
+            return
+        self.__properties = []
+        self.__properties_dict = {}
+
         self.__populate_type_properties(self.type_id)
         for parent_id in self.info.hierarchy:
             self.__populate_type_properties(parent_id)
@@ -176,10 +190,10 @@ class CmbObject(CmbBaseObject):
             if info.is_position:
                 self.position_layout_property = prop
 
-            self.layout.append(prop)
+            self.__layout.append(prop)
 
             # Dictionary of properties
-            self.layout_dict[property_name] = prop
+            self.__layout_dict[property_name] = prop
 
     def _property_changed(self, prop):
         self.emit("property-changed", prop)
@@ -191,8 +205,9 @@ class CmbObject(CmbBaseObject):
         self.project._object_layout_property_changed(parent, self, prop)
 
     def __add_signal_object(self, signal):
-        self.signals.append(signal)
-        self.signals_dict[signal.signal_pk] = signal
+        self.__populate_signals()
+        self.__signals.append(signal)
+        self.__signals_dict[signal.signal_pk] = signal
         self.emit("signal-added", signal)
         self.project._object_signal_added(self, signal)
 
@@ -203,11 +218,13 @@ class CmbObject(CmbBaseObject):
         self.project._object_signal_changed(self, signal)
 
     def __add_data_object(self, data):
-        if data in self.data:
+        self.__populate_data()
+
+        if data in self.__data:
             return
 
-        self.data.append(data)
-        self.data_dict[data.get_id_string()] = data
+        self.__data.append(data)
+        self.__data_dict[data.get_id_string()] = data
         self.emit("data-added", data)
         self.project._object_data_added(self, data)
 
@@ -218,6 +235,11 @@ class CmbObject(CmbBaseObject):
         self.project._object_changed(self, pspec.name)
 
     def __populate_signals(self):
+        if self.__signals is not None:
+            return
+        self.__signals = []
+        self.__signals_dict = {}
+
         c = self.project.db.cursor()
 
         # Populate signals
@@ -225,6 +247,11 @@ class CmbObject(CmbBaseObject):
             self.__add_signal_object(CmbSignal.from_row(self.project, *row))
 
     def __populate_data(self):
+        if self.__data is not None:
+            return
+        self.__data = []
+        self.__data_dict = {}
+
         c = self.project.db.cursor()
 
         # Populate data
@@ -238,13 +265,17 @@ class CmbObject(CmbBaseObject):
         parent_id = self.parent_id
 
         # FIXME: delete is anything is set?
-        self.layout = []
-        self.layout_dict = {}
+        self.__layout = []
+        self.__layout_dict = {}
 
         if parent_id > 0:
             # FIXME: what about parent layout properties?
             parent = self.project.get_object_by_id(self.ui_id, parent_id)
             self.__populate_layout_properties_from_type(f"{parent.type_id}LayoutChild")
+
+    def __populate_layout(self):
+        if self.__layout is None:
+            self.__populate_layout_properties()
 
     @GObject.Property(type=int)
     def parent_id(self):
@@ -259,28 +290,25 @@ class CmbObject(CmbBaseObject):
 
     @parent_id.setter
     def _set_parent_id(self, value):
-        # FIXME: implement GListModel to avoid having to update children position
-        if self._parent_id:
-            old_parent = self.project.get_object_by_id(self.ui_id, self._parent_id)
-            children_model = old_parent.children_model
-        else:
-            children_model = self.ui.children_model
+        new_parent_id = value if value != 0 else None
+        old_parent_id = self.parent_id
 
-        found, position = children_model.find(self)
-        if found:
-            children_model.remove(position)
+        if old_parent_id == new_parent_id:
+            return
 
         self.db_set(
-            "UPDATE object SET parent_id=? WHERE (ui_id, object_id) IS (?, ?);",
+            "UPDATE object SET parent_id=?, position=NULL WHERE (ui_id, object_id) IS (?, ?);",
             (
                 self.ui_id,
                 self.object_id,
             ),
-            value if value != 0 else None,
+            new_parent_id,
         )
-        self._parent_id = value if value != 0 else None
 
-        self._append()
+        # Update children positions, in old parent and new parent
+        self.project.db.update_children_position(self.ui_id, old_parent_id)
+        self.project.db.update_children_position(self.ui_id, new_parent_id)
+
         self.__populate_layout_properties()
 
     @GObject.Property(type=CmbUI)
@@ -341,8 +369,8 @@ class CmbObject(CmbBaseObject):
             )
 
     def _remove_signal(self, signal):
-        self.signals.remove(signal)
-        del self.signals_dict[signal.signal_pk]
+        self.__signals.remove(signal)
+        del self.__signals_dict[signal.signal_pk]
 
         self.emit("signal-removed", signal)
         self.project._object_signal_removed(self, signal)
@@ -387,18 +415,18 @@ class CmbObject(CmbBaseObject):
             return self._add_data(owner_id, data_id, id, info=taginfo)
 
     def _remove_data(self, data):
-        if data not in self.data:
+        if data not in self.__data:
             return
 
-        self.data.remove(data)
-        del self.data_dict[data.get_id_string()]
+        self.__data.remove(data)
+        del self.__data_dict[data.get_id_string()]
 
         self.emit("data-removed", data)
         self.project._object_data_removed(self, data)
 
     def remove_data(self, data):
         try:
-            assert data in self.data
+            assert data in self.__data
             self.project.db.execute(
                 "DELETE FROM object_data WHERE ui_id=? AND object_id=? AND owner_id=? AND data_id=? AND id=?;",
                 (self.ui_id, self.object_id, data.owner_id, data.data_id, data.id),
@@ -420,55 +448,71 @@ class CmbObject(CmbBaseObject):
             logger.warning(f"{child} is not children of {self}")
             return
 
+        old_position = child.position
+        if old_position == position:
+            return
+
         name = child.name if child.name is not None else child.type_id
         self.project.history_push(
-            _("Reorder object {name} from position {old} to {new}").format(name=name, old=child.position, new=position)
+            _("Reorder object {name} from position {old} to {new}").format(name=name, old=old_position, new=position)
         )
 
-        # Reorder child in store
-        found, index = self.children_model.find(child)
-        if found:
-            self.children_model.remove(index)
+        db = self.project.db
 
-        n_items = self.children_model.get_n_items()
-        if position > n_items:
-            position = n_items
-        self.children_model.insert(position, child)
+        # Consider this children
+        #
+        # label   0
+        # button  1
+        # entry   2
+        # switch  3
+        # toggle  4
 
-        children = []
+        # Disable check so we can set position temporally to -1
+        db.ignore_check_constraints = True
+        db.execute("UPDATE object SET position=-1 WHERE ui_id=? AND object_id=?;", (self.ui_id, child.object_id))
 
-        # Get children in order
-        c = self.project.db.cursor()
-        for row in c.execute(
-            """
-            SELECT object_id, position
-            FROM object
-            WHERE ui_id=? AND parent_id=? AND internal IS NULL AND object_id!=? AND object_id NOT IN
-                 (SELECT inline_object_id FROM object_property WHERE inline_object_id IS NOT NULL AND ui_id=? AND object_id=?)
-            ORDER BY position;
-            """,
-            (self.ui_id, self.object_id, child.object_id, self.ui_id, self.object_id),
-        ):
-            child_id, child_position = row
+        # Make room for new position
+        for select_stmt, update_stmt in [
+            (
+                """
+                SELECT ui_id, object_id
+                FROM object
+                WHERE ui_id=? AND parent_id=? AND position <= ? AND position > ?
+                ORDER BY position ASC
+                """,
+                "UPDATE object SET position=position - 1 WHERE ui_id=? AND object_id=?;"
+            ),
+            (
+                """
+                SELECT ui_id, object_id
+                FROM object
+                WHERE ui_id=? AND parent_id=? AND position >= ? AND position < ?
+                ORDER BY position DESC
+                """,
+                "UPDATE object SET position=position + 1 WHERE ui_id=? AND object_id=?;"
+            ),
+        ]:
+            for row in db.execute(select_stmt, (self.ui_id, self.object_id, position, old_position)):
+                db.execute(update_stmt, tuple(row))
 
-            obj = self.project.get_object_by_id(self.ui_id, child_id)
-            if obj:
-                children.append(obj)
+        # Set new position
+        db.execute("UPDATE object SET position=? WHERE ui_id=? AND object_id=?;", (position, self.ui_id, child.object_id))
+        db.ignore_check_constraints = False
 
-        # Insert child in new position
-        children.insert(position, child)
+        # Emit GListModel signals
+        if position < old_position:
+            self.items_changed(position, 0, 1)
+            self.items_changed(old_position+1, 1, 0)
+        else:
+            self.items_changed(old_position, 1, 0)
+            self.items_changed(position, 0, 1)
 
-        # Update all positions
-        for pos, obj in enumerate(children):
-            # Sync layout property
-            if obj.position_layout_property:
-                obj.position_layout_property.value = pos
-            else:
-                # Or object position
-                obj.position = pos
+        # FIXME: update position_layout_property
 
-        c.close()
         self.project.history_pop()
+
+        self.emit("child-reordered", child, old_position, position)
+        self.project._object_child_reordered(self, child, old_position, position)
 
     def clear_properties(self):
         c = self.project.db.cursor()
@@ -490,9 +534,13 @@ class CmbObject(CmbBaseObject):
         c.close()
 
         for prop_id in properties:
-            prop = self.properties_dict[prop_id]
+            prop = self.__properties_dict[prop_id]
             prop.notify("value")
             self._property_changed(prop)
+
+    @GObject.Property(type=str)
+    def display_name_type(self):
+        return f"{self.name} {self.type_id}" if self.name else self.type_id
 
     @GObject.Property(type=str)
     def display_name(self):
@@ -514,8 +562,82 @@ class CmbObject(CmbBaseObject):
     def _on_ui_library_changed(self, ui, library_id):
         self.__update_version_warning()
 
+        self.__populate_properties()
+        self.__populate_layout()
+
         # Update properties directly, to avoid having to connect too many times to this signal
-        for props in [self.properties, self.layout]:
+        for props in [self.__properties, self.__layout]:
             for prop in props:
                 if prop.library_id == library_id:
                     prop._update_version_warning()
+
+    # GListModel helpers
+    def _save_last_known_parent_and_position(self):
+        self._last_known = (self.parent, self.list_position)
+
+    @GObject.Property(type=int)
+    def list_position(self):
+        ui_id = self.ui_id
+
+        if self.parent_id:
+            retval = self.db_get(
+                """
+                SELECT rownum-1
+                FROM (
+                    SELECT ROW_NUMBER() OVER (ORDER BY position ASC) rownum, object_id
+                    FROM object
+                    WHERE ui_id=? AND parent_id=?
+                )
+                WHERE object_id=?;
+                """,
+                (ui_id, self.parent_id, self.object_id)
+            )
+        else:
+            retval = self.db_get(
+                """
+                SELECT rownum-1
+                FROM (
+                    SELECT ROW_NUMBER() OVER (ORDER BY position ASC) rownum, object_id
+                    FROM object
+                    WHERE ui_id=? AND parent_id IS NULL
+                )
+                WHERE object_id=?;
+                """,
+                (ui_id, self.object_id)
+            )
+
+        return retval
+
+    # GListModel iface
+    def do_get_item(self, position):
+        ui_id = self.ui_id
+
+        # This query should use index object_ui_id_parent_id_position_idx
+        retval = self.db_get(
+            """
+            SELECT object_id
+            FROM (
+                SELECT ROW_NUMBER() OVER (ORDER BY position ASC) rownum, object_id
+                FROM object
+                WHERE ui_id=? AND parent_id=?
+            )
+            WHERE rownum=?;
+            """,
+            (ui_id, self.object_id, position+1)
+        )
+        if retval is not None:
+            return self.project.get_object_by_id(ui_id, retval)
+
+        # This should not happen
+        return CmbListError()
+
+    def do_get_item_type(self):
+        return CmbBaseObject
+
+    @GObject.Property(type=int)
+    def n_items(self):
+        retval = self.db_get("SELECT COUNT(object_id) FROM object WHERE ui_id=? AND parent_id=?;", (self.ui_id, self.object_id))
+        return retval if retval is not None else 0
+
+    def do_get_n_items(self):
+        return self.n_items

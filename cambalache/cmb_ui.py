@@ -23,21 +23,20 @@
 
 from gi.repository import GObject, Gio
 
+from .cmb_list_error import CmbListError
 from .cmb_objects_base import CmbBaseUI, CmbBaseObject
 from cambalache import getLogger, _
 
 logger = getLogger(__name__)
 
 
-class CmbUI(CmbBaseUI):
+class CmbUI(CmbBaseUI, Gio.ListModel):
     __gsignals__ = {
         "library-changed": (GObject.SignalFlags.RUN_FIRST, None, (str,)),
     }
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
-        self.children_model = Gio.ListStore(item_type=CmbBaseObject)
 
         self.connect("notify", self.__on_notify)
 
@@ -168,3 +167,30 @@ class CmbUI(CmbBaseUI):
                 return info.min_version
 
         return target
+
+    # GListModel iface
+    def do_get_item(self, position):
+        ui_id = self.ui_id
+
+        # This query should use auto index from UNIQUE constraint
+        retval = self.db_get(
+            "SELECT object_id FROM object WHERE ui_id=? AND parent_id IS NULL AND position=?;",
+            (ui_id, position)
+        )
+
+        if retval is not None:
+            return self.project.get_object_by_id(ui_id, retval)
+
+        # This should not happen
+        return CmbListError()
+
+    def do_get_item_type(self):
+        return CmbBaseObject
+
+    @GObject.Property(type=int)
+    def n_items(self):
+        retval = self.db_get("SELECT COUNT(object_id) FROM object WHERE ui_id=? AND parent_id IS NULL;", (self.ui_id,))
+        return retval if retval is not None else 0
+
+    def do_get_n_items(self):
+        return self.n_items
