@@ -24,7 +24,6 @@
 
 import os
 import cairo
-import time
 
 from . import utils
 
@@ -136,14 +135,9 @@ def window_add_object(type_id, obj_id, parent_id, ui_id=1):
     project = window.project
 
     obj = project.add_object(ui_id, type_id, None, parent_id)
-
     utils.process_all_pending_gtk_events()
-
     project.set_selection([obj])
-
-    for i in range(10):
-        utils.process_all_pending_gtk_events()
-        time.sleep(0.1)
+    utils.process_all_pending_gtk_events()
 
     return obj
 
@@ -152,20 +146,21 @@ def select_object(obj_id=None, ui_id=1):
     project = window.project
     obj = project.get_object_by_id(ui_id, obj_id)
     project.set_selection([obj])
+    utils.process_all_pending_gtk_events()
     return obj
 
 
 # TESTS
-def _test_new_button(target):
+def _test_new_project(target):
     # New project view
-    window_button_clicked("new_button")
+    window_activate_action("win.create_new")
     window_entry_set_text("np_name_entry", "test_project")
 
     button = "np_gtk3_radiobutton" if target == "gtk+-3.0" else "np_gtk4_radiobutton"
     window_button_clicked(button)
     window_widget_grab_focus(button)
 
-    window_assert_screenshot("cambalache_new_button.png", target)
+    window_assert_screenshot("cambalache_new_project.png", target)
 
 
 def _test_np_create_button(target):
@@ -194,12 +189,14 @@ def _test_cmb_window_ui_stack_fragment(target):
 
 def _test_cmb_window_ui_stack_requires(target):
     ui = window.project.get_object_by_id(1)
-    select_object(ui_id=1)
 
     if target == "gtk+-3.0":
         ui.set_library("gtk+", "3.8")
     else:
         ui.set_library("gtk", "4.2")
+
+    select_object(ui_id=1)
+    utils.process_all_pending_gtk_events()
 
     window_stack_set_page("ui_stack", "requires")
     window_assert_screenshot("cambalache_ui_stack_requires.png", target)
@@ -240,16 +237,12 @@ def test_cmb_window():
 
 
 # Gtk 3
-def test_gtk3_new_button():
-    _test_new_button("gtk+-3.0")
+def test_gtk3_new_project():
+    _test_new_project("gtk+-3.0")
 
 
 def test_gtk3_np_create_button():
     _test_np_create_button("gtk+-3.0")
-
-
-def test_gtk3_cmb_window_ui_stack_fragment():
-    _test_cmb_window_ui_stack_fragment("gtk+-3.0")
 
 
 def test_gtk3_cmb_window_add_window():
@@ -272,10 +265,15 @@ def test_gtk3_cmb_window_ui_stack_requires():
     _test_cmb_window_ui_stack_requires("gtk+-3.0")
 
 
+def test_gtk3_cmb_window_ui_stack_fragment():
+    _test_cmb_window_ui_stack_fragment("gtk+-3.0")
+
+
 # Reset UI to start with the same tests for Gtk 4
 def test_cmb_window_close():
     global window
 
+    window_activate_action("win.close")
     window.destroy()
     app.open_project(None)
 
@@ -288,16 +286,12 @@ def test_cmb_window_close():
 
 
 # Gtk 4
-def test_gtk4_new_button():
-    _test_new_button("gtk-4.0")
+def test_gtk4_new_project():
+    _test_new_project("gtk-4.0")
 
 
 def test_gtk4_np_create_button():
     _test_np_create_button("gtk-4.0")
-
-
-def test_gtk4_cmb_window_ui_stack_fragment():
-    _test_cmb_window_ui_stack_fragment("gtk-4.0")
 
 
 def test_gtk4_cmb_window_add_window():
@@ -318,3 +312,7 @@ def test_gtk4_cmb_window_object_stack_fragment():
 
 def test_gtk4_cmb_window_ui_stack_requires():
     _test_cmb_window_ui_stack_requires("gtk-4.0")
+
+
+def test_gtk4_cmb_window_ui_stack_fragment():
+    _test_cmb_window_ui_stack_fragment("gtk-4.0")

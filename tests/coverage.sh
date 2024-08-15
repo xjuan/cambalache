@@ -2,6 +2,7 @@
 
 BASEDIR=`realpath $(dirname "$0")`
 
+source .local.env
 export COVERAGE_PROCESS_START=$BASEDIR/pyproject.toml
 
 #Run tests with coverage if available

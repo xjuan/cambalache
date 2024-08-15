@@ -17,6 +17,7 @@ cambalache/app.gresource
 cambalache/config.py
 cambalache/merengue/config.py
 cambalache/merengue/merengue
+subprojects/casilda
 tools/CmbUtils-3.0.gir
 tools/CmbUtils-3.0.typelib
 tools/CmbUtils-4.0.gir

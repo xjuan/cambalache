@@ -24,6 +24,7 @@
 import io
 import cairo
 import struct
+import time
 
 from gi.repository import GLib, Gtk
 
@@ -122,10 +123,13 @@ def mean_squared_error(original, screenshot, ignore_color=None):
     return red / n, green / n, blue / n, total / n
 
 
-def process_all_pending_gtk_events():
+def process_all_pending_gtk_events(deciseconds=3):
     main_loop = GLib.MainContext.default()
-    while main_loop.pending():
-        main_loop.iteration(False)
+
+    for i in range(deciseconds*10):
+        while main_loop.pending():
+            main_loop.iteration(False)
+        time.sleep(0.01)
 
 
 def __get_children(obj):
