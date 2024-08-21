@@ -23,6 +23,7 @@
 
 import os
 import time
+import sqlite3
 
 from gi.repository import GObject, Gio
 
@@ -104,11 +105,10 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         # Objects hash tables
         # FIXME: Use an int key instead of a string (ui_id << 18 || object_id)
-        self.__object_id = {}
+        self._object_id = {}
         self.__css_id = {}
 
         self.__template_info = {}
-        self.__reordering_children = False
 
         super().__init__(**kwargs)
 
@@ -446,7 +446,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
     ):
         ui = CmbUI(project=self, ui_id=ui_id)
 
-        self.__object_id[ui_id] = ui
+        self._object_id[ui_id] = ui
         self.__update_template_type_info(ui)
 
         if emit:
@@ -468,7 +468,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
             return self.__add_ui(True, ui_id, None, basename, relpath, None, None, None, None, None, None, None)
 
     def __remove_ui(self, ui):
-        self.__object_id.pop(ui.ui_id, None)
+        self._object_id.pop(ui.ui_id, None)
         self.__selection_remove(ui)
         self.emit("ui-removed", ui)
 
@@ -557,18 +557,9 @@ class CmbProject(GObject.Object, Gio.ListModel):
         custom_child_fragment=None,
     ):
         obj = CmbObject(project=self, ui_id=ui_id, object_id=object_id, info=self.type_info[obj_type])
-        self.__object_id[f"{ui_id}.{object_id}"] = obj
+        self._object_id[f"{ui_id}.{object_id}"] = obj
 
         if emit:
-            parent = obj.parent
-            if parent is not None:
-                parent.items_changed(obj.list_position, 0, 1)
-                parent.notify("n-items")
-            else:
-                ui = obj.ui
-                ui.items_changed(obj.list_position, 0, 1)
-                ui.notify("n-items")
-
             self.emit("object-added", obj)
 
         return obj
@@ -628,7 +619,9 @@ class CmbProject(GObject.Object, Gio.ListModel):
             logger.warning(f"Error adding object {obj_name}: {e}")
             return None
         else:
-            return self.__add_object(True, ui_id, object_id, obj_type, name, parent_id, position=position)
+            obj = self.__add_object(True, ui_id, object_id, obj_type, name, parent_id, position=position)
+            obj._update_new_parent()
+            return obj
 
     def __remove_object(self, obj, template_ui=None, template_instances=None):
         ui_id = obj.ui_id
@@ -644,7 +637,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         self.__selection_remove(obj)
 
-        self.__object_id.pop(f"{ui_id}.{object_id}", None)
+        self._object_id.pop(f"{ui_id}.{object_id}", None)
 
         self.emit("object-removed", obj)
 
@@ -688,6 +681,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
             logger.warning(f"Error removing object {obj}: {e}")
         finally:
             self.__remove_object(obj, template_ui, template_instances)
+            obj._remove_from_old_parent()
 
     def get_selection(self):
         return self.__selection
@@ -711,9 +705,9 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
     def get_object_by_key(self, key):
         if type(key) is int:
-            return self.__object_id.get(key, None)
+            return self._object_id.get(key, None)
 
-        obj = self.__object_id.get(key, None)
+        obj = self._object_id.get(key, None)
 
         if obj is not None:
             return obj
@@ -769,33 +763,68 @@ class CmbProject(GObject.Object, Gio.ListModel):
         c.close()
         return retval
 
-    def __undo_redo_do(self, undo):
+    def __undo_redo_do(self, undo, update_objects=None):
+        def get_object_position(c, commands, old_data):
+            row = c.execute(commands["DATA"], (self.history_index, old_data)).fetchone()
+            ui_id, parent_id, position = row[0], row[4], row[8]
+            parent = self.get_object_by_id(ui_id, parent_id)
+            return parent, position
+
         c = self.db.cursor()
 
         # Get last command
         command, range_id, table, column = self.__get_history_command(self.history_index)
 
-        if table is not None:
-            commands = self.db.history_commands[table]
+        # Get command set for table
+        commands = self.db.history_commands[table] if table is not None else None
 
         # Undo or Redo command
-        # TODO: catch sqlite errors and do something with it.
-        # probably nuke history data
         if command == "INSERT":
+            if table == "object":
+                parent, position = get_object_position(c, commands, False)
+
+                if undo:
+                    update_objects.append((parent, position, 1, 0))
+                else:
+                    update_objects.append((parent, position, 0, 1))
+
             c.execute(commands["DELETE" if undo else "INSERT"], (self.history_index,))
+
+            self.__undo_redo_update_insert_delete(c, commands, undo, command, table, column)
         elif command == "DELETE":
-            if not undo and table == "object":
-                # Update last known parent and position before deleting an object
-                pk = c.execute(commands["PK"], (self.history_index,)).fetchone()
-                obj = self.get_object_by_id(pk[0], pk[1])
-                obj._save_last_known_parent_and_position()
+            if table == "object":
+                parent, position = get_object_position(c, commands, True)
+
+                if undo:
+                    update_objects.append((parent, position, 0, 1))
+                else:
+                    update_objects.append((parent, position, 1, 0))
 
             c.execute(commands["INSERT" if undo else "DELETE"], (self.history_index,))
+
+            self.__undo_redo_update_insert_delete(c, commands, undo, command, table, column)
         elif command == "UPDATE":
             old_data = 1 if undo else 0
-            self.db.ignore_check_constraints = True
+
+            # Ignore parent_id since its changed together with position
+            if update_objects is not None and table == "object" and column == "position":
+                old_parent, old_position = get_object_position(c, commands, True)
+                new_parent, new_position = get_object_position(c, commands, False)
+
+                if undo:
+                    if old_position >= 0:
+                        update_objects.append((old_parent, old_position, 0, 1))
+                    if new_position >= 0:
+                        update_objects.append((new_parent, new_position, 1, 0))
+                else:
+                    if new_position >= 0:
+                        update_objects.append((new_parent, new_position, 0, 1))
+                    if old_position >= 0:
+                        update_objects.append((old_parent, old_position, 1, 0))
+
             c.execute(commands["UPDATE"], (self.history_index, old_data, self.history_index, old_data))
-            self.db.ignore_check_constraints = False
+
+            self.__undo_redo_update_update(c, commands, undo, command, table, column)
         elif command == "PUSH" or command == "POP":
             pass
         else:
@@ -803,34 +832,21 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         c.close()
 
-        # Update project state
-        self.__undo_redo_update(command, range_id, table, column)
+    def __undo_redo_update_update(self, c, commands, undo, command, table, column):
 
-    def __undo_redo_update(self, command, range_id, table, column):
-        c = self.db.cursor()
-
-        if table is None:
+        if table is None or commands is None:
             return
 
         # Update tree model and emit signals
         # We can not easily implement this using triggers because they are called
         # even if the transaction is rollback because of a FK constraint
-
-        commands = self.db.history_commands[table]
-        c.execute(commands["PK"], (self.history_index,))
-        pk = c.fetchone()
+        pk = c.execute(commands["PK"], (self.history_index,)).fetchone()
 
         if command == "UPDATE":
             if table == "object":
                 obj = self.get_object_by_id(pk[0], pk[1])
-                if obj:
+                if obj is not None:
                     obj.notify(column)
-
-                if column == "parent_id":
-                    obj.parent_id = obj.parent_id
-                # FIXME: we could simplify things a lot by implementing GioListModel directly from the db
-                if column == "position":
-                    obj.parent_id = obj.parent_id
             elif table == "object_property":
                 obj = self.get_object_by_id(pk[0], pk[1])
                 self.__undo_redo_property_notify(obj, False, column, pk[2], pk[3])
@@ -838,8 +854,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 child = self.get_object_by_id(pk[0], pk[2])
                 self.__undo_redo_property_notify(child, True, column, pk[3], pk[4])
             elif table == "object_signal":
-                c.execute(commands["DATA"], (self.history_index, ))
-                data = c.fetchone()
+                data = c.execute(commands["DATA"], (self.history_index, True)).fetchone()
                 obj = self.get_object_by_id(data[1], data[2])
                 if obj:
                     signal = obj.signals_dict[pk[0]]
@@ -870,120 +885,161 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 obj = self.get_css_by_id(pk[0])
                 if obj:
                     obj.notify(column)
-        elif command in ["INSERT", "DELETE"]:
-            if table == "object_property":
-                obj = self.get_object_by_id(pk[0], pk[1])
-                self.__undo_redo_property_notify(obj, False, "value", pk[2], pk[3])
-            elif table == "object_layout_property":
-                child = self.get_object_by_id(pk[0], pk[2])
-                self.__undo_redo_property_notify(child, True, "value", pk[3], pk[4])
-            elif table in ["object", "ui", "css"]:
-                c.execute(commands["COUNT"], (self.history_index,))
-                count = c.fetchone()
-                c.execute(commands["DATA"], (self.history_index,))
-                row = c.fetchone()
 
-                if count[0] == 0:
-                    if table == "object":
-                        obj = self.get_object_by_id(pk[0], pk[1])
-                        self.__remove_object(obj)
-                    elif table == "ui":
-                        obj = self.get_object_by_id(pk[0])
-                        self.__remove_ui(obj)
-                    elif table == "css":
-                        obj = self.get_css_by_id(pk[0])
-                        self.__remove_css(obj)
-                else:
-                    if table == "ui":
-                        self.__add_ui(True, *row)
-                    elif table == "object":
-                        obj = self.__add_object(True, *row)
+    def __undo_redo_update_insert_delete(self, c, commands, undo, command, table, column):
+        if table is None or commands is None:
+            return
 
-                        if obj.ui.template_id == obj.object_id:
-                            self.__update_template_type_info(obj.ui)
-                    elif table == "css":
-                        self.__add_css(True, *row)
-            elif table in ["object_signal", "object_data", "object_data_arg"]:
-                c.execute(commands["COUNT"], (self.history_index,))
-                count = c.fetchone()
+        removing = (command == "INSERT" and undo) or (command == "DELETE") and not undo
+        use_old_data = True if command == "DELETE" else False
+        pk = c.execute(commands["PK"], (self.history_index,)).fetchone()
 
-                c.execute(commands["DATA"], (self.history_index,))
-                row = c.fetchone()
+        if table == "object_property":
+            obj = self.get_object_by_id(pk[0], pk[1])
+            self.__undo_redo_property_notify(obj, False, "value", pk[2], pk[3])
+        elif table == "object_layout_property":
+            child = self.get_object_by_id(pk[0], pk[2])
+            self.__undo_redo_property_notify(child, True, "value", pk[3], pk[4])
+        elif table in ["object", "ui", "css"]:
+            row = c.execute(commands["DATA"], (self.history_index, use_old_data)).fetchone()
 
-                if table == "object_signal":
-                    obj = self.get_object_by_id(row[1], row[2])
-                    if count[0] == 0:
-                        for signal in obj.signals:
-                            if signal.signal_pk == row[0]:
-                                obj._remove_signal(signal)
-                                break
-                    else:
-                        obj._add_signal(row[0], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
-                elif table == "object_data":
-                    obj = self.get_object_by_id(row[0], row[1])
-
-                    if count[0] == 0:
-                        data = obj.data_dict.get(f"{row[2]}.{row[4]}", None)
-                        if data:
-                            if data.parent:
-                                data.parent._remove_child(data)
-                            else:
-                                obj._remove_data(data)
-                    else:
-                        parent = obj.data_dict.get(f"{row[2]}.{row[6]}", None)
-
-                        if parent:
-                            parent._add_child(row[2], row[3], row[4])
-                        else:
-                            obj._add_data(row[2], row[3], row[4])
-                elif table == "object_data_arg":
+            if removing:
+                if table == "object":
                     obj = self.get_object_by_id(pk[0], pk[1])
-                    if obj:
-                        data = obj.data_dict.get(f"{pk[2]}.{pk[4]}", None)
-                        if data:
-                            data._arg_changed(pk[5])
-            elif table == "css_ui":
-                obj = self.get_css_by_id(pk[0])
-                if obj:
-                    obj.notify("provider-for")
-            elif table == "ui_library":
-                ui = self.get_object_by_id(pk[0])
-                if ui:
-                    ui._library_changed(pk[1])
+                    self.__remove_object(obj)
+                elif table == "ui":
+                    obj = self.get_object_by_id(pk[0])
+                    self.__remove_ui(obj)
+                elif table == "css":
+                    obj = self.get_css_by_id(pk[0])
+                    self.__remove_css(obj)
+            else:
+                if table == "ui":
+                    self.__add_ui(True, *row)
+                elif table == "object":
+                    obj = self.__add_object(True, *row)
 
-        c.close()
+                    if obj.ui.template_id == obj.object_id:
+                        self.__update_template_type_info(obj.ui)
+                elif table == "css":
+                    self.__add_css(True, *row)
+        elif table in ["object_signal", "object_data", "object_data_arg"]:
+            row = c.execute(commands["DATA"], (self.history_index, use_old_data)).fetchone()
+
+            if table == "object_signal":
+                obj = self.get_object_by_id(row[1], row[2])
+                if removing:
+                    for signal in obj.signals:
+                        if signal.signal_pk == row[0]:
+                            obj._remove_signal(signal)
+                            break
+                else:
+                    obj._add_signal(row[0], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
+            elif table == "object_data":
+                obj = self.get_object_by_id(row[0], row[1])
+
+                if removing:
+                    data = obj.data_dict.get(f"{row[2]}.{row[4]}", None)
+                    if data:
+                        if data.parent:
+                            data.parent._remove_child(data)
+                        else:
+                            obj._remove_data(data)
+                else:
+                    parent = obj.data_dict.get(f"{row[2]}.{row[6]}", None)
+
+                    if parent:
+                        parent._add_child(row[2], row[3], row[4])
+                    else:
+                        obj._add_data(row[2], row[3], row[4])
+            elif table == "object_data_arg":
+                obj = self.get_object_by_id(pk[0], pk[1])
+                if obj:
+                    data = obj.data_dict.get(f"{pk[2]}.{pk[4]}", None)
+                    if data:
+                        data._arg_changed(pk[5])
+        elif table == "css_ui":
+            obj = self.get_css_by_id(pk[0])
+            if obj:
+                obj.notify("provider-for")
+        elif table == "ui_library":
+            ui = self.get_object_by_id(pk[0])
+            if ui:
+                ui._library_changed(pk[1])
 
     def __undo_redo(self, undo):
         selection = self.get_selection()
         c = self.db.cursor()
 
-        self.history_enabled = False
-        self.db.foreign_keys = False
-
         command, range_id, table, column = self.__get_history_command(self.history_index)
+        update_parents = []
 
-        if command == "POP":
-            if undo:
-                self.history_index -= 1
-                while range_id < self.history_index:
-                    self.__undo_redo_do(True)
+        try:
+            self.history_enabled = False
+            self.db.foreign_keys = False
+            self.db.ignore_check_constraints = True
+
+            if command == "POP":
+                if undo:
                     self.history_index -= 1
+                    while range_id < self.history_index:
+                        self.__undo_redo_do(True, update_parents)
+                        self.history_index -= 1
+                else:
+                    logger.warning("Error on undo/redo stack: we should not try to redo a POP command")
+            elif command == "PUSH":
+                if not undo:
+                    while range_id > self.history_index:
+                        self.history_index += 1
+                        self.__undo_redo_do(undo, update_parents)
+                else:
+                    logger.warning("Error on undo/redo stack: we should not try to undo a PUSH command")
             else:
-                logger.warning("Error on undo/redo stack: we should not try to redo a POP command")
-        elif command == "PUSH":
-            if not undo:
-                while range_id > self.history_index:
-                    self.history_index += 1
-                    self.__undo_redo_do(undo)
-            else:
-                logger.warning("Error on undo/redo stack: we should not try to undo a PUSH command")
-        else:
-            # Undo / Redo in DB
-            self.__undo_redo_do(undo)
+                # Undo / Redo in DB
+                self.__undo_redo_do(undo, update_parents)
 
-        self.db.foreign_keys = True
-        self.history_enabled = True
+            self.db.foreign_keys = True
+            self.db.ignore_check_constraints = False
+            self.history_enabled = True
+        except sqlite3.Error as e:
+            logger.warning(f"Error on undo/redo stack: {e}")
+
+            self.history_enabled = True
+            self.db.foreign_keys = True
+            self.db.ignore_check_constraints = False
+
+            self.history_index = 0
+            self.db.clear_history()
+            raise e
+
         c.close()
+
+        # Compress update commands
+        compressed_list = []
+        prev_parent, prev_position, prev_removed, prev_added = (None, None, 0, 0)
+
+        for i, tuples in enumerate(update_parents):
+            parent, position, removed, added = tuples
+
+            # Compress removed and added if possible
+            if prev_parent == parent and prev_position == position and \
+               prev_removed + removed == 1 and prev_added + added == 1:
+                # Compress
+                compressed_list.pop()
+                compressed_list.append((parent, position, 1, 1))
+                prev_parent, prev_position, prev_removed, prev_added = (None, None, 0, 0)
+            else:
+                prev_parent, prev_position, prev_removed, prev_added = (parent, position, removed, added)
+                compressed_list.append((parent, position, removed, added))
+
+        if not undo:
+            compressed_list.reverse()
+
+        # Update GListModel
+        for parent, position, removed, added in compressed_list:
+            parent.items_changed(position, removed, added)
+            if removed != added:
+                parent.notify("n-items")
 
         self.set_selection(selection)
 
@@ -999,8 +1055,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
             retval = {"ui": "", "css": "", "obj": "", "prop": "", "value": "", "field": column}
 
             commands = self.db.history_commands[table]
-            c.execute(commands["DATA"], (index,))
-            data = c.fetchone()
+            data = c.execute(commands["DATA"], (index, True)).fetchone()
 
             if data is None:
                 return retval
@@ -1258,11 +1313,6 @@ class CmbProject(GObject.Object, Gio.ListModel):
         self.emit("ui-library-changed", ui, lib)
 
     def _object_changed(self, obj, field):
-        if field == "position":
-            if self.__reordering_children:
-                return
-            # FIXME needs implementing
-
         # Update template type id
         if field == "name":
             ui = obj.ui
@@ -1578,21 +1628,6 @@ class CmbProject(GObject.Object, Gio.ListModel):
         self.emit("changed")
 
     def do_object_removed(self, obj):
-        if obj._last_known is None:
-            self.emit("changed")
-            return
-
-        parent, position = obj._last_known
-
-        # Emit GListModel signal to update model
-        if parent is not None:
-            parent.items_changed(position, 1, 0)
-            parent.notify("n-items")
-        else:
-            ui = obj.ui
-            ui.items_changed(position, 1, 0)
-            ui.notify("n-items")
-
         self.emit("changed")
 
     def do_object_changed(self, obj, field):

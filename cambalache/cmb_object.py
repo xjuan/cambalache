@@ -77,7 +77,7 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
         self.ui.connect("library-changed", self._on_ui_library_changed)
 
     def __str__(self):
-        return f"CmbObject<{self.type_id}> {self.ui_id}:{self.object_id}"
+        return f"CmbObject<{self.display_name_type}> {self.ui_id}:{self.object_id}"
 
     @property
     def properties(self):
@@ -291,23 +291,40 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
     @parent_id.setter
     def _set_parent_id(self, value):
         new_parent_id = value if value != 0 else None
-        old_parent_id = self.parent_id
+        old_parent_id = self.parent_id if self.parent_id != 0 else None
 
         if old_parent_id == new_parent_id:
             return
 
-        self.db_set(
-            "UPDATE object SET parent_id=?, position=NULL WHERE (ui_id, object_id) IS (?, ?);",
-            (
-                self.ui_id,
-                self.object_id,
-            ),
-            new_parent_id,
+        # Save old parent and position
+        self._save_last_known_parent_and_position()
+
+        project = self.project
+        ui_id = self.ui_id
+        object_id = self.object_id
+
+        if new_parent_id is None:
+            new_position = self.db_get(
+                "SELECT MAX(position)+1 FROM object WHERE ui_id=? AND parent_id IS NULL",
+                (ui_id, )
+            )
+        else:
+            new_position = self.db_get(
+                "SELECT MAX(position)+1 FROM object WHERE ui_id=? AND parent_id=?",
+                (ui_id, new_parent_id)
+            )
+
+        project.db.execute(
+            "UPDATE object SET parent_id=?, position=? WHERE ui_id=? AND object_id=?;",
+            (new_parent_id, new_position, ui_id, object_id)
         )
 
-        # Update children positions, in old parent and new parent
-        self.project.db.update_children_position(self.ui_id, old_parent_id)
-        self.project.db.update_children_position(self.ui_id, new_parent_id)
+        # Update children positions in old parent
+        project.db.update_children_position(ui_id, old_parent_id)
+
+        # Update GListModel
+        self._remove_from_old_parent()
+        self._update_new_parent()
 
         self.__populate_layout_properties()
 
@@ -574,6 +591,38 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
     # GListModel helpers
     def _save_last_known_parent_and_position(self):
         self._last_known = (self.parent, self.list_position)
+
+    def _update_new_parent(self):
+        parent = self.parent
+        position = self.list_position
+
+        # Emit GListModel signal to update model
+        if parent is not None:
+            parent.items_changed(position, 0, 1)
+            parent.notify("n-items")
+        else:
+            ui = self.ui
+            ui.items_changed(position, 0, 1)
+            ui.notify("n-items")
+
+        self._last_known = None
+
+    def _remove_from_old_parent(self):
+        if self._last_known is None:
+            return
+
+        parent, position = self._last_known
+
+        # Emit GListModel signal to update model
+        if parent is not None:
+            parent.items_changed(position, 1, 0)
+            parent.notify("n-items")
+        else:
+            ui = self.ui
+            ui.items_changed(position, 1, 0)
+            ui.notify("n-items")
+
+        self._last_known = None
 
     @GObject.Property(type=int)
     def list_position(self):
