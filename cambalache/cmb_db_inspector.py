@@ -82,7 +82,7 @@ class CmbDBStore(GObject.GObject, Gio.ListModel):
 
         # Basic optimization, only update if something changed in this table
         # TODO: this could be optimized more by check command to know exactly which row changed
-        if self.__history_index is None or table in ["history", "global", "__profile__"]:
+        if self.__history_index is None or table.startswith("history") or table in ["global", "__profile__"]:
             needs_update = True
         else:
             change_table = table[7:] if table.startswith("history_") else table
@@ -270,7 +270,7 @@ class CmbDBInspector(Gtk.Box):
             __gproperties__=gproperties,
             __properties__=properties,
             __properties_set__=set(properties),
-            __int_properties__= int_properties,
+            __int_properties__=int_properties,
             __pk__=pk)
         )
         return klass
