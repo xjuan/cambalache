@@ -40,6 +40,9 @@ class CmbUI(CmbBaseUI, Gio.ListModel):
 
         self.connect("notify", self.__on_notify)
 
+    def __str__(self):
+        return f"CmbUI<{self.display_name}>"
+
     @GObject.Property(type=int)
     def template_id(self):
         retval = self.db_get("SELECT template_id FROM ui WHERE (ui_id) IS (?);", (self.ui_id,))
