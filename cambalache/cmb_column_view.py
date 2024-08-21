@@ -255,6 +255,13 @@ class CmbColumnView(Gtk.ColumnView):
             row_widget.add_controller(drop_target)
             row_widget._drop_target = drop_target
         elif isinstance(item, CmbUI):
+            # Expander Drop target
+            drop_target = self.__drop_target_new()
+            drop_target.connect("accept", self.__on_ui_expander_drop_accept)
+            drop_target.connect("drop", self.__on_ui_expander_drop_drop)
+            expander.add_controller(drop_target)
+            expander._drop_target = drop_target
+
             # Row Drop target
             drop_target = self.__drop_target_new()
             drop_target.connect("accept", self.__on_ui_row_drop_accept)
@@ -295,84 +302,82 @@ class CmbColumnView(Gtk.ColumnView):
                 row_widget.remove_controller(row_widget._drag_source)
                 row_widget._drag_source = None
 
-    def __get_objects_from_row_target(self, target):
-        row_widget = target.get_widget()
-        cell = row_widget.get_first_child()
-        expander = cell.get_first_child()
-        list_row = expander.get_list_row()
-        item = list_row.get_item()
-        return (row_widget, cell, expander, list_row, item)
+    def __get_item_from_target(self, target):
+        target_widget = target.get_widget()
 
-    def __get_objects_from_expander_target(self, target):
-        expander = target.get_widget()
+        if isinstance(target_widget, Gtk.TreeExpander):
+            expander = target_widget
+        else:
+            cell = target_widget.get_first_child()
+            expander = cell.get_first_child()
+
         list_row = expander.get_list_row()
         item = list_row.get_item()
-        return (expander, list_row, item)
+
+        return item
 
     def __on_drag_prepare(self, drag_source, x, y):
-        row_widget, cell, expander, list_row, item = self.__get_objects_from_row_target(drag_source)
-
+        item = self.__get_item_from_target(drag_source)
         return Gdk.ContentProvider.new_for_value(item)
 
     def __on_drag_begin(self, drag_source, drag):
-        row_widget, cell, expander, list_row, item = self.__get_objects_from_row_target(drag_source)
-        drag._item = item
-        drag_source.set_icon(Gtk.WidgetPaintable.new(expander.get_child()), 0, 0)
+        expander = drag_source.get_widget().get_first_child().get_first_child()
+        drag._item = self.__get_item_from_target(drag_source)
+        drag_source.set_icon(Gtk.WidgetPaintable.new(expander.get_first_child()), 0, 0)
 
     def __get_drop_before(self, widget, x, y):
         return True if y < widget.get_height()/2 else False
 
-    def __on_ui_row_drop_accept(self, target, drop):
-        row_widget, cell, expander, list_row, item = self.__get_objects_from_row_target(target)
-
-        drag = drop.get_drag()
-        origin_item = drag._item
+    def __ui_drop_accept(self, drop, item):
+        origin_item = drop.get_drag()._item
 
         if origin_item == item:
             return False
 
         # Ignore if its the same UI and item is already a toplevel
-        if origin_item.ui_id == item.ui_id and not origin_item.parent_id:
+        if origin_item.ui_id == item.ui_id and origin_item.parent_id is None:
             return False
 
         return True
 
-    def __on_expander_drop_accept(self, target, drop):
-        expander, list_row, item = self.__get_objects_from_expander_target(target)
+    def __on_ui_expander_drop_accept(self, target, drop):
+        item = self.__get_item_from_target(target)
+        return self.__ui_drop_accept(drop, item)
 
-        drag = drop.get_drag()
-        origin_item = drag._item
+    def __on_ui_row_drop_accept(self, target, drop):
+        item = self.__get_item_from_target(target)
+        return self.__ui_drop_accept(drop, item)
+
+    def __on_object_drop_accept(self, drop, item):
+        origin_item = drop.get_drag()._item
 
         if origin_item == item:
-            return False
+            return None
 
         if not isinstance(item, CmbObject):
-            return False
+            return None
 
         # Ignore if its the same parent
         if origin_item.parent_id == item.object_id:
+            return None
+
+        return origin_item
+
+    def __on_expander_drop_accept(self, target, drop):
+        item = self.__get_item_from_target(target)
+        origin_item = self.__on_object_drop_accept(drop, item)
+
+        if origin_item is None:
             return False
 
         return self.__project._check_can_add(origin_item.type_id, item.type_id)
 
     def __on_row_drop_accept(self, target, drop):
-        row_widget, cell, expander, list_row, item = self.__get_objects_from_row_target(target)
+        item = self.__get_item_from_target(target)
+        origin_item = self.__on_object_drop_accept(drop, item)
 
-        drag = drop.get_drag()
-        origin_item = drag._item
-
-        if origin_item == item:
+        if origin_item is None or item.parent is None:
             return False
-
-        if not isinstance(item, CmbObject):
-            return False
-
-        # Ignore if its the same parent
-        if origin_item.parent_id == item.object_id:
-            return False
-
-        if not item.parent_id:
-            return True
 
         return self.__project._check_can_add(origin_item.type_id, item.parent.type_id)
 
@@ -391,20 +396,28 @@ class CmbColumnView(Gtk.ColumnView):
 
         return Gdk.DragAction.COPY
 
-    def __on_ui_row_drop_drop(self, target, origin_item, x, y):
-        row_widget, cell, expander, list_row, item = self.__get_objects_from_row_target(target)
-
+    def __on_drop_drop(self, origin_item, item):
         if not isinstance(item, CmbUI):
             return
 
         if origin_item.ui_id == item.ui_id:
+            self.__project.history_push(_("Move {name} as toplevel").format(name=origin_item.display_name))
             origin_item.parent_id = 0
+            self.__project.history_pop()
         else:
             # TODO: Use copy/paste to move across UI files
             pass
 
+    def __on_ui_row_drop_drop(self, target, origin_item, x, y):
+        item = self.__get_item_from_target(target)
+        self.__on_drop_drop(origin_item, item)
+
+    def __on_ui_expander_drop_drop(self, target, origin_item, x, y):
+        item = self.__get_item_from_target(target)
+        self.__on_drop_drop(origin_item, item)
+
     def __on_expander_drop_drop(self, target, origin_item, x, y):
-        expander, list_row, item = self.__get_objects_from_expander_target(target)
+        item = self.__get_item_from_target(target)
 
         if not isinstance(item, CmbObject):
             return
@@ -414,10 +427,15 @@ class CmbColumnView(Gtk.ColumnView):
             return
 
         if origin_item.parent_id != item.object_id:
+            self.__project.history_push(
+                _("Move {name} to {target}").format(name=origin_item.display_name, target=item.display_name)
+            )
             origin_item.parent_id = item.object_id
+            self.__project.history_pop()
 
     def __on_row_drop_drop(self, target, origin_item, x, y):
-        row_widget, cell, expander, list_row, item = self.__get_objects_from_row_target(target)
+        row_widget = target.get_widget()
+        item = self.__get_item_from_target(target)
 
         drop_before = self.__get_drop_before(row_widget, x, y)
 
