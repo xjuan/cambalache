@@ -797,15 +797,26 @@ class CmbWindow(Adw.ApplicationWindow):
         self.project.set_selection([ui])
         self.__set_page("workspace" if self.project is not None else "cambalache")
 
+    def __on_undo_redo_activate(self, undo):
+        if self.project is None:
+            return
+        try:
+            if undo:
+                self.project.undo()
+            else:
+                self.project.redo()
+        except Exception as e:
+            self.present_message_to_user(
+                _("Undo/Redo stack got corrupted"),
+                secondary_text=_("Please try to reproduce and file an issue\n Error: {msg}").format(msg=str(e))
+            )
+        self.__update_action_undo_redo()
+
     def _on_undo_activate(self, action, data):
-        if self.project is not None:
-            self.project.undo()
-            self.__update_action_undo_redo()
+        self.__on_undo_redo_activate(True)
 
     def _on_redo_activate(self, action, data):
-        if self.project is not None:
-            self.project.redo()
-            self.__update_action_undo_redo()
+        self.__on_undo_redo_activate(False)
 
     def _on_save_activate(self, action, data):
         self.save_project()
