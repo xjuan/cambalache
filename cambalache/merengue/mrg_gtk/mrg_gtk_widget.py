@@ -96,7 +96,7 @@ class MrgGtkWidget(MrgController):
 
         self.window.show()
 
-        CambalachePrivate.widget_set_application_id(self.window, f"Cmb:{self.ui_id}.{self.object_id}")
+        CambalachePrivate.widget_set_application_id(self.window, f"Casilda:{self.ui_id}.{self.object_id}")
 
     def on_selected_changed(self):
         if self.object is None:
@@ -118,9 +118,8 @@ class MrgGtkWidget(MrgController):
 
             toplevel = self.object.get_toplevel()
 
-        if toplevel:
-            state = Gtk.StateFlags.NORMAL if self.selected else Gtk.StateFlags.BACKDROP
-            toplevel.set_state_flags(state, True)
+        if toplevel and self.selected:
+            toplevel.present()
 
     def __on_selected_changed(self, obj, pspec):
         self.on_selected_changed()

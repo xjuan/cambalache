@@ -69,7 +69,7 @@ class MrgGtkWindow(MrgGtkBin):
             else:
                 self.object.show_all()
 
-            CambalachePrivate.widget_set_application_id(self.object, f"Cmb:{self.ui_id}.{self.object_id}")
+            CambalachePrivate.widget_set_application_id(self.object, f"Casilda:{self.ui_id}.{self.object_id}")
 
             # Add gtk version CSS class
             if Gtk.MAJOR_VERSION == 4:
