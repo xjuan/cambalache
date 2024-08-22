@@ -82,7 +82,7 @@
         {
           "type": "git",
           "url": "https://gitlab.gnome.org/jpu/casilda.git",
-          "branch": "main"
+          "branch": "0.1.1"
         }
       ]
     },
