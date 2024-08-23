@@ -127,26 +127,8 @@ class CmbApplication(Adw.Application):
             return
 
         # Create Dialog
-        text = _("Save changes before closing?")
-        dialog = Gtk.MessageDialog(
-            transient_for=windows[0],
-            message_type=Gtk.MessageType.QUESTION,
-            text=f"<b><big>{text}</big></b>",
-            use_markup=True,
-            modal=True,
-        )
-
-        # Add buttons
-        dialog.add_buttons(
-            _("Close without Saving"),
-            Gtk.ResponseType.CLOSE,
-            _("Cancel"),
-            Gtk.ResponseType.CANCEL,
-            _("Save"),
-            Gtk.ResponseType.ACCEPT,
-        )
-
-        dialog.set_default_response(Gtk.ResponseType.ACCEPT)
+        window = windows[0]
+        dialog = window._close_project_dialog_new()
 
         if unsaved_windows_len > 1 or unsaved_windows[0].project.filename is None:
             # Add checkbox for each unsaved project

@@ -1005,9 +1005,63 @@ class CmbWindow(Adw.ApplicationWindow):
 
         self._show_message(_("{n} files exported").format(n=n) if n > 1 else _("File exported"))
 
+    def _close_project_dialog_new(self):
+        text = _("Save changes before closing?")
+        dialog = Gtk.MessageDialog(
+            transient_for=self,
+            message_type=Gtk.MessageType.QUESTION,
+            text=f"<b><big>{text}</big></b>",
+            use_markup=True,
+            modal=True,
+        )
+
+        # Add buttons
+        dialog.add_buttons(
+            _("Close without Saving"),
+            Gtk.ResponseType.CLOSE,
+            _("Cancel"),
+            Gtk.ResponseType.CANCEL,
+            _("Save"),
+            Gtk.ResponseType.ACCEPT,
+        )
+
+        dialog.set_default_response(Gtk.ResponseType.ACCEPT)
+        return dialog
+
     def _on_close_activate(self, action, data):
-        self.project = None
-        self.__set_page("cambalache")
+        def close_project():
+            self.project = None
+            self.__set_page("cambalache")
+
+        if self.actions["save"].get_enabled():
+            dialog = self._close_project_dialog_new()
+
+            def callback(dialog, response, window):
+                dialog.destroy()
+
+                if response == Gtk.ResponseType.ACCEPT:
+                    if self.project.filename is None:
+                        def save_callback(dialog, res):
+                            try:
+                                file = dialog.save_finish(res)
+                                self.project.filename = file.get_path()
+                                self.save_project()
+                                close_project()
+                            except Exception as e:
+                                logger.warning(f"Error {e}")
+
+                        file_dialog = self.__file_open_dialog_new(_("Choose a new file to save the project"))
+                        file_dialog.save(self, None, save_callback)
+                    else:
+                        self.save_project()
+                        close_project()
+                elif response == Gtk.ResponseType.CLOSE:
+                    close_project()
+
+            dialog.connect("response", callback, self)
+            dialog.present()
+        else:
+            close_project()
 
     def _on_debug_activate(self, action, data):
         if self.project.filename:
@@ -1205,7 +1259,6 @@ class CmbWindow(Adw.ApplicationWindow):
         mime_types = ["application/x-cambalache-project"]
 
         self.recent_menu.remove_all()
-        has_items = False
 
         for recent in self.__recent_manager.get_items():
             if recent.get_mime_type() not in mime_types:
@@ -1220,7 +1273,6 @@ class CmbWindow(Adw.ApplicationWindow):
             item.set_label(recent.get_display_name())
             item.set_action_and_target_value("win.open_recent", GLib.Variant("s", filename))
             self.recent_menu.append_item(item)
-            has_items = True
 
     def __load_window_state(self):
         state = self.window_settings.get_uint("state")
