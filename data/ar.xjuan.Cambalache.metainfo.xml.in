@@ -14,6 +14,27 @@
     </p>
   </description>
   <releases>
+    <release date="2024-06-20" version="0.91.3">
+      <description>
+        <p>Customs GListModel release</p>
+        <ul>
+          <li>Support 3rd party libraries</li>
+          <li>Improved Drag&amp;Drop support</li>
+          <li>Streamline headerbar</li>
+          <li>Replaced widget hierarchy treeview with column view</li>
+        </ul>
+      </description>
+      <issues>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/227">Issue #227 "Add casilda as meson subproject" (sid)</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/220">Issue #220 "BUG: Typing cursor for style classes always in the front of style entries."</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/222">Issue #222 "cannot create instance of abstract (non-instantiatable) type 'GtkWidget'"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/223">Issue #223 "Cannot add widgets to GtkSizeGroup"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/225">Issue #225 "Cambalache crashes"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/219">Issue #219 "Move existing widgets / hierarchy sections into property fields"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/224">Issue #224 "GtkPicture:file property does not work out of the box"</issue>
+        <issue url="https://gitlab.gnome.org/jpu/cambalache/-/issues/11">Issue #11 "Support 3rd party libraries"</issue>
+      </issues>
+    </release>
     <release date="2024-06-20" version="0.91.1">
       <description>
         <p>Custom compositor release</p>

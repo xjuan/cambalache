@@ -1,6 +1,6 @@
 project(
     'cambalache', 'c',
-    version: '0.91.2',
+    version: '0.91.3',
     meson_version: '>= 0.64.0',
     default_options: [
         'c_std=c11',
