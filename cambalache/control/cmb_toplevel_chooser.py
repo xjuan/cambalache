@@ -21,8 +21,20 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-from gi.repository import GObject, Gtk
+from gi.repository import GObject, Gtk, Gio
 from cambalache import CmbObject, CmbUI
+
+
+class CmbNoneObject(CmbObject):
+    __gtype_name__ = "CmbNoneObject"
+
+    @GObject.Property(type=str)
+    def display_name_type(self):
+        return "(None)"
+
+    @GObject.Property(type=str)
+    def display_name(self):
+        return "<b>(None)</b>"
 
 
 class CmbToplevelChooser(Gtk.DropDown):
@@ -34,14 +46,8 @@ class CmbToplevelChooser(Gtk.DropDown):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        # TODO: Remove me once we depend on Gtk 4.16
-        if not hasattr(self.props, "autoselect"):
-            self.props.sensitive = False
-            self.props.tooltip_text = "This widget requires Gtk >= 4.16"
-            return
-
-        self.props.autoselect = False
-        self.props.can_unselect = True
+        self.none_list = Gio.ListStore(item_type=CmbNoneObject)
+        self.none_list.append(CmbNoneObject())
 
         self.__update_model()
 
@@ -56,14 +62,20 @@ class CmbToplevelChooser(Gtk.DropDown):
             self.props.model = None
             return
 
+        lists = Gio.ListStore(item_type=Gio.ListModel)
+        lists.append(self.none_list)
+
         if self.derivable_only:
-            model = Gtk.FilterListModel(
+            lists.append(Gtk.FilterListModel(
                 model=self.object,
                 filter=Gtk.CustomFilter.new(lambda i, d: i.info.derivable, None)
-            )
-            self.props.model = model
+            ))
         else:
-            self.props.model = self.object
+            lists.append(self.object)
+
+        flatten = Gtk.FlattenListModel(model=lists)
+        self.props.model = flatten
+        self.set_selected(0)
 
     def __on_object_notify(self, obj, pspec):
         self.props.model = None
@@ -82,14 +94,18 @@ class CmbToplevelChooser(Gtk.DropDown):
 
     @cmb_value.setter
     def _set_cmb_value(self, value):
-        if self.object is None:
+        if self.object is None or value is None or value == 0:
+            self.set_selected(0)
             return
 
+        model = self.props.model
         item = self.object.project.get_object_by_id(self.object.ui_id, value)
 
-        if item:
-            found, position = self.props.model.find(item)
-            if found:
-                self.set_selected(position)
+        if item is not None:
+            for position in range(1, model.props.n_items + 1):
+                i = model.get_item(position)
+                if i == item:
+                    self.set_selected(position)
+                    break
         else:
-            self.set_selected(Gtk.INVALID_LIST_POSITION)
+            self.set_selected(0)
