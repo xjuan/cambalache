@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Juan Pablo Ugarte.
+ * Copyright (C) 2021-2024 Juan Pablo Ugarte.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as
@@ -18,7 +18,7 @@
  *   Juan Pablo Ugarte <juanpablougarte@gmail.com>
  */
 
-#include <utils.h>
+#include <cmb_catalog_utils.h>
 
 static GType
 _builder_get_type_from_name(const gchar *name)
@@ -32,7 +32,7 @@ _builder_get_type_from_name(const gchar *name)
 }
 
 /**
- * cmb_utils_get_class_properties:
+ * cmb_catalog_utils_get_class_properties:
  * @name: Class name
  *
  * Return the list of properties declared in @name
@@ -40,7 +40,7 @@ _builder_get_type_from_name(const gchar *name)
  * Returns: (array zero-terminated=1) (element-type GParamSpec) (transfer container): class properties
  */
 GParamSpec **
-cmb_utils_get_class_properties(const gchar *name)
+cmb_catalog_utils_get_class_properties(const gchar *name)
 {
   GType gtype = _builder_get_type_from_name(name);
   gpointer oclass = NULL;
@@ -52,7 +52,7 @@ cmb_utils_get_class_properties(const gchar *name)
 
 
 /**
- * cmb_utils_get_iface_properties:
+ * cmb_catalog_utils_get_iface_properties:
  * @name: Interface type name
  *
  * Return the list of properties declared in @name iface
@@ -60,7 +60,7 @@ cmb_utils_get_class_properties(const gchar *name)
  * Returns: (array zero-terminated=1) (element-type GParamSpec) (transfer container): iface properties
  */
 GParamSpec **
-cmb_utils_get_iface_properties(const gchar *name)
+cmb_catalog_utils_get_iface_properties(const gchar *name)
 {
   GType gtype = _builder_get_type_from_name(name);
   gpointer iface = NULL;
@@ -75,14 +75,14 @@ cmb_utils_get_iface_properties(const gchar *name)
 }
 
 /**
- * cmb_utils_implements_buildable_add_child:
+ * cmb_catalog_utils_implements_buildable_add_child:
  * @buildable: Object to check
  *
  * Return whether buildable implements add_child() or not
  *
  */
 gboolean
-cmb_utils_implements_buildable_add_child(GObject *buildable)
+cmb_catalog_utils_implements_buildable_add_child(GObject *buildable)
 {
   GtkBuildableIface *iface = NULL;
 
@@ -102,14 +102,14 @@ cmb_utils_implements_buildable_add_child(GObject *buildable)
 }
 
 /**
- * cmb_utils_pspec_enum_get_default_nick:
+ * cmb_catalog_utils_pspec_enum_get_default_nick:
  * @gtype:
  * @default_value:
  *
  *
  */
 const gchar *
-cmb_utils_pspec_enum_get_default_nick(GType gtype, gint default_value)
+cmb_catalog_utils_pspec_enum_get_default_nick(GType gtype, gint default_value)
 {
   GEnumClass *enum_class = g_type_class_ref (gtype);;
   GEnumValue *enum_value= g_enum_get_value (enum_class, default_value);
@@ -124,14 +124,14 @@ cmb_utils_pspec_enum_get_default_nick(GType gtype, gint default_value)
 }
 
 /**
- * cmb_utils_pspec_flags_get_default_nick:
+ * cmb_catalog_utils_pspec_flags_get_default_nick:
  * @gtype:
  * @default_value:
  *
  *
  */
 gchar *
-cmb_utils_pspec_flags_get_default_nick(GType gtype, guint default_value)
+cmb_catalog_utils_pspec_flags_get_default_nick(GType gtype, guint default_value)
 {
   GFlagsClass *flags_class = g_type_class_ref (gtype);
   GFlagsValue *flags_value = NULL;

@@ -1,14 +1,7 @@
-CAMBALACHE_DB=flatpak run \
-	--env=LD_LIBRARY_PATH=../tools \
-	--env=GI_TYPELIB_PATH=../tools \
-	--share=ipc \
-	--socket=fallback-x11 \
-	--socket=wayland \
-	--device=all \
-	--filesystem=host \
-	--command=python3 \
-	org.gnome.Sdk//46 \
-	../tools/cambalache-db.py
+CMB_CATALOG_GEN=flatpak run --devel \
+	--command=cmb-catalog-gen \
+	ar.xjuan.Cambalache \
+	2>/dev/null
 
 BASE_CATALOG_FILES = \
 	glib/gobject-2.0.xml \
@@ -41,7 +34,7 @@ CATALOG_FILES = \
 all: ${CATALOG_FILES}
 
 glib/gobject-2.0.xml: glib/GObject.xml
-	${CAMBALACHE_DB} \
+	${CMB_CATALOG_GEN} \
 		--gir /usr/share/gir-1.0/GObject-2.0.gir \
 		--types GObject GBinding GBindingFlags \
 		--boxed-types GStrv GBytes\
@@ -50,7 +43,7 @@ glib/gobject-2.0.xml: glib/GObject.xml
 		--output $@
 
 glib/gio-2.0.xml: glib/Gio.xml
-	${CAMBALACHE_DB} \
+	${CMB_CATALOG_GEN} \
 		--dependencies gobject-2.0 \
 		--gir /usr/share/gir-1.0/Gio-2.0.gir \
 		--types GFile GListStore GListModel GMenuModel \
@@ -59,7 +52,7 @@ glib/gio-2.0.xml: glib/Gio.xml
 		--output $@
 
 gdkpixbuf/gdkpixbuf-2.0.xml:
-	${CAMBALACHE_DB} \
+	${CMB_CATALOG_GEN} \
 		--dependencies gio-2.0 \
 		--gir /usr/share/gir-1.0/GdkPixbuf-2.0.gir \
 		--types GdkPixbuf \
@@ -67,14 +60,14 @@ gdkpixbuf/gdkpixbuf-2.0.xml:
 		--output $@
 
 pango/pango-1.0.xml:
-	${CAMBALACHE_DB} \
+	${CMB_CATALOG_GEN} \
 		--dependencies gio-2.0 \
 		--gir /usr/share/gir-1.0/Pango-1.0.gir \
 		--exclude-objects \
 		--output $@
 
 gtk/gdk-3.0.xml:
-	${CAMBALACHE_DB} \
+	${CMB_CATALOG_GEN} \
 		--dependencies pango-1.0 gdkpixbuf-2.0 \
 		--gir /usr/share/gir-1.0/Gdk-3.0.gir \
 		--boxed-types GdkColor GdkRGBA \
@@ -82,7 +75,7 @@ gtk/gdk-3.0.xml:
 		--output $@
 
 gtk/gdk-4.0.xml:
-	${CAMBALACHE_DB} \
+	${CMB_CATALOG_GEN} \
 		--target-gtk4 \
 		--dependencies pango-1.0 gdkpixbuf-2.0 \
 		--gir /usr/share/gir-1.0/Gdk-4.0.gir \
@@ -91,7 +84,7 @@ gtk/gdk-4.0.xml:
 		--output $@
 
 gtk/gsk-4.0.xml:
-	${CAMBALACHE_DB} \
+	${CMB_CATALOG_GEN} \
 		--target-gtk4 \
 		--dependencies pango-1.0 gdkpixbuf-2.0 \
 		--gir /usr/share/gir-1.0/Gsk-4.0.gir \
@@ -100,7 +93,7 @@ gtk/gsk-4.0.xml:
 		--output $@
 
 gtk/gtk+-3.0.xml: gtk/Gtk.xml ${GTK3_DEPS}
-	${CAMBALACHE_DB} \
+	${CMB_CATALOG_GEN} \
 		--dependencies gdk-3.0 \
 		--gir /usr/share/gir-1.0/Gtk-3.0.gir \
 		--external-catalogs ${GTK3_DEPS} \
@@ -108,7 +101,7 @@ gtk/gtk+-3.0.xml: gtk/Gtk.xml ${GTK3_DEPS}
 		--output $@
 
 gtk/gtk-4.0.xml: gtk/Gtk.xml ${GTK4_DEPS}
-	${CAMBALACHE_DB} \
+	${CMB_CATALOG_GEN} \
 		--target-gtk4 \
 		--dependencies gdk-4.0 gsk-4.0 \
 		--gir /usr/share/gir-1.0/Gtk-4.0.gir \
@@ -118,7 +111,7 @@ gtk/gtk-4.0.xml: gtk/Gtk.xml ${GTK4_DEPS}
 		--output $@ && true
 
 gnome/libhandy-1.xml: gtk/gtk+-3.0.xml
-	${CAMBALACHE_DB} \
+	${CMB_CATALOG_GEN} \
 		--dependencies gtk+-3.0 \
 		--gir /usr/share/gir-1.0/Handy-1.gir \
 		--external-catalogs ${GTK3_DEPS} gtk/gtk+-3.0.xml \
@@ -127,7 +120,7 @@ gnome/libhandy-1.xml: gtk/gtk+-3.0.xml
 		--output $@
 
 gnome/webkit2gtk-4.1.xml: gtk/gtk+-3.0.xml
-	${CAMBALACHE_DB} \
+	${CMB_CATALOG_GEN} \
 		--dependencies gtk+-3.0 \
 		--gir /usr/share/gir-1.0/WebKit2-4.1.gir \
 		--external-catalogs ${GTK3_DEPS} gtk/gtk+-3.0.xml \
@@ -137,7 +130,7 @@ gnome/webkit2gtk-4.1.xml: gtk/gtk+-3.0.xml
 		--output $@
 
 gnome/libadwaita-1.xml: gtk/gtk-4.0.xml
-	${CAMBALACHE_DB} \
+	${CMB_CATALOG_GEN} \
 		--target-gtk4 \
 		--dependencies gtk-4.0 \
 		--gir /usr/share/gir-1.0/Adw-1.gir \
@@ -147,7 +140,7 @@ gnome/libadwaita-1.xml: gtk/gtk-4.0.xml
 		--output $@
 
 gnome/webkitgtk-6.0.xml: gtk/gtk-4.0.xml
-	${CAMBALACHE_DB} \
+	${CMB_CATALOG_GEN} \
 		--target-gtk4 \
 		--dependencies gtk-4.0 \
 		--gir /usr/share/gir-1.0/WebKit-6.0.gir \

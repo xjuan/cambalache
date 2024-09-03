@@ -96,6 +96,7 @@ subdir('data')
 subdir('cambalache')
 subdir('catalogs')
 subdir('po')
+subdir('tools')
 subdir('tests')
 
 gnome.post_install(

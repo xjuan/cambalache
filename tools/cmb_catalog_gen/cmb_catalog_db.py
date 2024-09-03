@@ -1,5 +1,5 @@
 #
-# CambalacheDB - Data Model for Cambalache
+# CmbCatalogDB - Data Model for cmb-catalog-gen
 #
 # Copyright (C) 2021-2022  Juan Pablo Ugarte
 #
@@ -23,12 +23,12 @@
 import os
 import ast
 import sqlite3
-import argparse
-import json
+
 
 from lxml import etree
 from lxml.builder import E
-from utils import gir
+from .cmb_gir_data import CmbGirData
+from gi.repository import Gio
 
 
 # Global XML name space
@@ -40,18 +40,19 @@ def ns(namespace, name):
     return f"{{{nsmap[namespace]}}}{name}"
 
 
-class CambalacheDb:
+class CmbCatalogDB:
     def __init__(self, dependencies=None, external_catalogs=[]):
         self.lib = None
         self.dependencies = dependencies if dependencies else []
 
-        # Create DB file
+        # Create DB
         self.conn = sqlite3.connect(":memory:")
 
-        # Create DB tables
-        with open("../cambalache/db/cmb_base.sql", "r") as sql:
-            self.conn.executescript(sql.read())
-            self.conn.commit()
+        # Load base schema
+        gbytes = Gio.resources_lookup_data("/ar/xjuan/Cambalache/db/cmb_base.sql", Gio.ResourceLookupFlags.NONE)
+        cmb_base = gbytes.get_data().decode("UTF-8")
+        self.conn.executescript(cmb_base)
+        self.conn.commit()
 
         self.lib_namespace = {}
         self.external_types = {}
@@ -179,7 +180,7 @@ class CambalacheDb:
                     self.external_types[f"{namespace}.{nstype}"] = type_id
 
     def populate_from_gir(self, girfile, **kwargs):
-        self.lib = gir.GirData(girfile, external_types=self.external_types, **kwargs)
+        self.lib = CmbGirData(girfile, external_types=self.external_types, **kwargs)
         self.lib.populate_db(self.conn)
         self.conn.commit()
 
@@ -457,118 +458,4 @@ class CambalacheDb:
         return retval if len(retval) else None
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate Cambalache library data")
 
-    parser.add_argument("--gir", type=str, required=True, help="library Gir file")
-
-    parser.add_argument("--output", type=str, required=True, help="Output xml filename")
-
-    parser.add_argument("--target-gtk4", help="Target version gtk version 4.0 instead of 3.0", action="store_true")
-
-    parser.add_argument(
-        "--dependencies", metavar="T", type=str, nargs="+", help="Catalog dependencies lib-ver (gtk-4.0)", default=[]
-    )
-
-    parser.add_argument("--extra-data", type=str, help="Extra data for catalog", default=None)
-
-    parser.add_argument("--types", metavar="T", type=str, nargs="+", help="Types to get extra metadata", default=None)
-
-    parser.add_argument("--flag-types", metavar="T", type=str, nargs="+", help="Flag types to get extra metadata", default=None)
-
-    parser.add_argument("--enum-types", metavar="T", type=str, nargs="+", help="Enum types to get extra metadata", default=None)
-
-    parser.add_argument("--boxed-types", metavar="T", type=str, nargs="+", help="Boxed Types to include", default=[])
-
-    parser.add_argument("--exclude-objects", help="Exclude objects in output", action="store_true")
-
-    parser.add_argument("--show-property-overrides", help="Show properties pspec changes", action="store_true")
-
-    parser.add_argument(
-        "--skip-types",
-        metavar="T",
-        type=str,
-        nargs="+",
-        help="Types to avoid instantiating to get extra metadata",
-        default=[],
-    )
-
-    parser.add_argument(
-        "--external-catalogs",
-        metavar="T",
-        type=str,
-        nargs="+",
-        help="List of catalogs to get properties types",
-        default=[],
-    )
-
-    args = parser.parse_args()
-
-    db = CambalacheDb(dependencies=args.dependencies, external_catalogs=args.external_catalogs)
-
-    tokens = os.path.basename(args.output).split("-")
-
-    db.populate_from_gir(
-        args.gir,
-        libname=tokens[0],
-        target_gtk4=args.target_gtk4,
-        types=args.types,
-        flag_types=args.flag_types,
-        enum_types=args.enum_types,
-        boxed_types=args.boxed_types,
-        skip_types=args.skip_types,
-        exclude_objects=args.exclude_objects,
-    )
-
-    # Load custom type data from json file
-    if args.extra_data:
-        db.populate_extra_data_from_xml(args.extra_data)
-
-    if len(db.lib.ignored_pspecs):
-        print(
-            "Ignored pspecs: ",
-            json.dumps(list(db.lib.ignored_pspecs), indent=2, sort_keys=True),
-        )
-
-    if len(db.lib.ignored_types):
-        print(
-            "Ignored types: ",
-            json.dumps(list(db.lib.ignored_types), indent=2, sort_keys=True),
-        )
-
-    if len(db.lib.ignored_boxed_types):
-        print(
-            "Ignored boxed types: ",
-            json.dumps(list(db.lib.ignored_boxed_types), indent=2, sort_keys=True),
-        )
-
-    ignored_named_icons = db.get_ignored_named_icons()
-    if ignored_named_icons:
-        print(
-            'Possible icon name properties (You need to specify type="CmbIconName"): ',
-            json.dumps(ignored_named_icons, indent=2, sort_keys=True),
-        )
-
-    position_properties = db.get_position_layout_properties()
-    if position_properties:
-        print(
-            'Possible position properties (You need to specify is-position="True"): ',
-            json.dumps(position_properties, indent=2, sort_keys=True),
-        )
-
-    translatable_properties = db.get_possibly_translatable_properties()
-    if translatable_properties:
-        print(
-            'Possible translatable properties (You need to specify translatable="True"): ',
-            json.dumps(translatable_properties, indent=2, sort_keys=True),
-        )
-
-    if args.show_property_overrides:
-        overrides = db.get_property_overrides()
-        if overrides:
-            print(
-                'Properties Overrides',
-                json.dumps(overrides, indent=2, sort_keys=True),
-            )
-
-    db.dump(args.output)

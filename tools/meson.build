@@ -1,0 +1,1 @@
+subdir('cmb_catalog_gen')

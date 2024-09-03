@@ -1,7 +1,7 @@
 #
-# CambalacheDB - Data Model for Cambalache
+# CmbGirData - Gir helper
 #
-# Copyright (C) 2020  Juan Pablo Ugarte
+# Copyright (C) 2020-2024  Juan Pablo Ugarte
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as
@@ -28,7 +28,7 @@ from lxml import etree
 from graphlib import TopologicalSorter, CycleError
 from gi.repository import GObject
 
-CmbUtils = None
+CmbCatalogUtils = None
 
 # Global XML name space
 nsmap = {}
@@ -39,7 +39,7 @@ def ns(namespace, name):
     return f"{{{nsmap[namespace]}}}{name}"
 
 
-class GirData:
+class CmbGirData:
     def __init__(
         self,
         gir_file,
@@ -123,10 +123,10 @@ class GirData:
         except ValueError as e:
             print(f"Oops! Could not load {self.name} {self.version} module: {e}")
 
-        gi.require_version("CmbUtils", "4.0" if target_gtk4 else "3.0")
+        gi.require_version("CmbCatalogUtils", "4.0" if target_gtk4 else "3.0")
 
-        global CmbUtils
-        from gi.repository import CmbUtils
+        global CmbCatalogUtils
+        from gi.repository import CmbCatalogUtils
 
         # Dictionary of all enumerations
         self.enumerations = self._get_enumerations(namespace, enum_types)
@@ -298,9 +298,9 @@ class GirData:
         if pspec.value_type == GObject.TYPE_BOOLEAN:
             return "True" if default_value != 0 else "False"
         elif GObject.type_is_a(pspec.value_type, GObject.TYPE_ENUM):
-            return CmbUtils.pspec_enum_get_default_nick(pspec.value_type, default_value)
+            return CmbCatalogUtils.pspec_enum_get_default_nick(pspec.value_type, default_value)
         elif GObject.type_is_a(pspec.value_type, GObject.TYPE_FLAGS):
-            return CmbUtils.pspec_flags_get_default_nick(pspec.value_type, default_value)
+            return CmbCatalogUtils.pspec_flags_get_default_nick(pspec.value_type, default_value)
 
         return default_value
 
@@ -501,12 +501,12 @@ class GirData:
 
         nons_name = name.removeprefix(self.prefix)
         GObject.type_ensure(getattr(self.mod, nons_name).__gtype__)
-        props = CmbUtils.get_class_properties(name)
+        props = CmbCatalogUtils.get_class_properties(name)
 
         if use_instance:
             instance = self._get_instance_from_type(name)
             if instance is not None:
-                is_container = CmbUtils.implements_buildable_add_child(instance)
+                is_container = CmbCatalogUtils.implements_buildable_add_child(instance)
                 if parent not in skip_types:
                     overrides = self._type_get_properties_overrides(name)
 
@@ -601,7 +601,7 @@ class GirData:
             if types is None or name in types:
                 # NOTE: this method is needed because
                 # g_object_interface_list_properties bindings do not work
-                props = CmbUtils.get_iface_properties(name)
+                props = CmbCatalogUtils.get_iface_properties(name)
 
                 retval[name] = {
                     "parent": "interface",
