@@ -62,6 +62,7 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
         self.position_layout_property = None
         self.inline_property_id = None
         self.version_warning = None
+        self.__is_template = False
 
         self._last_known = None
 
@@ -74,6 +75,7 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
 
         self.__update_inline_property_id()
         self.__update_version_warning()
+        self.ui.connect("notify", self._on_ui_notify)
         self.ui.connect("library-changed", self._on_ui_library_changed)
 
     def __str__(self):
@@ -576,6 +578,17 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
         target = self.ui.get_target(self.info.library_id)
         self.version_warning = utils.get_version_warning(target, self.info.version, self.info.deprecated_version, self.type_id)
 
+    def _on_ui_notify(self, obj, pspec):
+        property_id = pspec.name
+
+        if property_id == "template-id":
+            was_template = self.__is_template
+            self.__is_template = obj.template_id == self.object_id
+
+            if was_template or self.__is_template:
+                self.notify("display-name")
+                self.notify("display-name-type")
+
     def _on_ui_library_changed(self, ui, library_id):
         self.__update_version_warning()
 
@@ -685,6 +698,9 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
 
     @GObject.Property(type=int)
     def n_items(self):
+        if self.project is None:
+            return 0
+
         retval = self.db_get("SELECT COUNT(object_id) FROM object WHERE ui_id=? AND parent_id=?;", (self.ui_id, self.object_id))
         return retval if retval is not None else 0
 
