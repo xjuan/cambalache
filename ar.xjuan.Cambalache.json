@@ -1,7 +1,7 @@
 {
   "app-id": "ar.xjuan.Cambalache",
   "runtime": "org.gnome.Platform",
-  "runtime-version": "master",
+  "runtime-version": "47beta",
   "sdk": "org.gnome.Sdk",
   "separate-locales": false,
   "command": "cambalache",
@@ -69,7 +69,8 @@
         {
           "type": "git",
           "url": "https://gitlab.freedesktop.org/wlroots/wlroots.git",
-          "branch": "0.18"
+          "branch": "0.18",
+          "commit": "4666996b2a34b53899aedafcd3586fb1c7a16af6"
         }
       ]
     },
@@ -82,7 +83,8 @@
         {
           "type": "git",
           "url": "https://gitlab.gnome.org/jpu/casilda.git",
-          "branch": "0.1.1"
+          "branch": "0.1.1",
+          "commit": "1cd675f1d2445cd5aa31cc0b2b0da6b505c53025"
         }
       ]
     },

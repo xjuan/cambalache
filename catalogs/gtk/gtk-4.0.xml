@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <!DOCTYPE cambalache-catalog SYSTEM "cambalache-catalog.dtd">
-<cambalache-catalog name="gtk" namespace="Gtk" prefix="Gtk" version="4.0" targets="4.0,4.10,4.12,4.14,4.2,4.4,4.6,4.8" depends="gdk-4.0,gsk-4.0">
+<cambalache-catalog name="gtk" namespace="Gtk" prefix="Gtk" version="4.0" targets="4.0,4.10,4.12,4.14,4.16,4.2,4.4,4.6,4.8" depends="gdk-4.0,gsk-4.0">
   <type>
 	("CmbIconName","gchararray","gtk",None,None,None,None,None,None,None),
 	("GtkATContext","GObject","gtk",None,None,1,1,None,None,None),
@@ -171,6 +171,7 @@
 	("GtkFontDialog","GObject","gtk","4.10",None,None,1,None,None,None),
 	("GtkFontDialogButton","GtkWidget","gtk","4.10",None,None,1,"container",None,None),
 	("GtkFontLevel","enum","gtk",None,None,None,None,None,None,None),
+	("GtkFontRendering","enum","gtk",None,None,None,None,None,None,None),
 	("GtkFrame","GtkWidget","gtk",None,None,None,1,"container","layout",None),
 	("GtkGLArea","GtkWidget","gtk",None,None,None,1,"container","display",None),
 	("GtkGesture","GtkEventController","gtk",None,None,1,1,None,None,None),
@@ -376,6 +377,7 @@
 	("GtkSystemSetting","enum","gtk",None,None,None,None,None,None,None),
 	("GtkText","GtkWidget","gtk",None,None,None,None,"container",None,None),
 	("GtkTextBuffer","GObject","gtk",None,None,None,1,None,"model",None),
+	("GtkTextBufferNotifyFlags","flags","gtk",None,None,None,None,None,None,None),
 	("GtkTextChildAnchor","GObject","gtk",None,None,None,1,None,None,None),
 	("GtkTextDirection","enum","gtk",None,None,None,None,None,None,None),
 	("GtkTextExtendSelection","enum","gtk",None,None,None,None,None,None,None),
@@ -925,9 +927,9 @@
 	("GtkWindowHandle","GtkConstraintTarget")
   </type_iface>
   <type_enum>
-	("GtkAccessibleAnnouncementPriority","GTK_ACCESSIBLE_ANNOUNCEMENT_PRIORITY_HIGH","high",2,None),
-	("GtkAccessibleAnnouncementPriority","GTK_ACCESSIBLE_ANNOUNCEMENT_PRIORITY_LOW","low",None,None),
-	("GtkAccessibleAnnouncementPriority","GTK_ACCESSIBLE_ANNOUNCEMENT_PRIORITY_MEDIUM","medium",1,None),
+	("GtkAccessibleAnnouncementPriority","GTK_ACCESSIBLE_ANNOUNCEMENT_PRIORITY_HIGH","high",2,"The announcement is of high priority, and is usually spoken immediately. Because an interruption might disorient users or cause them to not complete their current task, authors SHOULD NOT use high priority announcements unless the interruption is imperative. An example would be a notification about a critical battery power level."),
+	("GtkAccessibleAnnouncementPriority","GTK_ACCESSIBLE_ANNOUNCEMENT_PRIORITY_LOW","low",None,"The announcement is low priority, and might be read only on the user's request."),
+	("GtkAccessibleAnnouncementPriority","GTK_ACCESSIBLE_ANNOUNCEMENT_PRIORITY_MEDIUM","medium",1,"The announcement is of medium priority, and is usually spoken at the next opportunity, such as at the end of speaking the current sentence or when the user pauses typing."),
 	("GtkAccessibleAutocomplete","GTK_ACCESSIBLE_AUTOCOMPLETE_BOTH","both",3,"When a user is providing input, an element containing a collection of values that could complete the provided input may be displayed. If displayed, one value in the collection is automatically selected, and the text needed to complete the automatically selected value appears after the caret in the input."),
 	("GtkAccessibleAutocomplete","GTK_ACCESSIBLE_AUTOCOMPLETE_INLINE","inline",1,"When a user is providing input, text suggesting one way to complete the provided input may be dynamically inserted after the caret."),
 	("GtkAccessibleAutocomplete","GTK_ACCESSIBLE_AUTOCOMPLETE_LIST","list",2,"When a user is providing input, an element containing a collection of values that could complete the provided input may be displayed."),
@@ -942,6 +944,7 @@
 	("GtkAccessibleProperty","GTK_ACCESSIBLE_PROPERTY_AUTOCOMPLETE","autocomplete",None,"Indicates whether inputting text could trigger display of one or more predictions of the user's intended value for a combobox, searchbox, or textbox and specifies how predictions would be presented if they were made. Value type: [enum@AccessibleAutocomplete]"),
 	("GtkAccessibleProperty","GTK_ACCESSIBLE_PROPERTY_DESCRIPTION","description",1,"Defines a string value that describes or annotates the current element. Value type: string"),
 	("GtkAccessibleProperty","GTK_ACCESSIBLE_PROPERTY_HAS_POPUP","has-popup",2,"Indicates the availability and type of interactive popup element, such as menu or dialog, that can be triggered by an element."),
+	("GtkAccessibleProperty","GTK_ACCESSIBLE_PROPERTY_HELP_TEXT","help-text",19,"Defines a string value that provides a description of non-standard keyboard interactions of the current element. Value type: string"),
 	("GtkAccessibleProperty","GTK_ACCESSIBLE_PROPERTY_KEY_SHORTCUTS","key-shortcuts",3,"Indicates keyboard shortcuts that an author has implemented to activate or give focus to an element. Value type: string"),
 	("GtkAccessibleProperty","GTK_ACCESSIBLE_PROPERTY_LABEL","label",4,"Defines a string value that labels the current element. Value type: string"),
 	("GtkAccessibleProperty","GTK_ACCESSIBLE_PROPERTY_LEVEL","level",5,"Defines the hierarchical level of an element within a structure. Value type: integer"),
@@ -1225,6 +1228,8 @@
 	("GtkFontLevel","GTK_FONT_LEVEL_FAMILY","family",None,"Select a font family"),
 	("GtkFontLevel","GTK_FONT_LEVEL_FEATURES","features",3,"Select a font and font features"),
 	("GtkFontLevel","GTK_FONT_LEVEL_FONT","font",2,"Select a font (i.e. a face with a size, and possibly font variations)"),
+	("GtkFontRendering","GTK_FONT_RENDERING_AUTOMATIC","automatic",None,"Set up font rendering automatically, taking factors like screen resolution and scale into account"),
+	("GtkFontRendering","GTK_FONT_RENDERING_MANUAL","manual",1,"Follow low-level font-related settings when configuring font rendering"),
 	("GtkGraphicsOffloadEnabled","GTK_GRAPHICS_OFFLOAD_DISABLED","disabled",1,"Graphics offloading is disabled."),
 	("GtkGraphicsOffloadEnabled","GTK_GRAPHICS_OFFLOAD_ENABLED","enabled",None,"Graphics offloading is enabled."),
 	("GtkIconSize","GTK_ICON_SIZE_INHERIT","inherit",None,"Keep the size of the parent element"),
@@ -1565,6 +1570,7 @@
 	("GtkDebugFlags","GTK_DEBUG_BUILDER","builder",128,"Trace GtkBuilder operation"),
 	("GtkDebugFlags","GTK_DEBUG_BUILDER_OBJECTS","builder-objects",65536,"Log unused GtkBuilder objects"),
 	("GtkDebugFlags","GTK_DEBUG_CONSTRAINTS","constraints",32768,"Information from the constraints solver"),
+	("GtkDebugFlags","GTK_DEBUG_CSS","css",1048576,"Information about deprecated CSS features."),
 	("GtkDebugFlags","GTK_DEBUG_GEOMETRY","geometry",16,"Information about size allocation"),
 	("GtkDebugFlags","GTK_DEBUG_ICONFALLBACK","iconfallback",262144,"Information about icon fallback."),
 	("GtkDebugFlags","GTK_DEBUG_ICONTHEME","icontheme",32,"Information about icon themes"),
@@ -1648,6 +1654,10 @@
 	("GtkStyleContextPrintFlags","GTK_STYLE_CONTEXT_PRINT_RECURSE","recurse",1,"Print the entire tree of CSS nodes starting at the style context's node"),
 	("GtkStyleContextPrintFlags","GTK_STYLE_CONTEXT_PRINT_SHOW_CHANGE","show-change",4,"Show information about what changes affect the styles"),
 	("GtkStyleContextPrintFlags","GTK_STYLE_CONTEXT_PRINT_SHOW_STYLE","show-style",2,"Show the values of the CSS properties for each node"),
+	("GtkTextBufferNotifyFlags","GTK_TEXT_BUFFER_NOTIFY_AFTER_DELETE","after-delete",8,"Be notified after text has been deleted from the underlying buffer."),
+	("GtkTextBufferNotifyFlags","GTK_TEXT_BUFFER_NOTIFY_AFTER_INSERT","after-insert",2,"Be notified after text has been inserted into the underlying buffer."),
+	("GtkTextBufferNotifyFlags","GTK_TEXT_BUFFER_NOTIFY_BEFORE_DELETE","before-delete",4,"Be notified before text is deleted from the underlying buffer."),
+	("GtkTextBufferNotifyFlags","GTK_TEXT_BUFFER_NOTIFY_BEFORE_INSERT","before-insert",1,"Be notified before text is inserted into the underlying buffer."),
 	("GtkTextSearchFlags","GTK_TEXT_SEARCH_CASE_INSENSITIVE","case-insensitive",4,"The text will be matched regardless of what case it is in."),
 	("GtkTextSearchFlags","GTK_TEXT_SEARCH_TEXT_ONLY","text-only",2,"Search only text. A match may have paintables or child widgets mixed inside the matched range."),
 	("GtkTextSearchFlags","GTK_TEXT_SEARCH_VISIBLE_ONLY","visible-only",1,"Search only visible data. A search match may have invisible text interspersed."),
@@ -2135,6 +2145,7 @@
 	("GtkGestureSingle","exclusive","gboolean",None,None,None,"False",None,None,None,None,None,None,None,None,None),
 	("GtkGestureSingle","touch-only","gboolean",None,None,None,"False",None,None,None,None,None,None,None,None,None),
 	("GtkGestureStylus","stylus-only","gboolean",None,None,None,"True",None,None,"4.10",None,None,None,None,None,None),
+	("GtkGraphicsOffload","black-background","gboolean",None,None,None,"False",None,None,"4.16",None,None,None,None,None,None),
 	("GtkGraphicsOffload","child","GtkWidget",1,None,None,None,None,None,"4.14",None,None,None,None,None,None),
 	("GtkGraphicsOffload","enabled","GtkGraphicsOffloadEnabled",None,None,None,"enabled",None,None,"4.14",None,None,None,None,None,None),
 	("GtkGrid","baseline-row","gint",None,None,None,"0","0","2147483647",None,None,None,None,None,None,None),
@@ -2461,8 +2472,9 @@
 	("GtkSettings","gtk-entry-select-on-focus","gboolean",None,None,None,"True",None,None,None,None,None,None,None,None,None),
 	("GtkSettings","gtk-error-bell","gboolean",None,None,None,"True",None,None,None,None,None,None,None,None,None),
 	("GtkSettings","gtk-font-name","gchararray",None,None,None,"Sans 10",None,None,None,None,None,None,None,None,None),
+	("GtkSettings","gtk-font-rendering","GtkFontRendering",None,None,None,"automatic",None,None,"4.16",None,None,None,None,None,None),
 	("GtkSettings","gtk-fontconfig-timestamp","guint",None,None,None,"0","0","4294967295",None,None,None,None,None,None,None),
-	("GtkSettings","gtk-hint-font-metrics","gboolean",None,None,None,"False",None,None,"4.6",None,None,None,None,None,None),
+	("GtkSettings","gtk-hint-font-metrics","gboolean",None,None,None,"True",None,None,"4.6",None,None,None,None,None,None),
 	("GtkSettings","gtk-icon-theme-name","gchararray",None,None,None,"Adwaita",None,None,None,None,None,None,None,None,None),
 	("GtkSettings","gtk-im-module","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None),
 	("GtkSettings","gtk-keynav-use-caret","gboolean",None,None,None,"False",None,None,None,None,None,None,None,None,None),
