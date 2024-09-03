@@ -66,7 +66,7 @@ class CmbObjectEditor(Gtk.Box):
         grid.attach(entry, 1, 0, 1, 1)
 
         # Template check
-        if self.__object and not self.__object.parent_id:
+        if self.__object is not None and self.__object.parent_id == 0:
             is_template = self.__object.object_id == self.__object.ui.template_id
             tooltip_text = _("Switch between object and template")
             derivable = self.__object.info.derivable
