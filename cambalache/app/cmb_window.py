@@ -50,6 +50,7 @@ class CmbWindow(Adw.ApplicationWindow):
     headerbar = Gtk.Template.Child()
     title = Gtk.Template.Child()
     recent_menu = Gtk.Template.Child()
+    open_button = Gtk.Template.Child()
     undo_button = Gtk.Template.Child()
     redo_button = Gtk.Template.Child()
     stack = Gtk.Template.Child()
@@ -100,7 +101,7 @@ class CmbWindow(Adw.ApplicationWindow):
 
         super().__init__(**kwargs)
 
-        self.__recent_manager = Gtk.RecentManager.get_default()
+        self.__recent_manager = self.__get_recent_manager()
 
         self.editor_stack.set_size_request(420, -1)
 
@@ -267,6 +268,16 @@ class CmbWindow(Adw.ApplicationWindow):
         self.connect("notify::focus-widget", self.__on_focus_widget_notify)
         self.__recent_manager.connect("changed", lambda rm: self.__update_recent_menu())
         self.__update_recent_menu()
+
+    def __get_recent_manager(self):
+        # Load the user host recently used file
+        if os.environ.get("container", None) == "flatpak":
+            recently_used = os.path.join(GLib.get_home_dir(), ".local", "share", "recently-used.xbel")
+            if os.path.exists(recently_used):
+                return Gtk.RecentManager(filename=recently_used)
+
+        # Fallback to default
+        return Gtk.RecentManager.get_default()
 
     def __on_view_gtk_theme_notify(self, obj, pspec):
         self.actions["workspace_theme"].set_state(GLib.Variant("s", obj.props.gtk_theme))
@@ -1273,6 +1284,9 @@ class CmbWindow(Adw.ApplicationWindow):
             item.set_label(recent.get_display_name())
             item.set_action_and_target_value("win.open_recent", GLib.Variant("s", filename))
             self.recent_menu.append_item(item)
+
+        # set menu if there is anything
+        self.open_button.props.menu_model = self.recent_menu if self.recent_menu.get_n_items() else None
 
     def __load_window_state(self):
         state = self.window_settings.get_uint("state")
