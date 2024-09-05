@@ -13,6 +13,7 @@ conf.set('VERSION', meson.project_version())
 conf.set('fileformatversion', fileformatversion)
 conf.set('pkgdatadir', pkgdatadir)
 conf.set('merenguedir', merenguedir)
+conf.set('catalogsdir', catalogsdir)
 
 configure_file(
   input: 'config.py.in',

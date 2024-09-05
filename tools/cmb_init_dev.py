@@ -33,6 +33,7 @@ sys.path.insert(1, basedir)
 cambalachedir = os.path.join(basedir, "cambalache")
 localdir = os.path.join(basedir, ".local")
 localpkgdatadir = os.path.join(localdir, "share", "cambalache")
+catalogsdir = os.path.join(localpkgdatadir, "catalogs")
 
 from gi.repository import GLib  # noqa: E402
 
@@ -119,6 +120,7 @@ def cmb_init_dev():
 FILE_FORMAT_VERSION = '{fileformatversion}'
 pkgdatadir = '{localpkgdatadir}'
 merenguedir = '{cambalachedir}'
+catalogsdir = '{catalogsdir}'
 """,
     )
 

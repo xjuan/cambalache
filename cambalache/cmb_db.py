@@ -387,7 +387,15 @@ class CmbDB(GObject.GObject):
         catalog_graph = {}
 
         catalog_dirs = [os.path.join(dir, "cambalache", "catalogs") for dir in GLib.get_system_data_dirs()]
-        catalog_dirs.append(os.path.join(GLib.get_home_dir(), ".cambalache", "catalogs"))
+
+        # Prepend package data dir
+        if config.catalogsdir not in catalog_dirs:
+            catalog_dirs.insert(0, config.catalogsdir)
+
+        # Append user catalog dir
+        user_catalogs = os.path.join(GLib.get_home_dir(), ".cambalache", "catalogs")
+        if user_catalogs not in catalog_dirs:
+            catalog_dirs.append(user_catalogs)
 
         # Collect and parse all catalogs in all system data directories
         for catalogs_dir in catalog_dirs:
@@ -397,6 +405,9 @@ class CmbDB(GObject.GObject):
             # Collect and parse all catalogs in directory
             for catalog in os.listdir(catalogs_dir):
                 catalog_path = os.path.join(catalogs_dir, catalog)
+                if os.path.isdir(catalog_path):
+                    continue
+
                 content_type = utils.content_type_guess(catalog_path)
 
                 if content_type != "application/xml":
@@ -630,12 +641,13 @@ class CmbDB(GObject.GObject):
     def load_catalog_from_tree(self, tree, filename):
         root = tree.getroot()
 
+        logger.debug(f"Loading catalog: {filename}")
+
         name = root.get("name", None)
         version = root.get("version", None)
         namespace = root.get("namespace", None)
         prefix = root.get("prefix", None)
         targets = root.get("targets", "")
-        # depends = root.get("depends", "")
 
         c = self.conn.cursor()
 
