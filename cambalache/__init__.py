@@ -66,7 +66,7 @@ def getLogger(name):
     ch.setFormatter(formatter)
 
     logger = logging.getLogger(name)
-    logger.setLevel(os.environ.get("MERENGUE_LOGLEVEL", "WARNING").upper())
+    logger.setLevel(os.environ.get("CAMBALACHE_LOGLEVEL", "WARNING").upper())
     logger.addHandler(ch)
 
     return logger
