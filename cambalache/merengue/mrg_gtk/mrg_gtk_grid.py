@@ -80,7 +80,7 @@ class MrgGtkGrid(MrgGtkWidget):
 
     def object_changed(self, old, new):
         super().object_changed(old, new)
-        width, height = self.__get_size()
+        width, height = self.__get_size(ignore_placeholders=True)
 
         if self.width is None:
             self.width = width if width else 3
@@ -90,7 +90,7 @@ class MrgGtkGrid(MrgGtkWidget):
 
     def get_child_position(self, child):
         x, y, w, h = self.child_get(child, self._packing)
-        return x * y
+        return (x+1) * (y+1)
 
     def get_child_layout(self, child, layout):
         for prop in self._packing:
