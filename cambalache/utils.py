@@ -75,10 +75,11 @@ def get_pointer(widget):
     pointer = widget.get_display().get_default_seat().get_pointer()
     valid, x, y, mask = root.get_surface().get_device_position(pointer)
 
-    if valid:
-        return root.translate_coordinates(widget, x, y)
+    if not valid:
+        return (None, None)
 
-    return (None, None)
+    sx, sy = root.get_surface_transform()
+    return root.translate_coordinates(widget, x - sx, y - sy)
 
 
 def get_pointing_to(widget):
