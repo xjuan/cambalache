@@ -6,7 +6,7 @@ This translates to a wide feature coverage with minimal/none developer intervent
 ![Data Model Diagram](datamodel.svg)
 
 To support multiple Gtk versions it renders the workspace out of process using
-the Gdk broadway backend.
+a custom wayland compositor widget based on wlroots.
 
 ![Merengue Diagram](merengue.svg)
 
