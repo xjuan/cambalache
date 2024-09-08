@@ -41,10 +41,16 @@ class CmbObjectEditor(Gtk.Box):
         self.__object = None
         self.__id_label = None
         self.__template_switch = None
+        self.__bindings = []
 
         super().__init__(**kwargs)
 
         self.props.orientation = Gtk.Orientation.VERTICAL
+
+    def bind_property(self, *args):
+        binding = GObject.Object.bind_property(*args)
+        self.__bindings.append(binding)
+        return binding
 
     def __create_id_editor(self):
         grid = Gtk.Grid(hexpand=True, row_spacing=4, column_spacing=4)
@@ -54,7 +60,7 @@ class CmbObjectEditor(Gtk.Box):
 
         # Id/Class entry
         entry = CmbEntry()
-        GObject.Object.bind_property(
+        self.bind_property(
             self.__object,
             "name",
             entry,
@@ -129,7 +135,7 @@ class CmbObjectEditor(Gtk.Box):
 
         combo = CmbChildTypeComboBox(object=self.__object)
 
-        GObject.Object.bind_property(
+        self.bind_property(
             self.__object,
             "type",
             combo,
@@ -212,7 +218,7 @@ It has to be exposed by your application with GtkBuilder expose_object method."
                 if editor is None:
                     continue
 
-                GObject.Object.bind_property(
+                self.bind_property(
                     prop,
                     "value",
                     editor,
@@ -285,6 +291,11 @@ It has to be exposed by your application with GtkBuilder expose_object method."
         if self.__object is not None:
             self.__object.disconnect_by_func(self.__on_object_notify)
             self.__object.ui.disconnect_by_func(self.__on_object_ui_notify)
+
+        for binding in self.__bindings:
+            binding.unbind()
+
+        self.__bindings = []
 
         self.__object = obj
 
