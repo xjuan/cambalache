@@ -110,7 +110,18 @@ Build the image with:
 docker build -t cambalache .
 ```
 
-On linux, enable localhost connections to your X server and run with:
+On linux you can run it on wayland with:
+
+```
+docker run \
+    -e XDG_RUNTIME_DIR=/tmp \
+    -e WAYLAND_DISPLAY=$WAYLAND_DISPLAY \
+    -v $XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:/tmp/$WAYLAND_DISPLAY  \
+    --user=$(id -u):$(id -g) \
+    cambalache
+```
+
+or on X server with:
 ```
 xhost +local:
 docker run -v /tmp/.X11-unix:/tmp/.X11-unix cambalache
