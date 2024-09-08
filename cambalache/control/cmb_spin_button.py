@@ -35,29 +35,40 @@ class CmbSpinButton(Gtk.SpinButton):
         self.props.halign = Gtk.Align.START
         self.props.numeric = True
         self.props.width_chars = 8
+        self.__ignore_notify = False
+        self.__cmb_value = None
 
     def __on_value_notify(self, obj, pspec):
-        self.notify("cmb-value")
+        if self.__ignore_notify:
+            return
+
+        self.cmb_value = self.props.value
 
     @GObject.Property(type=str)
     def cmb_value(self):
-        # FIXME: value should always use C locale
-        if self.props.digits == 0:
-            return str(int(self.props.value))
-        else:
-            # NOTE: round() to avoid setting numbers like 0.7000000000000001
-            return str(round(self.props.value, 15))
+        return self.__cmb_value
 
     @cmb_value.setter
     def _set_cmb_value(self, value):
         value = float(value)
 
-        if value == self.props.value:
+        if value == math.inf:
+            value = GLib.MAXDOUBLE
+        elif value == -math.inf:
+            value = -GLib.MAXDOUBLE
+        else:
+            value = value
+
+        if self.props.digits == 0:
+            cmb_value = str(int(value))
+        else:
+            # NOTE: round() to avoid setting numbers like 0.7000000000000001
+            cmb_value = str(round(value, 15))
+
+        if value == cmb_value:
             return
 
-        if value == math.inf:
-            self.props.value = GLib.MAXDOUBLE
-        elif value == -math.inf:
-            self.props.value = -GLib.MAXDOUBLE
-        else:
-            self.props.value = value
+        self.__ignore_notify = True
+        self.__cmb_value = cmb_value
+        self.props.value = value
+        self.__ignore_notify = False
