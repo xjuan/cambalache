@@ -468,6 +468,7 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
             return
 
         old_position = child.position
+        old_list_position = child.list_position
         if old_position == position:
             return
 
@@ -516,20 +517,39 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
 
         # Set new position
         db.execute("UPDATE object SET position=? WHERE ui_id=? AND object_id=?;", (position, self.ui_id, child.object_id))
+
+        # Update position layout property (Example GtkBox position in Gtk3)
+        if child.position_layout_property:
+            db.execute(
+                """
+                UPDATE object_layout_property AS olp SET value=o.position
+                FROM object AS o
+                WHERE
+                    o.ui_id=? AND
+                    o.parent_id=? AND
+                    olp.ui_id=o.ui_id AND
+                    olp.object_id=o.parent_id AND
+                    olp.child_id=o.object_id AND
+                    olp.property_id=?;
+                """,
+                (self.ui_id, self.object_id, child.position_layout_property.property_id)
+            )
+
         db.ignore_check_constraints = False
 
+        list_position = child.list_position
+
+        self.project._ignore_selection = True
         # Emit GListModel signals
         if position < old_position:
-            self.items_changed(position, 0, 1)
-            self.items_changed(old_position+1, 1, 0)
+            self.items_changed(list_position, 0, 1)
+            self.items_changed(old_list_position+1, 1, 0)
         else:
-            self.items_changed(old_position, 1, 0)
-            self.items_changed(position, 0, 1)
-
-        # FIXME: update position_layout_property
+            self.items_changed(old_list_position, 1, 0)
+            self.items_changed(list_position, 0, 1)
+        self.project._ignore_selection = False
 
         self.project.history_pop()
-
         self.emit("child-reordered", child, old_position, position)
         self.project._object_child_reordered(self, child, old_position, position)
 

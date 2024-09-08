@@ -65,6 +65,11 @@ class CmbLayoutProperty(CmbBaseLayoutProperty):
 
     @value.setter
     def _set_value(self, value):
+        # Update object position if this is a position property
+        if self.info.is_position and not self.__on_init:
+            self.object.parent.reorder_child(self.object, int(value) if value else 0)
+            return
+
         c = self.project.db.cursor()
 
         if value is None or value == self.info.default_value:
@@ -104,10 +109,6 @@ class CmbLayoutProperty(CmbBaseLayoutProperty):
                     """,
                     (self.ui_id, self.object_id, self.child_id, self.owner_id, self.property_id, value),
                 )
-
-        # Update object position if this is a position property
-        if self.info.is_position:
-            self.object.position = int(value) if value else 0
 
         if not self.__on_init:
             self.object._layout_property_changed(self)
