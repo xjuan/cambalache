@@ -72,7 +72,7 @@ class CmbObjectEditor(Gtk.Box):
         grid.attach(entry, 1, 0, 1, 1)
 
         # Template check
-        if self.__object is not None and self.__object.parent_id == 0:
+        if self.__object and self.__object.parent_id == 0:
             is_template = self.__object.object_id == self.__object.ui.template_id
             tooltip_text = _("Switch between object and template")
             derivable = self.__object.info.derivable
@@ -288,7 +288,7 @@ It has to be exposed by your application with GtkBuilder expose_object method."
         if obj == self.__object:
             return
 
-        if self.__object is not None:
+        if self.__object:
             self.__object.disconnect_by_func(self.__on_object_notify)
             self.__object.ui.disconnect_by_func(self.__on_object_ui_notify)
 
@@ -299,7 +299,7 @@ It has to be exposed by your application with GtkBuilder expose_object method."
 
         self.__object = obj
 
-        if obj is not None:
+        if obj:
             obj.connect("notify", self.__on_object_notify)
             obj.ui.connect("notify", self.__on_object_ui_notify)
 

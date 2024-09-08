@@ -134,6 +134,13 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         self.__load()
 
+    def __bool__(self):
+        # Ensure that CmbProject objects evaluates to True even if it does not have any ui or css
+        return True
+
+    def __str__(self):
+        return f"CmbProject<{self.target_tk}> {self.filename}"
+
     @GObject.Property(type=bool, default=False)
     def history_enabled(self):
         return bool(self.db.get_data("history_enabled"))
@@ -482,7 +489,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
             template_id = ui.template_id
             if template_id:
                 obj = self.get_object_by_id(ui.ui_id, template_id)
-                if obj is not None:
+                if obj:
                     self.remove_object(obj)
 
             self.db.execute("DELETE FROM ui WHERE ui_id=?;", (ui.ui_id,))
@@ -711,7 +718,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         obj = self._object_id.get(key, None)
 
-        if obj is not None:
+        if obj:
             return obj
 
         ui_id, object_id = [int(x) for x in key.split(".")]
@@ -848,7 +855,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         if command == "UPDATE":
             if table == "object":
                 obj = self.get_object_by_id(pk[0], pk[1])
-                if obj is not None:
+                if obj:
                     obj.notify(column)
             elif table == "object_property":
                 obj = self.get_object_by_id(pk[0], pk[1])
@@ -1045,7 +1052,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         def get_type_data_name(owner_id, data_id):
             c.execute("SELECT key FROM type_data WHERE owner_id=? AND data_id=?;", (owner_id, data_id))
             row = c.fetchone()
-            return f"{owner_id}:{row[0]}" if row else f"{owner_id}:{data_id}"
+            return f"{owner_id}:{row[0]}" if row is not None else f"{owner_id}:{data_id}"
 
         def get_msg_vars(table, column, data):
             retval = {"ui": "", "css": "", "obj": "", "prop": "", "value": "", "field": column}
@@ -1488,7 +1495,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         finally:
             new_parent = self.__add_object(False, ui_id, new_parent_id, type_id, None, grand_parent_id, position=position)
 
-            if new_parent.parent is not None:
+            if new_parent.parent:
                 new_parent.parent.items_changed(list_position, 1, 1)
             else:
                 new_parent.ui.items_changed(list_position, 1, 1)

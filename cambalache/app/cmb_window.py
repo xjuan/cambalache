@@ -288,7 +288,7 @@ class CmbWindow(Adw.ApplicationWindow):
 
     @project.setter
     def _set_project(self, project):
-        if self.__project is not None:
+        if self.__project:
             self.__project.disconnect_by_func(self.__on_project_filename_notify)
             self.__project.disconnect_by_func(self.__on_project_selection_changed)
             self.__project.disconnect_by_func(self.__on_project_changed)
@@ -307,7 +307,7 @@ class CmbWindow(Adw.ApplicationWindow):
         self.signal_editor.object = None
         self.fragment_editor.object = None
 
-        if project is not None:
+        if project:
             self.__project.connect("notify::filename", self.__on_project_filename_notify)
             self.__project.connect("selection-changed", self.__on_project_selection_changed)
             self.__project.connect("changed", self.__on_project_changed)
@@ -340,13 +340,13 @@ class CmbWindow(Adw.ApplicationWindow):
         selection = self.project.get_selection()
         obj = selection[0] if len(selection) else None
 
-        if obj is not None and not isinstance(obj, CmbObject) and not isinstance(obj, CmbUI):
+        if obj and not isinstance(obj, CmbObject) and not isinstance(obj, CmbUI):
             return
 
         device = self.get_display().get_default_seat().get_keyboard()
 
         # If alt is pressed, force adding object to selection
-        if device is not None and bool(device.props.modifier_state & Gdk.ModifierType.ALT_MASK):
+        if device and bool(device.props.modifier_state & Gdk.ModifierType.ALT_MASK):
             if obj:
                 parent_id = obj.object_id if isinstance(obj, CmbObject) else None
                 self.project.add_object(obj.ui_id, info.type_id, None, parent_id)
@@ -357,7 +357,7 @@ class CmbWindow(Adw.ApplicationWindow):
             # Select type and let user choose which placeholder to use
             self.type_chooser.props.selected_type = info
             self.__update_action_add_object()
-        elif obj is not None:
+        elif obj:
             # Create toplevel object/window
             self.project.add_object(obj.ui_id, info.type_id)
 
@@ -438,7 +438,7 @@ class CmbWindow(Adw.ApplicationWindow):
 
     def __is_project_visible(self):
         page = self.stack.get_visible_child_name()
-        return self.project is not None and page == "workspace"
+        return self.project and page == "workspace"
 
     def __set_page(self, page):
         self.stack.set_visible_child_name(page)
@@ -548,7 +548,7 @@ class CmbWindow(Adw.ApplicationWindow):
         selection = self.project.get_selection()
         obj = selection[0] if len(selection) else None
 
-        if obj is not None and isinstance(obj, CmbObject) and obj.parent_id and obj.parent.n_items == 1:
+        if obj and isinstance(obj, CmbObject) and obj.parent_id and obj.parent.n_items == 1:
             self.actions["remove_parent"].set_enabled(True)
             return
 
@@ -643,7 +643,7 @@ class CmbWindow(Adw.ApplicationWindow):
         # Check if its already imported
         ui = self.project.get_ui_by_filename(filename)
 
-        if ui is not None:
+        if ui:
             self.project.set_selection([ui])
             return
 
@@ -806,7 +806,7 @@ class CmbWindow(Adw.ApplicationWindow):
         # Create Ui and select it
         ui = self.project.add_ui(uipath)
         self.project.set_selection([ui])
-        self.__set_page("workspace" if self.project is not None else "cambalache")
+        self.__set_page("workspace" if self.project else "cambalache")
 
     def __on_undo_redo_activate(self, undo):
         if self.project is None:
@@ -817,6 +817,7 @@ class CmbWindow(Adw.ApplicationWindow):
             else:
                 self.project.redo()
         except Exception as e:
+            logger.warning(f"Undo/Redo error {traceback.format_exc()}")
             self.present_message_to_user(
                 _("Undo/Redo stack got corrupted"),
                 secondary_text=_("Please try to reproduce and file an issue\n Error: {msg}").format(msg=str(e))
@@ -1165,7 +1166,7 @@ class CmbWindow(Adw.ApplicationWindow):
         self.project.remove_parent(selection[0])
 
     def _on_show_workspace_activate(self, action, data):
-        self.__set_page("workspace" if self.project is not None else "cambalache")
+        self.__set_page("workspace" if self.project else "cambalache")
 
     def __clear_tutor(self):
         try:

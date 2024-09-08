@@ -40,6 +40,10 @@ class CmbUI(CmbBaseUI, Gio.ListModel):
 
         self.connect("notify", self.__on_notify)
 
+    def __bool__(self):
+        # Override Truth Value Testing to ensure that CmbUI objects evaluates to True even if it does not have children objects
+        return True
+
     def __str__(self):
         return f"CmbUI<{self.display_name}>"
 
@@ -127,7 +131,7 @@ class CmbUI(CmbBaseUI, Gio.ListModel):
 
         if template_id:
             template = self.project.get_object_by_id(self.ui_id, template_id)
-            if template is not None:
+            if template:
                 return template.name
 
         return _("Unnamed {ui_id}").format(ui_id=self.ui_id)

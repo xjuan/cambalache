@@ -54,7 +54,7 @@ class CmbApplication(Adw.Application):
         window = None
 
         for win in self.get_windows():
-            if win.project is not None and win.project.filename == path:
+            if win.project and win.project.filename == path:
                 window = win
 
         if window is None:

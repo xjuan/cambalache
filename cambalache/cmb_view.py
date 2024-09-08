@@ -303,7 +303,7 @@ class CmbView(Gtk.Box):
         return self.__project.db.tostring(ui_id, merengue=merengue)
 
     def __update_view(self):
-        if self.__project is not None and self.__ui_id > 0:
+        if self.__project and self.__ui_id > 0:
             if self.stack.props.visible_child_name == "ui_xml":
                 ui = self.__get_ui_xml(self.__ui_id)
                 self.text_view.buffer.set_text(ui)
@@ -484,7 +484,7 @@ class CmbView(Gtk.Box):
 
     @project.setter
     def _set_project(self, project):
-        if self.__project is not None:
+        if self.__project:
             self.__project.disconnect_by_func(self.__on_changed)
             self.__project.disconnect_by_func(self.__on_ui_changed)
             self.__project.disconnect_by_func(self.__on_object_added)
@@ -518,7 +518,7 @@ class CmbView(Gtk.Box):
 
         self.__update_view()
 
-        if project is not None:
+        if project:
             project.connect("changed", self.__on_changed)
             project.connect("ui-changed", self.__on_ui_changed)
             project.connect("object-added", self.__on_object_added)

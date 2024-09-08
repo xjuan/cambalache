@@ -83,7 +83,7 @@ class CmbColumnView(Gtk.ColumnView):
 
         menu = CmbContextMenu()
 
-        if self.__project is not None:
+        if self.__project:
             menu.target_tk = self.__project.target_tk
 
         menu.set_parent(self)
@@ -152,12 +152,12 @@ class CmbColumnView(Gtk.ColumnView):
 
     @project.setter
     def _set_project(self, project):
-        if self.__project is not None:
+        if self.__project:
             self.__project.disconnect_by_func(self.__on_project_selection_changed)
 
         self.__project = project
 
-        if project is not None:
+        if project:
             self.__tree_model = Gtk.TreeListModel.new(
                 project,
                 False,

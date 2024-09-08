@@ -68,7 +68,7 @@ class CmbFragmentEditor(Gtk.Box):
         self.__bindings.append(binding)
 
         # Only objects have child fragments
-        if type(obj) is CmbObject and obj.parent is not None:
+        if type(obj) is CmbObject and obj.parent:
             binding = GObject.Object.bind_property(
                 obj,
                 "custom-child-fragment",

@@ -76,7 +76,7 @@ class CmbSignalEditor(Gtk.Box):
 
     @object.setter
     def _set_object(self, obj):
-        if self._object is not None:
+        if self._object:
             self.treestore.clear()
             self._object.disconnect_by_func(self.__on_signal_added)
             self._object.disconnect_by_func(self.__on_signal_removed)
@@ -84,7 +84,7 @@ class CmbSignalEditor(Gtk.Box):
 
         self._object = obj
 
-        if obj is not None:
+        if obj:
             self.__populate_treestore()
             self._object.connect("signal-added", self.__on_signal_added)
             self._object.connect("signal-removed", self.__on_signal_removed)
@@ -240,7 +240,7 @@ class CmbSignalEditor(Gtk.Box):
         signal_id = tree_model[iter_][Col.SIGNAL_ID.value]
         warning = tree_model[iter_][Col.WARNING_MESSAGE.value]
 
-        if info is not None and info.detailed:
+        if info and info.detailed:
             detail = tree_model[iter_][Col.DETAIL.value]
             signal = tree_model[iter_][Col.SIGNAL.value]
 

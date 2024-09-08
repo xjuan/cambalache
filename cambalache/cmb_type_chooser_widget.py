@@ -149,7 +149,7 @@ class CmbTypeChooserWidget(Gtk.Box):
 
     @project.setter
     def _set_project(self, project):
-        if self.__project is not None:
+        if self.__project:
             self.__project.disconnect_by_func(self.__on_type_info_added)
             self.__project.disconnect_by_func(self.__on_type_info_removed)
             self.__project.disconnect_by_func(self.__on_type_info_changed)
@@ -163,7 +163,7 @@ class CmbTypeChooserWidget(Gtk.Box):
 
         self.treeview.props.model = self._filter
 
-        if project is not None:
+        if project:
             project.connect("type-info-added", self.__on_type_info_added)
             project.connect("type-info-removed", self.__on_type_info_removed)
             project.connect("type-info-changed", self.__on_type_info_changed)

@@ -5,6 +5,17 @@ import os
 from cambalache import CmbProject, config
 
 
+def test_cmb_object_truth_value():
+    project = CmbProject(target_tk="gtk-4.0")
+    assert (project)
+
+    ui = project.add_ui("liststore.ui")
+    assert (ui)
+
+    win = project.add_object(ui.ui_id, "GtkWindow")
+    assert (win)
+
+
 def cmb_object_data_test(target_tk):
     # Load original UI file to compare
     path = os.path.join(os.path.dirname(__file__), target_tk, "liststore.ui")

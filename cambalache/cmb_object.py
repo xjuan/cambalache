@@ -78,6 +78,10 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
         self.ui.connect("notify", self._on_ui_notify)
         self.ui.connect("library-changed", self._on_ui_library_changed)
 
+    def __bool__(self):
+        # Override Truth Value Testing to ensure that CmbObject objects evaluates to True even if it does not have children
+        return True
+
     def __str__(self):
         return f"CmbObject<{self.display_name_type}> {self.ui_id}:{self.object_id}"
 
@@ -630,7 +634,7 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
         position = self.list_position
 
         # Emit GListModel signal to update model
-        if parent is not None:
+        if parent:
             parent.items_changed(position, 0, 1)
             parent.notify("n-items")
         else:
@@ -647,7 +651,7 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
         parent, position = self._last_known
 
         # Emit GListModel signal to update model
-        if parent is not None:
+        if parent:
             parent.items_changed(position, 1, 0)
             parent.notify("n-items")
         else:
