@@ -73,7 +73,7 @@ class CmbDB(GObject.GObject):
             "object_data_arg",
         ]
 
-        self.history_commands = {}
+        self.__history_commands = {}
 
         self.clipboard = []
         self.clipboard_ids = []
@@ -145,17 +145,17 @@ class CmbDB(GObject.GObject):
 
         return conn
 
-    def __create_support_table(self, c, table):
-        # Create a history table to store data for INSERT and DELETE commands
-        c.executescript(
-            f"""
-            CREATE TABLE history_{table} AS SELECT * FROM {table} WHERE 0;
-            ALTER TABLE history_{table} ADD COLUMN history_old BOOLEAN;
-            ALTER TABLE history_{table} ADD COLUMN history_id INTEGER REFERENCES history ON DELETE CASCADE;
-            CREATE INDEX history_{table}_history_id_fk ON history_{table} (history_id);
-            """
-        )
+    def history_insert(self, table, new_values):
+        self.execute(self.__history_commands[table]["INSERT"], new_values)
 
+    def history_delete(self, table, table_pk):
+        self.execute(self.__history_commands[table]["DELETE"], table_pk)
+
+    def history_update(self, table, column, table_pk, values):
+        command = self.__history_commands[table]["UPDATE"].format(column=column)
+        self.execute(command, values + table_pk)
+
+    def __create_history_triggers(self, c, table):
         # Get table columns
         columns = None
         old_values = None
@@ -188,30 +188,19 @@ class CmbDB(GObject.GObject):
                 non_pk_columns.append(col)
 
         columns = ", ".join(all_columns)
+        columns_format = ", ".join(["?" for col in all_columns])
         pkcolumns = ", ".join(pk_columns)
-        nonpkcolumns = ", ".join(non_pk_columns)
+        pkcolumns_format = ", ".join(["?" for col in pk_columns])
+        new_pk_values = ", ".join([f"NEW.{c}" for c in pk_columns])
+        old_pk_values = ", ".join([f"OLD.{c}" for c in pk_columns])
         old_values = ", ".join([f"OLD.{c}" for c in all_columns])
         new_values = ", ".join([f"NEW.{c}" for c in all_columns])
 
-        command = {
-            "PK": f"SELECT {pkcolumns} FROM history_{table} WHERE history_id=? LIMIT 1;",
-            "DATA": f"SELECT {columns} FROM history_{table} WHERE history_id=? AND history_old=?;",
-            "DELETE":
-                f"""
-                DELETE FROM {table} WHERE ({pkcolumns}) IS (SELECT {pkcolumns}
-                FROM history_{table}
-                WHERE history_id=?);
-                """,
-            "INSERT":
-                f"INSERT INTO {table} ({columns}) SELECT {columns} FROM history_{table} WHERE history_id=? AND history_old=1;",
-            "UPDATE":
-                f"""
-                UPDATE {table} SET ({nonpkcolumns}) = (SELECT {nonpkcolumns}
-                FROM history_{table} WHERE history_id=? AND history_old=?)
-                WHERE ({pkcolumns}) IS (SELECT {pkcolumns} FROM history_{table} WHERE history_id=? AND history_old=?);
-                """,
+        self.__history_commands[table] = {
+            "DELETE": f"DELETE FROM {table} WHERE ({pkcolumns}) IS ({pkcolumns_format});",
+            "INSERT": f"INSERT INTO {table} ({columns}) VALUES ({columns_format});",
+            "UPDATE": f"UPDATE {table} SET {{column}} = ? WHERE ({pkcolumns}) IS ({pkcolumns_format});",
         }
-        self.history_commands[table] = command
 
         # INSERT Trigger
         c.execute(
@@ -221,9 +210,8 @@ class CmbDB(GObject.GObject):
               {history_is_enabled}
             BEGIN
               {clear_history};
-              INSERT INTO history (history_id, command, table_name) VALUES ({history_next_seq}, 'INSERT', '{table}');
-              INSERT INTO history_{table} (history_id, history_old, {columns})
-                VALUES (last_insert_rowid(), 0, {new_values});
+              INSERT INTO history (history_id, command, table_name, table_pk, new_values)
+              VALUES ({history_next_seq}, 'INSERT', '{table}', json_array({new_pk_values}), json_array({new_values}));
             END;
             """
         )
@@ -235,17 +223,14 @@ class CmbDB(GObject.GObject):
               {history_is_enabled}
             BEGIN
               {clear_history};
-              INSERT INTO history (history_id, command, table_name) VALUES ({history_next_seq}, 'DELETE', '{table}');
-              INSERT INTO history_{table} (history_id, history_old, {columns})
-                VALUES (last_insert_rowid(), 1, {old_values});
+              INSERT INTO history (history_id, command, table_name, table_pk, old_values)
+              VALUES ({history_next_seq}, 'DELETE', '{table}', json_array({old_pk_values}), json_array({old_values}));
             END;
             """
         )
 
         if len(pk_columns) == 0:
             return
-
-        pkcolumns_values = ", ".join([f"NEW.{c}" for c in pk_columns])
 
         # UPDATE Trigger for each non PK column
         for column in non_pk_columns:
@@ -255,8 +240,7 @@ class CmbDB(GObject.GObject):
                 WHEN
                   NEW.{column} IS NOT OLD.{column} AND {history_is_enabled} AND
                   (
-                    (SELECT {pkcolumns} FROM history_{table} WHERE history_id = {history_seq} AND history_old=0)
-                      IS NOT ({pkcolumns_values})
+                    (SELECT table_pk FROM history WHERE history_id = {history_seq}) IS NOT json_array({old_pk_values})
                     OR
                     (
                       (SELECT command, table_name, column_name FROM history WHERE history_id = {history_seq})
@@ -268,32 +252,38 @@ class CmbDB(GObject.GObject):
                   )
                 BEGIN
                   {clear_history};
-                  INSERT INTO history (history_id, command, table_name, column_name)
-                    VALUES ({history_next_seq}, 'UPDATE', '{table}', '{column}');
-                  INSERT INTO history_{table} (history_id, history_old, {columns})
-                    VALUES (last_insert_rowid(), 1, {old_values}),
-                           (last_insert_rowid(), 0, {new_values});
+                  INSERT INTO history (history_id, command, table_name, column_name, table_pk, new_values, old_values)
+                    VALUES ({history_next_seq}, 'UPDATE', '{table}', '{column}', json_array({new_pk_values}), json_array(NEW.{column}), json_array(OLD.{column}));
                 END;
                 """
             )
 
             c.execute(
                 f"""
-                CREATE TRIGGER on_{table}_update_{column}_compress AFTER UPDATE OF {column} ON {table}
+                CREATE TRIGGER on_{table}_update_{column}_compress_update AFTER UPDATE OF {column} ON {table}
                 WHEN
                   NEW.{column} IS NOT OLD.{column} AND {history_is_enabled} AND
-                  (SELECT {pkcolumns} FROM history_{table} WHERE history_id = {history_seq} AND history_old=0)
-                    IS ({pkcolumns_values})
+                  (SELECT table_pk FROM history WHERE history_id = {history_seq}) IS json_array({old_pk_values})
                   AND
-                  (
-                    (SELECT command, table_name, column_name FROM history WHERE history_id = {history_seq})
-                    IS ('UPDATE', '{table}', '{column}')
-                    OR
-                    (SELECT command, table_name, column_name FROM history WHERE history_id = {history_seq})
-                    IS ('INSERT', '{table}', NULL)
-                  )
+                  (SELECT command, table_name, column_name FROM history WHERE history_id = {history_seq})
+                  IS ('UPDATE', '{table}', '{column}')
                 BEGIN
-                  UPDATE history_{table} SET {column}=NEW.{column} WHERE history_id = {history_seq} AND history_old=0;
+                  UPDATE history SET new_values=json_array(NEW.{column}) WHERE history_id = {history_seq};
+                END;
+                """
+            )
+
+            c.execute(
+                f"""
+                CREATE TRIGGER on_{table}_update_{column}_compress_insert AFTER UPDATE OF {column} ON {table}
+                WHEN
+                  NEW.{column} IS NOT OLD.{column} AND {history_is_enabled} AND
+                  (SELECT table_pk FROM history WHERE history_id = {history_seq}) IS json_array({old_pk_values})
+                  AND
+                  (SELECT command, table_name, column_name FROM history WHERE history_id = {history_seq})
+                  IS ('INSERT', '{table}', NULL)
+                BEGIN
+                  UPDATE history SET new_values=json_array({new_values}) WHERE history_id = {history_seq};
                 END;
                 """
             )
@@ -306,7 +296,7 @@ class CmbDB(GObject.GObject):
 
         # Create history tables for each tracked table
         for table in self.__tables:
-            self.__create_support_table(c, table)
+            self.__create_history_triggers(c, table)
 
         self.conn.commit()
         c.close()

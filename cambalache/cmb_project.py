@@ -22,6 +22,7 @@
 #
 
 import os
+import json
 import time
 import sqlite3
 
@@ -102,6 +103,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         # Selection
         self.__selection = []
+        self._ignore_selection = False
 
         # Objects hash tables
         # FIXME: Use an int key instead of a string (ui_id << 18 || object_id)
@@ -687,7 +689,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         return self.__selection
 
     def set_selection(self, selection):
-        if type(selection) is not list or self.__selection == selection:
+        if self._ignore_selection or type(selection) is not list or self.__selection == selection:
             return
 
         for obj in selection:
@@ -756,16 +758,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
             else:
                 obj._property_changed(p)
 
-    def __get_history_command(self, history_index):
-        c = self.db.cursor()
-        c.execute("SELECT command, range_id, table_name, column_name FROM history WHERE history_id=?", (history_index,))
-        retval = c.fetchone()
-        c.close()
-        return retval
-
     def __undo_redo_do(self, undo, update_objects=None):
-        def get_object_position(c, commands, old_data):
-            row = c.execute(commands["DATA"], (self.history_index, old_data)).fetchone()
+        def get_object_position(c, row):
             ui_id, parent_id, position = row[0], row[4], row[8]
             parent = self.get_object_by_id(ui_id, parent_id)
             return parent, position
@@ -773,43 +767,51 @@ class CmbProject(GObject.Object, Gio.ListModel):
         c = self.db.cursor()
 
         # Get last command
-        command, range_id, table, column = self.__get_history_command(self.history_index)
+        command, range_id, table, column, table_pk, old_values, new_values = c.execute(
+            "SELECT command, range_id, table_name, column_name, table_pk, old_values, new_values FROM history WHERE history_id=?",
+            (self.history_index, )
+        ).fetchone()
 
-        # Get command set for table
-        commands = self.db.history_commands[table] if table is not None else None
+        table_pk = json.loads(table_pk) if table_pk else None
+        old_values = json.loads(old_values) if old_values else None
+        new_values = json.loads(new_values) if new_values else None
 
         # Undo or Redo command
         if command == "INSERT":
             if table == "object":
-                parent, position = get_object_position(c, commands, False)
+                parent, position = get_object_position(c, new_values)
 
                 if undo:
                     update_objects.append((parent, position, 1, 0))
                 else:
                     update_objects.append((parent, position, 0, 1))
 
-            c.execute(commands["DELETE" if undo else "INSERT"], (self.history_index,))
+            if undo:
+                self.db.history_delete(table, table_pk)
+            else:
+                self.db.history_insert(table, new_values)
 
-            self.__undo_redo_update_insert_delete(c, commands, undo, command, table, column)
+            self.__undo_redo_update_insert_delete(c, undo, command, table, column, table_pk, old_values, new_values)
         elif command == "DELETE":
             if table == "object":
-                parent, position = get_object_position(c, commands, True)
+                parent, position = get_object_position(c, old_values)
 
                 if undo:
                     update_objects.append((parent, position, 0, 1))
                 else:
                     update_objects.append((parent, position, 1, 0))
 
-            c.execute(commands["INSERT" if undo else "DELETE"], (self.history_index,))
+            if undo:
+                self.db.history_insert(table, old_values)
+            else:
+                self.db.history_delete(table, table_pk)
 
-            self.__undo_redo_update_insert_delete(c, commands, undo, command, table, column)
+            self.__undo_redo_update_insert_delete(c, undo, command, table, column, table_pk, old_values, new_values)
         elif command == "UPDATE":
-            old_data = 1 if undo else 0
-
             # Ignore parent_id since its changed together with position
             if update_objects is not None and table == "object" and column == "position":
-                old_parent, old_position = get_object_position(c, commands, True)
-                new_parent, new_position = get_object_position(c, commands, False)
+                old_parent, old_position = get_object_position(c, old_values)
+                new_parent, new_position = get_object_position(c, new_values)
 
                 if undo:
                     if old_position >= 0:
@@ -822,9 +824,12 @@ class CmbProject(GObject.Object, Gio.ListModel):
                     if old_position >= 0:
                         update_objects.append((old_parent, old_position, 1, 0))
 
-            c.execute(commands["UPDATE"], (self.history_index, old_data, self.history_index, old_data))
+            if undo:
+                self.db.history_update(table, column, table_pk, old_values)
+            else:
+                self.db.history_update(table, column, table_pk, new_values)
 
-            self.__undo_redo_update_update(c, commands, undo, command, table, column)
+            self.__undo_redo_update_update(c, undo, command, table, column, table_pk, old_values, new_values)
         elif command == "PUSH" or command == "POP":
             pass
         else:
@@ -832,15 +837,13 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         c.close()
 
-    def __undo_redo_update_update(self, c, commands, undo, command, table, column):
-
-        if table is None or commands is None:
+    def __undo_redo_update_update(self, c, undo, command, table, column, pk, old_values, new_values):
+        if table is None:
             return
 
         # Update tree model and emit signals
         # We can not easily implement this using triggers because they are called
         # even if the transaction is rollback because of a FK constraint
-        pk = c.execute(commands["PK"], (self.history_index,)).fetchone()
 
         if command == "UPDATE":
             if table == "object":
@@ -854,8 +857,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 child = self.get_object_by_id(pk[0], pk[2])
                 self.__undo_redo_property_notify(child, True, column, pk[3], pk[4])
             elif table == "object_signal":
-                data = c.execute(commands["DATA"], (self.history_index, True)).fetchone()
-                obj = self.get_object_by_id(data[1], data[2])
+                obj = self.get_object_by_id(old_values[1], old_values[2])
                 if obj:
                     signal = obj.signals_dict[pk[0]]
                     if signal:
@@ -886,13 +888,12 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 if obj:
                     obj.notify(column)
 
-    def __undo_redo_update_insert_delete(self, c, commands, undo, command, table, column):
-        if table is None or commands is None:
+    def __undo_redo_update_insert_delete(self, c, undo, command, table, column, pk, old_values, new_values):
+        if table is None:
             return
 
         removing = (command == "INSERT" and undo) or (command == "DELETE") and not undo
-        use_old_data = True if command == "DELETE" else False
-        pk = c.execute(commands["PK"], (self.history_index,)).fetchone()
+        row = old_values if command == "DELETE" else new_values
 
         if table == "object_property":
             obj = self.get_object_by_id(pk[0], pk[1])
@@ -901,8 +902,6 @@ class CmbProject(GObject.Object, Gio.ListModel):
             child = self.get_object_by_id(pk[0], pk[2])
             self.__undo_redo_property_notify(child, True, "value", pk[3], pk[4])
         elif table in ["object", "ui", "css"]:
-            row = c.execute(commands["DATA"], (self.history_index, use_old_data)).fetchone()
-
             if removing:
                 if table == "object":
                     obj = self.get_object_by_id(pk[0], pk[1])
@@ -924,8 +923,6 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 elif table == "css":
                     self.__add_css(True, *row)
         elif table in ["object_signal", "object_data", "object_data_arg"]:
-            row = c.execute(commands["DATA"], (self.history_index, use_old_data)).fetchone()
-
             if table == "object_signal":
                 obj = self.get_object_by_id(row[1], row[2])
                 if removing:
@@ -969,9 +966,12 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
     def __undo_redo(self, undo):
         selection = self.get_selection()
-        c = self.db.cursor()
 
-        command, range_id, table, column = self.__get_history_command(self.history_index)
+        command, range_id, table, column = self.db.execute(
+            "SELECT command, range_id, table_name, column_name FROM history WHERE history_id=?",
+            (self.history_index, )
+        ).fetchone()
+
         update_parents = []
 
         try:
@@ -1002,8 +1002,6 @@ class CmbProject(GObject.Object, Gio.ListModel):
             self.db.ignore_check_constraints = False
             self.history_enabled = True
         except sqlite3.Error as e:
-            logger.warning(f"Error on undo/redo stack: {e}")
-
             self.history_enabled = True
             self.db.foreign_keys = True
             self.db.ignore_check_constraints = False
@@ -1011,8 +1009,6 @@ class CmbProject(GObject.Object, Gio.ListModel):
             self.history_index = 0
             self.db.clear_history()
             raise e
-
-        c.close()
 
         # Compress update commands
         compressed_list = []
@@ -1051,11 +1047,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
             row = c.fetchone()
             return f"{owner_id}:{row[0]}" if row else f"{owner_id}:{data_id}"
 
-        def get_msg_vars(table, column, index):
+        def get_msg_vars(table, column, data):
             retval = {"ui": "", "css": "", "obj": "", "prop": "", "value": "", "field": column}
-
-            commands = self.db.history_commands[table]
-            data = c.execute(commands["DATA"], (index, True)).fetchone()
 
             if data is None:
                 return retval
@@ -1141,11 +1134,14 @@ class CmbProject(GObject.Object, Gio.ListModel):
             return retval
 
         def get_msg(index):
-            c.execute("SELECT command, range_id, table_name, column_name, message FROM history WHERE history_id=?", (index,))
-            cmd = c.fetchone()
+            cmd = c.execute(
+                "SELECT command, range_id, table_name, column_name, message, old_values FROM history WHERE history_id=?",
+                (index,)
+            ).fetchone()
+
             if cmd is None:
                 return None
-            command, range_id, table, column, message = cmd
+            command, range_id, table, column, message, old_values = cmd
 
             if message is not None:
                 return message
@@ -1207,7 +1203,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
             )
 
             if msg is not None:
-                msg = msg.format(**get_msg_vars(table, column, index))
+                msg = msg.format(**get_msg_vars(table, column, old_values))
 
             return msg
 
@@ -1678,4 +1674,6 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
     def do_get_n_items(self):
         return len(self.__items)
+
+
 

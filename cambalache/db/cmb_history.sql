@@ -40,7 +40,10 @@ CREATE TABLE history (
   range_id INTEGER REFERENCES history,
   table_name TEXT,
   column_name TEXT,
-  message TEXT
+  message TEXT,
+  table_pk JSON,
+  new_values JSON,
+  old_values JSON
 );
 
 /* This trigger will update PUSH/POP range and data automatically on POP */
