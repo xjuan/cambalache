@@ -19,6 +19,8 @@
 # Authors:
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
+# SPDX-License-Identifier: LGPL-2.1-only
+#
 
 from gi.repository import GObject, Gtk, WebKit
 

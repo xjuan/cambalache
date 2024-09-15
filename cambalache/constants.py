@@ -19,6 +19,8 @@
 # Authors:
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
+# SPDX-License-Identifier: LGPL-2.1-only
+#
 
 # This is the name used for external objects references. See gtk_builder_expose_object()
 # It is not a valid GType name on purpose since it will never be exported.

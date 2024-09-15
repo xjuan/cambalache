@@ -20,6 +20,8 @@
 # Authors:
 #   Philipp Unger <philipp.unger.1988@gmail.com>
 #
+# SPDX-License-Identifier: LGPL-2.1-only
+#
 
 from gi.repository import Gtk
 

@@ -19,6 +19,8 @@
 # Authors:
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
+# SPDX-License-Identifier: LGPL-2.1-only
+#
 
 from .cmb_child_type_combo_box import CmbChildTypeComboBox
 from .cmb_entry import CmbEntry

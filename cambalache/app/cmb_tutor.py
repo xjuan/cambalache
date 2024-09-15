@@ -20,6 +20,8 @@
 # Authors:
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
+# SPDX-License-Identifier: LGPL-2.1-only
+#
 # Based on glade-intro.c (C) 2017-2018 Juan Pablo Ugarte
 #
 

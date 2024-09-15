@@ -22,6 +22,8 @@
 # Authors:
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
+# SPDX-License-Identifier: LGPL-2.1-only
+#
 
 from gi.repository import GObject
 from .cmb_base import CmbBase
