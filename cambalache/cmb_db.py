@@ -1968,12 +1968,12 @@ class CmbDB(GObject.GObject):
             SELECT op.value, op.property_id, op.inline_object_id, op.comment, op.translatable, op.translation_context,
                    op.translation_comments, p.is_object, p.disable_inline_object,
                    op.bind_source_id, op.bind_owner_id, op.bind_property_id, op.bind_flags,
-                   NULL, NULL
+                   NULL, NULL, p.type_id
             FROM object_property AS op, property AS p
             WHERE op.ui_id=? AND op.object_id=? AND p.owner_id = op.owner_id AND p.property_id = op.property_id
             UNION
-            SELECT default_value, property_id, NULL, NULL, NULL, NULL, NULL,  is_object, disable_inline_object,
-                   NULL, NULL, NULL, NULL, required, workspace_default
+            SELECT default_value, property_id, NULL, NULL, NULL, NULL, NULL, is_object, disable_inline_object,
+                   NULL, NULL, NULL, NULL, required, workspace_default, type_id
             FROM property
             WHERE (required=1 OR save_always=1) AND owner_id IN ({placeholders}) AND
                   property_id NOT IN (SELECT property_id FROM object_property WHERE ui_id=? AND object_id=?)
@@ -1997,6 +1997,7 @@ class CmbDB(GObject.GObject):
                 bind_flags,
                 required,
                 workspace_default,
+                property_type_id,
             ) = row
 
             value = None
@@ -2026,6 +2027,8 @@ class CmbDB(GObject.GObject):
                     if obj_name is None:
                         continue
                     value = obj_name
+            elif property_type_id == "GBytes":
+                value = etree.CDATA(val)
             else:
                 value = val
 
