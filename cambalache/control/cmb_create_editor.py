@@ -116,6 +116,8 @@ def cmb_create_editor(project, type_id, prop=None, data=None, parent=None):
         adjustment = Gtk.Adjustment(lower=minimum, upper=maximum, step_increment=step_increment, page_increment=10)
 
         editor = CmbSpinButton(digits=digits, adjustment=adjustment)
+    elif type_id == "GBytes":
+        editor = CmbTextView(hexpand=True)
     elif type_id == "GStrv":
         editor = CmbTextView(hexpand=True)
     elif type_id == "GdkRGBA":

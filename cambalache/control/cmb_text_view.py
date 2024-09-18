@@ -35,7 +35,7 @@ class CmbTextView(Gtk.ScrolledWindow):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.props.height_request = 64
+        self.props.height_request = 96
         self.buffer = CmbTextBuffer()
         self.view = Gtk.TextView(visible=True, buffer=self.buffer)
 
