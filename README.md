@@ -1,6 +1,6 @@
 ![Cambalache](cambalache/app/images/logo-horizontal.svg)
 
-Cambalache is a new RAD tool for Gtk 4 and 3 with a clear MVC design and data model first philosophy.
+Cambalache is a RAD tool for Gtk 4 and 3 with a clear MVC design and data model first philosophy.
 This translates to a wide feature coverage with minimal/none developer intervention for basic support.
 
 ![Data Model Diagram](datamodel.svg)
