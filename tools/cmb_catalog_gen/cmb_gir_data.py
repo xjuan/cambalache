@@ -26,7 +26,7 @@ import importlib
 # We need to use lxml to get access to nsmap
 from lxml import etree
 from graphlib import TopologicalSorter, CycleError
-from gi.repository import GObject
+from gi.repository import GLib, GObject
 
 CmbCatalogUtils = None
 
@@ -52,6 +52,7 @@ class CmbGirData:
         target_gtk4=False,
         exclude_objects=False,
         external_types=None,
+        enable_property_overrides=False,
     ):
         self._instances = {}
 
@@ -100,6 +101,7 @@ class CmbGirData:
         self.target_tk = "Gtk-4.0" if target_gtk4 else "Gtk+-3.0"
 
         self.external_types = external_types if external_types else {}
+        self.enable_property_overrides = enable_property_overrides
 
         self.external_nstypes = {}
         for t in self.external_types:
@@ -256,7 +258,7 @@ class CmbGirData:
                 continue
 
             instance_default = getattr(instance.props, pspec.name)
-            if pspec.default_value == instance_default:
+            if pspec.get_default_value() == instance_default:
                 continue
 
             if owner == class_type or (owner in class_interfaces and owner not in parent_interfaces):
@@ -289,11 +291,12 @@ class CmbGirData:
 
         return retval
 
-    def _get_default_value_from_pspec(self, pspec, default_value=None):
+    def _get_default_value_from_pspec(self, pspec, use_instance_default=False, instance_default=None, owner=None):
         if pspec is None:
             return None
 
-        default_value = default_value or pspec.default_value
+        pspec_type_name = GObject.type_name(pspec)
+        default_value = instance_default if use_instance_default else pspec.get_default_value()
 
         if pspec.value_type == GObject.TYPE_BOOLEAN:
             return "True" if default_value != 0 else "False"
@@ -301,6 +304,12 @@ class CmbGirData:
             return CmbCatalogUtils.pspec_enum_get_default_nick(pspec.value_type, default_value)
         elif GObject.type_is_a(pspec.value_type, GObject.TYPE_FLAGS):
             return CmbCatalogUtils.pspec_flags_get_default_nick(pspec.value_type, default_value)
+        elif GObject.type_is_a(pspec.value_type, GObject.TYPE_GTYPE):
+            return GObject.type_name(default_value)
+        elif GObject.type_is_a(pspec.value_type, GLib.strv_get_type()):
+            return "\n".join(default_value) if len(default_value) else None
+        elif pspec_type_name == "GParamUnichar":
+            return chr(default_value)
 
         return default_value
 
@@ -389,7 +398,7 @@ class CmbGirData:
             elif self._type_is_a(name, "GtkLayoutChild"):
                 data["layout"] = "child"
 
-    def _type_get_properties(self, element, props):
+    def _type_get_properties(self, element, props, owner=None):
         retval = {}
         pspecs = {}
 
@@ -449,7 +458,7 @@ class CmbGirData:
                 "version": child.get("version"),
                 "deprecated_version": child.get("deprecated-version"),
                 "construct": child.get("construct-only"),
-                "default_value": self._get_default_value_from_pspec(pspec),
+                "default_value": self._get_default_value_from_pspec(pspec, owner=owner),
                 "minimum": pspec.minimum if hasattr(pspec, "minimum") else None,
                 "maximum": pspec.maximum if hasattr(pspec, "maximum") else None,
             }
@@ -507,7 +516,7 @@ class CmbGirData:
             instance = self._get_instance_from_type(name)
             if instance is not None:
                 is_container = CmbCatalogUtils.implements_buildable_add_child(instance)
-                if parent not in skip_types:
+                if self.enable_property_overrides and parent not in skip_types:
                     overrides = self._type_get_properties_overrides(name)
 
         return {
@@ -517,7 +526,7 @@ class CmbGirData:
             "derivable": True if element.get(ns("glib", "type-struct")) else None,
             "version": constructor.get("version"),
             "deprecated_version": constructor.get("deprecated-version"),
-            "properties": self._type_get_properties(element, props),
+            "properties": self._type_get_properties(element, props, owner=name),
             "signals": self._type_get_signals(element),
             "interfaces": self._type_get_interfaces(element),
             "overrides": overrides,

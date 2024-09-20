@@ -95,6 +95,7 @@ if __name__ == '__main__':
         boxed_types=args.boxed_types,
         skip_types=args.skip_types,
         exclude_objects=args.exclude_objects,
+        enable_property_overrides=args.show_property_overrides,
     )
 
     # Load custom type data from json file
