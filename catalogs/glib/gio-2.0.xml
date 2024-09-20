@@ -180,7 +180,7 @@
 	("GDataStreamNewlineType","G_DATA_STREAM_NEWLINE_TYPE_LF","lf",None,"Selects \"LF\" line endings, common on most modern UNIX platforms."),
 	("GDriveStartStopType","G_DRIVE_START_STOP_TYPE_MULTIDISK","multidisk",3,"The start/stop methods will assemble/disassemble a virtual drive from several physical drives."),
 	("GDriveStartStopType","G_DRIVE_START_STOP_TYPE_NETWORK","network",2,"The start/stop methods are used for connecting/disconnect to the drive over the network."),
-	("GDriveStartStopType","G_DRIVE_START_STOP_TYPE_PASSWORD","password",4,"The start/stop methods will unlock/lock the disk (for example using the ATA &lt;quote&gt;SECURITY UNLOCK DEVICE&lt;/quote&gt; command)"),
+	("GDriveStartStopType","G_DRIVE_START_STOP_TYPE_PASSWORD","password",4,"The start/stop methods will unlock/lock the disk (for example using the ATA `SECURITY UNLOCK DEVICE` command)"),
 	("GDriveStartStopType","G_DRIVE_START_STOP_TYPE_SHUTDOWN","shutdown",1,"The stop method will physically shut down the drive and e.g. power down the port the drive is attached to."),
 	("GDriveStartStopType","G_DRIVE_START_STOP_TYPE_UNKNOWN","unknown",None,"Unknown or drive doesn't support start/stop."),
 	("GEmblemOrigin","G_EMBLEM_ORIGIN_DEVICE","device",1,"Emblem adds device-specific information"),
@@ -531,7 +531,7 @@
 	("GTlsPasswordFlags","G_TLS_PASSWORD_RETRY","retry",2,"The password was wrong, and the user should retry.")
   </type_flags>
   <property>
-	("GListStore","item-type","gtype",None,1,None,None,None,None,"2.44",None,None,None,None,None,None)
+	("GListStore","item-type","gtype",None,1,None,"GObject",None,None,"2.44",None,None,None,None,None,None)
   </property>
   <signal>
 	("GListModel","items-changed","2.44",None,None),

@@ -282,7 +282,7 @@
 	("GdkToplevelState","GDK_TOPLEVEL_STATE_RIGHT_RESIZABLE","right-resizable",2048,"whether the right edge is resizable"),
 	("GdkToplevelState","GDK_TOPLEVEL_STATE_RIGHT_TILED","right-tiled",1024,"whether the right edge is tiled"),
 	("GdkToplevelState","GDK_TOPLEVEL_STATE_STICKY","sticky",4,"the surface is sticky"),
-	("GdkToplevelState","GDK_TOPLEVEL_STATE_SUSPENDED","suspended",65536,"the surface is not visible to the user"),
+	("GdkToplevelState","GDK_TOPLEVEL_STATE_SUSPENDED","suspended",65536,"The surface is not visible to the user."),
 	("GdkToplevelState","GDK_TOPLEVEL_STATE_TILED","tiled",128,"the surface is in a tiled state"),
 	("GdkToplevelState","GDK_TOPLEVEL_STATE_TOP_RESIZABLE","top-resizable",512,"whether the top edge is resizable"),
 	("GdkToplevelState","GDK_TOPLEVEL_STATE_TOP_TILED","top-tiled",256,"whether the top edge is tiled")
