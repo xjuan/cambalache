@@ -36,6 +36,10 @@ from .cmb_objects_base import (
 
 from .constants import EXTERNAL_TYPE, GMENU_TYPE, GMENU_SECTION_TYPE, GMENU_SUBMENU_TYPE, GMENU_ITEM_TYPE
 
+from cambalache import getLogger
+
+logger = getLogger(__name__)
+
 
 class CmbTypeDataArgInfo(CmbBaseTypeDataArgInfo):
     def __init__(self, **kwargs):
@@ -216,7 +220,7 @@ class CmbTypeInfo(CmbBaseTypeInfo):
         retval = Gtk.ListStore(GObject.TYPE_STRING, GObject.TYPE_STRING, GObject.TYPE_INT)
 
         c = self.project.db.cursor()
-        for row in c.execute(f"SELECT name, nick, value FROM type_{name} WHERE type_id=?", (self.type_id,)):
+        for row in c.execute(f"SELECT name, nick, value FROM type_{name} WHERE type_id=? ORDER BY nick;", (self.type_id,)):
             retval.append(row)
 
         c.close()
@@ -265,3 +269,48 @@ class CmbTypeInfo(CmbBaseTypeInfo):
             parent = parent.parent
 
         return False
+
+    def enum_get_value_as_string(self, value):
+        if self.parent_id != "enum":
+            return None
+
+        for row in self.enum:
+            enum_name, enum_nick, enum_value = row
+
+            # Always use nick as value
+            if value == enum_name or value == enum_nick or value == str(enum_value):
+                return enum_nick
+
+        return None
+
+    def flags_get_value_as_string(self, value):
+        if self.parent_id != "flags":
+            return None
+
+        value_type = type(value)
+        tokens = None
+
+        if value_type == str:
+            if value.isnumeric():
+                value = int(value)
+                value_type = int
+            else:
+                tokens = [t.strip() for t in value.split("|")]
+        elif value_type != int:
+            logger.warning(f"Unhandled value type {value_type} {value}")
+            return None
+
+        flags = []
+
+        for row in self.flags:
+            flag_name, flag_nick, flag_value = row
+
+            if value_type == str:
+                # Always use nick as value
+                if flag_name in tokens or flag_nick in tokens:
+                    flags.append(flag_nick)
+            else:
+                if flag_value & value:
+                    flags.append(flag_nick)
+
+        return "|".join(flags)
