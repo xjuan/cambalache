@@ -1047,6 +1047,14 @@ class CmbDB(GObject.GObject):
         if object_id_map and pinfo.is_object:
             value = object_id_map.get(value, value)
 
+        tinfo = self.type_info.get(pinfo.type_id, None)
+        if tinfo:
+            # Use nick for enum and flags
+            if tinfo.parent_id == "enum":
+                value = tinfo.enum_get_value_as_string(value)
+            elif tinfo.parent_id == "flags":
+                value = tinfo.flags_get_value_as_string(value)
+
         try:
             c.execute(
                 """
