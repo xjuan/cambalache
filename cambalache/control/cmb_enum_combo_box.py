@@ -54,14 +54,7 @@ class CmbEnumComboBox(Gtk.ComboBox):
     @cmb_value.setter
     def _set_cmb_value(self, value):
         self.props.active_id = None
-
-        for row in self.info.enum:
-            enum_name = row[0]
-            enum_nick = row[1]
-
-            # Always use nick as value
-            if value == enum_name or value == enum_nick:
-                active_id = enum_nick
+        active_id = self.info.enum_get_value_as_string(value)
 
         if active_id == self.props.active_id:
             return
