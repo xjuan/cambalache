@@ -1155,6 +1155,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
             if message is not None:
                 return message
 
+            old_values = json.loads(old_values) if old_values else None
+
             msg = (
                 {
                     "ui": {
