@@ -30,7 +30,7 @@ modules = [
     ['gi', '>= 3.48.0'],
     ['gi.repository.GLib', '>= 2.80.0'],
     ['gi.repository.Gtk', '>= 3.24.0', '3.0'],
-    ['gi.repository.Gtk', '>= 4.14.0', '4.0'],
+    ['gi.repository.Gtk', '>= 4.16.0', '4.0'],
     ['gi.repository.WebKit2', '>= 2.44.0', '4.1'],
     ['gi.repository.WebKit', '>= 2.44.0', '6.0'],
     ['gi.repository.GtkSource', '', '5'],
@@ -83,10 +83,10 @@ assert(all_required, 'One or more required modules where not found')
 
 gtk3_dep = dependency('pygobject-3.0', version: '>= 3.48.0')
 gtk3_dep = dependency('gtk+-3.0', version: '>= 3.24.0')
-gtk4_dep = dependency('gtk4', version: '>= 4.14.0')
-casilda_dep = dependency('casilda-0.1', version: '>= 0.1.1', fallback: ['casilda', 'casilda_dep'])
+gtk4_dep = dependency('gtk4', version: '>= 4.16.0')
+casilda_dep = dependency('casilda-0.1', version: '>= 0.2.0', fallback: ['casilda', 'casilda_dep'])
 handy_dep = dependency('libhandy-1', version: '>= 1.8.0')
-adw_dep = dependency('libadwaita-1', version: '>= 1.5.0')
+adw_dep = dependency('libadwaita-1', version: '>= 1.6.0')
 
 subdir('data')
 subdir('cambalache')
