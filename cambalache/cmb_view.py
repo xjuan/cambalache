@@ -252,6 +252,8 @@ class CmbView(Gtk.Box):
     stack = Gtk.Template.Child()
     compositor = Gtk.Template.Child()
     compositor_offload = Gtk.Template.Child()
+    compositor_box = Gtk.Template.Child()
+    error_box = Gtk.Template.Child()
     error_message = Gtk.Template.Child()
     text_view = Gtk.Template.Child()
     db_inspector = Gtk.Template.Child()
@@ -272,7 +274,7 @@ class CmbView(Gtk.Box):
             button=3
         )
         self.__click_gesture.connect("pressed", self.__on_click_gesture_pressed)
-        self.compositor_offload.add_controller(self.__click_gesture)
+        self.compositor_box.add_controller(self.__click_gesture)
 
         self.__merengue = CmbMerengueProcess(wayland_display=self.compositor.props.socket)
         self.__merengue.connect("exit", self.__on_process_exit)
@@ -282,6 +284,10 @@ class CmbView(Gtk.Box):
 
         # Ensure we delete all socket files when exiting
         atexit.register(self.__atexit)
+
+    @Gtk.Template.Callback("on_restart_button_clicked")
+    def __on_restart_button_clicked(self, button):
+        self.restart_workspace()
 
     def __atexit(self):
         dirname = os.path.dirname(self.compositor.props.socket)
@@ -473,12 +479,12 @@ class CmbView(Gtk.Box):
     def __set_error_message(self, message):
         if message:
             self.error_message.props.label = message
-            self.compositor.set_visible(False)
-            self.error_message.set_visible(True)
+            self.compositor_offload.set_visible(False)
+            self.error_box.set_visible(True)
         else:
             self.error_message.props.label = ""
-            self.compositor.set_visible(True)
-            self.error_message.set_visible(False)
+            self.compositor_offload.set_visible(True)
+            self.error_box.set_visible(False)
 
     @GObject.Property(type=GObject.GObject)
     def project(self):
