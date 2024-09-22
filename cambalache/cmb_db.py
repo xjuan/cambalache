@@ -76,6 +76,7 @@ class CmbDB(GObject.GObject):
         ]
 
         self.__history_commands = {}
+        self.__table_column_mapping = {}
 
         self.clipboard = []
         self.clipboard_ids = []
@@ -155,7 +156,8 @@ class CmbDB(GObject.GObject):
 
     def history_update(self, table, column, table_pk, values):
         command = self.__history_commands[table]["UPDATE"].format(column=column)
-        self.execute(command, values + table_pk)
+        i = self.__table_column_mapping[table][column]
+        self.execute(command, [values[i]] + table_pk)
 
     def __create_history_triggers(self, c, table):
         # Get table columns
@@ -179,15 +181,23 @@ class CmbDB(GObject.GObject):
             """
         self.__clear_history = clear_history
 
+        i = 0
+        column_mapping = {}
         for row in c.execute(f"PRAGMA table_info({table});"):
             col = row[1]
             pk = row[5]
 
+            column_mapping[col] = i
             all_columns.append(col)
             if pk:
                 pk_columns.append(col)
             else:
                 non_pk_columns.append(col)
+
+            i += 1
+
+        # Map column index to column name
+        self.__table_column_mapping[table] = column_mapping
 
         columns = ", ".join(all_columns)
         columns_format = ", ".join(["?" for col in all_columns])
@@ -271,7 +281,7 @@ class CmbDB(GObject.GObject):
                   (SELECT command, table_name, column_name FROM history WHERE history_id = {history_seq})
                   IS ('UPDATE', '{table}', '{column}')
                 BEGIN
-                  UPDATE history SET new_values=json_array(NEW.{column}) WHERE history_id = {history_seq};
+                  UPDATE history SET new_values=json_array({new_values}) WHERE history_id = {history_seq};
                 END;
                 """
             )
