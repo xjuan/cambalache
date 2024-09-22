@@ -218,6 +218,7 @@ class CmbDB(GObject.GObject):
             """
         )
 
+        # DELETE trigger
         c.execute(
             f"""
             CREATE TRIGGER on_{table}_delete AFTER DELETE ON {table}
@@ -255,7 +256,7 @@ class CmbDB(GObject.GObject):
                 BEGIN
                   {clear_history};
                   INSERT INTO history (history_id, command, table_name, column_name, table_pk, new_values, old_values)
-                    VALUES ({history_next_seq}, 'UPDATE', '{table}', '{column}', json_array({new_pk_values}), json_array(NEW.{column}), json_array(OLD.{column}));
+                    VALUES ({history_next_seq}, 'UPDATE', '{table}', '{column}', json_array({new_pk_values}), json_array({new_values}), json_array({old_values}));
                 END;
                 """
             )
@@ -933,7 +934,7 @@ class CmbDB(GObject.GObject):
 
         self.__collect_error("unknown-tag", node, f"{owner}:{name}" if owner and name else name)
 
-    def __node_get(self, node, *args):
+    def __node_get(self, node, *args, collect_errors=True):
         keys = node.keys()
         knowns = []
         retval = []
@@ -962,13 +963,13 @@ class CmbDB(GObject.GObject):
                 key, val = get_key_val(node, attr)
                 retval.append(val)
                 knowns.append(key)
-            else:
+            elif collect_errors:
                 self.__collect_error("missing-attr", node, attr)
 
-        unknown = list(set(keys) - set(knowns))
-
-        for attr in unknown:
-            self.__collect_error("unknown-attr", node, attr)
+        if collect_errors:
+            unknown = list(set(keys) - set(knowns))
+            for attr in unknown:
+                self.__collect_error("unknown-attr", node, attr)
 
         return retval
 
@@ -1289,7 +1290,12 @@ class CmbDB(GObject.GObject):
         comment = self.__node_get_comment(ntag)
 
         if taginfo.translatable:
-            translatable, context, comments = self.__node_get(ntag, ["translatable:bool", "context", "comments"])
+            # Do not collect errors since they are all optionals
+            translatable, context, comments = self.__node_get(
+                ntag,
+                ["translatable:bool", "context", "comments"],
+                collect_errors=False
+            )
         else:
             translatable, context, comments = (None, None, None)
 
