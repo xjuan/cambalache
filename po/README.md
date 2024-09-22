@@ -26,9 +26,9 @@ thanks!
 Each time new strings are added to the project we need to update the .po file
 
 ```
-mkdir _build
-cd _build
-meson
-meson compile cambalache-update-po
+meson setup --wipe --prefix=~/.local _build .
+meson compile -C _build/ cambalache-update-po
 ```
+
+or simply use `make`
 
