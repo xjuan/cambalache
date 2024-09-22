@@ -5,16 +5,18 @@ Many thanks to all the people that support the project
  -  Stephan McCormick
  -  Willo Vincent
  -  Javier Jardón
- -  Sonny Piers
+ -  Franz Gratzer
  -  David
+ -  Sonny Piers
  -  Patrick Griffis
- -  Luis Barron
  -  Aemilia Scott
- -  Michel Fodje
+ -  Jonathan K.
+ -  Luis Barron
+ -  Mitch 4J
  -  JustRyan
  -  Platon workaccount
- -  Jonathan K.
  -  ~1826340
+ -  Mula Gabriel
  -  Felipe Borges
  -  Johannes Deutsch
  -  Patrick
