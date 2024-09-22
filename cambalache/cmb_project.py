@@ -1114,8 +1114,10 @@ class CmbProject(GObject.Object, Gio.ListModel):
                         retval["value"] = data[4]
 
                     if column != "value":
-                        retval["prop"] = f'"{data[3]}" {column}'
+                        retval["prop"] = data[3]
                 elif table == "object_layout_property":
+                    retval["prop"] = f'"{data[4]}" {column}'
+
                     if column == "translatable":
                         retval["value"] = _("True") if data[5] else _("False")
                     elif column == "comment":
@@ -1127,9 +1129,6 @@ class CmbProject(GObject.Object, Gio.ListModel):
                     else:
                         retval["prop"] = f'"{data[4]}"'
                         retval["value"] = data[5]
-
-                    if column != "value":
-                        retval["prop"] = f'"{data[4]}" {column}'
                 elif table == "object_signal":
                     retval["signal"] = data[4]
                 elif table == "object_data":
@@ -1144,18 +1143,21 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         def get_msg(index):
             cmd = c.execute(
-                "SELECT command, range_id, table_name, column_name, message, old_values FROM history WHERE history_id=?",
+                "SELECT command, range_id, table_name, column_name, message, old_values, new_values FROM history WHERE history_id=?",
                 (index,)
             ).fetchone()
 
             if cmd is None:
                 return None
-            command, range_id, table, column, message, old_values = cmd
+            command, range_id, table, column, message, old_values, new_values = cmd
 
             if message is not None:
                 return message
 
-            old_values = json.loads(old_values) if old_values else None
+            if command == "DELETE":
+                values = json.loads(old_values) if old_values else None
+            else:
+                values = json.loads(new_values) if new_values else None
 
             msg = (
                 {
@@ -1184,14 +1186,14 @@ class CmbProject(GObject.Object, Gio.ListModel):
                         "UPDATE": _("Update {field} of object {obj}"),
                     },
                     "object_property": {
-                        "INSERT": _('Set property {prop} of {obj} to {value}'),
-                        "DELETE": _('Unset property {prop} of {obj}'),
-                        "UPDATE": _('Update property {prop} of {obj} to {value}'),
+                        "INSERT": _('Set {obj} {prop} property to {value}'),
+                        "DELETE": _('Unset {obj} {prop} property'),
+                        "UPDATE": _('Update {obj} {prop} property to {value}'),
                     },
                     "object_layout_property": {
-                        "INSERT": _('Set layout property {prop} of {obj} to {value}'),
-                        "DELETE": _('Unset layout property {prop}" of {obj}'),
-                        "UPDATE": _('Update layout property {prop} of {obj} to {value}'),
+                        "INSERT": _('Set {obj} {prop} layout property to {value}'),
+                        "DELETE": _('Unset {obj} {prop} layout property'),
+                        "UPDATE": _('Update {obj} {prop} layout property to {value}'),
                     },
                     "object_signal": {
                         "INSERT": _("Add {signal} signal to {obj}"),
@@ -1214,7 +1216,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
             )
 
             if msg is not None:
-                msg = msg.format(**get_msg_vars(table, column, old_values))
+                msg = msg.format(**get_msg_vars(table, column, values))
 
             return msg
 
