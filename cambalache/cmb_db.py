@@ -562,12 +562,11 @@ class CmbDB(GObject.GObject):
         if version < (0, 17, 3):
             cmb_db_migration.migrate_table_data_to_0_17_3(c, table, data)
 
-        if version < (0, 91, 2):
-            cmb_db_migration.migrate_table_data_to_0_91_2(c, table, data)
+        if version < (0, 91, 3):
+            cmb_db_migration.migrate_table_data_to_0_91_3(c, table, data)
 
     def __load_table_from_tuples(self, c, table, tuples, version=None):
         data = ast.literal_eval(f"[{tuples}]") if tuples else []
-
         if len(data) == 0:
             return
 

@@ -136,14 +136,14 @@ def migrate_table_data_to_0_17_3(c, table, data):
             )
 
 
-def migrate_table_data_to_0_91_2(c, table, data):
+def migrate_table_data_to_0_91_3(c, table, data):
     # Ensure every object has a position
     if table == "object":
         c.execute(
             """
             UPDATE temp.object SET position=new.position - 1
             FROM (
-                SELECT row_number() OVER (PARTITION BY parent_id ORDER BY position, object_id) position, ui_id, object_id
+                SELECT row_number() OVER (PARTITION BY ui_id, parent_id ORDER BY position, object_id) position, ui_id, object_id
                 FROM temp.object
                 WHERE parent_id IS NOT NULL
             ) AS new
