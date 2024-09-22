@@ -16,8 +16,13 @@ def assert_original_and_exported(target_tk, filename):
     str_original = open(path, "r").read()
 
     project = CmbProject(target_tk=target_tk)
-    ui_id = project.db.import_file(path)
-    str_exported = project.db.tostring(ui_id)
+    ui, msgs, detail_msg = project.import_file(path)
+
+    assert (ui)
+    assert (msgs is None)
+    assert (detail_msg is None)
+
+    str_exported = project.db.tostring(ui.ui_id)
 
     # Remove "Created with" comment since version will not match
     str_exported = str_exported.replace(f"<!-- Created with Cambalache {config.VERSION} -->\n", "")
