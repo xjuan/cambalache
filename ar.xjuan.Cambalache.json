@@ -69,8 +69,8 @@
         {
           "type": "git",
           "url": "https://gitlab.freedesktop.org/wlroots/wlroots.git",
-          "branch": "0.18",
-          "commit": "4666996b2a34b53899aedafcd3586fb1c7a16af6"
+          "tag": "0.18.1",
+          "commit": "5bc39071d173301eb8b2cd652c711075526dfbd9"
         }
       ]
     },
@@ -83,8 +83,8 @@
         {
           "type": "git",
           "url": "https://gitlab.gnome.org/jpu/casilda.git",
-          "branch": "0.1.1",
-          "commit": "1cd675f1d2445cd5aa31cc0b2b0da6b505c53025"
+          "tag": "0.2.0",
+          "commit": "99a0173f21345b85713198c1fa1fbb388d00182f"
         }
       ]
     },
