@@ -22,22 +22,55 @@
 # SPDX-License-Identifier: LGPL-2.1-only
 #
 
-from gi.repository import GObject, Adw, Gtk
+from gi.repository import GObject, Adw, Gtk, CambalachePrivate
+from merengue.mrg_gtk import MrgGtkWidget, MrgSelection
 
 
-class MgrAdwDialogProxy(Gtk.Window):
-    __gtype_name__ = "MgrAdwDialogProxy"
-
-    focus_widget = GObject.Property(type=Gtk.Widget, flags=GObject.ParamFlags.READWRITE)
-    can_close = GObject.Property(type=bool, default=True, flags=GObject.ParamFlags.READWRITE)
-    follows_content_size = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
-    content_height = GObject.Property(type=int, flags=GObject.ParamFlags.READWRITE)
-    content_width = GObject.Property(type=int, flags=GObject.ParamFlags.READWRITE)
-    presentation_mode = GObject.Property(
-        type=Adw.DialogPresentationMode,
-        default=Adw.DialogPresentationMode.AUTO,
-        flags=GObject.ParamFlags.READWRITE
-    )
+class MrgAdwDialog(MrgGtkWidget):
+    object = GObject.Property(type=Adw.Dialog, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+    def object_changed(self, old, new):
+        if old:
+            old.close()
+
+        self.on_selected_changed()
+
+        if self.object is None:
+            if self.window:
+                self.window.hide()
+            return
+
+        if self.window is None:
+            self.window = self.__window_new()
+            self.selection = MrgSelection(app=self.app, container=self.window)
+
+        # Make sure we call adw_dialog_present() instead of adding the widget to a window
+        self.object.present(self.window)
+        self.window.present()
+
+        self.window.set_title(GObject.type_name(self.object.__gtype__))
+        CambalachePrivate.widget_set_application_id(self.window, f"Casilda:{self.ui_id}.{self.object_id}")
+
+    def __window_new(self):
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        headerbar = Gtk.HeaderBar(valign=Gtk.Align.START, vexpand=False)
+        button = Gtk.Button(label="Open", valign=Gtk.Align.CENTER, halign=Gtk.Align.CENTER, vexpand=True)
+        button.connect("clicked", self.__on_open_button_clicked)
+        box.append(headerbar)
+        box.append(button)
+        return Adw.Window(deletable=False, content=box)
+
+    def __on_open_button_clicked(self, button):
+        if self.object:
+            self.object.present(self.window)
+
+    def get_children(self):
+        child = self.object.get_child() if self.object else None
+        return [child] if child else []
+
+    def add(self, child):
+        if self.object:
+            self.object.set_child(child)

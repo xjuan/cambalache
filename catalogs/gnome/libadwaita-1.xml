@@ -32,7 +32,7 @@
 	("AdwClampScrollable","GtkWidget","libadwaita",None,None,None,1,"container","layout",None),
 	("AdwColorScheme","enum","libadwaita",None,None,None,None,None,None,None),
 	("AdwComboRow","AdwActionRow","libadwaita",None,None,None,1,"container","control",None),
-	("AdwDialog","GtkWidget","libadwaita","1.5",None,None,1,"container",None,"MgrAdwDialogProxy"),
+	("AdwDialog","GtkWidget","libadwaita","1.5",None,None,1,"container",None,None),
 	("AdwDialogPresentationMode","enum","libadwaita",None,None,None,None,None,None,None),
 	("AdwEasing","enum","libadwaita",None,None,None,None,None,None,None),
 	("AdwEntryRow","AdwPreferencesRow","libadwaita","1.2",None,None,1,"container",None,None),

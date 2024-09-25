@@ -33,7 +33,5 @@ from .mrg_adw_application_window import MrgAdwApplicationWindow
 from .mrg_adw_bin import MrgAdwBin
 from .mrg_adw_carousel import MrgAdwCarousel
 from .mrg_adw_window import MrgAdwWindow
+from .mrg_adw_dialog import MrgAdwDialog
 
-from .mrg_adw_dialog import MrgAdwDialogProxy
-
-GObject.type_ensure(MrgAdwDialogProxy.__gtype__)

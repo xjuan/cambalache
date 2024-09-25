@@ -50,7 +50,7 @@ class MrgController(GObject.Object):
         super().__init__(**kwargs)
         self.connect("notify::object", self.__on_object_changed)
 
-        if self.object:
+        if self.object is not None:
             self.on_object_changed(self.object)
 
     def on_object_changed(self, value):
