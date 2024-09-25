@@ -82,6 +82,13 @@
       </properties>
     </AdwPreferencesPage>
 
+    <AdwButtonRow>
+      <properties>
+        <property id="end-icon-name" type="CmbIconName"/>
+        <property id="start-icon-name" type="CmbIconName"/>
+      </properties>
+    </AdwButtonRow>
+
     <AdwPreferencesRow>
       <properties>
         <property id="title" translatable="True"/>
@@ -92,7 +99,7 @@
       <properties>
         <property id="icon-name" type="CmbIconName"/>
         <property id="label" translatable="True"/>
-	<property id="dropdown-tooltip" translatable="yes"/>
+        <property id="dropdown-tooltip" translatable="yes"/>
       </properties>
     </AdwSplitButton>
 
@@ -172,17 +179,26 @@
 
   <categories>
     <category name="control">
+      <AdwButtonRow/>
       <AdwComboRow/>
+      <AdwEntryRow/>
+      <AdwPasswordEntryRow/>
+      <AdwSpinRow/>
       <AdwSplitButton/>
+      <AdwSwitchRow/>
+      <AdwTabButton/>
+      <AdwTabOverview/>
       <AdwViewSwitcher/>
     </category>
 
     <category name="display">
       <AdwAvatar/>
+      <AdwBanner/>
       <AdwButtonContent/>
       <AdwCallbackAnimationTarget/>
       <AdwCarouselIndicatorDots/>
       <AdwCarouselIndicatorLines/>
+      <AdwSpinner/>
       <AdwSpringAnimation/>
       <AdwTimedAnimation/>
       <AdwViewSwitcherTitle/>
@@ -192,14 +208,24 @@
     <category name="layout">
       <AdwActionRow/>
       <AdwBin/>
+      <AdwBottomSheet/>
+      <AdwBreakpointBin/>
       <AdwCarousel/>
       <AdwClamp/>
+      <AdwClampLayout/>
       <AdwClampScrollable/>
       <AdwExpanderRow/>
       <AdwFlap/>
       <AdwHeaderBar/>
+      <AdwLayout/>
+      <AdwLayoutSlot/>
       <AdwLeaflet/>
       <AdwLeafletPage/>
+      <AdwMultiLayoutView/>
+      <AdwNavigationPage/>
+      <AdwNavigationSplitView/>
+      <AdwNavigationView/>
+      <AdwOverlaySplitView/>
       <AdwPreferencesGroup/>
       <AdwPreferencesPage/>
       <AdwPreferencesRow/>
@@ -211,6 +237,7 @@
       <AdwTabView/>
       <AdwToast/>
       <AdwToastOverlay/>
+      <AdwToolbarView/>
       <AdwViewStack/>
       <AdwViewStackPage/>
       <AdwViewSwitcherBar/>
@@ -219,13 +246,19 @@
     <category name="model">
       <AdwEnumListItem/>
       <AdwEnumListModel/>
+      <AdwViewStackPages/>
     </category>
 
     <category name="toplevel">
+      <AdwAboutDialog/>
+      <AdwAboutWindow/>
+      <AdwAlertDialog/>
       <AdwApplicationWindow/>
+      <AdwDialog/>
+      <AdwMessageDialog/>
+      <AdwPreferencesDialog/>
       <AdwPreferencesWindow/>
       <AdwWindow/>
-      <AdwMessageDialog/>
     </category>
   </categories>
 
