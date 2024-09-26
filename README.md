@@ -147,12 +147,12 @@ be obsolete.
 
 ## Running from sources
 
-To run it without installing use run-dev.py script, it will automatically compile
-resources and create extra files needed to run assuming you have everything
-needed installed locally. (Follow manual installation to ensure you have
-everything needed)
+To run it without installing use run-dev.sh script, it will automatically compile
+cambalache under .local directoy and set up all environment variables needed to
+run the app from the source directory. (Follow manual installation to ensure 
+you have everything needed)
 
-`./run-dev.py`
+`./run-dev.sh`
 
 This is meant for Cambalache development only.
 
@@ -186,10 +186,11 @@ like all these [people](./SUPPORTERS.md) did.
  - ~8% commission fee
  - ~8% payment processing fee
 
-## Tools
+## cmb-catalog-gen
 
- - cambalache-db:
-   Generate Data Model from Gir files
+This tool is used to generate Cambalache catalogs from Gir files.
 
- - db-codegen:
-   Generate GObject classes from DB tables
+A catalog is a XML file with all the necessary data for Cambalache to produce
+UI files with widgets from a particular library, this includes the different
+GTypes, with their properties, signals and everything else except
+the actual object implementations.
