@@ -16,22 +16,31 @@
   <releases>
     <release date="2024-09-27" version="0.92.0">
       <description>
-        <p>Gtk 4 + Adwaita + Casilda Release!</p>
+        <p>Adwaita + Casilda Release!</p>
         <ul>
-          <li>Port to Gtk 4 and Adwaita</li>
+          <li>Basic port to Adwaita</li>
           <li>Use Casilda compositor widget for workspace</li>
           <li>Update widget catalogs to SDK 47</li>
-          <li>Add support for child custom fragments</li>
-          <li>Add add parent context menu action</li>
+          <li>Improved Drag&amp;Drop support</li>
           <li>Improve workspace performance</li>
-          <li>Fix window ordering</li>
           <li>Enable workspace animations</li>
+          <li>Fix window ordering</li>
           <li>Support new desktop dark style</li>
           <li>Support 3rd party libraries</li>
-          <li>Improved Drag&amp;Drop support</li>
           <li>Streamline headerbar</li>
-          <li>Mark AdwSplitButton.dropdown-tooltip translatable. (Danial Behzadi)</li>
           <li>Many thanks to emersion, kennylevinsen, vyivel and the wlroots community for their support and awesome project</li>
+        </ul>
+      </description>
+    </release>
+    <release date="2024-03-29" version="0.90.2">
+      <description>
+        <p>Gtk 4 port</p>
+        <ul>
+          <li>Migrate main application to Gtk 4</li>
+          <li>Update widget catalogs to SDK 46</li>
+          <li>Add support for child custom fragments</li>
+          <li>Add add parent context menu action</li>
+          <li>Mark AdwSplitButton.dropdown-tooltip translatable. (Danial Behzadi)</li>
         </ul>
       </description>
     </release>

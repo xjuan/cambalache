@@ -9,9 +9,9 @@ Cambalache used even/odd minor numbers to differentiate between stable and
 development releases.
 
 
-## Unreleased
+## 0.92.0
 
-Casilda compositor release
+2024-09-27 - Adwaita + Casilda release
 
  - Support 3rd party libraries
  - Improved Drag&Drop support
@@ -27,14 +27,17 @@ Casilda compositor release
  
 ### Packaging changes
 
- - New dependency on [casilda 0.2](https://gitlab.gnome.org/jpu/casilda)
+ - New dependency on [casilda 0.2.0](https://gitlab.gnome.org/jpu/casilda)
    Used for workspace compositor, depends on wlroots 0.18
  - New python tool cmb-catalog-gen
  - New shared library cmbcatalogutils-[3|4] used by cmb-catalog-gen
    This library is built twice once linked with Gtk 3 and one with Gtk 4
+ - Depends on Gtk 4.16 and Adwaita 1.6
 
 ### Issues
 
+ - #231 "Workspace will crash with inserting Some Adw objects"
+ - #230 "Exporting byte data messes encoding (libxml)"
  - #227 "Add casilda as meson subproject" (sid)
  - #220 "BUG: Typing cursor for style classes always in the front of style entries."
  - #222 "cannot create instance of abstract (non-instantiatable) type 'GtkWidget'"
