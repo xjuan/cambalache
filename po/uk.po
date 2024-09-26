@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cambalache\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-24 10:36-0400\n"
+"POT-Creation-Date: 2024-09-26 17:02-0400\n"
 "PO-Revision-Date: 2022-02-19 16:40+0200\n"
 "Last-Translator: Volodymyr M. Lisivka <vlisivka@gmail,com>\n"
 "Language-Team: Ukrainian, https://linux.org.ua\n"
@@ -609,7 +609,7 @@ msgid "The file changed on disk."
 msgstr ""
 
 #. Translators: This text will be used in the next two string as {convert}
-#: cambalache/cmb_db.py:1636
+#: cambalache/cmb_db.py:1645
 msgid ""
 "\n"
 "Use gtk4-builder-tool first to convert file."
@@ -617,7 +617,7 @@ msgstr ""
 "\n"
 "Спочатку використовуйте gtk4-builder-tool для перетворення файлу."
 
-#: cambalache/cmb_db.py:1641
+#: cambalache/cmb_db.py:1650
 #, python-brace-format
 msgid ""
 "Can not import what looks like a {lib}-{ver} file in a {target_tk} project."
@@ -626,7 +626,7 @@ msgstr ""
 "Неможливо імпортувати те, що виглядає як файл {lib}-{ver} в проєкт "
 "{target_tk}.{convert}"
 
-#: cambalache/cmb_db.py:1648
+#: cambalache/cmb_db.py:1657
 #, python-brace-format
 msgid "Can not import a {lib}-{ver} file in a {target_tk} project.{convert}"
 msgstr ""
@@ -1102,29 +1102,29 @@ msgstr "Експортувати"
 msgid "Comment:"
 msgstr ""
 
-#: cambalache/cmb_view.py:582
+#: cambalache/cmb_view.py:588
 msgid "Restart workspace"
 msgstr "Перезапустити робочу область"
 
-#: cambalache/cmb_view.py:583
+#: cambalache/cmb_view.py:589
 msgid "Inspect UI definition"
 msgstr "Перевірити визначення ГІК"
 
-#: cambalache/cmb_view.py:592
+#: cambalache/cmb_view.py:598
 msgid ""
 "Workspace process error\n"
 "Stopping auto restart"
 msgstr ""
 
-#: cambalache/cmb_view.ui:40
+#: cambalache/cmb_view.ui:58
 msgid "Project View"
 msgstr "Перегляд проєкту"
 
-#: cambalache/cmb_view.ui:73
+#: cambalache/cmb_view.ui:91
 msgid "UI Definition"
 msgstr "Визначення ГІК"
 
-#: cambalache/cmb_view.ui:97
+#: cambalache/cmb_view.ui:115
 #, fuzzy
 msgid "Data Model"
 msgstr "Модель"
@@ -1233,7 +1233,7 @@ msgid "Status"
 msgstr ""
 
 #: data/ar.xjuan.Cambalache.desktop.in:4
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:174
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:183
 msgid "UI Maker"
 msgstr "Створювач інтерфейсу користувача"
 
@@ -1258,11 +1258,11 @@ msgstr ""
 "користувачадля для Gtk і стільниці GNOME."
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:19
-msgid "Gtk 4 + Adwaita + Casilda Release!"
+msgid "Adwaita + Casilda Release!"
 msgstr ""
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:21
-msgid "Port to Gtk 4 and Adwaita"
+msgid "Basic port to Adwaita"
 msgstr ""
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:22
@@ -1274,16 +1274,15 @@ msgid "Update widget catalogs to SDK 47"
 msgstr ""
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:24
-#, fuzzy
-msgid "Add support for child custom fragments"
-msgstr "Додати підтримку шаблонів"
+msgid "Improved Drag&amp;Drop support"
+msgstr ""
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:25
-msgid "Add add parent context menu action"
+msgid "Improve workspace performance"
 msgstr ""
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:26
-msgid "Improve workspace performance"
+msgid "Enable workspace animations"
 msgstr ""
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:27
@@ -1292,304 +1291,317 @@ msgid "Fix window ordering"
 msgstr "LGPL версія 2.1"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:28
-msgid "Enable workspace animations"
-msgstr ""
-
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:29
 msgid "Support new desktop dark style"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:30
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:29
 #, fuzzy
 msgid "Support 3rd party libraries"
 msgstr "Перший публічний випуск!"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:31
-msgid "Improved Drag&amp;Drop support"
-msgstr ""
-
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:32
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:30
 msgid "Streamline headerbar"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:33
-msgid "Mark AdwSplitButton.dropdown-tooltip translatable. (Danial Behzadi)"
-msgstr ""
-
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:34
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:31
 msgid ""
 "Many thanks to emersion, kennylevinsen, vyivel and the wlroots community for "
 "their support and awesome project"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:40
-msgid "GNOME 45 Release!"
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:37
+msgid "Gtk 4 port"
 msgstr ""
 
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:39
+msgid "Migrate main application to Gtk 4"
+msgstr ""
+
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:40
+msgid "Update widget catalogs to SDK 46"
+msgstr ""
+
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:41
+#, fuzzy
+msgid "Add support for child custom fragments"
+msgstr "Додати підтримку шаблонів"
+
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:42
-msgid "Bump SDK dependency to SDK 45"
+msgid "Add add parent context menu action"
 msgstr ""
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:43
+msgid "Mark AdwSplitButton.dropdown-tooltip translatable. (Danial Behzadi)"
+msgstr ""
+
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:49
+msgid "GNOME 45 Release!"
+msgstr ""
+
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:51
+msgid "Bump SDK dependency to SDK 45"
+msgstr ""
+
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:52
 msgid "Add support for types and properties added in SDK 45"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:44
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:53
 msgid "Marked various missing translatable properties"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:50
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:59
 #, fuzzy
 msgid "GMenu release!"
 msgstr "Випуск виправлення помилок!"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:52
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:61
 msgid "Add GMenu support"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:53
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:62
 msgid "Add UI requirements edit support"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:54
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:63
 msgid "Add Swedish translation. Anders Jonsson"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:55
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:64
 #, fuzzy
 msgid "Updated Italian translation. Lorenzo Capalbo"
 msgstr "Додано німецький переклад. PhilProg"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:56
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:65
 msgid ""
 "Show deprecated and not available warnings for Objects, properties and "
 "signals"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:57
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:66
 msgid "Output minimum required library version instead of latest one"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:58
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:67
 msgid "Fix output for templates with inline object properties"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:59
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:68
 #, fuzzy
 msgid "Various optimizations and bug fixes"
 msgstr "Різні вдосконалення та незначні виправлення"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:60
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:69
 msgid "Bump test coverage to 66%"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:66
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:75
 #, fuzzy
 msgid "New Features release!"
 msgstr "Випуск Flathub!"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:68
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:77
 msgid "User Templates: use your templates anywhere in your project"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:69
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:78
 msgid "Workspace CSS support: see your CSS changes live"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:70
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:79
 msgid "GtkBuildable Custom Tags: support for styles, items, etc"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:71
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:80
 msgid "Property Bindings: bind your property to any source property"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:72
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:81
 msgid "XML Fragments: add any xml to any object or UI as a fallback"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:73
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:82
 #, fuzzy
 msgid "Preview mode: hide placeholders in workspace"
 msgstr "GTK 4: Виправлення заповнювачів у GtkPaned"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:74
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:83
 msgid "WebKit support: new widget catalog available"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:75
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:84
 msgid "External objects references support"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:76
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:85
 msgid "Add support for GdkPixbuf, GListModel and GListStore types"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:77
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:86
 msgid "Add missing child type attributes to Gtk4 GtkActionBar (B. Teeuwen)"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:78
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:87
 #, fuzzy
 msgid "Added French Translation (rene-coty)"
 msgstr "Додано німецький переклад. PhilProg"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:84
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:93
 #, fuzzy
 msgid "3rd party libs release!"
 msgstr "Перший публічний випуск!"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:86
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:95
 msgid "Add Adwaita and Handy library support"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:87
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:96
 msgid "Add inline object properties support (only Gtk 4)"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:88
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:97
 msgid "Add special child type support (GtkWindow title widget)"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:89
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:98
 msgid "Improve clipboard functionality"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:90
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:99
 #, fuzzy
 msgid "Add support for reordering children position"
 msgstr "Додано підтримку для імпорту кількох файлів одночасно"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:91
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:100
 msgid ""
 "Add/Improve worspace support for GtkMenu, GtkNotebook, GtkPopover, GtkStack, "
 "GtkAssistant, GtkListBox, GtkMenuItem and GtkCenterBox"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:92
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:101
 msgid "New property editors for icon name and color properties"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:93
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:102
 msgid "Add support for GdkPixbuf, Pango, Gio, Gdk and Gsk flags/enums types"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:94
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:103
 msgid "Add Ukrainian translation (Volodymyr M. Lisivka)"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:95
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:104
 #, fuzzy
 msgid "Add Italian translation (capaz)"
 msgstr "Додано німецький переклад. PhilProg"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:96
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:105
 #, fuzzy
 msgid "Add Dutch translation (Gert)"
 msgstr "Додано німецький переклад. PhilProg"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:102
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:111
 msgid "UX improvements Release!"
 msgstr "Випуск покращень UX!"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:104
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:113
 msgid "New Type chooser bar"
 msgstr "Нова панель вибору типу"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:105
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:114
 msgid "Workspace placeholder support"
 msgstr "Підтримка заповнювачів робочого простору"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:106
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:115
 msgid "Translatable properties support (Philipp Unger)"
 msgstr "Підтримка властивостей для перекладу (Філіп Унгер)"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:107
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:116
 msgid "Clipboard actions support (Copy, Paste, Cut)"
 msgstr "Підтримка дій буфера обміну (Копіювати, Вставляти, Вирізати)"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:108
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:117
 msgid "Better unsupported features report"
 msgstr "Кращий звіт про непідтримувані функції"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:109
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:118
 msgid "New Matrix channel #cambalache:gnome.org"
 msgstr "Новий канал Matrix #cambalache:gnome.org"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:110
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:119
 msgid "You can now also support Cambalache on Liberapay"
 msgstr "Тепер ви також можете підтримувати Cambalache на Liberapay"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:116
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:125
 msgid "New translations release!"
 msgstr "Випуск нових перекладів!"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:118
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:127
 msgid "Add Czech translation. Vojtěch Perník"
 msgstr "Додано чеський переклад. Vojtěch Perník"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:119
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:128
 msgid "Add German translation. PhilProg"
 msgstr "Додано німецький переклад. PhilProg"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:120
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:129
 msgid "Add x-cambalache mimetype with icon"
 msgstr "Додано x-cambalache mimetype зі значком"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:126
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:135
 msgid "First public release!"
 msgstr "Перший публічний випуск!"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:128
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:137
 msgid "Suport for both Gtk 3 and 4 versions"
 msgstr "Підтримка як Gtk версії 3 і 4"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:129
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:138
 msgid "Import and export multiple UI at once"
 msgstr "Імпорт і експорт кількох ГІК одночасно"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:130
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:139
 msgid "Support plain (no custom tags) GtkBuilder features"
 msgstr "Підтримка простих (без спеціальних тегів) функцій GtkBuilder"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:131
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:140
 msgid "Undo / Redo stack"
 msgstr "Стекове скасування/повторення"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:132
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:141
 msgid "LGPL version 2.1"
 msgstr "LGPL версія 2.1"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:141
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:150
 msgid "Cambalache start window"
 msgstr "Початкове вікно Cambalache"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:145
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:154
 msgid "Cambalache new project page"
 msgstr "Нова сторінка проєкту Cambalache"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:149
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:158
 msgid "Cambalache workspace"
 msgstr "Робочий простір Cambalache"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:153
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:162
 msgid "GTK widget factory"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:173
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:182
 msgid "GUI Designer"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:175
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:184
 #, fuzzy
 msgid "user interface"
 msgstr "Створювач Графічного Інтерфейсу Користувача"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:176
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:185
 msgid "UI Builder"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:179
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:188
 msgid "Juan Pablo Ugarte"
 msgstr "Хуан Пабло Угарте"
 
