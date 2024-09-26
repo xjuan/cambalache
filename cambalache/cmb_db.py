@@ -2115,6 +2115,10 @@ class CmbDB(GObject.GObject):
 
         child_position = 0
 
+        # FIXME: only export placeholders for GtkBox
+        # This needs to be removed and handled directly in merengue by passing postion together with idi
+        is_box = info.is_a("GtkBox")
+
         # Children
         for row in c.execute(
             """
@@ -2129,7 +2133,7 @@ class CmbDB(GObject.GObject):
         ):
             child_id, internal, ctype, comment, position, custom_child_fragment = row
 
-            if merengue:
+            if merengue and is_box:
                 position = position if position is not None else 0
 
                 while child_position < position:
