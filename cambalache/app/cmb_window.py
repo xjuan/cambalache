@@ -268,6 +268,8 @@ class CmbWindow(Adw.ApplicationWindow):
 
         self.view.connect("notify::gtk-theme", self.__on_view_gtk_theme_notify)
         self.connect("notify::focus-widget", self.__on_focus_widget_notify)
+        self.connect("close-request", self.__on_close_request)
+
         self.__recent_manager.connect("changed", lambda rm: self.__update_recent_menu())
         self.__update_recent_menu()
 
@@ -1320,7 +1322,7 @@ class CmbWindow(Adw.ApplicationWindow):
 
         self.window_settings.set_value("size", GLib.Variant("(ii)", size))
 
-    def do_close_request(self):
+    def __on_close_request(self, window):
         self.__save_window_state()
         return False
 
