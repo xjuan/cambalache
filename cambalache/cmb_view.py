@@ -431,6 +431,8 @@ class CmbView(Gtk.Box):
             self.__ui_id = 0
             self.__merengue_update_ui(0)
 
+        self.__update_view()
+
     def __on_css_added(self, project, obj):
         if self.project.filename and obj.filename:
             dirname = os.path.dirname(self.project.filename)
