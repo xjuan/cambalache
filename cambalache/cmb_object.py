@@ -277,9 +277,9 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
         self.__layout_dict = {}
 
         if parent_id > 0:
-            # FIXME: what about parent layout properties?
             parent = self.project.get_object_by_id(self.ui_id, parent_id)
-            self.__populate_layout_properties_from_type(f"{parent.type_id}LayoutChild")
+            for owner_id in [parent.type_id] + parent.info.hierarchy:
+                self.__populate_layout_properties_from_type(f"{owner_id}LayoutChild")
 
     def __populate_layout(self):
         if self.__layout is None:
