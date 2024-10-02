@@ -853,7 +853,7 @@ class CmbDB(GObject.GObject):
         c = self.conn.cursor()
 
         c.execute(
-            "SELECT coalesce((SELECT object_id FROM object WHERE ui_id=? ORDER BY object_id DESC LIMIT 1), 0) + 1;",
+            "SELECT coalesce((SELECT MAX(object_id) FROM object WHERE ui_id=?), 0) + 1;",
             (ui_id,),
         )
         object_id = c.fetchone()[0]
@@ -941,7 +941,7 @@ class CmbDB(GObject.GObject):
         if node.tag is etree.Comment:
             return
 
-        self.__collect_error("unknown-tag", node, f"{owner}:{name}" if owner and name else name)
+        self.__collect_error("unknown-tag", node, f"{owner}:{name}" if owner is not None and name else name)
 
     def __node_get(self, node, *args, collect_errors=True):
         keys = node.keys()
@@ -1940,9 +1940,6 @@ class CmbDB(GObject.GObject):
         # We do not export object templates in merengue mode, this way we do not really need to instantiate a real type
         # in the workspace
         if merengue_template:
-            # Keep real merengue id
-            name = f"__cmb__{ui_id}.{object_id}"
-
             # Get ui_id and object_id from template object
             c.execute(
                 """
@@ -1952,12 +1949,14 @@ class CmbDB(GObject.GObject):
                 """,
                 (type_id,),
             )
-            ui_id, object_id, type_id = c.fetchone()
+            tmpl_ui_id, tmpl_object_id, tmpl_type_id = c.fetchone()
 
-            # Use template info and object_id from now on
-            info = self.type_info.get(type_id, None)
+            # Export template object for merengue without ids
+            obj = self.__export_object(tmpl_ui_id, tmpl_object_id, merengue=True, ignore_id=True)
 
-        if not merengue and template_id == object_id:
+            # Set object id
+            self.__node_set(obj, "id", f"__cmb__{ui_id}.{object_id}")
+        elif not merengue and template_id == object_id:
             obj = E.template()
             self.__node_set(obj, "class", name)
             self.__node_set(obj, "parent", type_id)
@@ -1972,6 +1971,7 @@ class CmbDB(GObject.GObject):
                     # From now own all output should be without an ID
                     # because we do not want so select internal widget from the template
                     ignore_id = True
+                    self.__node_set(obj, "id", name)
                 elif not ignore_id:
                     self.__node_set(obj, "id", f"__cmb__{ui_id}.{object_id}")
             else:
@@ -2103,9 +2103,13 @@ class CmbDB(GObject.GObject):
                 obj.append(node)
                 self.__node_add_comment(node, comment)
 
-        # Layout properties class
+        # Find first layout properties class
         layout_class = f"{type_id}LayoutChild"
-        linfo = self.type_info.get(layout_class, None)
+        for owner_id in hierarchy:
+            owner_class = f"{owner_id}LayoutChild"
+            linfo = self.type_info.get(owner_class, None)
+            if linfo is not None:
+                break
 
         # Construct Layout Child class hierarchy list
         hierarchy = [layout_class] + linfo.hierarchy if linfo else [layout_class]
