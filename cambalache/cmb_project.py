@@ -1424,6 +1424,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
             obj = self.get_object_by_id(ui_id, object_id)
             self.emit("object-added", obj)
+            obj._update_new_parent()
 
         c.close()
 
@@ -1445,16 +1446,13 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 self.history_push(_("Cut {n_objects} object").format(n_objects=n_objects))
 
             for obj in selection:
-                obj._save_last_known_parent_and_position()
-                self.db.execute("DELETE FROM object WHERE ui_id=? AND object_id=?;", (obj.ui_id, obj.object_id))
+                self.remove_object(obj)
 
             self.history_pop()
             self.db.commit()
         except Exception:
+            # TODO: rollback whole transaction?
             pass
-        finally:
-            for obj in selection:
-                self.__remove_object(obj)
 
     def add_parent(self, type_id, obj):
         try:
