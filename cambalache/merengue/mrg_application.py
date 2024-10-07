@@ -370,6 +370,9 @@ class MrgApplication(Gtk.Application):
         # We receive a command in each line
         retval = self.command_in.readline()
 
+        # if len(retval) == 0:
+        #     return GLib.SOURCE_CONTINUE
+
         try:
             # Command is a Json string with a command, args and payload fields
             cmd = json.loads(retval)

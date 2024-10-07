@@ -52,7 +52,7 @@ GObject.type_ensure(Casilda.Compositor.__gtype__)
 class CmbMerengueProcess(GObject.Object):
     __gsignals__ = {
         "handle-command": (GObject.SignalFlags.RUN_LAST, None, (str,)),
-        "exit": (GObject.SignalFlags.RUN_LAST, None, (bool, )),
+        "exit": (GObject.SignalFlags.RUN_LAST, None, ()),
     }
 
     gtk_version = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
@@ -119,6 +119,10 @@ class CmbMerengueProcess(GObject.Object):
 
         socket_addr = None
 
+    @GObject.Property(type=int)
+    def pid(self):
+        return self.__pid
+
     def cleanup(self):
         self.stop()
         if self.__command_socket:
@@ -173,7 +177,7 @@ class CmbMerengueProcess(GObject.Object):
             envp.append(f"{var}={env[var]}")
 
         pid, stdin, stdout, stderr = GLib.spawn_async(
-            [self.__file, self.version, self.__command_socket],
+            [self.__file, self.gtk_version, self.__command_socket],
             envp=envp,
             flags=GLib.SpawnFlags.DO_NOT_REAP_CHILD,
         )
@@ -233,9 +237,8 @@ class CmbMerengueProcess(GObject.Object):
 
     def __on_exit(self, pid, status, data):
         self.__cleanup()
-        stopped = self.__pid == 0
         self.__pid = 0
-        self.emit("exit", stopped)
+        self.emit("exit")
 
 
 @Gtk.Template(resource_path="/ar/xjuan/Cambalache/cmb_view.ui")
@@ -260,7 +263,6 @@ class CmbView(Gtk.Box):
 
     def __init__(self, **kwargs):
         self.__project = None
-        self.__restart_project = None
         self.__ui_id = 0
         self.__theme = None
         self.__dark = False
@@ -515,14 +517,6 @@ class CmbView(Gtk.Box):
             self.__merengue.disconnect_by_func(self.__on_merengue_handle_command)
             self.__merengue.stop()
 
-        if self.__restart_project is None:
-            pass
-            # FIXME: recreate compositor?
-            # self.compositor.forget_toplevel_state()
-        else:
-            project = self.__restart_project
-            self.__restart_project = None
-
         self.__project = project
         self.db_inspector.project = project
 
@@ -550,9 +544,9 @@ class CmbView(Gtk.Box):
 
             # Run view process
             if project.target_tk == "gtk+-3.0":
-                self.__merengue.version = "3.0"
+                self.__merengue.gtk_version = "3.0"
             elif project.target_tk == "gtk-4.0":
-                self.__merengue.version = "4.0"
+                self.__merengue.gtk_version = "4.0"
 
             # Clear any error
             self.__set_error_message(None)
@@ -579,9 +573,15 @@ class CmbView(Gtk.Box):
         self.__update_view()
 
     def restart_workspace(self):
-        self.__restart_project = self.__project
-        self.__ui_id = 0
-        self.project = None
+        # Clear last exit timestamp
+        self.__merengue_last_exit = None
+
+        if self.__merengue.pid:
+            # Let __on_process_exit() restart Merengue
+            self.__merengue.stop()
+        else:
+            self.__set_error_message(None)
+            self.__merengue.start()
 
     def __create_context_menu(self):
         retval = CmbContextMenu(enable_theme=True)
@@ -592,18 +592,18 @@ class CmbView(Gtk.Box):
 
         return retval
 
-    def __on_process_exit(self, process, stopped):
+    def __on_process_exit(self, process):
         if self.__merengue_last_exit is None:
             self.__merengue_last_exit = time.monotonic()
         else:
-            if (time.monotonic() - self.__merengue_last_exit) < 1:
+            # Stop auto restart if Merengue exited less than 2 seconds ago
+            if (time.monotonic() - self.__merengue_last_exit) < 2:
                 self.__set_error_message(_("Workspace process error\nStopping auto restart"))
                 self.__merengue_last_exit = None
                 return
 
-        if not stopped:
-            self.__ui_id = 0
-            self.__merengue.start()
+        self.__ui_id = 0
+        self.__merengue.start()
 
     def __command_selection_changed(self, selection):
         objects = []
