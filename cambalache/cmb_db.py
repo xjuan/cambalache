@@ -1635,6 +1635,9 @@ class CmbDB(GObject.GObject):
         tree = etree.parse(filename)
         root = tree.getroot()
 
+        if root.tag not in ["interface", "template"]:
+            raise Exception(_("Unknown root tag {tag}").format(tag=root.tag))
+
         requirements = self.__node_get_requirements(root)
 
         target_tk = self.target_tk
@@ -1955,7 +1958,8 @@ class CmbDB(GObject.GObject):
             obj = self.__export_object(tmpl_ui_id, tmpl_object_id, merengue=True, ignore_id=True)
 
             # Set object id
-            self.__node_set(obj, "id", f"__cmb__{ui_id}.{object_id}")
+            if not ignore_id:
+                self.__node_set(obj, "id", f"__cmb__{ui_id}.{object_id}")
         elif not merengue and template_id == object_id:
             obj = E.template()
             self.__node_set(obj, "class", name)
@@ -1971,7 +1975,6 @@ class CmbDB(GObject.GObject):
                     # From now own all output should be without an ID
                     # because we do not want so select internal widget from the template
                     ignore_id = True
-                    self.__node_set(obj, "id", name)
                 elif not ignore_id:
                     self.__node_set(obj, "id", f"__cmb__{ui_id}.{object_id}")
             else:
@@ -1985,6 +1988,9 @@ class CmbDB(GObject.GObject):
         # SQL placeholder for every class in the list
         placeholders = ",".join((["?"] * len(hierarchy)))
 
+        # This ensures we do not output template properties for merengue
+        template_check = "AND t.library_id IS NOT NULL" if merengue_template else ""
+
         # Properties + required + save_always default values
         for row in c.execute(
             f"""
@@ -1992,14 +1998,17 @@ class CmbDB(GObject.GObject):
                    op.translation_comments, p.is_object, p.disable_inline_object,
                    op.bind_source_id, op.bind_owner_id, op.bind_property_id, op.bind_flags,
                    NULL, NULL, p.type_id
-            FROM object_property AS op, property AS p
-            WHERE op.ui_id=? AND op.object_id=? AND p.owner_id = op.owner_id AND p.property_id = op.property_id
+            FROM object_property AS op, property AS p, type AS t
+            WHERE op.ui_id=? AND op.object_id=? AND p.owner_id = op.owner_id AND p.property_id = op.property_id AND
+                  p.owner_id == t.type_id
+                  {template_check}
             UNION
-            SELECT default_value, property_id, NULL, NULL, NULL, NULL, NULL, is_object, disable_inline_object,
-                   NULL, NULL, NULL, NULL, required, workspace_default, type_id
-            FROM property
-            WHERE (required=1 OR save_always=1) AND owner_id IN ({placeholders}) AND
+            SELECT p.default_value, p.property_id, NULL, NULL, NULL, NULL, NULL, p.is_object, p.disable_inline_object,
+                   NULL, NULL, NULL, NULL, p.required, p.workspace_default, p.type_id
+            FROM property AS p, type AS t
+            WHERE p.owner_id == t.type_id AND (required=1 OR save_always=1) AND owner_id IN ({placeholders}) AND
                   property_id NOT IN (SELECT property_id FROM object_property WHERE ui_id=? AND object_id=?)
+                   {template_check}
             ORDER BY op.property_id
             """,
             (ui_id, object_id) + tuple(hierarchy) + (ui_id, object_id),
