@@ -9,6 +9,20 @@ Cambalache used even/odd minor numbers to differentiate between stable and
 development releases.
 
 
+## 0.92.1
+
+2024-10-11 - First Bugfix release in the series
+
+ - Fix window state saving
+ - Show layout properties from parent classes
+ - Improve template export for merengue
+ - Fix object model regression on cut and paste
+ - Fix merengue process restart
+
+### Issues
+
+ - #232 "Crashes when restarting workspace"
+
 ## 0.92.0
 
 2024-09-27 - Adwaita + Casilda release

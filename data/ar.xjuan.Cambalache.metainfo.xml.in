@@ -14,6 +14,18 @@
     </p>
   </description>
   <releases>
+    <release date="2024-10-11" version="0.92.1">
+      <description>
+        <p>First Bugfix release in the series</p>
+        <ul>
+          <li>Fix window state saving</li>
+          <li>Show layout properties from parent classes</li>
+          <li>Improve template export for merengue</li>
+          <li>Fix object model regression on cut and paste</li>
+          <li>Fix merengue process restart</li>
+        </ul>
+      </description>
+    </release>
     <release date="2024-09-27" version="0.92.0">
       <description>
         <p>Adwaita + Casilda Release!</p>
