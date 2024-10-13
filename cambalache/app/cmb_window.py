@@ -590,7 +590,7 @@ class CmbWindow(Adw.ApplicationWindow):
         self.__update_action_add_object()
         self.__update_action_remove_parent()
 
-    def __file_open_dialog_new(self, title, filter_obj=None, accept_label=None):
+    def __file_open_dialog_new(self, title, filter_obj=None, accept_label=None, use_project_dir=False):
         dialog = Gtk.FileDialog(
             modal=True,
             title=title,
@@ -598,7 +598,7 @@ class CmbWindow(Adw.ApplicationWindow):
             accept_label=accept_label,
         )
 
-        if self.project and self.project.filename:
+        if use_project_dir and self.project and self.project.filename:
             dialog.set_initial_folder(Gio.File.new_for_path(os.path.dirname(self.project.filename)))
 
         return dialog
@@ -989,7 +989,9 @@ class CmbWindow(Adw.ApplicationWindow):
                 logger.warning(f"Error {e}")
 
         dialog = self.__file_open_dialog_new(
-            _("Choose file to import"), filter_obj=self.import_filter, accept_label=_("Import")
+            _("Choose file to import"),
+            filter_obj=self.import_filter,
+            accept_label=_("Import")
         )
         dialog.open_multiple(self, None, dialog_callback)
 
