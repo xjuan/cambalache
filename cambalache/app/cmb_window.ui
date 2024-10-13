@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.92.0 -->
+<!-- Created with Cambalache 0.93.0 -->
 <interface>
   <!-- interface-name cmb_window.ui -->
   <!-- interface-copyright Juan Pablo Ugarte -->
@@ -24,11 +24,11 @@
     <section>
       <item>
         <attribute name="action">win.import</attribute>
-        <attribute name="label" translatable="yes">Import</attribute>
+        <attribute name="label" translatable="yes">Import UI</attribute>
       </item>
       <item>
         <attribute name="action">win.export</attribute>
-        <attribute name="label" translatable="yes">Export all</attribute>
+        <attribute name="label" translatable="yes">Export all UI</attribute>
       </item>
       <item>
         <attribute name="action">win.add_css</attribute>

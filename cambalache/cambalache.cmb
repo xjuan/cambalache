@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
-<cambalache-project version="0.92.0" target_tk="gtk-4.0">
+<cambalache-project version="0.93.0" target_tk="gtk-4.0">
   <ui>
 	(1,1,"CmbChildTypeComboBox",None,None,"Juan Pablo Ugarte",None,None,None,None,None),
 	(2,1,"CmbColorEntry",None,None,"Juan Pablo Ugarte",None,None,None,None,None),
@@ -1007,9 +1007,9 @@
 	(34,248,"(item)","action","win.add_css",None,None,None,None,None,None,None,None,None),
 	(34,248,"(item)","label","Add CSS file",1,None,None,None,None,None,None,None,None),
 	(34,249,"(item)","action","win.import",None,None,None,None,None,None,None,None,None),
-	(34,249,"(item)","label","Import",1,None,None,None,None,None,None,None,None),
+	(34,249,"(item)","label","Import UI",1,None,None,None,None,None,None,None,None),
 	(34,250,"(item)","action","win.export",None,None,None,None,None,None,None,None,None),
-	(34,250,"(item)","label","Export all",1,None,None,None,None,None,None,None,None),
+	(34,250,"(item)","label","Export all UI",1,None,None,None,None,None,None,None,None),
 	(34,251,"GtkScrolledWindow","min-content-width","200",None,None,None,None,None,None,None,None,None),
 	(34,251,"GtkScrolledWindow","propagate-natural-height","True",None,None,None,None,None,None,None,None,None),
 	(34,251,"GtkScrolledWindow","propagate-natural-width","True",None,None,None,None,None,None,None,None,None),
