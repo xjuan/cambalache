@@ -95,6 +95,7 @@ from .cmb_ui_editor import CmbUIEditor
 from .cmb_ui_requires_editor import CmbUIRequiresEditor
 from .cmb_css_editor import CmbCSSEditor
 from .cmb_fragment_editor import CmbFragmentEditor
+from .cmb_accessible_editor import CmbAccessibleEditor
 from .cmb_type_chooser import CmbTypeChooser
 from .cmb_type_chooser_widget import CmbTypeChooserWidget
 from .cmb_type_chooser_popover import CmbTypeChooserPopover

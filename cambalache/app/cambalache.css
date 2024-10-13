@@ -89,7 +89,8 @@ CmbTypeChooser {
 
 CmbUIEditor,
 CmbFragmentEditor,
-CmbObjectEditor {
+CmbObjectEditor,
+CmbAccessibleEditor {
   padding: 0 4px 4px 4px;
 }
 

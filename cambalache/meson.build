@@ -24,6 +24,7 @@ configure_file(
 )
 
 install_data([
+    'cmb_accessible_editor.py',
     'cmb_base.py',
     'cmb_column_view.py',
     'cmb_context_menu.py',
@@ -45,6 +46,7 @@ install_data([
     'cmb_objects_base.py',
     'cmb_project.py',
     'cmb_property.py',
+    'cmb_property_info.py',
     'cmb_property_label.py',
     'cmb_signal_editor.py',
     'cmb_type_chooser.py',
