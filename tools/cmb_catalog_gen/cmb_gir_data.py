@@ -21,6 +21,7 @@
 #
 
 import gi
+import re
 import importlib
 
 # We need to use lxml to get access to nsmap
@@ -264,10 +265,9 @@ class CmbGirData:
             if owner == class_type or (owner in class_interfaces and owner not in parent_interfaces):
                 # This is a property declared in this class
                 # We need to make sure the default declared in the pspec is the same as the instance
-                retval.append({
-                    "property_id": pspec.name,
-                    "instance_default": self._get_default_value_from_pspec(pspec, instance_default)
-                })
+                retval.append(
+                    {"property_id": pspec.name, "instance_default": self._get_default_value_from_pspec(pspec, instance_default)}
+                )
             else:
                 parent_instance_default = getattr(parent_instance.props, pspec.name) if parent_instance else None
 
@@ -275,19 +275,15 @@ class CmbGirData:
                 # if a subclass sets a parent object property that probably means we should disable it because its being used.
                 if GObject.type_is_a(pspec.value_type, GObject.TYPE_OBJECT):
                     if parent_instance_default is None and instance_default is not None:
-                        retval.append({
-                            "property_id": pspec.name,
-                            "non_null_object": True
-                        })
+                        retval.append({"property_id": pspec.name, "non_null_object": True})
                     continue
 
                 if parent_instance_default == instance_default:
                     continue
 
-                retval.append({
-                    "property_id": pspec.name,
-                    "new_default": self._get_default_value_from_pspec(pspec, instance_default)
-                })
+                retval.append(
+                    {"property_id": pspec.name, "new_default": self._get_default_value_from_pspec(pspec, instance_default)}
+                )
 
         return retval
 
@@ -296,7 +292,7 @@ class CmbGirData:
             return None
 
         pspec_type_name = GObject.type_name(pspec)
-        default_value = instance_default if use_instance_default else pspec.get_default_value()
+        default_value = instance_default if use_instance_default else pspec.default_value
 
         if pspec.value_type == GObject.TYPE_BOOLEAN:
             return "True" if default_value != 0 else "False"
@@ -307,9 +303,9 @@ class CmbGirData:
         elif GObject.type_is_a(pspec.value_type, GObject.TYPE_GTYPE):
             return GObject.type_name(default_value)
         elif GObject.type_is_a(pspec.value_type, GLib.strv_get_type()):
-            return "\n".join(default_value) if len(default_value) else None
+            return "\n".join(default_value) if default_value and len(default_value) else None
         elif pspec_type_name == "GParamUnichar":
-            return chr(default_value)
+            return default_value
 
         return default_value
 
@@ -324,6 +320,8 @@ class CmbGirData:
 
         if self.lib == "gtk+":
             extra_types["CmbStockId"] = {"parent": "gchararray"}
+        else:
+            extra_types["CmbBooleanUndefined"] = {"parent": None}
 
         self.types.update(extra_types)
 
@@ -397,6 +395,116 @@ class CmbGirData:
                 data["layout"] = "manager"
             elif self._type_is_a(name, "GtkLayoutChild"):
                 data["layout"] = "child"
+
+        # Accessibility support
+        # Map GtkAccessibleProperty, GtkAccessibleRelation and GtkAccessibleState to Cmb prefixed types and properties
+        accessible_types = {}
+
+        # Dupe Enums that need an extra undefined value
+        for enum_name in ["Orientation", "AccessibleTristate"]:
+            cmb_undefined = self.enumerations.get(f"Gtk{enum_name}").copy()
+            cmb_undefined["members"][f"GTK_{enum_name.upper()}_UNDEFINED"] = {
+                "value": None,
+                "nick": "undefined",
+                "doc": "Value is undefined"
+            }
+            self.enumerations[f"Cmb{enum_name}Undefined"] = cmb_undefined
+
+        # Property name: (type, default value, since version)
+        accessible_attr = {
+            "Property": {
+                "autocomplete": ["GtkAccessibleAutocomplete", "none", None],
+                "description": ["gchararray", None, None],
+                "has-popup": ["gboolean", "False", None],
+                "key-shortcuts": ["gchararray", None, None],
+                "label": ["gchararray", None, None],
+                "level": ["gint64", 0, None],
+                "modal": ["gboolean", "False", None],
+                "multi-line": ["gboolean", "False", None],
+                "multi-selectable": ["gboolean", "False", None],
+                "orientation": ["CmbOrientationUndefined", "undefined", None],  # Undefined default undefined
+                "placeholder": ["gchararray", None, None],
+                "read-only": ["gboolean", "False", None],
+                "required": ["gboolean", "False", None],
+                "role-description": ["gchararray", None, None],
+                "sort": ["GtkAccessibleSort", "none", None],
+                "value-max": ["gdouble", 0, None],
+                "value-min": ["gdouble", 0, None],
+                "value-now": ["gdouble", 0, None],
+                "value-text": ["gchararray", None, None],
+                "help-text": ["gchararray", None, None],
+            },
+            "Relation": {
+                "active-descendant": ["GtkAccessible", None, None],
+                "col-count": ["gint64", 0, None],
+                "col-index": ["gint64", 0, None],
+                "col-index-text": ["gchararray", None, None],
+                "col-span": ["gint64", 0, None],
+                "controls": ["GtkAccessible", None, None],  # Reference List
+                "described-by": ["GtkAccessible", None, None],  # Reference List
+                "details": ["GtkAccessible", None, None],  # Reference List
+                "error-message": ["GtkAccessible", None, None],
+                "flow-to": ["GtkAccessible", None, None],  # Reference List
+                "labelled-by": ["GtkAccessible", None, None],  # Reference List
+                "owns": ["GtkAccessible", None, None],  # Reference List
+                "pos-in-set": ["gint64", 0, None],
+                "row-count": ["gint64", 0, None],
+                "row-index": ["gint64", 0, None],
+                "row-index-text": ["gchararray", None, None],
+                "row-span": ["gint64", 0, None],
+                "set-size": ["gint64", 0, None],
+            },
+            "State": {
+                "busy": ["gboolean", "False", None],
+                "checked": ["CmbAccessibleTristateUndefined", "undefined", None],
+                "disabled": ["gboolean", "False", None],
+                "expanded": ["CmbBooleanUndefined", "undefined", None],  # Undefined
+                "hidden": ["gboolean", "False", None],
+                "invalid": ["GtkAccessibleInvalidState", "false", None],
+                "pressed": ["CmbAccessibleTristateUndefined", "undefined", None],
+                "selected": ["CmbBooleanUndefined", "undefined", None],  # Undefined
+                "visited": ["CmbBooleanUndefined", "undefined", "4.12"],  # Undefined
+            }
+        }
+
+        # Create a custom interface for each Accessibility enumeration
+        for enumeration in ["Property", "Relation", "State"]:
+            data = self.enumerations[f"GtkAccessible{enumeration}"]
+
+            attr = accessible_attr[enumeration]
+
+            # Generate a list of properties for each enumeration member
+            properties = {}
+            for member in data["members"].values():
+                nick = member["nick"]
+
+                if nick not in attr:
+                    doc = member["doc"]
+                    print(f"Missing type value for {enumeration}:{nick} {doc}")
+                    continue
+
+                type_name, default_value, since_version = attr[nick]
+
+                # Add property to list
+                properties[nick] = {
+                    "type": type_name,
+                    "is_object": type_name == "GtkAccessible",
+                    "disable_inline_object": type_name == "GtkAccessible",
+                    "default_value": default_value,
+                    "version": since_version,
+                    "deprecated_version": None,
+                    "construct": None,
+                    "translatable": type_name == "gchararray",
+                }
+
+            # Add custom interface type
+            accessible_types[f"CmbAccessible{enumeration}"] = {
+                "parent": "interface",
+                "properties": properties,
+            }
+
+        # Add all accessible types
+        self.types.update(accessible_types)
 
     def _type_get_properties(self, element, props, owner=None):
         retval = {}
@@ -698,8 +806,8 @@ class CmbGirData:
                 conn.execute(
                     """
                     INSERT INTO property (owner_id, property_id, type_id, is_object, construct_only, default_value, minimum,
-                                          maximum, version, deprecated_version)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                                          maximum, version, deprecated_version, disable_inline_object, translatable)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
                     """,
                     (
                         name,
@@ -712,6 +820,8 @@ class CmbGirData:
                         p.get("maximum", None),
                         clean_ver(p["version"]),
                         clean_ver(p["deprecated_version"]),
+                        p.get("disable_inline_object", None),
+                        p.get("translatable", None),
                     ),
                 )
 
