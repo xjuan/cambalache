@@ -590,15 +590,23 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
 
     @GObject.Property(type=str)
     def display_name_type(self):
-        return f"{self.name} {self.type_id}" if self.name else self.type_id
+        return f"{self.type_id} {self.name}" if self.name else self.type_id
 
     @GObject.Property(type=str)
     def display_name(self):
-        inline_prop = self.inline_property_id
-        inline_prop = f"<b>{inline_prop}</b> " if inline_prop else ""
-        name = f"{self.name} " if self.name else ""
-        extra = _("(template)") if not self.parent_id and self.ui.template_id == self.object_id else self.type_id
-        display_name = f"{inline_prop}{name}<i>{extra}</i>"
+        name = self.name or ""
+        type_id = self.type_id
+        parent_id = self.parent_id
+
+        if not parent_id and self.ui.template_id == self.object_id:
+            # Translators: This is used for Template classes in the object tree
+            display_name = _("{name} (template)").format(name=name)
+        else:
+            inline_prop = self.inline_property_id
+            if inline_prop:
+                display_name = f"{type_id} <b>{inline_prop}</b> <i>{name}</i>"
+            else:
+                display_name = f"{type_id} <i>{name}</i>"
 
         if self.version_warning:
             return f'<span underline="error">{display_name}</span>'
