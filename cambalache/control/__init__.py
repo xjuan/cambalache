@@ -22,6 +22,7 @@
 # SPDX-License-Identifier: LGPL-2.1-only
 #
 
+from .cmb_boolean_undefined import CmbBooleanUndefined
 from .cmb_child_type_combo_box import CmbChildTypeComboBox
 from .cmb_entry import CmbEntry
 from .cmb_file_entry import CmbFileEntry

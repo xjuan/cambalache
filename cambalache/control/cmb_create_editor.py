@@ -26,6 +26,7 @@ import os
 import math
 
 from gi.repository import GLib, Gtk
+from .cmb_boolean_undefined import CmbBooleanUndefined
 from .cmb_entry import CmbEntry
 from .cmb_file_entry import CmbFileEntry
 from .cmb_icon_name_entry import CmbIconNameEntry
@@ -132,6 +133,8 @@ def cmb_create_editor(project, type_id, prop=None, data=None, parent=None):
         editor = CmbIconNameEntry(hexpand=True, placeholder_text="<Icon Name>")
     elif type_id in ["GtkShortcutTrigger", "GtkShortcutAction"]:
         editor = CmbEntry(hexpand=True, placeholder_text=f"<{type_id}>")
+    elif type_id == "CmbBooleanUndefined":
+        editor = CmbBooleanUndefined()
     elif info:
         if info.is_object or info.parent_id == "interface":
             if prop is None:

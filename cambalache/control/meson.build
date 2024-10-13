@@ -2,6 +2,7 @@ moduledir = join_paths(modulesdir, 'cambalache', 'control')
 
 
 install_data([
+    'cmb_boolean_undefined.py',
     'cmb_child_type_combo_box.py',
     'cmb_entry.py',
     'cmb_file_entry.py',
