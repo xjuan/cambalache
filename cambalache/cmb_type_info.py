@@ -30,9 +30,9 @@ from .cmb_objects_base import (
     CmbBaseTypeDataInfo,
     CmbBaseTypeDataArgInfo,
     CmbTypeChildInfo,
-    CmbPropertyInfo,
     CmbSignalInfo,
 )
+from .cmb_property_info import CmbPropertyInfo
 
 from .constants import EXTERNAL_TYPE, GMENU_TYPE, GMENU_SECTION_TYPE, GMENU_SUBMENU_TYPE, GMENU_ITEM_TYPE
 

@@ -25,7 +25,8 @@
 
 from gi.repository import GObject
 
-from .cmb_objects_base import CmbBaseProperty, CmbPropertyInfo
+from .cmb_objects_base import CmbBaseProperty
+from .cmb_property_info import CmbPropertyInfo
 from . import utils
 from cambalache import _
 
@@ -65,6 +66,12 @@ class CmbProperty(CmbBaseProperty):
     def _set_value(self, value):
         self.__update_values(value, self.bind_property)
 
+    def reset(self):
+        self.project.db.execute(
+            "DELETE FROM object_property WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id=?;",
+            (self.ui_id, self.object_id, self.owner_id, self.property_id),
+        )
+
     def __update_values(self, value, bind_property):
         c = self.project.db.cursor()
 
@@ -77,10 +84,7 @@ class CmbProperty(CmbBaseProperty):
         if (
             value is None or value == self.info.default_value or (self.info.is_object and value == 0)
         ) and bind_property is None:
-            c.execute(
-                "DELETE FROM object_property WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id=?;",
-                (self.ui_id, self.object_id, self.owner_id, self.property_id),
-            )
+            self.reset()
         else:
             if (
                 value is None

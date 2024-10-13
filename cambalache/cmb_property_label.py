@@ -28,7 +28,7 @@ from gi.repository import GObject, Gtk
 from .cmb_object import CmbObject
 from .cmb_property import CmbProperty
 from .cmb_layout_property import CmbLayoutProperty
-from .cmb_objects_base import CmbPropertyInfo
+from .cmb_property_info import CmbPropertyInfo
 from .control import CmbObjectChooser, CmbFlagsEntry
 
 

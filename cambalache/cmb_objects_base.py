@@ -22,8 +22,6 @@
 # Authors:
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
-# SPDX-License-Identifier: LGPL-2.1-only
-#
 
 from gi.repository import GObject
 from .cmb_base import CmbBase
@@ -57,8 +55,8 @@ class CmbBaseLibraryInfo(CmbBase):
         )
 
 
-class CmbPropertyInfo(CmbBase):
-    __gtype_name__ = "CmbPropertyInfo"
+class CmbBasePropertyInfo(CmbBase):
+    __gtype_name__ = "CmbBasePropertyInfo"
 
     owner_id = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
     property_id = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
