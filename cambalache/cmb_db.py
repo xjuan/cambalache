@@ -59,6 +59,7 @@ class CmbDB(GObject.GObject):
         self.version = self.__parse_version(config.FILE_FORMAT_VERSION)
 
         self.type_info = None
+        self.__accessible_info = None
 
         self.__db_filename = None
 
@@ -985,11 +986,6 @@ class CmbDB(GObject.GObject):
     def __get_property_info(self, info, property_id):
         pinfo = None
 
-        debug = info.type_id == "CmbFragmentEditor"
-
-        if debug:
-            print(info.properties, info.interfaces, property_id)
-
         # Find owner type for property
         if property_id in info.properties:
             pinfo = info.properties[property_id]
@@ -1400,6 +1396,22 @@ class CmbDB(GObject.GObject):
 
         return menu_id
 
+    def __import_accessibility(self, c, ui_id, object_id, node, object_id_map=None):
+        if self.__accessible_info is None:
+            # Accessibility iface type info
+            self.__accessible_info = {
+                "property": self.type_info.get("CmbAccessibleProperty"),
+                "relation": self.type_info.get("CmbAccessibleRelation"),
+                "state": self.type_info.get("CmbAccessibleState")
+            }
+
+        for child in node.iterchildren():
+            if child.tag in ["property", "relation", "state"]:
+                info = self.__accessible_info.get(child.tag, None)
+                self.__import_property(c, info, ui_id, object_id, child, object_id_map=object_id_map)
+            else:
+                self.__collect_error("unknown-tag", node, child.tag)
+
     def __import_object(
         self, ui_id, node, parent_id, internal_child=None, child_type=None, is_template=False, object_id_map=None
     ):
@@ -1458,6 +1470,11 @@ class CmbDB(GObject.GObject):
             elif child.tag == "layout" and self.target_tk == "gtk-4.0":
                 # Gtk 4, layout props are children of <object>
                 self.__import_layout_properties(c, info, ui_id, parent_id, object_id, child)
+            elif child.tag == "accessibility" and self.target_tk == "gtk-4.0":
+                if info.is_a("GtkWidget"):
+                    self.__import_accessibility(c, ui_id, object_id, child, object_id_map=object_id_map)
+                else:
+                    self.__collect_error("unknown-tag", node, child.tag)
             elif child.tag is etree.Comment:
                 pass
             else:
@@ -1999,7 +2016,8 @@ class CmbDB(GObject.GObject):
                    op.bind_source_id, op.bind_owner_id, op.bind_property_id, op.bind_flags,
                    NULL, NULL, p.type_id
             FROM object_property AS op, property AS p, type AS t
-            WHERE op.ui_id=? AND op.object_id=? AND p.owner_id = op.owner_id AND p.property_id = op.property_id AND
+            WHERE op.owner_id NOT IN ('CmbAccessibleProperty', 'CmbAccessibleRelation', 'CmbAccessibleState') AND 
+                  op.ui_id=? AND op.object_id=? AND p.owner_id = op.owner_id AND p.property_id = op.property_id AND
                   p.owner_id == t.type_id
                   {template_check}
             UNION
@@ -2111,6 +2129,71 @@ class CmbDB(GObject.GObject):
                     self.__node_set(node, "after", "yes")
                 obj.append(node)
                 self.__node_add_comment(node, comment)
+
+        # Accessibility
+        accessibility = E.accessibility()
+        for row in c.execute(
+            """
+            SELECT op.value, op.property_id, op.comment, op.translatable, op.translation_context,
+                   op.translation_comments, p.is_object, p.type_id, op.owner_id
+            FROM object_property AS op, property AS p
+            WHERE op.owner_id IN ('CmbAccessibleProperty', 'CmbAccessibleRelation', 'CmbAccessibleState') AND
+                  op.ui_id=? AND op.object_id=? AND p.owner_id = op.owner_id AND p.property_id = op.property_id
+            ORDER BY op.owner_id, op.property_id
+            """,
+            (ui_id, object_id),
+        ):
+            (
+                val,
+                property_id,
+                comment,
+                translatable,
+                translation_context,
+                translation_comments,
+                is_object,
+                property_type_id,
+                owner_id,
+            ) = row
+
+            value = None
+            value_node = None
+
+            if is_object:
+                # Ignore object properties with 0/null ID or unknown object references
+                if val is not None and val.isnumeric() and int(val) == 0:
+                    continue
+
+                obj_name = self.__get_object_name(ui_id, val, merengue=merengue)
+
+                # Ignore properties that reference an unknown object
+                if obj_name is None:
+                    continue
+                value = obj_name
+            else:
+                value = val
+
+            if owner_id == "CmbAccessibleProperty":
+                node = E.property(name=property_id)
+            elif owner_id == "CmbAccessibleRelation":
+                node = E.relation(name=property_id)
+            elif owner_id == "CmbAccessibleState":
+                node = E.state(name=property_id)
+
+            if value is not None:
+                node.text = value
+            elif value_node is not None:
+                node.append(value_node)
+
+            if translatable:
+                self.__node_set(node, "translatable", "yes")
+                self.__node_set(node, "context", translation_context)
+                self.__node_set(node, "comments", translation_comments)
+
+            accessibility.append(node)
+            self.__node_add_comment(node, comment)
+
+        if len(accessibility):
+            obj.append(accessibility)
 
         # Find first layout properties class
         layout_class = f"{type_id}LayoutChild"
