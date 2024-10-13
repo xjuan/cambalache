@@ -32,6 +32,7 @@ from .cmb_layout_property import CmbLayoutProperty
 from .cmb_object_data import CmbObjectData
 from .cmb_type_info import CmbTypeInfo
 from .cmb_ui import CmbUI
+from .constants import GMENU_SECTION_TYPE,  GMENU_SUBMENU_TYPE, GMENU_ITEM_TYPE
 from . import utils
 from cambalache import getLogger, _
 
@@ -598,7 +599,11 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
         type_id = self.type_id
         parent_id = self.parent_id
 
-        if not parent_id and self.ui.template_id == self.object_id:
+        if type_id in [GMENU_SECTION_TYPE, GMENU_SUBMENU_TYPE, GMENU_ITEM_TYPE]:
+            prop = self.properties_dict["label"]
+            label = prop.value or ""
+            display_name = f"{type_id} <i>{label}</i>"
+        elif not parent_id and self.ui.template_id == self.object_id:
             # Translators: This is used for Template classes in the object tree
             display_name = _("{name} (template)").format(name=name)
         else:
