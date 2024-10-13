@@ -173,6 +173,11 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
         for parent_id in self.info.hierarchy:
             self.__populate_type_properties(parent_id)
 
+            # Add accessible properties for GtkWidgets
+            if parent_id == "GtkWidget":
+                for accessible_id in ["CmbAccessibleProperty", "CmbAccessibleRelation", "CmbAccessibleState"]:
+                    self.__populate_type_properties(accessible_id)
+
     def __populate_layout_properties_from_type(self, name):
         property_info = self.project.get_type_properties(name)
         if property_info is None:
