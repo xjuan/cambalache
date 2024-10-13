@@ -83,6 +83,7 @@ class CmbWindow(Adw.ApplicationWindow):
     fragment_editor = Gtk.Template.Child()
     object_editor = Gtk.Template.Child()
     object_layout_editor = Gtk.Template.Child()
+    accessible_editor = Gtk.Template.Child()
     signal_editor = Gtk.Template.Child()
     css_editor = Gtk.Template.Child()
 
@@ -308,6 +309,7 @@ class CmbWindow(Adw.ApplicationWindow):
         self.ui_fragment_editor.object = None
         self.object_editor.object = None
         self.object_layout_editor.object = None
+        self.accessible_editor.object = None
         self.signal_editor.object = None
         self.fragment_editor.object = None
 
@@ -519,7 +521,7 @@ class CmbWindow(Adw.ApplicationWindow):
         self.object_editor.object = obj
 
         is_not_builtin = not obj.info.is_builtin if obj else True
-        for editor in [self.object_layout_editor, self.signal_editor, self.fragment_editor]:
+        for editor in [self.object_layout_editor, self.signal_editor, self.fragment_editor, self.accessible_editor]:
             editor.object = obj
             editor.props.visible = is_not_builtin
 

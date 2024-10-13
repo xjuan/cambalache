@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
-<cambalache-project version="0.91.3" target_tk="gtk-4.0">
+<cambalache-project version="0.92.0" target_tk="gtk-4.0">
   <ui>
 	(1,1,"CmbChildTypeComboBox",None,None,"Juan Pablo Ugarte",None,None,None,None,None),
 	(2,1,"CmbColorEntry",None,None,"Juan Pablo Ugarte",None,None,None,None,None),
@@ -30,6 +30,7 @@
 	(26,1,"cmb_css_editor.ui","cmb_css_editor.ui",None,"Juan Pablo Ugarte",None,None,None,None,None),
 	(27,15,"cmb_context_menu.ui","cmb_context_menu.ui",None,"Juan Pablo Ugarte",None,None,None,None,None),
 	(28,1,"cmb_view.ui","cmb_view.ui",None,"Juan Pablo Ugarte",None,None,None,None,None),
+	(29,1,"CmbAccessibleEditor",None,None,"Juan Pablo Ugarte",None,None,None,None,None),
 	(30,1,"CmbUIRequiresEditor",None,None,"Juan Pablo Ugarte",None,None,None,None,None),
 	(31,1,"CmbScrolledWindow",None,None,"Juan Pablo Ugarte",None,None,None,None,None),
 	(32,1,"CmbObjectEditor",None,None,"Juan Pablo Ugarte",None,None,None,None,None),
@@ -251,6 +252,7 @@
 	(28,20,"CasildaCompositor","compositor",19,None,None,None,0,None,None),
 	(28,21,"GtkBox","error_box",16,None,None,None,1,None,None),
 	(28,22,"GtkButton","restart_button",21,None,None,None,1,None,None),
+	(29,1,"GtkGrid","CmbAccessibleEditor",None,None,None,None,0,None,None),
 	(30,1,"GtkGrid","CmbUIRequiresEditor",None,None,None,None,0,None,None),
 	(31,1,"GtkScrolledWindow","CmbScrolledWindow",None,None,None,None,0,None,None),
 	(32,1,"GtkBox","CmbObjectEditor",None,None,None,None,0,None,None),
@@ -333,7 +335,7 @@
 	(34,197,"CmbObjectEditor","object_layout_editor",196,None,None,None,0,None,None),
 	(34,198,"GtkStackPage",None,191,None,None,None,2,None,None),
 	(34,199,"CmbSignalEditor","signal_editor",198,None,None,None,0,None,None),
-	(34,200,"GtkStackPage",None,191,None,None,None,3,None,None),
+	(34,200,"GtkStackPage",None,191,None,None,None,4,None,None),
 	(34,201,"CmbFragmentEditor","fragment_editor",200,None,None,None,0,None,None),
 	(34,202,"GtkStackPage",None,187,None,None,None,1,None,None),
 	(34,203,"GtkBox",None,202,None,None,None,0,None,None),
@@ -383,6 +385,9 @@
 	(34,250,"(item)",None,247,None,None,None,1,None,None),
 	(34,251,"CmbScrolledWindow",None,218,None,None,None,0,None,None),
 	(34,252,"CmbColumnView","column_view",251,None,None,None,0,None,None),
+	(34,253,"GtkStackPage",None,191,None,None,None,3,None,None),
+	(34,254,"GtkScrolledWindow",None,253,None,None,None,0,None,None),
+	(34,255,"CmbAccessibleEditor","accessible_editor",254,None,None,None,0,None,None),
 	(35,1,"GtkBox","CmbDBInspector",None,None,None,None,0,None,None),
 	(35,4,"GtkStack","stack",1,None,None,None,1,None,None),
 	(35,6,"GtkStackSidebar",None,1,None,None,None,0,None,None),
@@ -1008,6 +1013,10 @@
 	(34,251,"GtkScrolledWindow","min-content-width","200",None,None,None,None,None,None,None,None,None),
 	(34,251,"GtkScrolledWindow","propagate-natural-height","True",None,None,None,None,None,None,None,None,None),
 	(34,251,"GtkScrolledWindow","propagate-natural-width","True",None,None,None,None,None,None,None,None,None),
+	(34,253,"GtkStackPage","child",None,None,None,None,None,254,None,None,None,None),
+	(34,253,"GtkStackPage","name","accessible",None,None,None,None,None,None,None,None,None),
+	(34,253,"GtkStackPage","title","a11y",None,None,None,None,None,None,None,None,None),
+	(34,254,"GtkScrolledWindow","child",None,None,None,None,None,255,None,None,None,None),
 	(35,4,"GtkStack","transition-type","crossfade",None,None,None,None,None,None,None,None,None),
 	(35,4,"GtkWidget","halign","start",None,None,None,None,None,None,None,None,None),
 	(35,4,"GtkWidget","valign","start",None,None,None,None,None,None,None,None,None),
