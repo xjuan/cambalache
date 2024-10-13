@@ -373,7 +373,13 @@ class CmbView(Gtk.Box):
             self.__merengue_update_ui(obj.ui_id)
 
     def __on_object_property_changed(self, project, obj, prop):
-        if obj.info.workspace_type is None and prop.info.construct_only:
+        info = prop.info
+
+        # FIXME: implement new merengue command for updating a11y props
+        if info.is_a11y:
+            return
+
+        if obj.info.workspace_type is None and info.construct_only:
             self.__merengue_update_ui(obj.ui_id)
             return
 
