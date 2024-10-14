@@ -84,10 +84,13 @@ class CmbApplication(Adw.Application):
     def do_startup(self):
         Adw.Application.do_startup(self)
 
-        for action in ["quit"]:
+        for action, accelerators in [
+            ("quit", ["<Primary>q"]),
+        ]:
             gaction = Gio.SimpleAction.new(action, None)
             gaction.connect("activate", getattr(self, f"_on_{action}_activate"))
             self.add_action(gaction)
+            self.set_accels_for_action(f"app.{action}", accelerators)
 
         provider = Gtk.CssProvider()
         provider.load_from_resource("/ar/xjuan/Cambalache/app/cambalache.css")
