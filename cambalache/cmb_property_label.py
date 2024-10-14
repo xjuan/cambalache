@@ -56,7 +56,8 @@ class CmbPropertyLabel(Gtk.Button):
             self.bind_icon = Gtk.Image(icon_size=Gtk.IconSize.NORMAL, visible=True)
             box.append(self.bind_icon)
 
-            self.label.props.label = self.prop.property_id
+            # A11y properties are prefixed to avoid clashes, do not show prefix here
+            self.label.props.label = self.prop.info.a11y_property_id if self.prop.info.is_a11y else self.prop.property_id
 
             self.__update_property_label()
             self.prop.connect("notify::value", lambda o, p: self.__update_property_label())

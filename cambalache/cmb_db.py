@@ -1018,12 +1018,17 @@ class CmbDB(GObject.GObject):
 
         return pinfo
 
-    def __import_property(self, c, info, ui_id, object_id, prop, object_id_map=None):
+    def __import_property(self, c, info, ui_id, object_id, prop, object_id_map=None, a11y_prefix=None):
         name, translatable, context, comments, bind_source_id, bind_property_id, bind_flags = self.__node_get(
             prop, "name", ["translatable:bool", "context", "comments", "bind-source", "bind-property", "bind-flags"]
         )
 
         property_id = name.replace("_", "-")
+
+        # Accessibility properties are prefixed with cmb-a11y- to avoid name clashes
+        if a11y_prefix is not None:
+            property_id = f"{a11y_prefix}-{property_id}"
+
         comment = self.__node_get_comment(prop)
 
         pinfo = self.__get_property_info(info, property_id)
@@ -1408,7 +1413,8 @@ class CmbDB(GObject.GObject):
         for child in node.iterchildren():
             if child.tag in ["property", "relation", "state"]:
                 info = self.__accessible_info.get(child.tag, None)
-                self.__import_property(c, info, ui_id, object_id, child, object_id_map=object_id_map)
+                prefix = f"cmb-a11y-{child.tag}"
+                self.__import_property(c, info, ui_id, object_id, child, object_id_map=object_id_map, a11y_prefix=prefix)
             else:
                 self.__collect_error("unknown-tag", node, child.tag)
 
@@ -2172,12 +2178,13 @@ class CmbDB(GObject.GObject):
             else:
                 value = val
 
+            # Accessible properties are prefixed to avoid name clash with other properties
             if owner_id == "CmbAccessibleProperty":
-                node = E.property(name=property_id)
+                node = E.property(name=property_id.removeprefix("cmb-a11y-property-"))
             elif owner_id == "CmbAccessibleRelation":
-                node = E.relation(name=property_id)
+                node = E.relation(name=property_id.removeprefix("cmb-a11y-relation-"))
             elif owner_id == "CmbAccessibleState":
-                node = E.state(name=property_id)
+                node = E.state(name=property_id.removeprefix("cmb-a11y-state-"))
 
             if value is not None:
                 node.text = value

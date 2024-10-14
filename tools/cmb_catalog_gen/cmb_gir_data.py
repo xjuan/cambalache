@@ -401,14 +401,27 @@ class CmbGirData:
         accessible_types = {}
 
         # Dupe Enums that need an extra undefined value
-        for enum_name in ["Orientation", "AccessibleTristate"]:
-            cmb_undefined = self.enumerations.get(f"Gtk{enum_name}").copy()
-            cmb_undefined["members"][f"GTK_{enum_name.upper()}_UNDEFINED"] = {
-                "value": None,
-                "nick": "undefined",
-                "doc": "Value is undefined"
+        for enum_name, member_name, values in [
+            ("Orientation", "ORIENTATION", [
+                (None, "undefined", "Value is undefined"),
+                (0, "horizontal", "The element is in horizontal orientation."),
+                (1, "vertical", "The element is in vertical orientation.")
+            ]),
+            ("AccessibleTristate", "ACCESSIBLE_TRISTATE", [
+                (None, "undefined", "Value is undefined"),
+                (0, "false", "The state is false."),
+                (1, "true", "The state is true."),
+                (2, "mixed", "The state is mixed.")
+            ])
+        ]:
+            # members = {}
+            # for val, nick, doc in values:
+            #     members[f"CMB_{member_name}_UNDEFINED"] = {"value": val, "nick": nick, "doc": doc}
+
+            self.enumerations[f"Cmb{enum_name}Undefined"] = {
+                "parent": "enum",
+                "members": {f"CMB_{member_name}_{n.upper()}": {"value": v, "nick": n, "doc": d} for (v, n, d) in values}
             }
-            self.enumerations[f"Cmb{enum_name}Undefined"] = cmb_undefined
 
         # Property name: (type, default value, since version)
         accessible_attr = {
@@ -485,8 +498,8 @@ class CmbGirData:
 
                 type_name, default_value, since_version = attr[nick]
 
-                # Add property to list
-                properties[nick] = {
+                # Add property to list with prefix to avoid name clashes
+                properties[f"cmb-a11y-{enumeration.lower()}-{nick}"] = {
                     "type": type_name,
                     "is_object": type_name == "GtkAccessible",
                     "disable_inline_object": type_name == "GtkAccessible",
