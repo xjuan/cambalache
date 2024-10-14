@@ -256,11 +256,11 @@ class CmbWindow(Adw.ApplicationWindow):
         self.__update_dark_mode(app.props.style_manager)
 
         # Bind preview
-        preview_button = Gtk.ToggleButton(tooltip_text=_("Preview mode"), icon_name="system-run-symbolic")
-        self.type_chooser.content.append(preview_button)
+        hide_placeholders_button = Gtk.ToggleButton(tooltip_text=_("Hide placeholders"), icon_name="view-conceal-symbolic")
+        self.type_chooser.content.append(hide_placeholders_button)
 
         GObject.Object.bind_property(
-            preview_button,
+            hide_placeholders_button,
             "active",
             self.view,
             "preview",
