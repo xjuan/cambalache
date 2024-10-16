@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!--
+ Atk Extra meta data
+
+ Copyright (C) 2024  Juan Pablo Ugarte
+-->
+<meta>
+  <categories>
+
+    <category name="hidden">
+      <AtkObject />
+    </category>
+
+  </categories>
+</meta>

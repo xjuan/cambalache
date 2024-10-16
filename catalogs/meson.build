@@ -1,4 +1,5 @@
 install_data([
+    'atk/atk-1.0.xml',
     'glib/gobject-2.0.xml',
     'glib/gio-2.0.xml',
     'gdkpixbuf/gdkpixbuf-2.0.xml',

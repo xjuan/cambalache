@@ -35,4 +35,8 @@ const gchar *cmb_catalog_utils_pspec_enum_get_default_nick (GType gtype, gint de
 
 gchar *cmb_catalog_utils_pspec_flags_get_default_nick (GType gtype, guint default_value);
 
+#if GTK_MAJOR_VERSION == 3
+gchar *cmb_catalog_utils_a11y_action_get_name (AtkObject *accessible);
+#endif
+
 G_END_DECLS

@@ -162,3 +162,36 @@ cmb_catalog_utils_pspec_flags_get_default_nick(GType gtype, guint default_value)
   g_string_free(str, TRUE);
   return NULL;
 }
+
+#if GTK_MAJOR_VERSION == 3
+
+/**
+ * cmb_catalog_utils_a11y_action_get_name:
+ * @accessible:
+ *
+ *
+ */
+gchar *
+cmb_catalog_utils_a11y_action_get_name(AtkObject *accessible)
+{
+  if (ATK_IS_ACTION (accessible))
+    {
+      AtkAction *action = ATK_ACTION (accessible);
+      gint n_actions = atk_action_get_n_actions (action);
+
+      if (n_actions == 0)
+        return NULL;
+
+      GString *retval = g_string_new("");
+
+      for (gint i = 0; i < n_actions; i++)
+        {
+          g_string_append(retval, atk_action_get_name (action, i));
+          if (i < (n_actions-1)) g_string_append(retval, "\n");
+        }
+      return g_string_free_and_steal(retval);
+    }
+
+  return NULL;
+}
+#endif

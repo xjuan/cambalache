@@ -21,7 +21,6 @@
 #
 
 import gi
-import re
 import importlib
 
 # We need to use lxml to get access to nsmap
@@ -386,6 +385,70 @@ class CmbGirData:
         for key in toremove:
             del self.types[key]
 
+        # Accessibility support
+        # Property name: (type, default value, since version)
+        self.__a11y_add_ifaces_from_enum([
+            (
+                "Property",
+                None,  # Do not check if all values are present
+                {
+                    "description": ["gchararray", None, None],
+                    "help-text": ["gchararray", None, None],
+                    "id": ["gchararray", None, None],
+                    "name": ["gchararray", None, None],
+                    "parent": ["GtkWidget", None, None],
+                    "role": ["AtkRole", "unknown", None],
+                    "table-caption": ["gchararray", None, None],
+                    "table-caption-object": ["GtkWidget", None, None],
+                    "table-column-description": ["gchararray", None, None],
+                    "table-column-header": ["GtkWidget", None, None],
+                    "table-row-description": ["gchararray", None, None],
+                    "table-row-header": ["GtkWidget", None, None],
+                    "table-summary": ["GtkWidget", None, None],
+                    "value": ["gdouble", None, None],
+                }
+            ),
+            (
+                "Relation",
+                None,  # Do not check if all values are present
+                {
+                    "controlled-by": ["GtkWidget", None, None],
+                    "controller-for": ["GtkWidget", None, None],
+                    "label-for": ["GtkWidget", None, None],
+                    "labelled-by": ["GtkWidget", None, None],
+                    "member-of": ["GtkWidget", None, None],
+                    "node-child-of": ["GtkWidget", None, None],
+                    "flows-to": ["GtkWidget", None, None],
+                    "flows-from": ["GtkWidget", None, None],
+                    "subwindow-of": ["GtkWidget", None, None],
+                    "embeds": ["GtkWidget", None, None],
+                    "embedded-by": ["GtkWidget", None, None],
+                    "popup-for": ["GtkWidget", None, None],
+                    "parent-window-of": ["GtkWidget", None, None],
+                    "described-by": ["GtkWidget", None, None],
+                    "description-for": ["GtkWidget", None, None],
+                    "node-parent-of": ["GtkWidget", None, None],
+                    "details": ["GtkWidget", None, None],
+                    "details-for": ["GtkWidget", None, None],
+                    "error-message": ["GtkWidget", None, None],
+                    "error-for": ["GtkWidget", None, None],
+                }
+            ),
+            (
+                "Action",
+                None,  # Do not check if all values are present
+                {
+                    # FIXME: we need an exhaustive list of possible actions
+                    "click": ["gchararray", None, None],
+                    "press": ["gchararray", None, None],
+                    "release": ["gchararray", None, None],
+                    "drag": ["gchararray", None, None],
+                    "drop": ["gchararray", None, None],
+                    "popup": ["gchararray", None, None],
+                }
+            )
+        ])
+
     def _gtk4_init(self):
         # Mark Layout classes
         for name in self.types:
@@ -397,9 +460,6 @@ class CmbGirData:
                 data["layout"] = "child"
 
         # Accessibility support
-        # Map GtkAccessibleProperty, GtkAccessibleRelation and GtkAccessibleState to Cmb prefixed types and properties
-        accessible_types = {}
-
         # Dupe Enums that need an extra undefined value
         for enum_name, member_name, values in [
             ("Orientation", "ORIENTATION", [
@@ -414,95 +474,112 @@ class CmbGirData:
                 (2, "mixed", "The state is mixed.")
             ])
         ]:
-            # members = {}
-            # for val, nick, doc in values:
-            #     members[f"CMB_{member_name}_UNDEFINED"] = {"value": val, "nick": nick, "doc": doc}
-
             self.enumerations[f"Cmb{enum_name}Undefined"] = {
                 "parent": "enum",
                 "members": {f"CMB_{member_name}_{n.upper()}": {"value": v, "nick": n, "doc": d} for (v, n, d) in values}
             }
 
+        # Map GtkAccessibleProperty, GtkAccessibleRelation and GtkAccessibleState to Cmb prefixed types and properties
         # Property name: (type, default value, since version)
-        accessible_attr = {
-            "Property": {
-                "autocomplete": ["GtkAccessibleAutocomplete", "none", None],
-                "description": ["gchararray", None, None],
-                "has-popup": ["gboolean", "False", None],
-                "key-shortcuts": ["gchararray", None, None],
-                "label": ["gchararray", None, None],
-                "level": ["gint64", 0, None],
-                "modal": ["gboolean", "False", None],
-                "multi-line": ["gboolean", "False", None],
-                "multi-selectable": ["gboolean", "False", None],
-                "orientation": ["CmbOrientationUndefined", "undefined", None],  # Undefined default undefined
-                "placeholder": ["gchararray", None, None],
-                "read-only": ["gboolean", "False", None],
-                "required": ["gboolean", "False", None],
-                "role-description": ["gchararray", None, None],
-                "sort": ["GtkAccessibleSort", "none", None],
-                "value-max": ["gdouble", 0, None],
-                "value-min": ["gdouble", 0, None],
-                "value-now": ["gdouble", 0, None],
-                "value-text": ["gchararray", None, None],
-                "help-text": ["gchararray", None, None],
-            },
-            "Relation": {
-                "active-descendant": ["GtkAccessible", None, None],
-                "col-count": ["gint64", 0, None],
-                "col-index": ["gint64", 0, None],
-                "col-index-text": ["gchararray", None, None],
-                "col-span": ["gint64", 0, None],
-                "controls": ["GtkAccessible", None, None],  # Reference List
-                "described-by": ["GtkAccessible", None, None],  # Reference List
-                "details": ["GtkAccessible", None, None],  # Reference List
-                "error-message": ["GtkAccessible", None, None],
-                "flow-to": ["GtkAccessible", None, None],  # Reference List
-                "labelled-by": ["GtkAccessible", None, None],  # Reference List
-                "owns": ["GtkAccessible", None, None],  # Reference List
-                "pos-in-set": ["gint64", 0, None],
-                "row-count": ["gint64", 0, None],
-                "row-index": ["gint64", 0, None],
-                "row-index-text": ["gchararray", None, None],
-                "row-span": ["gint64", 0, None],
-                "set-size": ["gint64", 0, None],
-            },
-            "State": {
-                "busy": ["gboolean", "False", None],
-                "checked": ["CmbAccessibleTristateUndefined", "undefined", None],
-                "disabled": ["gboolean", "False", None],
-                "expanded": ["CmbBooleanUndefined", "undefined", None],  # Undefined
-                "hidden": ["gboolean", "False", None],
-                "invalid": ["GtkAccessibleInvalidState", "false", None],
-                "pressed": ["CmbAccessibleTristateUndefined", "undefined", None],
-                "selected": ["CmbBooleanUndefined", "undefined", None],  # Undefined
-                "visited": ["CmbBooleanUndefined", "undefined", "4.12"],  # Undefined
-            }
-        }
+        self.__a11y_add_ifaces_from_enum([
+            (
+                "Property",
+                "GtkAccessibleProperty",
+                {
+                    "autocomplete": ["GtkAccessibleAutocomplete", "none", None],
+                    "description": ["gchararray", None, None],
+                    "has-popup": ["gboolean", "False", None],
+                    "key-shortcuts": ["gchararray", None, None],
+                    "label": ["gchararray", None, None],
+                    "level": ["gint64", 0, None],
+                    "modal": ["gboolean", "False", None],
+                    "multi-line": ["gboolean", "False", None],
+                    "multi-selectable": ["gboolean", "False", None],
+                    "orientation": ["CmbOrientationUndefined", "undefined", None],  # Undefined default undefined
+                    "placeholder": ["gchararray", None, None],
+                    "read-only": ["gboolean", "False", None],
+                    "required": ["gboolean", "False", None],
+                    "role-description": ["gchararray", None, None],
+                    "sort": ["GtkAccessibleSort", "none", None],
+                    "value-max": ["gdouble", 0, None],
+                    "value-min": ["gdouble", 0, None],
+                    "value-now": ["gdouble", 0, None],
+                    "value-text": ["gchararray", None, None],
+                    "help-text": ["gchararray", None, None],
+                }
+            ),
+            (
+                "Relation",
+                "GtkAccessibleRelation",
+                {
+                    "active-descendant": ["GtkAccessible", None, None],
+                    "col-count": ["gint64", 0, None],
+                    "col-index": ["gint64", 0, None],
+                    "col-index-text": ["gchararray", None, None],
+                    "col-span": ["gint64", 0, None],
+                    "controls": ["GtkAccessible", None, None],  # Reference List
+                    "described-by": ["GtkAccessible", None, None],  # Reference List
+                    "details": ["GtkAccessible", None, None],  # Reference List
+                    "error-message": ["GtkAccessible", None, None],
+                    "flow-to": ["GtkAccessible", None, None],  # Reference List
+                    "labelled-by": ["GtkAccessible", None, None],  # Reference List
+                    "owns": ["GtkAccessible", None, None],  # Reference List
+                    "pos-in-set": ["gint64", 0, None],
+                    "row-count": ["gint64", 0, None],
+                    "row-index": ["gint64", 0, None],
+                    "row-index-text": ["gchararray", None, None],
+                    "row-span": ["gint64", 0, None],
+                    "set-size": ["gint64", 0, None],
+                }
+            ),
+            (
+                "State",
+                "GtkAccessibleState",
+                {
+                    "busy": ["gboolean", "False", None],
+                    "checked": ["CmbAccessibleTristateUndefined", "undefined", None],
+                    "disabled": ["gboolean", "False", None],
+                    "expanded": ["CmbBooleanUndefined", "undefined", None],  # Undefined
+                    "hidden": ["gboolean", "False", None],
+                    "invalid": ["GtkAccessibleInvalidState", "false", None],
+                    "pressed": ["CmbAccessibleTristateUndefined", "undefined", None],
+                    "selected": ["CmbBooleanUndefined", "undefined", None],  # Undefined
+                    "visited": ["CmbBooleanUndefined", "undefined", "4.12"],  # Undefined
+                }
+            )
+        ])
+
+    def __a11y_add_ifaces_from_enum(self, accessible_ifaces):
+        accessible_types = {}
 
         # Create a custom interface for each Accessibility enumeration
-        for enumeration in ["Property", "Relation", "State"]:
-            data = self.enumerations[f"GtkAccessible{enumeration}"]
+        for enumeration, check_enum, attr in accessible_ifaces:
+            if check_enum:
+                data = self.enumerations.get(check_enum, None)
+                for member in data["members"].values():
+                    nick = member["nick"]
 
-            attr = accessible_attr[enumeration]
+                    if nick not in attr:
+                        doc = member["doc"]
+                        print(f"Missing type value for {enumeration}:{nick} {doc}")
+                        continue
 
             # Generate a list of properties for each enumeration member
             properties = {}
-            for member in data["members"].values():
-                nick = member["nick"]
-
-                if nick not in attr:
-                    doc = member["doc"]
-                    print(f"Missing type value for {enumeration}:{nick} {doc}")
+            for nick, prop_meta in attr.items():
+                # Ignore properties without metadata
+                if prop_meta is None:
                     continue
 
-                type_name, default_value, since_version = attr[nick]
+                type_name, default_value, since_version = prop_meta
+
+                is_object = type_name in ["GtkWidget", "GtkAccessible"]
 
                 # Add property to list with prefix to avoid name clashes
                 properties[f"cmb-a11y-{enumeration.lower()}-{nick}"] = {
                     "type": type_name,
-                    "is_object": type_name == "GtkAccessible",
-                    "disable_inline_object": type_name == "GtkAccessible",
+                    "is_object": is_object,
+                    "disable_inline_object": is_object,
                     "default_value": default_value,
                     "version": since_version,
                     "deprecated_version": None,

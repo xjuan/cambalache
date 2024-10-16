@@ -1,7 +1,4 @@
-CMB_CATALOG_GEN=flatpak run --devel \
-	--command=cmb-catalog-gen \
-	ar.xjuan.Cambalache \
-	2>/dev/null
+CMB_CATALOG_GEN=../run-cmb-catalog-gen.sh
 
 BASE_CATALOG_FILES = \
 	glib/gobject-2.0.xml \
@@ -11,6 +8,7 @@ BASE_CATALOG_FILES = \
 
 GTK3_DEPS = \
 	${BASE_CATALOG_FILES} \
+	atk/atk-1.0.xml \
 	gtk/gdk-3.0.xml
 
 GTK4_DEPS = \
@@ -66,6 +64,15 @@ pango/pango-1.0.xml:
 		--exclude-objects \
 		--output $@
 
+atk/atk-1.0.xml:
+	${CMB_CATALOG_GEN} \
+		--dependencies gobject-2.0 \
+		--gir /usr/share/gir-1.0/Atk-1.0.gir \
+		--types AtkObject \
+		--exclude-objects \
+		--extra-data atk/Atk.xml \
+		--output $@
+
 gtk/gdk-3.0.xml:
 	${CMB_CATALOG_GEN} \
 		--dependencies pango-1.0 gdkpixbuf-2.0 \
@@ -94,7 +101,7 @@ gtk/gsk-4.0.xml:
 
 gtk/gtk+-3.0.xml: gtk/Gtk.xml ${GTK3_DEPS}
 	${CMB_CATALOG_GEN} \
-		--dependencies gdk-3.0 \
+		--dependencies atk-1.0 gdk-3.0 \
 		--gir /usr/share/gir-1.0/Gtk-3.0.gir \
 		--external-catalogs ${GTK3_DEPS} \
 		--extra-data gtk/Gtk.xml \
