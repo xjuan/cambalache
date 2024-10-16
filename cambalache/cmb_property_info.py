@@ -33,13 +33,19 @@ logger = getLogger(__name__)
 class CmbPropertyInfo(CmbBasePropertyInfo):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.is_a11y = self.owner_id in ["CmbAccessibleProperty", "CmbAccessibleRelation", "CmbAccessibleState"]
+        self.is_a11y = self.owner_id in [
+            "CmbAccessibleProperty",
+            "CmbAccessibleRelation",
+            "CmbAccessibleState",
+            "CmbAccessibleAction"
+        ]
 
         if self.is_a11y:
             prefix = {
                 "CmbAccessibleProperty": "cmb-a11y-property-",
                 "CmbAccessibleRelation": "cmb-a11y-relation-",
-                "CmbAccessibleState": "cmb-a11y-state-"
+                "CmbAccessibleState": "cmb-a11y-state-",
+                "CmbAccessibleAction": "cmb-a11y-action-"
             }.get(self.owner_id, "")
 
             # A11y property name without prefix

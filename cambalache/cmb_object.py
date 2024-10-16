@@ -176,7 +176,12 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
 
             # Add accessible properties for GtkWidgets
             if parent_id == "GtkWidget":
-                for accessible_id in ["CmbAccessibleProperty", "CmbAccessibleRelation", "CmbAccessibleState"]:
+                for accessible_id in [
+                    "CmbAccessibleProperty",
+                    "CmbAccessibleRelation",
+                    "CmbAccessibleState",
+                    "CmbAccessibleAction"
+                ]:
                     self.__populate_type_properties(accessible_id)
 
     def __populate_layout_properties_from_type(self, name):

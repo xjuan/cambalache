@@ -70,7 +70,8 @@ class CmbAccessibleEditor(Gtk.Box):
         for owner_id, title in [
             ("CmbAccessibleProperty", _("Properties")),
             ("CmbAccessibleRelation", _("Relations")),
-            ("CmbAccessibleState", _("States"))
+            ("CmbAccessibleState", _("States")),
+            ("CmbAccessibleAction", _("Actions"))
         ]:
             info = obj.project.type_info.get(owner_id, None)
 
