@@ -1402,16 +1402,26 @@ class CmbDB(GObject.GObject):
         return menu_id
 
     def __import_accessibility(self, c, ui_id, object_id, node, object_id_map=None):
+        is_gtk3 = self.target_tk == "gtk+-3.0"
+
         if self.__accessible_info is None:
             # Accessibility iface type info
             self.__accessible_info = {
                 "property": self.type_info.get("CmbAccessibleProperty"),
-                "relation": self.type_info.get("CmbAccessibleRelation"),
-                "state": self.type_info.get("CmbAccessibleState")
+                "relation": self.type_info.get("CmbAccessibleRelation")
             }
+            if is_gtk3:
+                self.__accessible_info["action"] = self.type_info.get("CmbAccessibleAction")
+            else:
+                self.__accessible_info["state"] = self.type_info.get("CmbAccessibleState")
+
+        if is_gtk3:
+            a11y_tags = ["property", "relation", "action"]
+        else:
+            a11y_tags = ["property", "relation", "state"]
 
         for child in node.iterchildren():
-            if child.tag in ["property", "relation", "state"]:
+            if child.tag in a11y_tags:
                 info = self.__accessible_info.get(child.tag, None)
                 prefix = f"cmb-a11y-{child.tag}"
                 self.__import_property(c, info, ui_id, object_id, child, object_id_map=object_id_map, a11y_prefix=prefix)
@@ -1438,6 +1448,13 @@ class CmbDB(GObject.GObject):
 
         if not info:
             self.__collect_error("unknown-type", node, klass)
+            return
+
+        # Accessibility properties for gtk 3
+        if self.target_tk == "gtl+-3.0" and internal_child == "accessible" and klass == "AtkObject":
+            c = self.conn.cursor()
+            self.__import_accessibility(c, ui_id, parent_id, node, object_id_map=object_id_map)
+            c.close()
             return
 
         # Need to remap object ids on paste
@@ -1476,7 +1493,7 @@ class CmbDB(GObject.GObject):
             elif child.tag == "layout" and self.target_tk == "gtk-4.0":
                 # Gtk 4, layout props are children of <object>
                 self.__import_layout_properties(c, info, ui_id, parent_id, object_id, child)
-            elif child.tag == "accessibility" and self.target_tk == "gtk-4.0":
+            elif child.tag == "accessibility":
                 if info.is_a("GtkWidget"):
                     self.__import_accessibility(c, ui_id, object_id, child, object_id_map=object_id_map)
                 else:
@@ -2022,7 +2039,8 @@ class CmbDB(GObject.GObject):
                    op.bind_source_id, op.bind_owner_id, op.bind_property_id, op.bind_flags,
                    NULL, NULL, p.type_id
             FROM object_property AS op, property AS p, type AS t
-            WHERE op.owner_id NOT IN ('CmbAccessibleProperty', 'CmbAccessibleRelation', 'CmbAccessibleState') AND 
+            WHERE op.owner_id NOT IN
+                  ('CmbAccessibleProperty', 'CmbAccessibleRelation', 'CmbAccessibleState', 'CmbAccessibleAction') AND
                   op.ui_id=? AND op.object_id=? AND p.owner_id = op.owner_id AND p.property_id = op.property_id AND
                   p.owner_id == t.type_id
                   {template_check}
@@ -2138,12 +2156,20 @@ class CmbDB(GObject.GObject):
 
         # Accessibility
         accessibility = E.accessibility()
+
+        if self.target_tk == "gtk+-3.0":
+            atk_object = E.object()
+            atk_object.set("class", "AtkObject")
+        else:
+            atk_object = None
+
         for row in c.execute(
             """
             SELECT op.value, op.property_id, op.comment, op.translatable, op.translation_context,
                    op.translation_comments, p.is_object, p.type_id, op.owner_id
             FROM object_property AS op, property AS p
-            WHERE op.owner_id IN ('CmbAccessibleProperty', 'CmbAccessibleRelation', 'CmbAccessibleState') AND
+            WHERE op.owner_id IN
+                  ('CmbAccessibleProperty', 'CmbAccessibleRelation', 'CmbAccessibleState', 'CmbAccessibleAction') AND
                   op.ui_id=? AND op.object_id=? AND p.owner_id = op.owner_id AND p.property_id = op.property_id
             ORDER BY op.owner_id, op.property_id
             """,
@@ -2162,7 +2188,6 @@ class CmbDB(GObject.GObject):
             ) = row
 
             value = None
-            value_node = None
 
             if is_object:
                 # Ignore object properties with 0/null ID or unknown object references
@@ -2179,28 +2204,49 @@ class CmbDB(GObject.GObject):
                 value = val
 
             # Accessible properties are prefixed to avoid name clash with other properties
-            if owner_id == "CmbAccessibleProperty":
-                node = E.property(name=property_id.removeprefix("cmb-a11y-property-"))
-            elif owner_id == "CmbAccessibleRelation":
-                node = E.relation(name=property_id.removeprefix("cmb-a11y-relation-"))
-            elif owner_id == "CmbAccessibleState":
-                node = E.state(name=property_id.removeprefix("cmb-a11y-state-"))
+            if atk_object is not None:
+                if owner_id == "CmbAccessibleProperty":
+                    node = E.property(name=f"accessible-{property_id.removeprefix('cmb-a11y-property-')}")
+                    atk_object.append(node)
+                elif owner_id == "CmbAccessibleRelation":
+                    if value is not None:
+                        node = E.relation(type=property_id.removeprefix("cmb-a11y-relation-"), target=value)
+                        accessibility.append(node)
+
+                        # Value already set as an attribute
+                        value = None
+                elif owner_id == "CmbAccessibleAction":
+                    node = E.action(action_name=property_id.removeprefix("cmb-a11y-action-"))
+                    accessibility.append(node)
+            else:
+                if owner_id == "CmbAccessibleProperty":
+                    node = E.property(name=property_id.removeprefix("cmb-a11y-property-"))
+                elif owner_id == "CmbAccessibleRelation":
+                    node = E.relation(name=property_id.removeprefix("cmb-a11y-relation-"))
+                elif owner_id == "CmbAccessibleState":
+                    node = E.state(name=property_id.removeprefix("cmb-a11y-state-"))
+                accessibility.append(node)
 
             if value is not None:
                 node.text = value
-            elif value_node is not None:
-                node.append(value_node)
 
             if translatable:
                 self.__node_set(node, "translatable", "yes")
                 self.__node_set(node, "context", translation_context)
                 self.__node_set(node, "comments", translation_comments)
 
-            accessibility.append(node)
             self.__node_add_comment(node, comment)
 
+        # Append accessibility if there is anything
         if len(accessibility):
             obj.append(accessibility)
+
+        # Append internal AtkObject if there is any property set
+        if atk_object is not None and len(atk_object):
+            atk_child = E.child()
+            atk_child.set("internal-child", "accessible")
+            atk_child.append(atk_object)
+            obj.append(atk_child)
 
         # Find first layout properties class
         layout_class = f"{type_id}LayoutChild"
