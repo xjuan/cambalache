@@ -90,10 +90,6 @@ class MrgGtkGrid(MrgGtkWidget):
 
         self.__ensure_placeholders(max(width, self.width), max(height, self.height))
 
-    def get_child_position(self, child):
-        x, y, w, h = self.child_get(child, self._packing)
-        return (x+1) * (y+1)
-
     def get_child_layout(self, child, layout):
         for prop in self._packing:
             layout[prop] = self.child_get(child, [prop])[0]
