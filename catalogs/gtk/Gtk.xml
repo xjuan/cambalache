@@ -18,6 +18,12 @@
       </properties>
     </GtkWidget>
 
+    <GtkAccessible>
+      <properties>
+        <property id="accessible-role" construct-only="True"/>
+      </properties>
+    </GtkAccessible>
+
     <GtkAssistantPage>
       <properties>
         <property id="title" translatable="True"/>

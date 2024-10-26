@@ -1811,7 +1811,7 @@
 	("GtkAboutDialog","website","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None),
 	("GtkAboutDialog","website-label","gchararray",None,None,None,None,None,None,None,None,1,None,None,None,None),
 	("GtkAboutDialog","wrap-license","gboolean",None,None,None,"False",None,None,None,None,None,None,None,None,None),
-	("GtkAccessible","accessible-role","GtkAccessibleRole",None,None,None,"none",None,None,None,None,None,None,None,None,None),
+	("GtkAccessible","accessible-role","GtkAccessibleRole",None,1,None,"none",None,None,None,None,None,None,None,None,None),
 	("GtkActionBar","revealed","gboolean",None,None,None,"True",None,None,None,None,None,None,None,None,None),
 	("GtkActionable","action-name","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None),
 	("GtkActionable","action-target","variant",None,None,None,None,None,None,None,None,None,None,None,None,None),
@@ -2541,7 +2541,7 @@
 	("GtkSettings","gtk-long-press-time","guint",None,None,None,"500","0","2147483647",None,None,None,None,None,None,None),
 	("GtkSettings","gtk-overlay-scrolling","gboolean",None,None,None,"True",None,None,None,None,None,None,None,None,None),
 	("GtkSettings","gtk-primary-button-warps-slider","gboolean",None,None,None,"True",None,None,None,None,None,None,None,None,None),
-	("GtkSettings","gtk-print-backends","gchararray",None,None,None,"cpdb,file",None,None,None,None,None,None,None,None,None),
+	("GtkSettings","gtk-print-backends","gchararray",None,None,None,"cups,file",None,None,None,None,None,None,None,None,None),
 	("GtkSettings","gtk-print-preview-command","gchararray",None,None,None,"evince --unlink-tempfile --preview --print-settings %s %f",None,None,None,None,None,None,None,None,None),
 	("GtkSettings","gtk-recent-files-enabled","gboolean",None,None,None,"True",None,None,None,None,None,None,None,None,None),
 	("GtkSettings","gtk-recent-files-max-age","gint",None,None,None,"30","-1","2147483647",None,None,None,None,None,None,None),
@@ -3222,4 +3222,707 @@
 	("GtkWindow","enable-debugging",None,None,None),
 	("GtkWindow","keys-changed",None,"4.10",None)
   </signal>
+  <accessibility-metadata>{
+  "properties": [
+    [
+      "label",
+      "key-shortcuts",
+      "role-description",
+      "has-popup"
+    ],
+    [
+      "modal",
+      "has-popup",
+      "role-description",
+      "key-shortcuts",
+      "label"
+    ],
+    [
+      "label",
+      "key-shortcuts",
+      "role-description"
+    ],
+    [
+      "key-shortcuts",
+      "role-description",
+      "has-popup"
+    ],
+    [
+      "has-popup",
+      "read-only",
+      "role-description",
+      "key-shortcuts",
+      "label",
+      "required"
+    ],
+    [
+      "key-shortcuts",
+      "has-popup"
+    ],
+    [
+      "has-popup",
+      "role-description",
+      "orientation",
+      "key-shortcuts",
+      "label"
+    ],
+    [
+      "value-max",
+      "has-popup",
+      "value-text",
+      "role-description",
+      "key-shortcuts",
+      "value-min",
+      "label"
+    ],
+    [
+      "value-max",
+      "has-popup",
+      "value-text",
+      "role-description",
+      "key-shortcuts",
+      "value-min",
+      "label",
+      "value-now"
+    ],
+    [
+      "has-popup",
+      "value-text",
+      "role-description",
+      "key-shortcuts",
+      "label"
+    ],
+    [
+      "autocomplete",
+      "has-popup",
+      "read-only",
+      "role-description",
+      "key-shortcuts",
+      "multi-line",
+      "placeholder",
+      "label",
+      "required"
+    ],
+    [
+      "label",
+      "key-shortcuts",
+      "role-description",
+      "value-text"
+    ],
+    [
+      "has-popup",
+      "read-only",
+      "role-description",
+      "multi-selectable",
+      "orientation",
+      "key-shortcuts",
+      "label",
+      "required"
+    ],
+    [
+      "label",
+      "key-shortcuts",
+      "level",
+      "role-description"
+    ]
+  ],
+  "states": [
+    [
+      "busy",
+      "disabled",
+      "hidden",
+      "invalid"
+    ],
+    [
+      "busy",
+      "hidden"
+    ],
+    [
+      "busy",
+      "hidden",
+      "invalid"
+    ],
+    [
+      "busy",
+      "disabled",
+      "hidden"
+    ],
+    [
+      "disabled",
+      "hidden",
+      "selected",
+      "busy",
+      "expanded",
+      "invalid"
+    ],
+    [
+      "disabled",
+      "hidden",
+      "busy",
+      "expanded",
+      "invalid"
+    ],
+    [
+      "checked",
+      "disabled",
+      "hidden",
+      "busy",
+      "expanded",
+      "invalid"
+    ],
+    [
+      "disabled",
+      "hidden",
+      "selected",
+      "busy",
+      "invalid"
+    ],
+    [
+      "checked",
+      "disabled",
+      "hidden",
+      "selected",
+      "busy",
+      "invalid"
+    ]
+  ],
+  "roles": {
+    "alert": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "alert-dialog": [
+      false,
+      [
+        "dialog",
+        "alert"
+      ],
+      1,
+      0
+    ],
+    "application": [
+      false,
+      [],
+      2,
+      1
+    ],
+    "article": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "banner": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "block-quote": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "button": [
+      false,
+      [],
+      2,
+      2
+    ],
+    "caption": [
+      false,
+      [],
+      3,
+      0
+    ],
+    "cell": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "checkbox": [
+      false,
+      [],
+      0,
+      3
+    ],
+    "column-header": [
+      false,
+      [
+        "cell",
+        "sectionhead",
+        "gridcell"
+      ],
+      4,
+      4
+    ],
+    "combo-box": [
+      false,
+      [],
+      2,
+      3
+    ],
+    "command": [
+      true,
+      [],
+      0,
+      0
+    ],
+    "composite": [
+      true,
+      [],
+      0,
+      2
+    ],
+    "dialog": [
+      false,
+      [],
+      1,
+      0
+    ],
+    "document": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "feed": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "form": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "generic": [
+      false,
+      [],
+      5,
+      0
+    ],
+    "grid": [
+      false,
+      [
+        "table",
+        "composite"
+      ],
+      0,
+      0
+    ],
+    "grid-cell": [
+      false,
+      [
+        "cell",
+        "widget"
+      ],
+      2,
+      1
+    ],
+    "group": [
+      false,
+      [],
+      0,
+      2
+    ],
+    "heading": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "img": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "input": [
+      true,
+      [],
+      0,
+      2
+    ],
+    "landmark": [
+      true,
+      [],
+      0,
+      0
+    ],
+    "link": [
+      false,
+      [],
+      2,
+      2
+    ],
+    "list": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "list-box": [
+      false,
+      [
+        "select"
+      ],
+      6,
+      3
+    ],
+    "list-item": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "log": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "main": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "marquee": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "math": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "meter": [
+      false,
+      [],
+      7,
+      0
+    ],
+    "menu": [
+      false,
+      [
+        "select"
+      ],
+      6,
+      0
+    ],
+    "menu-bar": [
+      false,
+      [],
+      6,
+      0
+    ],
+    "menu-item": [
+      false,
+      [
+        "command"
+      ],
+      2,
+      2
+    ],
+    "menu-item-checkbox": [
+      false,
+      [
+        "menuitem"
+      ],
+      0,
+      5
+    ],
+    "menu-item-radio": [
+      false,
+      [
+        "menuitemcheckbox"
+      ],
+      0,
+      6
+    ],
+    "navigation": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "note": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "option": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "paragraph": [
+      false,
+      [],
+      3,
+      0
+    ],
+    "presentation": [
+      false,
+      [],
+      3,
+      0
+    ],
+    "progress-bar": [
+      false,
+      [
+        "range",
+        "widget"
+      ],
+      8,
+      0
+    ],
+    "radio": [
+      false,
+      [
+        "input"
+      ],
+      0,
+      0
+    ],
+    "radio-group": [
+      false,
+      [],
+      6,
+      3
+    ],
+    "range": [
+      true,
+      [],
+      0,
+      0
+    ],
+    "region": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "row": [
+      false,
+      [
+        "group",
+        "widget"
+      ],
+      0,
+      0
+    ],
+    "row-group": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "row-header": [
+      false,
+      [
+        "cell",
+        "sectionhead",
+        "gridcell"
+      ],
+      4,
+      7
+    ],
+    "scrollbar": [
+      false,
+      [
+        "range",
+        "widget"
+      ],
+      9,
+      2
+    ],
+    "search": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "search-box": [
+      false,
+      [],
+      10,
+      0
+    ],
+    "section": [
+      true,
+      [],
+      0,
+      0
+    ],
+    "section-head": [
+      true,
+      [],
+      0,
+      0
+    ],
+    "select": [
+      true,
+      [
+        "composite",
+        "group"
+      ],
+      0,
+      0
+    ],
+    "separator": [
+      false,
+      [
+        "structure",
+        "widget"
+      ],
+      0,
+      2
+    ],
+    "slider": [
+      false,
+      [
+        "range",
+        "input"
+      ],
+      11,
+      3
+    ],
+    "spin-button": [
+      false,
+      [
+        "range",
+        "composite",
+        "input"
+      ],
+      0,
+      3
+    ],
+    "status": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "structure": [
+      true,
+      [],
+      0,
+      0
+    ],
+    "switch": [
+      false,
+      [],
+      4,
+      5
+    ],
+    "tab": [
+      false,
+      [
+        "sectionhead",
+        "widget"
+      ],
+      2,
+      2
+    ],
+    "table": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "tab-list": [
+      false,
+      [
+        "composite"
+      ],
+      0,
+      0
+    ],
+    "tab-panel": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "text-box": [
+      false,
+      [],
+      2,
+      3
+    ],
+    "time": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "timer": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "toolbar": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "tooltip": [
+      false,
+      [],
+      0,
+      0
+    ],
+    "tree": [
+      false,
+      [],
+      6,
+      3
+    ],
+    "tree-grid": [
+      false,
+      [
+        "grid",
+        "tree"
+      ],
+      12,
+      0
+    ],
+    "tree-item": [
+      false,
+      [
+        "listitem",
+        "option"
+      ],
+      13,
+      8
+    ],
+    "widget": [
+      true,
+      [],
+      0,
+      0
+    ],
+    "window": [
+      true,
+      [],
+      0,
+      0
+    ]
+  }
+}</accessibility-metadata>
 </cambalache-catalog>

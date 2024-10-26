@@ -1426,26 +1426,21 @@
 	("GtkWindow","titlebar",1,None)
   </type_child_type>
   <property>
+	("CmbAccessibleAction","cmb-a11y-action-activate","gchararray",None,None,None,None,None,None,None,None,1,None,None,None,None),
 	("CmbAccessibleAction","cmb-a11y-action-click","gchararray",None,None,None,None,None,None,None,None,1,None,None,None,None),
-	("CmbAccessibleAction","cmb-a11y-action-drag","gchararray",None,None,None,None,None,None,None,None,1,None,None,None,None),
-	("CmbAccessibleAction","cmb-a11y-action-drop","gchararray",None,None,None,None,None,None,None,None,1,None,None,None,None),
+	("CmbAccessibleAction","cmb-a11y-action-popdown","gchararray",None,None,None,None,None,None,None,None,1,None,None,None,None),
 	("CmbAccessibleAction","cmb-a11y-action-popup","gchararray",None,None,None,None,None,None,None,None,1,None,None,None,None),
 	("CmbAccessibleAction","cmb-a11y-action-press","gchararray",None,None,None,None,None,None,None,None,1,None,None,None,None),
-	("CmbAccessibleAction","cmb-a11y-action-release","gchararray",None,None,None,None,None,None,None,None,1,None,None,None,None),
+	("CmbAccessibleAction","cmb-a11y-action-show_location","gchararray",None,None,None,None,None,None,None,None,1,None,None,None,None),
+	("CmbAccessibleAction","cmb-a11y-action-toggle","gchararray",None,None,None,None,None,None,None,None,1,None,None,None,None),
 	("CmbAccessibleProperty","cmb-a11y-property-description","gchararray",None,None,None,None,None,None,None,None,1,None,None,None,None),
 	("CmbAccessibleProperty","cmb-a11y-property-help-text","gchararray",None,None,None,None,None,None,None,None,1,None,None,None,None),
 	("CmbAccessibleProperty","cmb-a11y-property-id","gchararray",None,None,None,None,None,None,None,None,1,None,None,None,None),
 	("CmbAccessibleProperty","cmb-a11y-property-name","gchararray",None,None,None,None,None,None,None,None,1,None,None,None,None),
 	("CmbAccessibleProperty","cmb-a11y-property-parent","GtkWidget",1,None,None,None,None,None,None,None,None,1,None,None,None),
 	("CmbAccessibleProperty","cmb-a11y-property-role","AtkRole",None,None,None,"unknown",None,None,None,None,None,None,None,None,None),
-	("CmbAccessibleProperty","cmb-a11y-property-table-caption","gchararray",None,None,None,None,None,None,None,None,1,None,None,None,None),
 	("CmbAccessibleProperty","cmb-a11y-property-table-caption-object","GtkWidget",1,None,None,None,None,None,None,None,None,1,None,None,None),
-	("CmbAccessibleProperty","cmb-a11y-property-table-column-description","gchararray",None,None,None,None,None,None,None,None,1,None,None,None,None),
-	("CmbAccessibleProperty","cmb-a11y-property-table-column-header","GtkWidget",1,None,None,None,None,None,None,None,None,1,None,None,None),
-	("CmbAccessibleProperty","cmb-a11y-property-table-row-description","gchararray",None,None,None,None,None,None,None,None,1,None,None,None,None),
-	("CmbAccessibleProperty","cmb-a11y-property-table-row-header","GtkWidget",1,None,None,None,None,None,None,None,None,1,None,None,None),
 	("CmbAccessibleProperty","cmb-a11y-property-table-summary","GtkWidget",1,None,None,None,None,None,None,None,None,1,None,None,None),
-	("CmbAccessibleProperty","cmb-a11y-property-value","gdouble",None,None,None,None,None,None,None,None,None,None,None,None,None),
 	("CmbAccessibleRelation","cmb-a11y-relation-controlled-by","GtkWidget",1,None,None,None,None,None,None,None,None,1,None,None,None),
 	("CmbAccessibleRelation","cmb-a11y-relation-controller-for","GtkWidget",1,None,None,None,None,None,None,None,None,1,None,None,None),
 	("CmbAccessibleRelation","cmb-a11y-relation-described-by","GtkWidget",1,None,None,None,None,None,None,None,None,1,None,None,None),
@@ -2966,4 +2961,71 @@
 	("GtkWindow","keys-changed",None,None,None),
 	("GtkWindow","set-focus",None,None,None)
   </signal>
+  <accessibility-metadata>{
+  "GtkAppChooserButton": [
+    "press"
+  ],
+  "GtkButton": [
+    "click"
+  ],
+  "GtkCheckButton": [
+    "click"
+  ],
+  "GtkColorButton": [
+    "click"
+  ],
+  "GtkComboBox": [
+    "press"
+  ],
+  "GtkComboBoxText": [
+    "press"
+  ],
+  "GtkEntry": [
+    "activate"
+  ],
+  "GtkExpander": [
+    "activate"
+  ],
+  "GtkFileChooserWidget": [
+    "show_location"
+  ],
+  "GtkFontButton": [
+    "click"
+  ],
+  "GtkLinkButton": [
+    "click"
+  ],
+  "GtkLockButton": [
+    "click"
+  ],
+  "GtkMenuButton": [
+    "click"
+  ],
+  "GtkModelButton": [
+    "click"
+  ],
+  "GtkRadioButton": [
+    "click"
+  ],
+  "GtkScaleButton": [
+    "popup",
+    "popdown"
+  ],
+  "GtkSearchEntry": [
+    "activate"
+  ],
+  "GtkSpinButton": [
+    "activate"
+  ],
+  "GtkSwitch": [
+    "toggle"
+  ],
+  "GtkToggleButton": [
+    "click"
+  ],
+  "GtkVolumeButton": [
+    "popup",
+    "popdown"
+  ]
+}</accessibility-metadata>
 </cambalache-catalog>
