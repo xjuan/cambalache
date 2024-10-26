@@ -27,6 +27,7 @@ import os
 import sys
 import sqlite3
 import ast
+import json
 
 from lxml import etree
 from lxml.builder import E
@@ -57,6 +58,7 @@ class CmbDB(GObject.GObject):
 
     def __init__(self, **kwargs):
         self.version = self.__parse_version(config.FILE_FORMAT_VERSION)
+        self.accessibility_metadata = {}
 
         self.type_info = None
         self.__accessible_info = None
@@ -641,6 +643,30 @@ class CmbDB(GObject.GObject):
         self.ignore_check_constraints = False
         c.close()
 
+    def __load_accessibility_metadata(self, node):
+        data = json.loads(node.text)
+
+        if self.target_tk == "gtk-4.0":
+            metadata = {}
+
+            properties = data.get("properties", None)
+            states = data.get("states", None)
+            roles = data.get("roles", None)
+
+            for role_id, role_data in roles.items():
+                is_abstract, parents, property_index, status_index = role_data
+
+                metadata[role_id] = {
+                    "is_abstract": is_abstract,
+                    "properties": properties[property_index],
+                    "states": states[status_index],
+
+                }
+        else:
+            metadata = data
+
+        self.accessibility_metadata = metadata
+
     def load_catalog_from_tree(self, tree, filename):
         root = tree.getroot()
 
@@ -697,7 +723,10 @@ class CmbDB(GObject.GObject):
         self.foreign_keys = False
 
         for child in root.getchildren():
-            self.__load_table_from_tuples(c, child.tag, child.text)
+            if child.tag == "accessibility-metadata":
+                self.__load_accessibility_metadata(child)
+            else:
+                self.__load_table_from_tuples(c, child.tag, child.text)
 
         self.foreign_keys = True
         c.close()
