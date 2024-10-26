@@ -20,16 +20,16 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
-import os
 import ast
+import json
+import os
 import sqlite3
 
-
+from gi.repository import Gio
 from lxml import etree
 from lxml.builder import E
-from .cmb_gir_data import CmbGirData
-from gi.repository import Gio
 
+from .cmb_gir_data import CmbGirData
 
 # Global XML name space
 nsmap = {}
@@ -138,6 +138,16 @@ class CmbCatalogDB:
             element.text = data
             catalog.append(element)
 
+        # Append Accessibility metadata for gtk 4 catalog
+        if libid == "gtk" and self.lib.version == "4.0":
+            element = etree.Element("accessibility-metadata")
+            element.text = json.dumps(self.__a11y_get_aria_metadata(os.path.dirname(filename)), indent=2)
+            catalog.append(element)
+        elif libid == "gtk+" and self.lib.version == "3.0":
+            element = etree.Element("accessibility-metadata")
+            element.text = json.dumps(self.lib.accessibility_metadata, indent=2)
+            catalog.append(element)
+
         # Dump xml to file
         with open(filename, "wb") as fd:
             tree = etree.ElementTree(catalog)
@@ -152,6 +162,128 @@ class CmbCatalogDB:
             fd.close()
 
         c.close()
+
+    def __a11y_get_aria_metadata(self, basedir):
+        def get_gtk_enum_as_set(name):
+            gtk_enum = self.lib.enumerations.get(name, None)
+            if gtk_enum is None:
+                return
+            retval = {}
+            for member in gtk_enum["members"].values():
+                nick = member["nick"]
+                retval[nick.replace("-", "")] = nick
+
+            return retval
+
+        gtk_roles = get_gtk_enum_as_set("GtkAccessibleRole")
+        gtk_properties = get_gtk_enum_as_set("GtkAccessibleProperty")
+        gtk_states = get_gtk_enum_as_set("GtkAccessibleState")
+
+        # Download wai aria spec documentation
+        wai_aria_path = os.path.join(basedir, "wai-aria.html")
+        if not os.path.exists(wai_aria_path):
+            import requests
+            response = requests.get("https://www.w3.org/TR/wai-aria")
+            response.raise_for_status()
+
+            with open(wai_aria_path, "w") as f:
+                f.write(response.text)
+
+        # Parse standard documentation to extract which properties can be used by role
+        tree = etree.parse(wai_aria_path, etree.HTMLParser())
+        root = tree.getroot()
+
+        #
+        # W3 wai aria documentation format
+        #
+        # <section id="role_definitions">
+        #   <section id="role name">
+        #     <table class="role-features">
+        #       <td class="role-inherited">
+        #         <ul>
+        #           <li><a class="[property-reference|state-reference]" href="#aria-[property|state]">
+        #
+        role_definitions = root.xpath('//section[@id="role_definitions"]')
+        if len(role_definitions) != 1:
+            return None
+
+        # Documentation node that contains all aria property information
+        role_definitions = role_definitions[0]
+
+        # Set of all aria properties and states
+        properties = []
+        states = []
+
+        # Roles -> aria properties map
+        roles = {}
+
+        for role in role_definitions.iterchildren(tag="section"):
+            role_id = role.get("id")
+
+            # Ignore non Gtk roles
+            if role_id not in gtk_roles:
+                continue
+
+            table = role.find("table")
+            if table is None or table.get("class") != "role-features":
+                continue
+
+            role_properties = set()
+            role_states = set()
+            role_parents = set()
+
+            # Get if role is abstract
+            is_abstract = False
+            role_abstract = table.xpath('tbody/tr/td[@class="role-abstract"]')
+            if role_abstract:
+                role_abstract = role_abstract[0]
+                is_abstract = role_abstract.text and role_abstract.text.lower() == "true"
+
+            # Get role parents
+            for a in table.xpath('tbody/tr/td[@class="role-parent"]/ul/li/a[@class="role-reference"]'):
+                href = a.get("href").removeprefix("#")
+                # Add parent if its a Gtk role
+                if href in gtk_roles:
+                    role_parents.add(href)
+
+            # Get allowed role properties and states
+            for a in table.xpath('tbody/tr/td[@class="role-inherited"]/ul/li/a'):
+                klass = a.get("class")
+                href = a.get("href").removeprefix("#aria-")
+
+                if klass == "property-reference" and href in gtk_properties:
+                    role_properties.add(gtk_properties[href])
+                elif klass == "state-reference" and href in gtk_states:
+                    role_states.add(gtk_states[href])
+
+            # Add properties set of role to list if unique and get index
+            if role_properties:
+                if role_properties not in properties:
+                    properties.append(role_properties)
+                property_index = properties.index(role_properties)
+            else:
+                property_index = -1
+
+            # Add states set of role to list if unique and get index
+            if role_states:
+                if role_states not in states:
+                    states.append(role_states)
+                state_index = states.index(role_states)
+            else:
+                state_index = -1
+
+            # Store just the index to the properties and states sets
+            roles[gtk_roles[role_id]] = [is_abstract, list(role_parents), property_index, state_index]
+
+        aria_roles_gtk_roles = set(roles.keys()) - set(gtk_roles.values())
+        if len(aria_roles_gtk_roles):
+            print("Discrepancy between aria and gtk roles", aria_roles_gtk_roles)
+
+        return {
+            "properties": [list(p) for p in properties],
+            "states": [list(s) for s in states],
+            "roles": roles
+        }
 
     def load_catalog_types(self, filename):
         tree = etree.parse(filename)
@@ -309,6 +441,17 @@ class CmbCatalogDB:
                         ),
                     )
 
+                    # Override construct-only (NOTE: make sure we do not override default from Gir)
+                    if prop.get("construct-only", None) is not None:
+                        c.execute(
+                            "UPDATE property SET construct_only=? WHERE owner_id=? AND property_id=?;",
+                            (
+                                self.get_bool(prop, "construct-only"),
+                                owner_id,
+                                property_id,
+                            ),
+                        )
+
                     # Force a different type (For Icon names stock ids etc)
                     if type_id:
                         c.execute(
@@ -456,6 +599,4 @@ class CmbCatalogDB:
                 retval[name] = overrides
 
         return retval if len(retval) else None
-
-
 

@@ -99,6 +99,7 @@ class CmbGirData:
         self.version = namespace.get("version")
         self.shared_library = namespace.get("shared-library")
         self.target_tk = "Gtk-4.0" if target_gtk4 else "Gtk+-3.0"
+        self.accessibility_metadata = {}
 
         self.external_types = external_types if external_types else {}
         self.enable_property_overrides = enable_property_overrides
@@ -376,14 +377,41 @@ class CmbGirData:
 
         self.types.update(layout_types)
 
+        # Sum of all GtkAccessible names
+        a11y_actions = set()
+
+        # Map of which GtkAccessible is used by the class
+        types_accessible = {}
+
+        # names used in accessible
+        accessible_actions = {}
+
         # Remove Accessible derived classes
         toremove = []
         for name in self.types:
             if self._type_is_a(name, "GtkAccessible"):
                 toremove.append(name)
+            elif self._type_is_a(name, "GtkWidget"):
+                instance = self._get_instance_from_type(name)
+                if instance:
+                    accessible = instance.get_accessible()
+                    if accessible:
+                        accessible_type_id = GObject.type_name(accessible.__gtype__)
+                        types_accessible[name] = accessible_type_id
+                        actions = CmbCatalogUtils.a11y_action_get_name(accessible)
+                        if actions:
+                            actions = actions.split("\n")
+
+                        if actions:
+                            a11y_actions = a11y_actions.union(set(actions))
+                            accessible_actions[accessible_type_id] = actions
 
         for key in toremove:
             del self.types[key]
+
+        for type_id, accessible_type in types_accessible.items():
+            if accessible_type in accessible_actions:
+                self.accessibility_metadata[type_id] = accessible_actions[accessible_type]
 
         # Accessibility support
         # Property name: (type, default value, since version)
@@ -398,14 +426,15 @@ class CmbGirData:
                     "name": ["gchararray", None, None],
                     "parent": ["GtkWidget", None, None],
                     "role": ["AtkRole", "unknown", None],
-                    "table-caption": ["gchararray", None, None],
                     "table-caption-object": ["GtkWidget", None, None],
-                    "table-column-description": ["gchararray", None, None],
-                    "table-column-header": ["GtkWidget", None, None],
-                    "table-row-description": ["gchararray", None, None],
-                    "table-row-header": ["GtkWidget", None, None],
                     "table-summary": ["GtkWidget", None, None],
-                    "value": ["gdouble", None, None],
+                    # These props give an GtkBuilder error when trying to set them
+                    # "table-caption": ["gchararray", None, None], # deprecated: Unknown
+                    # "table-column-description": ["gchararray", None, None], # deprecated: Unknown
+                    # "table-column-header": ["GtkWidget", None, None], # deprecated: Unknown
+                    # "table-row-description": ["gchararray", None, None], # deprecated: Unknown
+                    # "table-row-header": ["GtkWidget", None, None], # deprecated: Unknown
+                    # "value": ["gdouble", None, None], # deprecated: Unknown
                 }
             ),
             (
@@ -438,13 +467,7 @@ class CmbGirData:
                 "Action",
                 None,  # Do not check if all values are present
                 {
-                    # FIXME: we need an exhaustive list of possible actions
-                    "click": ["gchararray", None, None],
-                    "press": ["gchararray", None, None],
-                    "release": ["gchararray", None, None],
-                    "drag": ["gchararray", None, None],
-                    "drop": ["gchararray", None, None],
-                    "popup": ["gchararray", None, None],
+                    name: ["gchararray", None, None] for name in a11y_actions
                 }
             )
         ])
