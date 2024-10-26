@@ -30,7 +30,7 @@ from ..cmb_type_info import CmbTypeInfo
 class CmbEnumComboBox(Gtk.ComboBox):
     __gtype_name__ = "CmbEnumComboBox"
 
-    info = GObject.Property(type=CmbTypeInfo, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    info = GObject.Property(type=CmbTypeInfo, flags=GObject.ParamFlags.READWRITE)
     text_column = GObject.Property(type=int, default=1, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self, **kwargs):
@@ -42,7 +42,9 @@ class CmbEnumComboBox(Gtk.ComboBox):
         self.add_attribute(renderer_text, "text", self.text_column)
 
         self.props.id_column = self.text_column
-        self.props.model = self.info.enum
+
+        if self.info:
+            self.props.model = self.info.enum
 
     def __on_changed(self, obj):
         self.notify("cmb-value")
@@ -53,6 +55,9 @@ class CmbEnumComboBox(Gtk.ComboBox):
 
     @cmb_value.setter
     def _set_cmb_value(self, value):
+        if self.info is None:
+            return
+
         self.props.active_id = None
         active_id = self.info.enum_get_value_as_string(value)
 
