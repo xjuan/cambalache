@@ -843,9 +843,12 @@ class CmbDB(GObject.GObject):
     def executescript(self, *args):
         return self.conn.executescript(*args)
 
-    def add_ui(self, name, filename, requirements={}, comment=None):
+    def add_ui(self, name, filename, requirements={}, domain=None, comment=None):
         c = self.conn.cursor()
-        c.execute("INSERT INTO ui (name, filename, comment) VALUES (?, ?, ?);", (name, filename, comment))
+        c.execute(
+            "INSERT INTO ui (name, filename, translation_domain, comment) VALUES (?, ?, ?, ?);",
+            (name, filename, domain, comment)
+        )
         ui_id = c.lastrowid
 
         for key in requirements:
@@ -1704,7 +1707,7 @@ class CmbDB(GObject.GObject):
         tree = etree.parse(filename)
         root = tree.getroot()
 
-        if root.tag not in ["interface", "template"]:
+        if root.tag != "interface":
             raise Exception(_("Unknown root tag {tag}").format(tag=root.tag))
 
         requirements = self.__node_get_requirements(root)
@@ -1738,12 +1741,12 @@ class CmbDB(GObject.GObject):
         if comment and comment.strip().startswith("Created with Cambalache"):
             comment = None
 
-        # Make sure there is no attributes in root tag
-        self.__node_get(root)
+        # Make sure there is no attributes in root tag other than domain
+        domain, = self.__node_get(root, ["domain"])
 
         basename = os.path.basename(filename)
         relpath = os.path.relpath(filename, projectdir)
-        ui_id = self.add_ui(basename, relpath, requirements, comment)
+        ui_id = self.add_ui(basename, relpath, requirements, domain, comment)
 
         # These values come from Glade
         license_map = {
