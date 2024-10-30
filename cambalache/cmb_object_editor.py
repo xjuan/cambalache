@@ -215,6 +215,10 @@ It has to be exposed by your application with GtkBuilder expose_object method."
                 if prop is None or prop.info is None:
                     continue
 
+                # Only show properties in the class they where originally defined
+                if prop.info.original_owner_id is not None and owner_id != prop.info.original_owner_id:
+                    continue
+
                 editor = cmb_create_editor(prop.project, prop.info.type_id, prop=prop)
 
                 if editor is None:

@@ -145,8 +145,10 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
         if property_info is None:
             return
 
-        for property_name in property_info:
-            info = property_info[property_name]
+        for property_name, info in property_info.items():
+            # Check if this property was already installed by a derived class
+            if property_name in self.__properties_dict:
+                continue
 
             prop = CmbProperty(
                 object=self,
