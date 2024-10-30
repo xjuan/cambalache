@@ -216,7 +216,9 @@ CREATE TABLE IF NOT EXISTS property (
   is_position BOOLEAN DEFAULT 0,
   required BOOLEAN DEFAULT 0,
   workspace_default TEXT,
+  original_owner_id TEXT REFERENCES type ON UPDATE CASCADE,
   PRIMARY KEY(owner_id, property_id)
+  FOREIGN KEY(original_owner_id, property_id) REFERENCES property(owner_id, property_id)
 ) WITHOUT ROWID;
 
 CREATE INDEX IF NOT EXISTS property_type_id_fk ON property (type_id);
