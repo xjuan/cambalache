@@ -61,9 +61,6 @@ class CmbObjectData(CmbBaseObjectData):
         if self.object is None:
             self.object = self.project.get_object_by_id(self.ui_id, self.object_id)
 
-        if self.parent_id is not None and self.parent is None:
-            self.parent = self.object.data_dict.get(f"{self.owner_id}.{self.parent_id}", None)
-
         self.__populate_children()
         self.connect("notify", self._on_notify)
 
@@ -178,6 +175,7 @@ class CmbObjectData(CmbBaseObjectData):
             (self.ui_id, self.object_id, self.owner_id, self.id),
         ):
             obj = CmbObjectData.from_row(self.project, *row)
+            obj.parent = self
             self.__add_child(obj)
 
     def add_data(self, data_key, value=None, comment=None):

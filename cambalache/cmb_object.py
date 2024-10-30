@@ -239,9 +239,7 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
         self.project._object_signal_changed(self, signal)
 
     def __add_data_object(self, data):
-        self.__populate_data()
-
-        if data in self.__data:
+        if data.get_id_string() in self.__data_dict:
             return
 
         self.__data.append(data)
