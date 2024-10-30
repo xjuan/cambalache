@@ -6,15 +6,8 @@
   <requires lib="gio" version="2.0"/>
   <requires lib="gtk" version="4.14"/>
   <requires lib="libadwaita" version="1.5"/>
-  <object class="GtkFileFilter" id="import_filter">
-    <mime-types>
-      <mime-type>application/x-glade</mime-type>
-      <mime-type>application/x-gtk-builder</mime-type>
-    </mime-types>
-    <patterns>
-      <pattern>*.ui</pattern>
-      <pattern>*.glade</pattern>
-    </patterns>
+  <object class="GtkFileFilter" id="gtk4_import_filter">
+    <property name="mime-types">application/x-gtk-builder</property>
   </object>
   <menu id="main_menu">
     <item>
@@ -793,4 +786,8 @@
       <class name="cmb-window"/>
     </style>
   </template>
+  <object class="GtkFileFilter" id="gtk3_import_filter">
+    <property name="mime-types">application/x-gtk-builder
+application/x-glade</property>
+  </object>
 </interface>

@@ -47,7 +47,8 @@ class CmbWindow(Adw.ApplicationWindow):
     }
 
     open_filter = Gtk.Template.Child()
-    import_filter = Gtk.Template.Child()
+    gtk3_import_filter = Gtk.Template.Child()
+    gtk4_import_filter = Gtk.Template.Child()
 
     headerbar = Gtk.Template.Child()
     title = Gtk.Template.Child()
@@ -988,9 +989,14 @@ class CmbWindow(Adw.ApplicationWindow):
             except Exception as e:
                 logger.warning(f"Error {e}")
 
+        if self.project.target_tk == "gtk-4.0":
+            import_filter = self.gtk4_import_filter
+        else:
+            import_filter = self.gtk3_import_filter
+
         dialog = self.__file_open_dialog_new(
             _("Choose file to import"),
-            filter_obj=self.import_filter,
+            filter_obj=import_filter,
             accept_label=_("Import")
         )
         dialog.open_multiple(self, None, dialog_callback)
