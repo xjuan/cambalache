@@ -73,7 +73,7 @@ class CmbAccessibleEditor(Gtk.Box):
         for child in utils.widget_get_children(self.__box):
             self.__box.remove(child)
 
-        if self.__object is None:
+        if self.__object is None or not self.__object.info.is_a("GtkWidget"):
             return
 
         obj = self.__object
@@ -193,7 +193,7 @@ class CmbAccessibleEditor(Gtk.Box):
         if obj == self.__object:
             return
 
-        if self.__object:
+        if self.__object and self.__object.info.is_a("GtkWidget"):
             self.__object.disconnect_by_func(self.__on_object_property_changed_notify)
             self.__role_combobox.props.model = None
             self.__accessibility_metadata = None
