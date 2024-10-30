@@ -1,4 +1,8 @@
-CMB_CATALOG_GEN=../run-cmb-catalog-gen.sh
+CMB_CATALOG_GEN=flatpak run --devel \
+	--command=cmb-catalog-gen \
+	ar.xjuan.Cambalache
+
+# CMB_CATALOG_GEN=../run-cmb-catalog-gen.sh
 
 BASE_CATALOG_FILES = \
 	glib/gobject-2.0.xml \

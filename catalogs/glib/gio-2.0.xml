@@ -531,7 +531,7 @@
 	("GTlsPasswordFlags","G_TLS_PASSWORD_RETRY","retry",2,"The password was wrong, and the user should retry.")
   </type_flags>
   <property>
-	("GListStore","item-type","gtype",None,1,None,"GObject",None,None,"2.44",None,None,None,None,None,None)
+	("GListStore","item-type","gtype",None,1,None,"GObject",None,None,"2.44",None,None,None,None,None,None,None)
   </property>
   <signal>
 	("GListModel","items-changed","2.44",None,None),
