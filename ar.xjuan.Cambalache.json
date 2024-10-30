@@ -1,104 +1,110 @@
 {
-  "app-id": "ar.xjuan.Cambalache",
-  "runtime": "org.gnome.Platform",
-  "runtime-version": "47",
-  "sdk": "org.gnome.Sdk",
-  "separate-locales": false,
-  "command": "cambalache",
-  "finish-args": [
-    "--share=ipc",
-    "--share=network",
-    "--socket=fallback-x11",
-    "--socket=wayland",
-    "--filesystem=home",
-    "--device=dri"
-  ],
-  "cleanup": [
-    "/include",
-    "/lib/pkgconfig",
-    "/man",
-    "/share/doc",
-    "/share/gtk-doc",
-    "/share/man",
-    "/share/pkgconfig",
-    "*.la",
-    "*.a"
-  ],
-  "modules": [
-    {
-      "name": "python3-lxml",
-      "buildsystem": "simple",
-      "build-commands": [
-        "pip3 install --exists-action=i --ignore-installed --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"lxml\" --no-build-isolation"
-      ],
-      "sources": [
+    "app-id" : "ar.xjuan.Cambalache",
+    "runtime" : "org.gnome.Platform",
+    "runtime-version" : "47",
+    "sdk" : "org.gnome.Sdk",
+    "separate-locales" : false,
+    "command" : "cambalache",
+    "finish-args" : [
+        "--share=ipc",
+        "--share=network",
+        "--socket=fallback-x11",
+        "--socket=wayland",
+        "--filesystem=home",
+        "--device=dri"
+    ],
+    "cleanup" : [
+        "/include",
+        "/lib/pkgconfig",
+        "/man",
+        "/share/doc",
+        "/share/gtk-doc",
+        "/share/man",
+        "/share/pkgconfig",
+        "*.la",
+        "*.a"
+    ],
+    "modules" : [
         {
-          "type": "file",
-          "url": "https://files.pythonhosted.org/packages/63/f7/ffbb6d2eb67b80a45b8a0834baa5557a14a5ffce0979439e7cd7f0c4055b/lxml-5.2.2.tar.gz",
-          "sha256": "bb2dc4898180bea79863d5487e5f9c7c34297414bad54bcd0f0852aee9cfdb87"
-        }
-      ]
-    },
-    {
-      "name": "libseat",
-      "buildsystem": "meson",
-      "config-opts": [
-        "-Dserver=disabled",
-        "-Dman-pages=disabled"
-      ],
-      "sources": [
+            "name" : "python3-lxml",
+            "buildsystem" : "simple",
+            "build-commands" : [
+                "pip3 install --exists-action=i --ignore-installed --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"lxml\" --no-build-isolation"
+            ],
+            "sources" : [
+                {
+                    "type" : "file",
+                    "url" : "https://files.pythonhosted.org/packages/63/f7/ffbb6d2eb67b80a45b8a0834baa5557a14a5ffce0979439e7cd7f0c4055b/lxml-5.2.2.tar.gz",
+                    "sha256" : "bb2dc4898180bea79863d5487e5f9c7c34297414bad54bcd0f0852aee9cfdb87"
+                }
+            ]
+        },
         {
-          "type": "archive",
-          "url": "https://git.sr.ht/~kennylevinsen/seatd/archive/0.8.0.tar.gz",
-          "sha256": "a562a44ee33ccb20954a1c1ec9a90ecb2db7a07ad6b18d0ac904328efbcf65a0",
-          "x-checker-data": {
-            "type": "anitya",
-            "project-id": 234932,
-            "stable-only": true,
-            "url-template": "https://git.sr.ht/~kennylevinsen/seatd/archive/$version.tar.gz"
-          }
-        }
-      ]
-    },
-    {
-      "name": "wlroots",
-      "builddir": true,
-      "buildsystem": "meson",
-      "config-opts": [],
-      "sources": [
+            "name" : "libseat",
+            "buildsystem" : "meson",
+            "config-opts" : [
+                "-Dserver=disabled",
+                "-Dman-pages=disabled"
+            ],
+            "sources" : [
+                {
+                    "type" : "archive",
+                    "url" : "https://git.sr.ht/~kennylevinsen/seatd/archive/0.8.0.tar.gz",
+                    "sha256" : "a562a44ee33ccb20954a1c1ec9a90ecb2db7a07ad6b18d0ac904328efbcf65a0",
+                    "x-checker-data" : {
+                        "type" : "anitya",
+                        "project-id" : 234932,
+                        "stable-only" : true,
+                        "url-template" : "https://git.sr.ht/~kennylevinsen/seatd/archive/$version.tar.gz"
+                    }
+                }
+            ]
+        },
         {
-          "type": "git",
-          "url": "https://gitlab.freedesktop.org/wlroots/wlroots.git",
-          "tag": "0.18.1",
-          "commit": "5bc39071d173301eb8b2cd652c711075526dfbd9"
-        }
-      ]
-    },
-    {
-      "name": "casilda",
-      "builddir": true,
-      "buildsystem": "meson",
-      "config-opts": [],
-      "sources": [
+            "name" : "wlroots",
+            "builddir" : true,
+            "buildsystem" : "meson",
+            "config-opts" : [],
+            "sources" : [
+                {
+                    "type" : "git",
+                    "url" : "https://gitlab.freedesktop.org/wlroots/wlroots.git",
+                    "tag" : "0.18.1",
+                    "commit" : "5bc39071d173301eb8b2cd652c711075526dfbd9"
+                }
+            ]
+        },
         {
-          "type": "git",
-          "url": "https://gitlab.gnome.org/jpu/casilda.git",
-          "tag": "0.2.0",
-          "commit": "99a0173f21345b85713198c1fa1fbb388d00182f"
-        }
-      ]
-    },
-    {
-      "name": "cambalache",
-      "builddir": true,
-      "buildsystem": "meson",
-      "sources": [
+            "name" : "casilda",
+            "builddir" : true,
+            "buildsystem" : "meson",
+            "config-opts" : [],
+            "sources" : [
+                {
+                    "type" : "git",
+                    "url" : "https://gitlab.gnome.org/jpu/casilda.git",
+                    "tag" : "0.2.0",
+                    "commit" : "99a0173f21345b85713198c1fa1fbb388d00182f"
+                }
+            ]
+        },
         {
-          "type": "git",
-          "path": ".",
-          "branch": "HEAD"
+            "name" : "cambalache",
+            "builddir" : true,
+            "buildsystem" : "meson",
+            "sources" : [
+                {
+                    "type" : "git",
+                    "path" : ".",
+                    "branch" : "HEAD"
+                }
+            ],
+            "config-opts" : [
+                "--libdir=lib"
+            ]
         }
-      ]
+    ],
+    "build-options" : {
+        "env" : {        }
     }
-  ]
 }
