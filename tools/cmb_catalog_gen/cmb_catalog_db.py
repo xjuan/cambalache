@@ -141,11 +141,11 @@ class CmbCatalogDB:
         # Append Accessibility metadata for gtk 4 catalog
         if libid == "gtk" and self.lib.version == "4.0":
             element = etree.Element("accessibility-metadata")
-            element.text = json.dumps(self.__a11y_get_aria_metadata(os.path.dirname(filename)), indent=2)
+            element.text = json.dumps(self.__a11y_get_aria_metadata(os.path.dirname(filename)), indent=2, sort_keys=True)
             catalog.append(element)
         elif libid == "gtk+" and self.lib.version == "3.0":
             element = etree.Element("accessibility-metadata")
-            element.text = json.dumps(self.lib.accessibility_metadata, indent=2)
+            element.text = json.dumps(self.lib.accessibility_metadata, indent=2, sort_keys=True)
             catalog.append(element)
 
         # Dump xml to file
@@ -182,12 +182,11 @@ class CmbCatalogDB:
         # Download wai aria spec documentation
         wai_aria_path = os.path.join(basedir, "wai-aria.html")
         if not os.path.exists(wai_aria_path):
-            import requests
-            response = requests.get("https://www.w3.org/TR/wai-aria")
-            response.raise_for_status()
-
-            with open(wai_aria_path, "w") as f:
-                f.write(response.text)
+            import urllib.request
+            response = urllib.request.urlopen("https://www.w3.org/TR/wai-aria")
+            with open(wai_aria_path, "wb") as f:
+                f.write(response.read())
+                f.close()
 
         # Parse standard documentation to extract which properties can be used by role
         tree = etree.parse(wai_aria_path, etree.HTMLParser())

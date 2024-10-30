@@ -52,7 +52,6 @@ class CmbGirData:
         target_gtk4=False,
         exclude_objects=False,
         external_types=None,
-        enable_property_overrides=False,
     ):
         self._instances = {}
 
@@ -102,7 +101,6 @@ class CmbGirData:
         self.accessibility_metadata = {}
 
         self.external_types = external_types if external_types else {}
-        self.enable_property_overrides = enable_property_overrides
 
         self.external_nstypes = {}
         for t in self.external_types:
@@ -266,10 +264,14 @@ class CmbGirData:
                 # This is a property declared in this class
                 # We need to make sure the default declared in the pspec is the same as the instance
                 retval.append(
-                    {"property_id": pspec.name, "instance_default": self._get_default_value_from_pspec(pspec, instance_default)}
+                    {
+                        "property_id": pspec.name,
+                        "instance_default":
+                            self._get_default_value_from_pspec(pspec, instance_default, use_instance_default=True)
+                    }
                 )
-            else:
-                parent_instance_default = getattr(parent_instance.props, pspec.name) if parent_instance else None
+            elif parent_instance:
+                parent_instance_default = getattr(parent_instance.props, pspec.name)
 
                 # Ignore GObject properties for now
                 # if a subclass sets a parent object property that probably means we should disable it because its being used.
@@ -282,17 +284,21 @@ class CmbGirData:
                     continue
 
                 retval.append(
-                    {"property_id": pspec.name, "new_default": self._get_default_value_from_pspec(pspec, instance_default)}
+                    {
+                        "parent_owner": GObject.type_name(owner),
+                        "property_id": pspec.name,
+                        "new_default": self._get_default_value_from_pspec(pspec, instance_default, use_instance_default=True)
+                    }
                 )
 
         return retval
 
-    def _get_default_value_from_pspec(self, pspec, use_instance_default=False, instance_default=None, owner=None):
+    def _get_default_value_from_pspec(self, pspec, instance_default=None, use_instance_default=False, owner=None):
         if pspec is None:
             return None
 
         pspec_type_name = GObject.type_name(pspec)
-        default_value = instance_default if use_instance_default else pspec.default_value
+        default_value = instance_default if use_instance_default else pspec.get_default_value()
 
         if pspec.value_type == GObject.TYPE_BOOLEAN:
             return "True" if default_value != 0 else "False"
@@ -301,7 +307,7 @@ class CmbGirData:
         elif GObject.type_is_a(pspec.value_type, GObject.TYPE_FLAGS):
             return CmbCatalogUtils.pspec_flags_get_default_nick(pspec.value_type, default_value)
         elif GObject.type_is_a(pspec.value_type, GObject.TYPE_GTYPE):
-            return GObject.type_name(default_value)
+            return GObject.type_name(default_value) if default_value is not None else None
         elif GObject.type_is_a(pspec.value_type, GLib.strv_get_type()):
             return "\n".join(default_value) if default_value and len(default_value) else None
         elif pspec_type_name == "GParamUnichar":
@@ -376,6 +382,9 @@ class CmbGirData:
                 }
 
         self.types.update(layout_types)
+
+        if self.lib != "gtk+":
+            return
 
         # Sum of all GtkAccessible names
         a11y_actions = set()
@@ -481,6 +490,9 @@ class CmbGirData:
                 data["layout"] = "manager"
             elif self._type_is_a(name, "GtkLayoutChild"):
                 data["layout"] = "child"
+
+        if self.lib != "gtk":
+            return
 
         # Accessibility support
         # Dupe Enums that need an extra undefined value
@@ -727,7 +739,7 @@ class CmbGirData:
             constructor = element
 
         is_container = False
-        overrides = None
+        overrides = []
 
         nons_name = name.removeprefix(self.prefix)
         GObject.type_ensure(getattr(self.mod, nons_name).__gtype__)
@@ -737,7 +749,7 @@ class CmbGirData:
             instance = self._get_instance_from_type(name)
             if instance is not None:
                 is_container = CmbCatalogUtils.implements_buildable_add_child(instance)
-                if self.enable_property_overrides and parent not in skip_types:
+                if parent not in skip_types:
                     overrides = self._type_get_properties_overrides(name)
 
         return {
@@ -949,6 +961,58 @@ class CmbGirData:
             for iface in data.get("interfaces", []):
                 conn.execute("INSERT INTO type_iface (type_id, iface_id) VALUES (?, ?);", (name, iface))
 
+        def db_insert_type_overrides(conn, name, data):
+            overrides = data.get("overrides", [])
+            for data in overrides:
+                if "parent_owner" not in data:
+                    continue
+
+                parent_owner = data["parent_owner"]
+                new_default = data["new_default"]
+                property_id = data["property_id"]
+
+                # Get parent property
+                row = conn.execute(
+                    """
+                    SELECT type_id, is_object, construct_only, minimum, maximum, version, deprecated_version,
+                        disable_inline_object, translatable
+                    FROM property
+                    WHERE owner_id=? AND property_id=?;
+                    """,
+                    (parent_owner, property_id)
+                ).fetchone()
+
+                if row is None:
+                    continue
+
+                (type_id, is_object, construct_only, minimum, maximum, version, deprecated_version,
+                 disable_inline_object, translatable) = row
+
+                # Save new default as a new property of the class
+                conn.execute(
+                    """
+                    INSERT INTO property
+                        (owner_id, property_id, type_id, is_object, construct_only, default_value, minimum,
+                         maximum, version, deprecated_version, disable_inline_object, translatable, original_owner_id)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                    """,
+                    (
+                        name,  # new owner of overridden property
+                        property_id,
+                        type_id,
+                        is_object,
+                        construct_only,
+                        new_default,  # new_default
+                        minimum,
+                        maximum,
+                        version,
+                        deprecated_version,
+                        disable_inline_object,
+                        translatable,
+                        parent_owner
+                    ),
+                )
+
         # Import library
         conn.execute(
             "INSERT INTO library (library_id, version, namespace, prefix, shared_library) VALUES (?, ?, ?, ?, ?);",
@@ -982,6 +1046,11 @@ class CmbGirData:
         # Now insert iface data (properties, signals, etc)
         for name in self.ifaces:
             db_insert_type_data(conn, name, self.ifaces[name])
+
+        for name in self.sorted_types:
+            if name not in self.types:
+                continue
+            db_insert_type_overrides(conn, name, self.types[name])
 
         # Get versions from all types, properties and signal of this library
         versions = [(mod_major, mod_minor)]
