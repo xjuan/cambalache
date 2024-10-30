@@ -183,10 +183,17 @@ class CmbUI(CmbBaseUI, Gio.ListModel):
 
         # This query should use auto index from UNIQUE constraint
         retval = self.db_get(
-            "SELECT object_id FROM object WHERE ui_id=? AND parent_id IS NULL AND position=?;",
-            (ui_id, position)
+            """
+            SELECT object_id
+            FROM (
+                SELECT ROW_NUMBER() OVER (ORDER BY position ASC) rownum, object_id
+                FROM object
+                WHERE ui_id=? AND parent_id IS NULL
+            )
+            WHERE rownum=?;
+            """,
+            (ui_id, position+1)
         )
-
         if retval is not None:
             return self.project.get_object_by_id(ui_id, retval)
 
