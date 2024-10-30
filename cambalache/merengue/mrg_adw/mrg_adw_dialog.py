@@ -24,6 +24,7 @@
 
 from gi.repository import GObject, Adw, Gtk, CambalachePrivate
 from merengue.mrg_gtk import MrgGtkWidget, MrgSelection
+from merengue import MrgPlaceholder
 
 
 class MrgAdwDialog(MrgGtkWidget):
@@ -53,6 +54,7 @@ class MrgAdwDialog(MrgGtkWidget):
 
         self.window.set_title(GObject.type_name(self.object.__gtype__))
         CambalachePrivate.widget_set_application_id(self.window, f"Casilda:{self.ui_id}.{self.object_id}")
+        self.__update_placeholder()
 
     def __window_new(self):
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
@@ -66,6 +68,13 @@ class MrgAdwDialog(MrgGtkWidget):
     def __on_open_button_clicked(self, button):
         if self.object:
             self.object.present(self.window)
+
+    def __update_placeholder(self):
+        if self.object is None:
+            return
+
+        if len(self.get_children()) == 0:
+            self.add(MrgPlaceholder(visible=True, controller=self))
 
     def get_children(self):
         child = self.object.get_child() if self.object else None
