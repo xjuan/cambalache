@@ -42,7 +42,7 @@ class CmbWindow(Adw.ApplicationWindow):
     __gtype_name__ = "CmbWindow"
 
     __gsignals__ = {
-        "open-project": (GObject.SignalFlags.RUN_FIRST, None, (str, str)),
+        "project-closed": (GObject.SignalFlags.RUN_FIRST, None, ()),
         "project-saved": (GObject.SignalFlags.RUN_FIRST, None, (CmbProject,)),
     }
 
@@ -211,7 +211,7 @@ class CmbWindow(Adw.ApplicationWindow):
             ("win.debug", ["<Shift><Primary>d"]),
         ]
 
-        app = Gio.Application.get_default()
+        app = self.props.application
         for action, accelerators in action_map:
             app.set_accels_for_action(action, accelerators)
 
@@ -720,6 +720,20 @@ class CmbWindow(Adw.ApplicationWindow):
         dialog.connect("response", on_ask_gtk_version_response)
         dialog.present()
 
+    def create_project(self, target_tk, filename, uipath):
+        if self.project:
+            return
+
+        self.project = CmbProject(filename=filename, target_tk=target_tk)
+        self.__last_saved_index = self.project.history_index
+
+        # Create UI and select it
+        ui = self.project.add_ui(uipath)
+        self.project.set_selection([ui])
+
+        self.__set_page("workspace")
+        self.__update_actions()
+
     def open_project(self, filename, target_tk):
         try:
             if filename is not None:
@@ -749,11 +763,14 @@ class CmbWindow(Adw.ApplicationWindow):
                 _("Error loading {filename}").format(filename=os.path.basename(filename)), secondary_text=str(e)
             )
 
+    def __app_activate_open(self, filename, target_tk=None):
+        self.props.application.activate_action("open", GLib.Variant("(ss)", (filename, target_tk or "")))
+
     def _on_open_activate(self, action, data):
         def dialog_callback(dialog, res):
             try:
                 file = dialog.open_finish(res)
-                self.emit("open-project", file.get_path(), None)
+                self.__app_activate_open(file.get_path())
             except Exception as e:
                 logger.warning(f"Error {e}")
 
@@ -786,13 +803,15 @@ class CmbWindow(Adw.ApplicationWindow):
     def _on_new_activate(self, action, data):
         name = self.np_name_entry.props.text
         uiname = self.np_ui_entry.props.text
-        filename = None
-        uipath = None
+        filename = ""
+        uipath = ""
 
         if self.np_gtk3_radiobutton.get_active():
             target_tk = "gtk+-3.0"
         elif self.np_gtk4_radiobutton.get_active():
             target_tk = "gtk-4.0"
+        else:
+            return
 
         if len(name):
             name, ext = os.path.splitext(name)
@@ -808,11 +827,7 @@ class CmbWindow(Adw.ApplicationWindow):
 
             uipath = os.path.join(self.__np_location, uiname)
 
-        self.emit("open-project", filename, target_tk)
-
-        # Create Ui and select it
-        ui = self.project.add_ui(uipath)
-        self.project.set_selection([ui])
+        self.props.application.activate_action("new", GLib.Variant("(sss)", (target_tk, filename, uipath)))
         self.__set_page("workspace" if self.project else "cambalache")
 
     def __on_undo_redo_activate(self, undo):
@@ -1058,6 +1073,7 @@ class CmbWindow(Adw.ApplicationWindow):
         def close_project():
             self.project = None
             self.__set_page("cambalache")
+            self.emit("project-closed")
 
         if self.actions["save"].get_enabled():
             dialog = self._close_project_dialog_new()
@@ -1279,7 +1295,7 @@ class CmbWindow(Adw.ApplicationWindow):
         self.view.inspect()
 
     def _on_open_recent_activate(self, action, data):
-        self.emit("open-project", data.get_string(), None)
+        self.__app_activate_open(data.get_string(), "")
 
     def __update_recent_menu(self):
         mime_types = ["application/x-cambalache-project"]
@@ -1365,4 +1381,5 @@ class CmbWindow(Adw.ApplicationWindow):
             self.__message_timeout_id = GLib.timeout_add(len(msg) * 100, self.__on_message_timeout, None)
         else:
             self.message_revealer.props.reveal_child = False
+
 

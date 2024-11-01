@@ -44,11 +44,10 @@ class CmbApplication(Adw.Application):
 
         self.add_main_option("export-all", b"E", GLib.OptionFlags.NONE, GLib.OptionArg.FILENAME, _("Export project"), None)
 
-    def __add_window(self):
+    def add_new_window(self):
         window = CmbWindow(application=self)
-        window.connect("open-project", self.__on_open_project)
-
         window.connect("close-request", self.__on_window_close_request)
+        window.connect("project-closed", self.__on_window_project_closed)
         self.add_window(window)
         return window
 
@@ -60,53 +59,18 @@ class CmbApplication(Adw.Application):
                 window = win
 
         if window is None:
-            window = self.__add_window()
+            window = self.add_new_window()
             if path is not None:
                 window.open_project(path, target_tk=target_tk)
 
         window.present()
 
     def import_file(self, path):
-        window = self.__add_window() if self.props.active_window is None else self.props.active_window
+        window = self.add_new_window() if self.props.active_window is None else self.props.active_window
         window.import_file(path)
         window.present()
 
-    def do_open(self, files, nfiles, hint):
-        for file in files:
-            path = file.get_path()
-            content_type = utils.content_type_guess(path)
-
-            if content_type == "application/x-cambalache-project":
-                self.open_project(path)
-            elif content_type in ["application/x-gtk-builder", "application/x-glade"]:
-                self.import_file(path)
-
-    def do_startup(self):
-        Adw.Application.do_startup(self)
-
-        for action, accelerators in [
-            ("quit", ["<Primary>q"]),
-        ]:
-            gaction = Gio.SimpleAction.new(action, None)
-            gaction.connect("activate", getattr(self, f"_on_{action}_activate"))
-            self.add_action(gaction)
-            self.set_accels_for_action(f"app.{action}", accelerators)
-
-        provider = Gtk.CssProvider()
-        provider.load_from_resource("/ar/xjuan/Cambalache/app/cambalache.css")
-        Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-
-    def do_activate(self):
-        if self.props.active_window is None:
-            self.open_project(None)
-
-    def __on_open_project(self, window, filename, target_tk):
-        if window.project is None:
-            window.open_project(filename, target_tk)
-        else:
-            self.open_project(filename, target_tk)
-
-    def __check_can_quit(self, window=None):
+    def check_can_quit(self, window=None):
         windows = self.__get_windows() if window is None else [window]
         unsaved_windows = []
         windows2save = []
@@ -198,17 +162,79 @@ class CmbApplication(Adw.Application):
         return retval
 
     def __on_window_close_request(self, window):
-        self.__check_can_quit(window)
+        self.check_can_quit(window)
         return True
+
+    def __on_window_project_closed(self, window):
+        windows = self.__get_windows()
+
+        if len(windows) > 1:
+            self.remove_window(window)
+            window.destroy()
+
+    # Action handlers
+    def _on_quit_activate(self, action, data):
+        self.check_can_quit()
+
+    def _on_open_activate(self, action, data):
+        filename, target_tk = data.unpack()
+
+        window = self.props.active_window
+
+        if window and window.project is None:
+            window.open_project(filename, target_tk)
+        else:
+            self.open_project(filename, target_tk)
+
+    def _on_new_activate(self, action, data):
+        target_tk, filename, uipath = data.unpack()
+
+        window = self.props.active_window
+
+        if window is None or window.project is not None:
+            window = self.add_new_window()
+
+        window.create_project(target_tk, filename, uipath)
+        window.present()
+
+    # GApplication interface
+    def do_open(self, files, nfiles, hint):
+        for file in files:
+            path = file.get_path()
+            content_type = utils.content_type_guess(path)
+
+            if content_type == "application/x-cambalache-project":
+                self.open_project(path)
+            elif content_type in ["application/x-gtk-builder", "application/x-glade"]:
+                self.import_file(path)
+
+    def do_startup(self):
+        Adw.Application.do_startup(self)
+
+        for action, accelerators, parameter_type in [
+            ("quit", ["<Primary>q"], None),
+            ("open", None, "(ss)"),
+            ("new", None, "(sss)"),
+        ]:
+            gaction = Gio.SimpleAction.new(action, GLib.VariantType.new(parameter_type) if parameter_type else None)
+            gaction.connect("activate", getattr(self, f"_on_{action}_activate"))
+            self.add_action(gaction)
+            if accelerators:
+                self.set_accels_for_action(f"app.{action}", accelerators)
+
+        provider = Gtk.CssProvider()
+        provider.load_from_resource("/ar/xjuan/Cambalache/app/cambalache.css")
+        Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+
+    def do_activate(self):
+        if self.props.active_window is None:
+            self.open_project(None)
 
     def do_window_removed(self, window):
         windows = self.__get_windows()
 
         if len(windows) == 0:
             self.activate_action("quit")
-
-    def _on_quit_activate(self, action, data):
-        self.__check_can_quit()
 
     def do_handle_local_options(self, options):
         if options.contains("version"):
