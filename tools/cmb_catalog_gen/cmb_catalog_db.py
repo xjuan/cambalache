@@ -52,6 +52,7 @@ class CmbCatalogDB:
         gbytes = Gio.resources_lookup_data("/ar/xjuan/Cambalache/db/cmb_base.sql", Gio.ResourceLookupFlags.NONE)
         cmb_base = gbytes.get_data().decode("UTF-8")
         self.conn.executescript(cmb_base)
+        self.conn.execute("CREATE TEMP TABLE external_property AS SELECT * FROM property LIMIT 0;")
         self.conn.commit()
 
         self.lib_namespace = {}
@@ -285,6 +286,9 @@ class CmbCatalogDB:
         }
 
     def load_catalog_types(self, filename):
+        def get_table_data_from_node(node):
+            return ast.literal_eval(f"[{node.text}]") if node.text else []
+
         tree = etree.parse(filename)
         root = tree.getroot()
 
@@ -294,21 +298,30 @@ class CmbCatalogDB:
 
         self.lib_namespace[name] = (namespace, prefix)
 
-        for node in root.iterfind("type"):
-            data = ast.literal_eval(f"[{node.text}]") if node.text else []
+        for node in root.getchildren():
+            if node.tag == "property":
+                # load properties in a different table
+                data = get_table_data_from_node(node)
+                if len(data) == 0:
+                    continue
 
-            if len(data) == 0:
-                continue
+                cols = ", ".join(["?" for col in data[0]])
+                self.conn.executemany(f"INSERT INTO external_property VALUES ({cols})", data)
 
-            for row in data:
-                type_id = row[0]
-                library_id = row[2]
+            elif node.tag == "type":
+                data = get_table_data_from_node(node)
+                if len(data) == 0:
+                    continue
 
-                namespace, prefix = self.lib_namespace.get(library_id, None)
+                for row in data:
+                    type_id = row[0]
+                    library_id = row[2]
 
-                if namespace is not None and type_id.startswith(prefix):
-                    nstype = type_id[len(prefix) :]
-                    self.external_types[f"{namespace}.{nstype}"] = type_id
+                    namespace, prefix = self.lib_namespace.get(library_id, None)
+
+                    if namespace is not None and type_id.startswith(prefix):
+                        nstype = type_id[len(prefix) :]
+                        self.external_types[f"{namespace}.{nstype}"] = type_id
 
     def populate_from_gir(self, girfile, **kwargs):
         self.lib = CmbGirData(girfile, external_types=self.external_types, **kwargs)

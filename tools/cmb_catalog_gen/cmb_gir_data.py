@@ -963,6 +963,7 @@ class CmbGirData:
 
         def db_insert_type_overrides(conn, name, data):
             overrides = data.get("overrides", [])
+
             for data in overrides:
                 if "parent_owner" not in data:
                     continue
@@ -972,18 +973,23 @@ class CmbGirData:
                 property_id = data["property_id"]
 
                 # Get parent property
-                row = conn.execute(
-                    """
-                    SELECT type_id, is_object, construct_only, minimum, maximum, version, deprecated_version,
-                        disable_inline_object, translatable
-                    FROM property
-                    WHERE owner_id=? AND property_id=?;
-                    """,
-                    (parent_owner, property_id)
-                ).fetchone()
+                for table in ["property", "external_property"]:
+                    row = conn.execute(
+                        f"""
+                        SELECT type_id, is_object, construct_only, minimum, maximum, version, deprecated_version,
+                            disable_inline_object, translatable
+                        FROM {table}
+                        WHERE owner_id=? AND property_id=?;
+                        """,
+                        (parent_owner, property_id)
+                    ).fetchone()
+
+                    if row is not None:
+                        break
 
                 if row is None:
-                    continue
+                    print(f"Error trying to find {parent_owner}::{property_id} property definition")
+                    break
 
                 (type_id, is_object, construct_only, minimum, maximum, version, deprecated_version,
                  disable_inline_object, translatable) = row
@@ -1058,11 +1064,11 @@ class CmbGirData:
             """
             SELECT version FROM type WHERE version IS NOT NULL AND library_id=?
             UNION
-            SELECT p.version
-            FROM property AS p, type AS t WHERE p.version IS NOT NULL AND p.owner_id = t.type_id AND t.library_id=?
+            SELECT p.version FROM property AS p, type AS t
+              WHERE p.version IS NOT NULL AND p.owner_id = t.type_id AND t.library_id=? AND p.original_owner_id IS NULL
             UNION
-            SELECT s.version
-            FROM signal AS s, type AS t WHERE s.version IS NOT NULL AND s.owner_id = t.type_id AND t.library_id=?;
+            SELECT s.version FROM signal AS s, type AS t
+              WHERE s.version IS NOT NULL AND s.owner_id = t.type_id AND t.library_id=?;
             """,
             (self.lib, self.lib, self.lib),
         ):
