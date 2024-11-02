@@ -433,12 +433,34 @@ class CmbCatalogDB:
 
                     required = self.get_bool(prop, "required")
                     workspace_default = prop.get("workspace-default", None)
+                    disabled = self.get_bool(prop, "disabled")
+                    original_owner_id = prop.get("original-owner-id", None)
+
+                    if original_owner_id:
+                        # Override property, copy from original and update the owner
+                        for table in ["property", "external_property"]:
+                            row = c.execute(
+                                f"SELECT * FROM {table} WHERE owner_id=? AND property_id=?;",
+                                (original_owner_id, property_id)
+                            ).fetchone()
+
+                            if row is not None:
+                                break
+
+                        if row is not None:
+                            values = list(row)
+                            cols = ", ".join(["?" for col in values])
+
+                            # Override owner id
+                            values[0] = owner_id
+                            values[16] = original_owner_id
+                            c.execute(f"INSERT INTO property VALUES ({cols});", values)
 
                     c.execute(
                         """
                         UPDATE property
                         SET translatable=?, save_always=?, disable_inline_object=?, is_position=?, required=?,
-                            workspace_default=?
+                            workspace_default=?, disabled=?
                         WHERE owner_id=? AND property_id=?;
                         """,
                         (
@@ -448,6 +470,7 @@ class CmbCatalogDB:
                             is_position,
                             required,
                             workspace_default,
+                            disabled,
                             owner_id,
                             property_id,
                         ),
