@@ -2433,20 +2433,26 @@ class CmbDB(GObject.GObject):
                 """
                 WITH lib_version(library_id, version) AS (
                     SELECT t.library_id, t.version
-                    FROM object AS o, type AS t
-                    WHERE o.ui_id=? AND o.type_id = t.type_id AND t.version IS NOT NULL
+                      FROM object AS o, type AS t
+                      WHERE o.ui_id=? AND o.type_id = t.type_id AND t.version IS NOT NULL
                     UNION
                     SELECT t.library_id, p.version
-                    FROM object_property AS o, property AS p, type AS t
-                    WHERE o.ui_id=? AND o.owner_id = t.type_id AND o.owner_id = p.owner_id AND p.version IS NOT NULL
+                      FROM object_property AS o, property AS p, type AS t
+                      WHERE o.ui_id=? AND o.owner_id = t.type_id AND o.owner_id = p.owner_id AND p.version IS NOT NULL AND
+                        p.original_owner_id IS NULL
+                    UNION
+                    SELECT t.library_id, p.version
+                      FROM object_property AS o, property AS p, type AS t
+                      WHERE o.ui_id=? AND o.owner_id = t.type_id AND o.owner_id = p.original_owner_id AND
+                        p.version IS NOT NULL AND p.original_owner_id IS NOT NULL
                     UNION
                     SELECT t.library_id, s.version
-                    FROM object_signal AS o, signal AS s, type AS t
-                    WHERE o.ui_id=? AND o.owner_id = t.type_id AND o.owner_id = s.owner_id AND s.version IS NOT NULL
+                      FROM object_signal AS o, signal AS s, type AS t
+                      WHERE o.ui_id=? AND o.owner_id = t.type_id AND o.owner_id = s.owner_id AND s.version IS NOT NULL
                     UNION
                     SELECT library_id, MIN_VERSION(version)
-                    FROM library_version
-                    WHERE library_id IN
+                      FROM library_version
+                      WHERE library_id IN
                         (SELECT DISTINCT t.library_id FROM object AS o, type AS t WHERE o.ui_id=? AND o.type_id = t.type_id)
                     GROUP BY library_id
                 )
@@ -2456,7 +2462,7 @@ class CmbDB(GObject.GObject):
                 GROUP BY library_id
                 ORDER BY library_id;
                 """,
-                (ui_id, ui_id, ui_id, ui_id, ui_id),
+                (ui_id, ui_id, ui_id, ui_id, ui_id, ui_id),
             ):
                 library_id, version = row
                 req = E.requires(lib=library_id, version=version)

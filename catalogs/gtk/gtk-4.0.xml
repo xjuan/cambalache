@@ -3434,105 +3434,105 @@
   <accessibility-metadata>{
   "properties": [
     [
-      "label",
       "role-description",
       "key-shortcuts",
+      "label",
       "has-popup"
     ],
     [
       "role-description",
-      "has-popup",
-      "label",
+      "key-shortcuts",
       "modal",
-      "key-shortcuts"
-    ],
-    [
       "label",
-      "role-description",
-      "key-shortcuts"
+      "has-popup"
     ],
     [
       "role-description",
       "key-shortcuts",
+      "label"
+    ],
+    [
+      "key-shortcuts",
+      "role-description",
       "has-popup"
     ],
     [
-      "required",
       "role-description",
-      "has-popup",
-      "label",
+      "key-shortcuts",
+      "required",
       "read-only",
-      "key-shortcuts"
+      "label",
+      "has-popup"
     ],
     [
       "key-shortcuts",
       "has-popup"
     ],
     [
-      "orientation",
       "role-description",
-      "has-popup",
-      "label",
-      "key-shortcuts"
-    ],
-    [
-      "role-description",
-      "has-popup",
-      "label",
-      "value-text",
-      "value-min",
-      "value-max",
-      "key-shortcuts"
-    ],
-    [
-      "role-description",
-      "has-popup",
-      "label",
-      "value-text",
-      "value-min",
-      "value-max",
       "key-shortcuts",
-      "value-now"
+      "label",
+      "has-popup",
+      "orientation"
     ],
     [
       "role-description",
-      "has-popup",
+      "key-shortcuts",
+      "value-min",
+      "value-max",
       "label",
-      "value-text",
-      "key-shortcuts"
+      "has-popup",
+      "value-text"
     ],
     [
-      "required",
-      "placeholder",
       "role-description",
-      "autocomplete",
-      "has-popup",
+      "key-shortcuts",
+      "value-min",
+      "value-max",
+      "value-now",
       "label",
+      "has-popup",
+      "value-text"
+    ],
+    [
+      "role-description",
+      "key-shortcuts",
+      "label",
+      "has-popup",
+      "value-text"
+    ],
+    [
       "multi-line",
-      "read-only",
-      "key-shortcuts"
-    ],
-    [
-      "label",
       "role-description",
-      "value-text",
-      "key-shortcuts"
-    ],
-    [
-      "orientation",
+      "key-shortcuts",
+      "placeholder",
       "required",
-      "role-description",
-      "has-popup",
-      "label",
-      "multi-selectable",
       "read-only",
-      "key-shortcuts"
+      "label",
+      "has-popup",
+      "autocomplete"
     ],
     [
-      "label",
       "role-description",
+      "key-shortcuts",
+      "value-text",
+      "label"
+    ],
+    [
+      "role-description",
+      "key-shortcuts",
+      "required",
+      "read-only",
+      "multi-selectable",
+      "label",
+      "has-popup",
+      "orientation"
+    ],
+    [
       "level",
-      "key-shortcuts"
+      "key-shortcuts",
+      "role-description",
+      "label"
     ]
   ],
   "roles": {
@@ -3603,8 +3603,8 @@
       false,
       [
         "sectionhead",
-        "gridcell",
-        "cell"
+        "cell",
+        "gridcell"
       ],
       4,
       4
@@ -3660,8 +3660,8 @@
     "grid": [
       false,
       [
-        "composite",
-        "table"
+        "table",
+        "composite"
       ],
       0,
       0
@@ -3669,8 +3669,8 @@
     "grid-cell": [
       false,
       [
-        "cell",
-        "widget"
+        "widget",
+        "cell"
       ],
       2,
       1
@@ -3883,8 +3883,8 @@
       false,
       [
         "sectionhead",
-        "gridcell",
-        "cell"
+        "cell",
+        "gridcell"
       ],
       4,
       7
@@ -3925,8 +3925,8 @@
     "select": [
       true,
       [
-        "composite",
-        "group"
+        "group",
+        "composite"
       ],
       0,
       0
@@ -3934,8 +3934,8 @@
     "separator": [
       false,
       [
-        "structure",
-        "widget"
+        "widget",
+        "structure"
       ],
       0,
       2
@@ -3943,8 +3943,8 @@
     "slider": [
       false,
       [
-        "range",
-        "input"
+        "input",
+        "range"
       ],
       11,
       3
@@ -3952,9 +3952,9 @@
     "spin-button": [
       false,
       [
-        "composite",
+        "input",
         "range",
-        "input"
+        "composite"
       ],
       0,
       3
@@ -3980,8 +3980,8 @@
     "tab": [
       false,
       [
-        "sectionhead",
-        "widget"
+        "widget",
+        "sectionhead"
       ],
       2,
       2
@@ -4054,8 +4054,8 @@
     "tree-item": [
       false,
       [
-        "listitem",
-        "option"
+        "option",
+        "listitem"
       ],
       13,
       8
@@ -4076,9 +4076,9 @@
   "states": [
     [
       "hidden",
+      "disabled",
       "busy",
-      "invalid",
-      "disabled"
+      "invalid"
     ],
     [
       "hidden",
@@ -4091,46 +4091,46 @@
     ],
     [
       "hidden",
-      "busy",
-      "disabled"
+      "disabled",
+      "busy"
     ],
     [
-      "busy",
-      "expanded",
       "disabled",
-      "selected",
+      "expanded",
+      "busy",
+      "invalid",
+      "hidden",
+      "selected"
+    ],
+    [
+      "disabled",
+      "expanded",
+      "busy",
       "invalid",
       "hidden"
     ],
     [
-      "busy",
-      "expanded",
-      "disabled",
-      "invalid",
-      "hidden"
-    ],
-    [
-      "busy",
-      "expanded",
-      "disabled",
-      "invalid",
       "checked",
-      "hidden"
-    ],
-    [
-      "busy",
       "disabled",
-      "selected",
+      "expanded",
+      "busy",
       "invalid",
       "hidden"
     ],
     [
-      "busy",
       "disabled",
-      "selected",
+      "busy",
       "invalid",
+      "hidden",
+      "selected"
+    ],
+    [
       "checked",
-      "hidden"
+      "disabled",
+      "busy",
+      "invalid",
+      "hidden",
+      "selected"
     ]
   ]
 }</accessibility-metadata>
