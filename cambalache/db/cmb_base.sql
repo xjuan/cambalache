@@ -217,6 +217,7 @@ CREATE TABLE IF NOT EXISTS property (
   required BOOLEAN DEFAULT 0,
   workspace_default TEXT,
   original_owner_id TEXT REFERENCES type ON UPDATE CASCADE,
+  disabled BOOLEAN DEFAULT 0,
   PRIMARY KEY(owner_id, property_id)
   FOREIGN KEY(original_owner_id, property_id) REFERENCES property(owner_id, property_id)
 ) WITHOUT ROWID;

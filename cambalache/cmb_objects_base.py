@@ -89,6 +89,9 @@ class CmbBasePropertyInfo(CmbBase):
     )
     workspace_default = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
     original_owner_id = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    disabled = GObject.Property(
+        type=bool, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY, default=False
+    )
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -114,6 +117,7 @@ class CmbBasePropertyInfo(CmbBase):
         required,
         workspace_default,
         original_owner_id,
+        disabled,
     ):
         return cls(
             project=project,
@@ -134,6 +138,7 @@ class CmbBasePropertyInfo(CmbBase):
             required=required,
             workspace_default=workspace_default,
             original_owner_id=original_owner_id,
+            disabled=disabled,
         )
 
 
