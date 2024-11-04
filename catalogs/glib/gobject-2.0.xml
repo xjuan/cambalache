@@ -22,11 +22,11 @@
 	("GIOCondition","G_IO_PRI","pri",2,None)
   </type_flags>
   <property>
-	("GBinding","flags","GBindingFlags",None,1,None,None,None,None,"2.26",None,None,None,None,None,None,None),
-	("GBinding","source","GObject",1,1,None,None,None,None,"2.26",None,None,None,None,None,None,None),
-	("GBinding","source-property","gchararray",None,1,None,None,None,None,"2.26",None,None,None,None,None,None,None),
-	("GBinding","target","GObject",1,1,None,None,None,None,"2.26",None,None,None,None,None,None,None),
-	("GBinding","target-property","gchararray",None,1,None,None,None,None,"2.26",None,None,None,None,None,None,None)
+	("GBinding","flags","GBindingFlags",None,1,None,None,None,None,"2.26",None,None,None,None,None,None,None,None),
+	("GBinding","source","GObject",1,1,None,None,None,None,"2.26",None,None,None,None,None,None,None,None),
+	("GBinding","source-property","gchararray",None,1,None,None,None,None,"2.26",None,None,None,None,None,None,None,None),
+	("GBinding","target","GObject",1,1,None,None,None,None,"2.26",None,None,None,None,None,None,None,None),
+	("GBinding","target-property","gchararray",None,1,None,None,None,None,"2.26",None,None,None,None,None,None,None,None)
   </property>
   <signal>
 	("GObject","notify",None,None,1)

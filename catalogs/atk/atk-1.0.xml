@@ -307,20 +307,20 @@
 	("AtkHyperlinkStateFlags","ATK_HYPERLINK_IS_INLINE","inline",1,"Link is inline")
   </type_flags>
   <property>
-	("AtkObject","accessible-description","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None),
-	("AtkObject","accessible-help-text","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None),
-	("AtkObject","accessible-id","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None),
-	("AtkObject","accessible-name","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None),
-	("AtkObject","accessible-parent","AtkObject",1,None,None,None,None,None,None,None,None,None,None,None,None,None),
-	("AtkObject","accessible-role","AtkRole",None,None,None,"unknown",None,None,None,None,None,None,None,None,None,None),
-	("AtkObject","accessible-table-caption","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None),
-	("AtkObject","accessible-table-caption-object","AtkObject",1,None,None,None,None,None,None,None,None,None,None,None,None,None),
-	("AtkObject","accessible-table-column-description","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None),
-	("AtkObject","accessible-table-column-header","AtkObject",1,None,None,None,None,None,None,None,None,None,None,None,None,None),
-	("AtkObject","accessible-table-row-description","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None),
-	("AtkObject","accessible-table-row-header","AtkObject",1,None,None,None,None,None,None,None,None,None,None,None,None,None),
-	("AtkObject","accessible-table-summary","AtkObject",1,None,None,None,None,None,None,None,None,None,None,None,None,None),
-	("AtkObject","accessible-value","gdouble",None,None,None,"0.0","0.0","1.79769313486232e+308",None,None,None,None,None,None,None,None)
+	("AtkObject","accessible-description","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
+	("AtkObject","accessible-help-text","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
+	("AtkObject","accessible-id","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
+	("AtkObject","accessible-name","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
+	("AtkObject","accessible-parent","AtkObject",1,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
+	("AtkObject","accessible-role","AtkRole",None,None,None,"unknown",None,None,None,None,None,None,None,None,None,None,None),
+	("AtkObject","accessible-table-caption","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
+	("AtkObject","accessible-table-caption-object","AtkObject",1,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
+	("AtkObject","accessible-table-column-description","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
+	("AtkObject","accessible-table-column-header","AtkObject",1,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
+	("AtkObject","accessible-table-row-description","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
+	("AtkObject","accessible-table-row-header","AtkObject",1,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
+	("AtkObject","accessible-table-summary","AtkObject",1,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
+	("AtkObject","accessible-value","gdouble",None,None,None,"0.0","0.0","1.79769313486232e+308",None,None,None,None,None,None,None,None,None)
   </property>
   <signal>
 	("AtkObject","active-descendant-changed",None,None,1),
