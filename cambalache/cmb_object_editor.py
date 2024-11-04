@@ -237,7 +237,10 @@ It has to be exposed by your application with GtkBuilder expose_object method."
                 else:
                     label = CmbPropertyLabel(prop=prop, bindable=not is_builtin)
 
-                # Keep a dict of labels
+                if prop.info.disabled:
+                    for w in [editor, label]:
+                        w.set_tooltip_text(_("This property is disabled for {type_id}").format(type_id=obj.type_id))
+                        w.props.sensitive = False
 
                 grid.attach(label, 0, i, 1, 1)
                 grid.attach(editor, 1, i, 1, 1)
