@@ -2254,7 +2254,7 @@
 	("GtkSettings","gtk-modules","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
 	("GtkSettings","gtk-overlay-scrolling","gboolean",None,None,None,"True",None,None,"3.24.9",None,None,None,None,None,None,None,None),
 	("GtkSettings","gtk-primary-button-warps-slider","gboolean",None,None,None,"True",None,None,"3.6",None,None,None,None,None,None,None,None),
-	("GtkSettings","gtk-print-backends","gchararray",None,None,None,"file,cups",None,None,None,None,None,None,None,None,None,None,None),
+	("GtkSettings","gtk-print-backends","gchararray",None,None,None,"file,lpr,cups",None,None,None,None,None,None,None,None,None,None,None),
 	("GtkSettings","gtk-print-preview-command","gchararray",None,None,None,"evince --unlink-tempfile --preview --print-settings %s %f",None,None,None,None,None,None,None,None,None,None,None),
 	("GtkSettings","gtk-recent-files-enabled","gboolean",None,None,None,"True",None,None,"3.8",None,None,None,None,None,None,None,None),
 	("GtkSettings","gtk-recent-files-limit","gint",None,None,None,"50","-1","2147483647",None,"3.10",None,None,None,None,None,None,None),
@@ -3128,8 +3128,8 @@
     "click"
   ],
   "GtkScaleButton": [
-    "popup",
-    "popdown"
+    "popdown",
+    "popup"
   ],
   "GtkSearchEntry": [
     "activate"
@@ -3144,8 +3144,8 @@
     "click"
   ],
   "GtkVolumeButton": [
-    "popup",
-    "popdown"
+    "popdown",
+    "popup"
   ]
 }</accessibility-metadata>
 </cambalache-catalog>

@@ -273,15 +273,15 @@ class CmbCatalogDB:
                 state_index = -1
 
             # Store just the index to the properties and states sets
-            roles[gtk_roles[role_id]] = [is_abstract, list(role_parents), property_index, state_index]
+            roles[gtk_roles[role_id]] = [is_abstract, sorted(list(role_parents)), property_index, state_index]
 
         aria_roles_gtk_roles = set(roles.keys()) - set(gtk_roles.values())
         if len(aria_roles_gtk_roles):
             print("Discrepancy between aria and gtk roles", aria_roles_gtk_roles)
 
         return {
-            "properties": [list(p) for p in properties],
-            "states": [list(s) for s in states],
+            "properties": [sorted(list(p)) for p in properties],
+            "states": [sorted(list(s)) for s in states],
             "roles": roles
         }
 

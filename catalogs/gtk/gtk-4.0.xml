@@ -3436,17 +3436,17 @@
   <accessibility-metadata>{
   "properties": [
     [
+      "has-popup",
       "key-shortcuts",
       "label",
-      "role-description",
-      "has-popup"
+      "role-description"
     ],
     [
+      "has-popup",
       "key-shortcuts",
       "label",
       "modal",
-      "role-description",
-      "has-popup"
+      "role-description"
     ],
     [
       "key-shortcuts",
@@ -3454,81 +3454,81 @@
       "role-description"
     ],
     [
+      "has-popup",
       "key-shortcuts",
-      "role-description",
-      "has-popup"
+      "role-description"
     ],
     [
-      "required",
+      "has-popup",
       "key-shortcuts",
       "label",
-      "role-description",
       "read-only",
-      "has-popup"
+      "required",
+      "role-description"
     ],
     [
-      "key-shortcuts",
-      "has-popup"
+      "has-popup",
+      "key-shortcuts"
     ],
     [
+      "has-popup",
       "key-shortcuts",
       "label",
       "orientation",
-      "role-description",
-      "has-popup"
+      "role-description"
     ],
     [
-      "value-text",
+      "has-popup",
       "key-shortcuts",
       "label",
+      "role-description",
       "value-max",
-      "role-description",
       "value-min",
-      "has-popup"
+      "value-text"
     ],
     [
-      "value-text",
+      "has-popup",
       "key-shortcuts",
       "label",
+      "role-description",
+      "value-max",
+      "value-min",
       "value-now",
-      "value-max",
-      "role-description",
-      "value-min",
-      "has-popup"
+      "value-text"
     ],
     [
-      "value-text",
+      "has-popup",
       "key-shortcuts",
       "label",
       "role-description",
-      "has-popup"
+      "value-text"
     ],
     [
-      "required",
-      "read-only",
-      "key-shortcuts",
-      "label",
-      "placeholder",
-      "role-description",
-      "multi-line",
       "autocomplete",
-      "has-popup"
-    ],
-    [
+      "has-popup",
       "key-shortcuts",
       "label",
-      "value-text",
+      "multi-line",
+      "placeholder",
+      "read-only",
+      "required",
       "role-description"
     ],
     [
-      "required",
-      "multi-selectable",
       "key-shortcuts",
       "label",
-      "orientation",
       "role-description",
+      "value-text"
+    ],
+    [
+      "has-popup",
+      "key-shortcuts",
+      "label",
+      "multi-selectable",
+      "orientation",
       "read-only",
-      "has-popup"
+      "required",
+      "role-description"
     ],
     [
       "key-shortcuts",
@@ -3547,8 +3547,8 @@
     "alert-dialog": [
       false,
       [
-        "dialog",
-        "alert"
+        "alert",
+        "dialog"
       ],
       1,
       0
@@ -3604,9 +3604,9 @@
     "column-header": [
       false,
       [
-        "sectionhead",
         "cell",
-        "gridcell"
+        "gridcell",
+        "sectionhead"
       ],
       4,
       4
@@ -3884,9 +3884,9 @@
     "row-header": [
       false,
       [
-        "sectionhead",
         "cell",
-        "gridcell"
+        "gridcell",
+        "sectionhead"
       ],
       4,
       7
@@ -4077,62 +4077,62 @@
   },
   "states": [
     [
-      "hidden",
       "busy",
       "disabled",
+      "hidden",
       "invalid"
     ],
     [
-      "hidden",
-      "busy"
+      "busy",
+      "hidden"
     ],
     [
-      "hidden",
       "busy",
+      "hidden",
       "invalid"
     ],
     [
-      "hidden",
       "busy",
-      "disabled"
+      "disabled",
+      "hidden"
     ],
     [
+      "busy",
+      "disabled",
       "expanded",
-      "invalid",
       "hidden",
-      "busy",
-      "disabled",
+      "invalid",
       "selected"
     ],
     [
-      "expanded",
-      "invalid",
-      "hidden",
-      "busy",
-      "disabled"
-    ],
-    [
-      "expanded",
-      "invalid",
-      "hidden",
       "busy",
       "disabled",
-      "checked"
+      "expanded",
+      "hidden",
+      "invalid"
     ],
     [
-      "invalid",
-      "hidden",
       "busy",
-      "selected",
-      "disabled"
+      "checked",
+      "disabled",
+      "expanded",
+      "hidden",
+      "invalid"
     ],
     [
-      "invalid",
-      "hidden",
       "busy",
       "disabled",
-      "selected",
-      "checked"
+      "hidden",
+      "invalid",
+      "selected"
+    ],
+    [
+      "busy",
+      "checked",
+      "disabled",
+      "hidden",
+      "invalid",
+      "selected"
     ]
   ]
 }</accessibility-metadata>

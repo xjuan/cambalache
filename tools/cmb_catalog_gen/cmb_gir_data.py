@@ -414,7 +414,7 @@ class CmbGirData:
 
                         if actions:
                             a11y_actions = a11y_actions.union(set(actions))
-                            accessible_actions[accessible_type_id] = actions
+                            accessible_actions[accessible_type_id] = sorted(actions)
 
         for key in toremove:
             del self.types[key]
