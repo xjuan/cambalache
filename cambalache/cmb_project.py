@@ -39,6 +39,7 @@ from .cmb_base import CmbBase
 from .cmb_object import CmbObject
 from .cmb_object_data import CmbObjectData
 from .cmb_property import CmbProperty
+from .cmb_property_info import CmbPropertyInfo
 from .cmb_layout_property import CmbLayoutProperty
 from .cmb_library_info import CmbLibraryInfo
 from .cmb_type_info import CmbTypeInfo
@@ -1048,6 +1049,21 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         self.set_selection(selection)
 
+    def _get_object_list_names(self, ui_id, object_list):
+        if object_list is None or object_list == "":
+            return []
+
+        # Object list stored as a list of integers separated with a ,
+        ids = [int(id.strip()) for id in object_list.split(",")]
+        names = []
+
+        for id in ids:
+            obj = self.get_object_by_id(ui_id, id)
+            if obj:
+                names.append(obj.name)
+
+        return names
+
     def get_undo_redo_msg(self):
         c = self.db.cursor()
 
@@ -1101,6 +1117,12 @@ class CmbProject(GObject.Object, Gio.ListModel):
                         retval["obj"] = name if name is not None else type_id
 
                 if table == "object_property":
+                    property_id = data[3]
+
+                    retval["prop"] = f'"{property_id}" {column}' if column else property_id
+                    # Translators: This refers to "properties" in object property undo/redo messages
+                    retval["prop_type"] = _("property")
+
                     if column == "translatable":
                         retval["value"] = _("True") if data[5] else _("False")
                     elif column == "comment":
@@ -1110,11 +1132,36 @@ class CmbProject(GObject.Object, Gio.ListModel):
                     elif column == "translation_comments":
                         retval["value"] = f'"{data[8]}"'
                     else:
-                        retval["prop"] = f'"{data[3]}"'
-                        retval["value"] = data[4]
+                        ui_id = data[0]
+                        object_id = data[1]
+                        owner_id = data[2]
 
-                    if column != "value":
-                        retval["prop"] = data[3]
+                        value = data[4]
+
+                        if CmbPropertyInfo.type_is_accessible(owner_id):
+                            retval["prop_type"] = {
+                                # Translators: This refers to accessibility properties in object property undo/redo messages
+                                "CmbAccessibleProperty": _("a11y property"),
+                                # Translators: This refers to accessibility relations in object property undo/redo messages
+                                "CmbAccessibleRelation": _("a11y relation"),
+                                # Translators: This refers to accessibility states in object property undo/redo messages
+                                "CmbAccessibleState": _("a11y state"),
+                                # Translators: This refers to accessibility actions in object property undo/redo messages
+                                "CmbAccessibleAction": _("a11y action")
+                            }.get(owner_id, None)
+
+                            retval["prop"] = CmbPropertyInfo.accessible_property_remove_prefix(owner_id, property_id)
+
+                            if ((info := self.type_info.get(owner_id, None)) and
+                                (pinfo := info.properties.get(property_id, None)) and
+                                pinfo.type_id == "CmbAccessibleList"):
+                                names = self._get_object_list_names(ui_id, value)
+                                retval["value"] = ", ".join(names)
+                            else:
+                                retval["value"] = value
+                        else:
+                            retval["prop"] = f'"{property_id}"'
+                            retval["value"] = value
                 elif table == "object_layout_property":
                     retval["prop"] = f'"{data[4]}" {column}'
 
@@ -1186,9 +1233,11 @@ class CmbProject(GObject.Object, Gio.ListModel):
                         "UPDATE": _("Update {field} of object {obj}"),
                     },
                     "object_property": {
-                        "INSERT": _('Set {obj} {prop} property to {value}'),
-                        "DELETE": _('Unset {obj} {prop} property'),
-                        "UPDATE": _('Update {obj} {prop} property to {value}'),
+                        # Translators: This text is used for object properties undo/redo messages
+                        # prop_type could be "property", "a11y property", "a11y relation", "a11y state" or "a11y action"
+                        "INSERT": _('Set {obj} {prop} {prop_type} to {value}'),
+                        "DELETE": _('Unset {obj} {prop} {prop_type}'),
+                        "UPDATE": _('Update {obj} {prop} {prop_type} to {value}'),
                     },
                     "object_layout_property": {
                         "INSERT": _('Set {obj} {prop} layout property to {value}'),
