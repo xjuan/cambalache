@@ -239,7 +239,7 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
         self.project._object_signal_changed(self, signal)
 
     def __add_data_object(self, data):
-        if data.get_id_string() in self.__data_dict:
+        if data.get_id_string() in self.data_dict:
             return
 
         self.__data.append(data)
@@ -451,7 +451,7 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
             return self._add_data(owner_id, data_id, id, info=taginfo)
 
     def _remove_data(self, data):
-        if data not in self.__data:
+        if data.get_id_string() not in self.data_dict:
             return
 
         self.__data.remove(data)
@@ -462,7 +462,7 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
 
     def remove_data(self, data):
         try:
-            assert data in self.__data
+            assert data.get_id_string() in self.data_dict
             self.project.db.execute(
                 "DELETE FROM object_data WHERE ui_id=? AND object_id=? AND owner_id=? AND data_id=? AND id=?;",
                 (self.ui_id, self.object_id, data.owner_id, data.data_id, data.id),
