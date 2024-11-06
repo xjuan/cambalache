@@ -33,22 +33,31 @@ logger = getLogger(__name__)
 class CmbPropertyInfo(CmbBasePropertyInfo):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.is_a11y = self.owner_id in [
+
+        self.is_a11y = CmbPropertyInfo.type_is_accessible(self.owner_id)
+        self.a11y_property_id = CmbPropertyInfo.accessible_property_remove_prefix(self.owner_id, self.property_id)
+
+    @classmethod
+    def type_is_accessible(cls, owner_id):
+        return owner_id in [
             "CmbAccessibleProperty",
             "CmbAccessibleRelation",
             "CmbAccessibleState",
             "CmbAccessibleAction"
         ]
 
-        if self.is_a11y:
-            prefix = {
+    @classmethod
+    def accessible_property_remove_prefix(cls, owner_id, property_id):
+        prefix = {
                 "CmbAccessibleProperty": "cmb-a11y-property-",
                 "CmbAccessibleRelation": "cmb-a11y-relation-",
                 "CmbAccessibleState": "cmb-a11y-state-",
                 "CmbAccessibleAction": "cmb-a11y-action-"
-            }.get(self.owner_id, "")
+            }.get(owner_id, None)
 
-            # A11y property name without prefix
-            self.a11y_property_id = self.property_id.removeprefix(prefix)
-        else:
-            self.a11y_property_id = None
+        if prefix is None:
+            return None
+
+        # A11y property name without prefix
+        return property_id.removeprefix(prefix)
+
