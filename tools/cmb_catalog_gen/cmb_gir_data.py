@@ -327,7 +327,8 @@ class CmbGirData:
         if self.lib == "gtk+":
             extra_types["CmbStockId"] = {"parent": "gchararray"}
         else:
-            extra_types["CmbBooleanUndefined"] = {"parent": None}
+            extra_types["CmbBooleanUndefined"] = {"parent": "gchararray"}
+            extra_types["CmbAccessibleList"] = {"parent": "gchararray"}
 
         self.types.update(extra_types)
 
@@ -552,13 +553,13 @@ class CmbGirData:
                     "col-index": ["gint64", 0, None],
                     "col-index-text": ["gchararray", None, None],
                     "col-span": ["gint64", 0, None],
-                    "controls": ["GtkAccessible", None, None],  # Reference List
-                    "described-by": ["GtkAccessible", None, None],  # Reference List
-                    "details": ["GtkAccessible", None, None],  # Reference List
+                    "controls": ["CmbAccessibleList", None, None],  # Reference List
+                    "described-by": ["CmbAccessibleList", None, None],  # Reference List
+                    "details": ["CmbAccessibleList", None, None],  # Reference List
                     "error-message": ["GtkAccessible", None, None],
-                    "flow-to": ["GtkAccessible", None, None],  # Reference List
-                    "labelled-by": ["GtkAccessible", None, None],  # Reference List
-                    "owns": ["GtkAccessible", None, None],  # Reference List
+                    "flow-to": ["CmbAccessibleList", None, None],  # Reference List
+                    "labelled-by": ["CmbAccessibleList", None, None],  # Reference List
+                    "owns": ["CmbAccessibleList", None, None],  # Reference List
                     "pos-in-set": ["gint64", 0, None],
                     "row-count": ["gint64", 0, None],
                     "row-index": ["gint64", 0, None],
