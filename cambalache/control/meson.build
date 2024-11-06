@@ -16,6 +16,7 @@ install_data([
     'cmb_enum_combo_box.py',
     'cmb_flags_entry.py',
     'cmb_object_chooser.py',
+    'cmb_object_list_editor.py',
     'cmb_source_view.py',
     'cmb_switch.py',
     'cmb_text_view.py',

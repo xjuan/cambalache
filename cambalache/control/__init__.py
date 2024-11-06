@@ -35,6 +35,7 @@ from .cmb_color_entry import CmbColorEntry
 from .cmb_enum_combo_box import CmbEnumComboBox
 from .cmb_flags_entry import CmbFlagsEntry
 from .cmb_object_chooser import CmbObjectChooser
+from .cmb_object_list_editor import CmbObjectListEditor
 from .cmb_source_view import CmbSourceView
 from .cmb_switch import CmbSwitch
 from .cmb_text_view import CmbTextView

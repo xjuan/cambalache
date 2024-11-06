@@ -36,6 +36,7 @@ from .cmb_color_entry import CmbColorEntry
 from .cmb_enum_combo_box import CmbEnumComboBox
 from .cmb_flags_entry import CmbFlagsEntry
 from .cmb_object_chooser import CmbObjectChooser
+from .cmb_object_list_editor import CmbObjectListEditor
 from .cmb_switch import CmbSwitch
 from .cmb_text_view import CmbTextView
 
@@ -135,6 +136,11 @@ def cmb_create_editor(project, type_id, prop=None, data=None, parent=None):
         editor = CmbEntry(hexpand=True, placeholder_text=f"<{type_id}>")
     elif type_id == "CmbBooleanUndefined":
         editor = CmbBooleanUndefined()
+    elif type_id == "CmbAccessibleList":
+        editor = CmbObjectListEditor(
+            parent=prop.object if prop else parent,
+            type_id="GtkAccessible",
+        )
     elif info:
         if info.is_object or info.parent_id == "interface":
             if prop is None:
