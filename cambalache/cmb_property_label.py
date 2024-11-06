@@ -213,6 +213,9 @@ class CmbPropertyChooser(Gtk.ComboBoxText):
         for prop in sorted(self.object.properties, key=lambda p: p.property_id):
             info = prop.info
 
+            if info.is_a11y:
+                continue
+
             # Ignore construct only properties
             if info.construct_only:
                 continue
