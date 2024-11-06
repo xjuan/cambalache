@@ -174,3 +174,7 @@ def test_gtk4_menu():
 
 def test_gtk4_string_list():
     assert_original_and_exported("gtk-4.0", "string_list.ui")
+
+
+def test_gtk4_accessibility():
+    assert_original_and_exported("gtk-4.0", "accessibility.ui")
