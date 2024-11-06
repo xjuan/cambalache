@@ -1663,6 +1663,32 @@ class CmbDB(GObject.GObject):
             (ui_id,),
         )
 
+        # Fix a11y CmbAccessibleList references
+        for row in self.conn.execute(
+            """
+            SELECT op.object_id, op.property_id, op.value
+            FROM object_property AS op, property AS p
+            WHERE
+                op.owner_id=p.owner_id AND op.property_id=p.property_id AND
+                op.ui_id=? AND p.type_id = 'CmbAccessibleList' AND
+                op.value IS NOT NULL;
+            """,
+            (ui_id, )
+        ):
+            object_id, property_id, value = row
+
+            ids = []
+
+            for name in value.split(","):
+                r = self.conn.execute("SELECT object_id FROM object WHERE ui_id=? AND name=?", (ui_id, name.strip())).fetchone()
+                if r:
+                    ids.append(str(r[0]))
+
+            self.conn.execute(
+                "UPDATE object_property SET value=? WHERE ui_id=? AND object_id=? AND property_id=?",
+                (",".join(ids), ui_id, object_id, property_id)
+            )
+
         # Fix bind owner (Owner needs to point to the right parent class)
         self.conn.execute(
             """
