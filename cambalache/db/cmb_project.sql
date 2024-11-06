@@ -193,10 +193,21 @@ BEGIN
 
 /* Clear references to object */
   UPDATE object_property SET value=NULL
-  FROM property AS p, object AS o
-  WHERE object_property.ui_id=OLD.ui_id AND p.is_object AND object_property.owner_id = p.owner_id AND
-        object_property.property_id = p.property_id AND o.ui_id = object_property.ui_id AND
+  FROM property AS p
+  WHERE object_property.ui_id=OLD.ui_id AND
+        object_property.owner_id = p.owner_id AND
+        object_property.property_id = p.property_id AND
+        p.is_object AND
         object_property.value = OLD.object_id;
+
+/* Clear CmbAccessibleList references to object */
+  UPDATE object_property SET value=cmb_object_list_remove(value, OLD.object_id)
+  FROM property AS p
+  WHERE object_property.ui_id=OLD.ui_id AND
+        object_property.owner_id = p.owner_id AND
+        object_property.property_id = p.property_id AND
+  	p.type_id = 'CmbAccessibleList' AND
+  	value IS NOT NULL;
 END;
 
 

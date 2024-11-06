@@ -148,6 +148,7 @@ class CmbDB(GObject.GObject):
         conn.create_aggregate("MAX_VERSION", 1, MaxVersion)
         conn.create_aggregate("MIN_VERSION", 1, MinVersion)
         conn.create_function("CMB_PRINT", 1, cmb_print)
+        conn.create_function("cmb_object_list_remove", 2, cmb_object_list_remove)
 
         return conn
 
@@ -1097,6 +1098,22 @@ class CmbDB(GObject.GObject):
                 value = tinfo.enum_get_value_as_string(value)
             elif tinfo.parent_id == "flags":
                 value = tinfo.flags_get_value_as_string(value)
+
+        if pinfo.type_id == "CmbAccessibleList":
+            # Check if this a11y list has already a value
+            row = c.execute(
+                "SELECT value FROM object_property WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id=?;",
+                (
+                    ui_id,
+                    object_id,
+                    pinfo.owner_id,
+                    property_id,
+                ),
+            ).fetchone()
+
+            # if so, then append the value instead of replacing
+            if row is not None:
+                value = f"{row[0]},{value}"
 
         try:
             c.execute(
@@ -2253,11 +2270,33 @@ class CmbDB(GObject.GObject):
             else:
                 if owner_id == "CmbAccessibleProperty":
                     node = E.property(name=property_id.removeprefix("cmb-a11y-property-"))
+                    accessibility.append(node)
                 elif owner_id == "CmbAccessibleRelation":
-                    node = E.relation(name=property_id.removeprefix("cmb-a11y-relation-"))
+                    relation_name = property_id.removeprefix("cmb-a11y-relation-")
+
+                    # Serialize reference lists as multiple nodes
+                    if property_type_id == "CmbAccessibleList":
+                        for ref in [v.strip() for v in value.split(",")]:
+                            # Ignore object properties with 0/null ID or unknown object references
+                            if ref is not None and ref.isnumeric() and int(ref) == 0:
+                                continue
+
+                            obj_name = self.__get_object_name(ui_id, ref, merengue=merengue)
+
+                            # Ignore properties that reference an unknown object
+                            if obj_name is None:
+                                continue
+
+                            node = E.relation(name=relation_name)
+                            node.text = obj_name
+                            accessibility.append(node)
+
+                        continue
+                    else:
+                        node = E.relation(name=relation_name)
                 elif owner_id == "CmbAccessibleState":
                     node = E.state(name=property_id.removeprefix("cmb-a11y-state-"))
-                accessibility.append(node)
+                    accessibility.append(node)
 
             if value is not None:
                 node.text = value
@@ -2650,6 +2689,14 @@ class MinVersion:
 
     def finalize(self):
         return self.min_ver_str
+
+
+def cmb_object_list_remove(object_list, object_id):
+    if object_list is None:
+        return None
+
+    values = [id for id in object_list.split(",") if id.isnumeric() and int(id) != object_id]
+    return ",".join(values)
 
 
 def cmb_print(msg):
