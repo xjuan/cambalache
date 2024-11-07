@@ -24,7 +24,6 @@
 #
 
 import os
-import traceback
 import locale
 import tempfile
 
@@ -97,6 +96,11 @@ class CmbWindow(Adw.ApplicationWindow):
 
     MAXIMIZED = 1 << 2
     FULLSCREEN = 1 << 4
+
+    __portal_access_msg = _(
+        "Cambalache will not have access to the file for export because it is outside of your home directory. "
+        "Consider using Flatseal or flatpak to give permissions to the host directory."
+    )
 
     def __init__(self, **kwargs):
         self.__project = None
@@ -634,6 +638,12 @@ class CmbWindow(Adw.ApplicationWindow):
         dialog.connect("response", lambda d, r: dialog.destroy())
         dialog.present()
 
+    def __check_if_filename_is_in_portal(self, filename):
+        if os.environ.get("FLATPAK_ID", None) != "ar.xjuan.Cambalache":
+            return False
+
+        return filename.startswith(f"/run/user/{os.getuid()}/doc/")
+
     def import_file(self, filename, target_tk=None):
         if self.project is None:
             dirname = os.path.dirname(filename)
@@ -655,6 +665,9 @@ class CmbWindow(Adw.ApplicationWindow):
             return
 
         try:
+            if self.__check_if_filename_is_in_portal(filename):
+                raise Exception(self.__portal_access_msg)
+
             ui, msg, detail = self.project.import_file(filename)
 
             self.project.set_selection([ui])
@@ -693,9 +706,9 @@ class CmbWindow(Adw.ApplicationWindow):
                 )
         except Exception as e:
             filename = os.path.basename(filename)
-            logger.warning(f"Error loading {filename} {traceback.format_exc()}")
+            logger.warning(f"Error loading {filename}", exc_info=True)
             self.present_message_to_user(
-                _("Error importing {filename}").format(filename=os.path.basename(filename)), secondary_text=str(e)
+                _("Error importing {filename}").format(filename=filename), secondary_text=str(e)
             )
 
     def ask_gtk_version(self, filename):
@@ -758,12 +771,20 @@ class CmbWindow(Adw.ApplicationWindow):
             self.__set_page("workspace")
             self.__update_actions()
         except Exception as e:
-            logger.warning(f"Error loading {filename} {traceback.format_exc()}")
+            filename=os.path.basename(filename)
+            logger.warning(f"Error loading {filename}", exc_info=True)
             self.present_message_to_user(
-                _("Error loading {filename}").format(filename=os.path.basename(filename)), secondary_text=str(e)
+                _("Error loading {filename}").format(filename=filename), secondary_text=str(e)
             )
 
     def __app_activate_open(self, filename, target_tk=None):
+        if self.__check_if_filename_is_in_portal(filename):
+            self.present_message_to_user(
+                _("Error opening {filename}").format(filename=os.path.basename(filename)),
+                secondary_text=self.__portal_access_msg
+            )
+            return
+
         self.props.application.activate_action("open", GLib.Variant("(ss)", (filename, target_tk or "")))
 
     def _on_open_activate(self, action, data):
@@ -839,7 +860,7 @@ class CmbWindow(Adw.ApplicationWindow):
             else:
                 self.project.redo()
         except Exception as e:
-            logger.warning(f"Undo/Redo error {traceback.format_exc()}")
+            logger.warning(f"Undo/Redo error", exc_info=True)
             self.present_message_to_user(
                 _("Undo/Redo stack got corrupted"),
                 secondary_text=_("Please try to reproduce and file an issue\n Error: {msg}").format(msg=str(e))
@@ -856,12 +877,23 @@ class CmbWindow(Adw.ApplicationWindow):
         self.save_project()
 
     def __save_dialog_callback(self, dialog, res):
+        filename = None
         try:
             file = dialog.save_finish(res)
-            self.project.filename = file.get_path()
+            filename = file.get_path()
+
+            if self.__check_if_filename_is_in_portal(filename):
+                raise Exception(self.__portal_access_msg)
+
+            self.project.filename = filename
             self.__save()
         except Exception as e:
-            logger.warning(f"Error {e}")
+            filename = os.path.basename(filename)
+            logger.warning(f"Error saving {filename}", exc_info=True)
+            self.present_message_to_user(
+                _("Error importing {filename}").format(filename=filename),
+                secondary_text=str(e)
+            )
 
     def _on_save_as_activate(self, action, data):
         if self.project is None:
