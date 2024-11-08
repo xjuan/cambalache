@@ -8,6 +8,12 @@ packaging changes like new dependencies or build system changes.
 Cambalache used even/odd minor numbers to differentiate between stable and
 development releases.
 
+## 0.92.2
+
+2024-11-08 - GtkGrid fix
+
+ - Fix adding children to GtkGrid
+
 
 ## 0.92.1
 
