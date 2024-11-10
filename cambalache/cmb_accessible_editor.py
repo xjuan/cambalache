@@ -79,9 +79,18 @@ class CmbAccessibleEditor(Gtk.Box):
         obj = self.__object
 
         if obj.project.target_tk == "gtk-4.0":
-            prop = self.__object.properties_dict["accessible-role"]
-            role_data = self.__object.project.db.accessibility_metadata.get(prop.value, None)
+            if not self.__object.info.is_a("GtkWidget"):
+                self.__role_box.hide()
+                return
 
+            self.__role_box.show()
+
+            prop = self.__object.properties_dict["accessible-role"]
+            if prop.value in ["none", "presentation"]:
+                # No need to set properties if role none or presentation
+                return
+
+            role_data = self.__object.project.db.accessibility_metadata.get(prop.value, None)
             if role_data:
                 role_properties = role_data["properties"]
                 role_states = role_data["states"]
@@ -94,12 +103,6 @@ class CmbAccessibleEditor(Gtk.Box):
                 ("CmbAccessibleState", _("States"), len("cmb-a11y-states"), role_states),
                 ("CmbAccessibleRelation", _("Relations"), None, None),
             ]
-
-            if not self.__object.info.is_a("GtkWidget"):
-                self.__role_box.hide()
-                return
-
-            self.__role_box.show()
         else:
             type_actions = self.__object.project.db.accessibility_metadata.get(obj.type_id, [])
 
