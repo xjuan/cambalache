@@ -2232,107 +2232,140 @@ class CmbDB(GObject.GObject):
         # Accessibility
         accessibility = E.accessibility()
 
+        # For Gtk 3
+        atk_object = None
+
+        # For Gtk 4
+        accessible_role = None
+        a11y_data = {}
+
         if self.target_tk == "gtk+-3.0":
             atk_object = E.object()
             atk_object.set("class", "AtkObject")
         else:
-            atk_object = None
+            r = c.execute(
+                """
+                SELECT value, owner_id FROM object_property
+                WHERE ui_id=? AND object_id=? AND property_id='accessible-role';
+                """,
+                (ui_id, object_id),
+            ).fetchone()
 
-        for row in c.execute(
-            """
-            SELECT op.value, op.property_id, op.comment, op.translatable, op.translation_context,
-                   op.translation_comments, p.is_object, p.type_id, op.owner_id
-            FROM object_property AS op, property AS p
-            WHERE op.owner_id IN
-                  ('CmbAccessibleProperty', 'CmbAccessibleRelation', 'CmbAccessibleState', 'CmbAccessibleAction') AND
-                  op.ui_id=? AND op.object_id=? AND p.owner_id = op.owner_id AND p.property_id = op.property_id
-            ORDER BY op.owner_id, op.property_id
-            """,
-            (ui_id, object_id),
-        ):
-            (
-                val,
-                property_id,
-                comment,
-                translatable,
-                translation_context,
-                translation_comments,
-                is_object,
-                property_type_id,
-                owner_id,
-            ) = row
-
-            value = None
-
-            if is_object:
-                # Ignore object properties with 0/null ID or unknown object references
-                if val is not None and val.isnumeric() and int(val) == 0:
-                    continue
-
-                obj_name = self.__get_object_name(ui_id, val, merengue=merengue)
-
-                # Ignore properties that reference an unknown object
-                if obj_name is None:
-                    continue
-                value = obj_name
+            if r is None:
+                pinfo = self.__get_property_info(info, "accessible-role")
+                accessible_role = pinfo.default_value if pinfo else 'none'
             else:
-                value = val
+                accessible_role = r[0]
 
-            # Accessible properties are prefixed to avoid name clash with other properties
-            if atk_object is not None:
-                if owner_id == "CmbAccessibleProperty":
-                    node = E.property(name=f"accessible-{property_id.removeprefix('cmb-a11y-property-')}")
-                    atk_object.append(node)
-                elif owner_id == "CmbAccessibleRelation":
-                    if value is not None:
-                        node = E.relation(type=property_id.removeprefix("cmb-a11y-relation-"), target=value)
-                        accessibility.append(node)
+            if accessible_role in self.accessibility_metadata:
+                role_data = self.accessibility_metadata.get(accessible_role)
+                a11y_data = {
+                    "CmbAccessibleProperty": (len("cmb-a11y-properties"), role_data["properties"]),
+                    "CmbAccessibleState": (len("cmb-a11y-states"), role_data["states"]),
+                }
 
-                        # Value already set as an attribute
-                        value = None
-                elif owner_id == "CmbAccessibleAction":
-                    node = E.action(action_name=property_id.removeprefix("cmb-a11y-action-"))
-                    accessibility.append(node)
-            else:
-                if owner_id == "CmbAccessibleProperty":
-                    node = E.property(name=property_id.removeprefix("cmb-a11y-property-"))
-                    accessibility.append(node)
-                elif owner_id == "CmbAccessibleRelation":
-                    relation_name = property_id.removeprefix("cmb-a11y-relation-")
+        if accessible_role is None or accessible_role not in ["none", "presentation"]:
+            for row in c.execute(
+                """
+                SELECT op.value, op.property_id, op.comment, op.translatable, op.translation_context,
+                       op.translation_comments, p.is_object, p.type_id, op.owner_id
+                FROM object_property AS op, property AS p
+                WHERE op.owner_id IN
+                      ('CmbAccessibleProperty', 'CmbAccessibleRelation', 'CmbAccessibleState', 'CmbAccessibleAction') AND
+                      op.ui_id=? AND op.object_id=? AND p.owner_id = op.owner_id AND p.property_id = op.property_id
+                ORDER BY op.owner_id, op.property_id
+                """,
+                (ui_id, object_id),
+            ):
+                (
+                    val,
+                    property_id,
+                    comment,
+                    translatable,
+                    translation_context,
+                    translation_comments,
+                    is_object,
+                    property_type_id,
+                    owner_id,
+                ) = row
 
-                    # Serialize reference lists as multiple nodes
-                    if property_type_id == "CmbAccessibleList":
-                        for ref in [v.strip() for v in value.split(",")]:
-                            # Ignore object properties with 0/null ID or unknown object references
-                            if ref is not None and ref.isnumeric() and int(ref) == 0:
-                                continue
+                value = None
 
-                            obj_name = self.__get_object_name(ui_id, ref, merengue=merengue)
+                # Ignore properties depending on metadata (Gtk4)
+                if atk_object is None:
+                    prefix_len, allowed_ids = a11y_data.get(owner_id, (None, None))
+                    if prefix_len and allowed_ids is not None and property_id[prefix_len:] not in allowed_ids:
+                        continue
 
-                            # Ignore properties that reference an unknown object
-                            if obj_name is None:
-                                continue
+                if is_object:
+                    # Ignore object properties with 0/null ID or unknown object references
+                    if val is not None and val.isnumeric() and int(val) == 0:
+                        continue
 
-                            node = E.relation(name=relation_name)
-                            node.text = obj_name
+                    obj_name = self.__get_object_name(ui_id, val, merengue=merengue)
+
+                    # Ignore properties that reference an unknown object
+                    if obj_name is None:
+                        continue
+                    value = obj_name
+                else:
+                    value = val
+
+                # Accessible properties are prefixed to avoid name clash with other properties
+                if atk_object is not None:
+                    if owner_id == "CmbAccessibleProperty":
+                        node = E.property(name=f"accessible-{property_id.removeprefix('cmb-a11y-property-')}")
+                        atk_object.append(node)
+                    elif owner_id == "CmbAccessibleRelation":
+                        if value is not None:
+                            node = E.relation(type=property_id.removeprefix("cmb-a11y-relation-"), target=value)
                             accessibility.append(node)
 
-                        continue
-                    else:
-                        node = E.relation(name=relation_name)
-                elif owner_id == "CmbAccessibleState":
-                    node = E.state(name=property_id.removeprefix("cmb-a11y-state-"))
-                    accessibility.append(node)
+                            # Value already set as an attribute
+                            value = None
+                    elif owner_id == "CmbAccessibleAction":
+                        node = E.action(action_name=property_id.removeprefix("cmb-a11y-action-"))
+                        accessibility.append(node)
+                else:
+                    if owner_id == "CmbAccessibleProperty":
+                        node = E.property(name=property_id.removeprefix("cmb-a11y-property-"))
+                        accessibility.append(node)
+                    elif owner_id == "CmbAccessibleRelation":
+                        relation_name = property_id.removeprefix("cmb-a11y-relation-")
 
-            if value is not None:
-                node.text = value
+                        # Serialize reference lists as multiple nodes
+                        if property_type_id == "CmbAccessibleList":
+                            for ref in [v.strip() for v in value.split(",")]:
+                                # Ignore object properties with 0/null ID or unknown object references
+                                if ref is not None and ref.isnumeric() and int(ref) == 0:
+                                    continue
 
-            if translatable:
-                self.__node_set(node, "translatable", "yes")
-                self.__node_set(node, "context", translation_context)
-                self.__node_set(node, "comments", translation_comments)
+                                obj_name = self.__get_object_name(ui_id, ref, merengue=merengue)
 
-            self.__node_add_comment(node, comment)
+                                # Ignore properties that reference an unknown object
+                                if obj_name is None:
+                                    continue
+
+                                node = E.relation(name=relation_name)
+                                node.text = obj_name
+                                accessibility.append(node)
+
+                            continue
+                        else:
+                            node = E.relation(name=relation_name)
+                    elif owner_id == "CmbAccessibleState":
+                        node = E.state(name=property_id.removeprefix("cmb-a11y-state-"))
+                        accessibility.append(node)
+
+                if value is not None:
+                    node.text = value
+
+                if translatable:
+                    self.__node_set(node, "translatable", "yes")
+                    self.__node_set(node, "context", translation_context)
+                    self.__node_set(node, "comments", translation_comments)
+
+                self.__node_add_comment(node, comment)
 
         # Append accessibility if there is anything
         if len(accessibility):
