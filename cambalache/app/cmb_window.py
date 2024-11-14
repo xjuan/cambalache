@@ -404,9 +404,13 @@ class CmbWindow(Adw.ApplicationWindow):
         popover.popup()
 
     @Gtk.Template.Callback("on_ui_editor_remove_ui")
-    def __on_ui_editor_remove_ui(self, editor):
-        self.__remove_object_with_confirmation(editor.object)
-        return True
+    def __on_ui_editor_remove_ui(self, editor, ui):
+        self.__remove_object_with_confirmation(ui)
+
+    @Gtk.Template.Callback("on_ui_editor_export_ui")
+    def __on_ui_editor_export_ui(self, editor, ui):
+        if ui.export():
+            self._show_message(_("File Exported"))
 
     @Gtk.Template.Callback("on_css_editor_remove_ui")
     def __on_css_editor_remove_ui(self, editor):
@@ -771,7 +775,7 @@ class CmbWindow(Adw.ApplicationWindow):
             self.__set_page("workspace")
             self.__update_actions()
         except Exception as e:
-            filename=os.path.basename(filename)
+            filename = os.path.basename(filename)
             logger.warning(f"Error loading {filename}", exc_info=True)
             self.present_message_to_user(
                 _("Error loading {filename}").format(filename=filename), secondary_text=str(e)
@@ -881,14 +885,20 @@ class CmbWindow(Adw.ApplicationWindow):
         try:
             file = dialog.save_finish(res)
             filename = file.get_path()
+        except Exception:
+            return
 
+        if not filename:
+            return
+
+        try:
             if self.__check_if_filename_is_in_portal(filename):
                 raise Exception(self.__portal_access_msg)
 
             self.project.filename = filename
             self.__save()
         except Exception as e:
-            filename = os.path.basename(filename)
+            filename = os.path.basename(filename) if filename else filename
             logger.warning(f"Error saving {filename}", exc_info=True)
             self.present_message_to_user(
                 _("Error importing {filename}").format(filename=filename),

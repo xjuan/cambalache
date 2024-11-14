@@ -1132,7 +1132,8 @@
 	(30,34,216,"CmbTypeChooser","type-selected","on_type_chooser_type_selected",None,None,None,None,None),
 	(31,34,217,"CmbView","placeholder-activated","on_view_placeholder_activated",None,None,None,None,None),
 	(32,34,217,"CmbView","placeholder-selected","on_view_placeholder_selected",None,None,None,None,None),
-	(33,28,22,"GtkButton","clicked","on_restart_button_clicked",None,0,0,0,None)
+	(33,28,22,"GtkButton","clicked","on_restart_button_clicked",None,0,0,0,None),
+	(34,34,207,"CmbUIEditor","export-ui","on_ui_editor_export_ui",None,0,0,0,None)
   </object_signal>
   <object_data>
 	(20,22,"GtkWidget",1,1,None,None,None,None,None,None),
@@ -1241,14 +1242,14 @@
 	(34,127,"GtkWidget",2,2,"name","cmb-window")
   </object_data_arg>
   <property>
-	("CmbObjectEditor","layout","gboolean",None,None,None,None,None,None,None,None,None,None,None,None,None,None),
-	("CmbSourceView","lang","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None),
-	("CmbToplevelChooser","derivable-only","gboolean",None,None,None,None,None,None,None,None,None,None,None,None,None,None),
-	("CmbTypeChooserPopover","category","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None),
-	("CmbTypeChooserPopover","derived-type-id","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None),
-	("CmbTypeChooserPopover","parent-type-id","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None),
-	("CmbTypeChooserPopover","show-categories","gboolean",None,None,None,None,None,None,None,None,None,None,None,None,None,None),
-	("CmbTypeChooserPopover","uncategorized-only","gboolean",None,None,None,None,None,None,None,None,None,None,None,None,None,None)
+	("CmbObjectEditor","layout","gboolean",None,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
+	("CmbSourceView","lang","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
+	("CmbToplevelChooser","derivable-only","gboolean",None,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
+	("CmbTypeChooserPopover","category","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
+	("CmbTypeChooserPopover","derived-type-id","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
+	("CmbTypeChooserPopover","parent-type-id","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
+	("CmbTypeChooserPopover","show-categories","gboolean",None,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
+	("CmbTypeChooserPopover","uncategorized-only","gboolean",None,None,None,None,None,None,None,None,None,None,None,None,None,None,None)
   </property>
   <signal>
 	("CasildaCompositor","context-menu",None,None,None),
@@ -1256,6 +1257,7 @@
 	("CmbTypeChooser","chooser-popdown",None,None,None),
 	("CmbTypeChooser","chooser-popup",None,None,None),
 	("CmbTypeChooser","type-selected",None,None,None),
+	("CmbUIEditor","export-ui",None,None,None),
 	("CmbUIEditor","remove-ui",None,None,None),
 	("CmbView","placeholder-activated",None,None,None),
 	("CmbView","placeholder-selected",None,None,None)

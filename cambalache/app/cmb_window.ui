@@ -535,6 +535,7 @@
                                                 <property name="hexpand">True</property>
                                                 <property name="vexpand">True</property>
                                                 <signal name="remove-ui" handler="on_ui_editor_remove_ui"/>
+                                                <signal name="export-ui" handler="on_ui_editor_export_ui"/>
                                               </object>
                                             </property>
                                             <property name="name">properties</property>
