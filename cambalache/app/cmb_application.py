@@ -189,6 +189,9 @@ class CmbApplication(Adw.Application):
     def _on_new_activate(self, action, data):
         target_tk, filename, uipath = data.unpack()
 
+        # FIXME: use nullable parameter
+        filename = filename if filename else None
+
         window = self.props.active_window
 
         if window is None or window.project is not None:
