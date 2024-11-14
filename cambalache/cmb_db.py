@@ -1051,25 +1051,13 @@ class CmbDB(GObject.GObject):
 
         return pinfo
 
-    def __import_property(self, c, info, ui_id, object_id, prop, object_id_map=None, a11y_prefix=None):
+    def __import_property(self, c, info, ui_id, object_id, prop, object_id_map=None):
         name, translatable, context, comments, bind_source_id, bind_property_id, bind_flags = self.__node_get(
             prop, "name", ["translatable:bool", "context", "comments", "bind-source", "bind-property", "bind-flags"]
         )
 
         property_id = name.replace("_", "-")
-
-        # Accessibility properties are prefixed with cmb-a11y- to avoid name clashes
-        if a11y_prefix is not None:
-            property_id = f"{a11y_prefix}-{property_id}"
-
-        comment = self.__node_get_comment(prop)
-
         pinfo = self.__get_property_info(info, property_id)
-
-        # Insert property
-        if not pinfo:
-            self.__collect_error("unknown-property", prop, f"{info.type_id}:{property_id}")
-            return
 
         # Property value
         value = prop.text
@@ -1087,6 +1075,51 @@ class CmbDB(GObject.GObject):
             inline_object_id = self.__import_object(ui_id, obj_node, object_id)
             value = None
 
+        self.__upsert_object_property(
+            c,
+            info,
+            pinfo,
+            ui_id,
+            object_id,
+            prop,
+            property_id,
+            value,
+            object_id_map=object_id_map,
+            translatable=translatable,
+            context=context,
+            comments=comments,
+            bind_source_id=bind_source_id,
+            bind_property_id=bind_property_id,
+            bind_flags=bind_flags,
+            inline_object_id=inline_object_id
+        )
+
+    def __upsert_object_property(
+        self,
+        c,
+        info,
+        pinfo,
+        ui_id,
+        object_id,
+        prop,
+        property_id,
+        value,
+        object_id_map=None,
+        translatable=None,
+        context=None,
+        comments=None,
+        bind_source_id=None,
+        bind_property_id=None,
+        bind_flags=None,
+        inline_object_id=None
+    ):
+        comment = self.__node_get_comment(prop)
+
+        # Insert property
+        if not pinfo:
+            self.__collect_error("unknown-property", prop, f"{info.type_id}:{property_id}")
+            return
+
         # Need to remap object ids on paste
         if object_id_map and pinfo.is_object:
             value = object_id_map.get(value, value)
@@ -1098,22 +1131,6 @@ class CmbDB(GObject.GObject):
                 value = tinfo.enum_get_value_as_string(value)
             elif tinfo.parent_id == "flags":
                 value = tinfo.flags_get_value_as_string(value)
-
-        if pinfo.type_id == "CmbAccessibleList":
-            # Check if this a11y list has already a value
-            row = c.execute(
-                "SELECT value FROM object_property WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id=?;",
-                (
-                    ui_id,
-                    object_id,
-                    pinfo.owner_id,
-                    property_id,
-                ),
-            ).fetchone()
-
-            # if so, then append the value instead of replacing
-            if row is not None:
-                value = f"{row[0]},{value}"
 
         try:
             c.execute(
@@ -1143,6 +1160,66 @@ class CmbDB(GObject.GObject):
             raise Exception(
                 f"XML:{prop.sourceline} - Can not import object {object_id} {pinfo.owner_id}:{property_id} property: {e}"
             )
+
+    def __import_a11y_property(self, c, info, ui_id, object_id, prop, object_id_map=None, a11y_prefix=None):
+        # Property value
+        value = prop.text
+        translatable = None
+        context = None
+        comments = None
+
+        if self.target_tk == "gtk+-3.0":
+            if prop.tag == 'property':
+                name, translatable, context, comments = self.__node_get(
+                    prop, "name", ["translatable:bool", "context", "comments"]
+                )
+                name = name.removeprefix("accessible-")
+            elif prop.tag == 'action':
+                name, translatable, context, comments = self.__node_get(
+                    prop, "action_name", ["translatable:bool", "context", "comments"]
+                )
+            elif prop.tag == 'relation':
+                name, value = self.__node_get(prop, "type", "target")
+        else:
+            name, translatable, context, comments = self.__node_get(prop, "name", ["translatable:bool", "context", "comments"])
+
+        # Accessibility properties are prefixed with cmb-a11y- to avoid name clashes
+        property_id = name.replace("_", "-")
+        property_id = f"cmb-a11y-{prop.tag}-{property_id}"
+
+        pinfo = self.__get_property_info(info, property_id)
+
+        if pinfo.type_id == "CmbAccessibleList":
+            # Check if this a11y list has already a value
+            row = c.execute(
+                "SELECT value FROM object_property WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id=?;",
+                (
+                    ui_id,
+                    object_id,
+                    pinfo.owner_id,
+                    property_id,
+                ),
+            ).fetchone()
+
+            # if so, then append the value instead of replacing
+            # FIXME: use object_id_map
+            if row is not None:
+                value = f"{row[0]},{value}"
+
+        self.__upsert_object_property(
+            c,
+            info,
+            pinfo,
+            ui_id,
+            object_id,
+            prop,
+            property_id,
+            value,
+            object_id_map=object_id_map,
+            translatable=translatable,
+            context=context,
+            comments=comments
+        )
 
     def __import_signal(self, c, info, ui_id, object_id, signal, object_id_map=None):
         (
@@ -1472,8 +1549,7 @@ class CmbDB(GObject.GObject):
         for child in node.iterchildren():
             if child.tag in a11y_tags:
                 info = self.__accessible_info.get(child.tag, None)
-                prefix = f"cmb-a11y-{child.tag}"
-                self.__import_property(c, info, ui_id, object_id, child, object_id_map=object_id_map, a11y_prefix=prefix)
+                self.__import_a11y_property(c, info, ui_id, object_id, child, object_id_map=object_id_map)
             else:
                 self.__collect_error("unknown-tag", node, child.tag)
 
@@ -1500,7 +1576,7 @@ class CmbDB(GObject.GObject):
             return
 
         # Accessibility properties for gtk 3
-        if self.target_tk == "gtl+-3.0" and internal_child == "accessible" and klass == "AtkObject":
+        if self.target_tk == "gtk+-3.0" and internal_child == "accessible" and klass == "AtkObject":
             c = self.conn.cursor()
             self.__import_accessibility(c, ui_id, parent_id, node, object_id_map=object_id_map)
             c.close()
