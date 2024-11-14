@@ -379,7 +379,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
     def __export(self, ui_id, filename, dirname=None):
         if filename is None:
-            return
+            return False
 
         if not os.path.isabs(filename):
             if dirname is None:
@@ -397,8 +397,10 @@ class CmbProject(GObject.Object, Gio.ListModel):
             ui.write(fd, pretty_print=True, xml_declaration=True, encoding="UTF-8")
             fd.close()
 
+        return True
+
     def export_ui(self, ui):
-        self.__export(ui.ui_id, ui.filename)
+        return self.__export(ui.ui_id, ui.filename)
 
     def export(self):
         c = self.db.cursor()
@@ -409,8 +411,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         for row in c.execute("SELECT ui_id, filename FROM ui WHERE filename IS NOT NULL;"):
             ui_id, filename = row
-            self.__export(ui_id, filename, dirname=dirname)
-            n_files += 1
+            if self.__export(ui_id, filename, dirname=dirname):
+                n_files += 1
 
         c.close()
 
