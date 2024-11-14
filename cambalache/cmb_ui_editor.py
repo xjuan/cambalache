@@ -32,6 +32,11 @@ from .cmb_ui import CmbUI
 class CmbUIEditor(Gtk.Grid):
     __gtype_name__ = "CmbUIEditor"
 
+    __gsignals__ = {
+        "remove-ui": (GObject.SignalFlags.RUN_FIRST, None, (CmbUI,)),
+        "export-ui": (GObject.SignalFlags.RUN_FIRST, None, (CmbUI,)),
+    }
+
     filename = Gtk.Template.Child()
     template_id = Gtk.Template.Child()
     description = Gtk.Template.Child()
@@ -90,35 +95,13 @@ class CmbUIEditor(Gtk.Grid):
 
     @Gtk.Template.Callback("on_remove_button_clicked")
     def __on_remove_button_clicked(self, button):
-        self.emit("remove-ui")
+        if self.object:
+            self.emit("remove-ui", self.object)
 
     @Gtk.Template.Callback("on_export_button_clicked")
     def __on_export_button_clicked(self, button):
-        self.emit("export-ui")
-
-    @GObject.Signal(
-        flags=GObject.SignalFlags.RUN_LAST,
-        return_type=bool,
-        arg_types=(),
-        accumulator=GObject.signal_accumulator_true_handled,
-    )
-    def export_ui(self):
         if self.object:
-            self.object.project.export_ui(self.object)
-
-        return True
-
-    @GObject.Signal(
-        flags=GObject.SignalFlags.RUN_LAST,
-        return_type=bool,
-        arg_types=(),
-        accumulator=GObject.signal_accumulator_true_handled,
-    )
-    def remove_ui(self):
-        if self.object:
-            self.object.project.remove_ui(self.object)
-
-        return True
+            self.emit("export-ui", self.object)
 
 
 Gtk.WidgetClass.set_css_name(CmbUIEditor, "CmbUIEditor")
