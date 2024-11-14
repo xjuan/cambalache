@@ -3,6 +3,7 @@ cambalache/app/cmb_shortcuts.ui
 cambalache/app/cmb_tutorial.py
 cambalache/app/cmb_window.py
 cambalache/app/cmb_window.ui
+cambalache/cmb_accessible_editor.py
 cambalache/cmb_column_view.py
 cambalache/cmb_context_menu.py
 cambalache/cmb_css.py
@@ -22,6 +23,7 @@ cambalache/cmb_ui.py
 cambalache/cmb_ui_editor.ui
 cambalache/cmb_view.py
 cambalache/cmb_view.ui
+cambalache/control/cmb_boolean_undefined.py
 cambalache/control/cmb_file_entry.py
 cambalache/control/cmb_icon_name_entry.py
 cambalache/control/cmb_object_chooser.py
