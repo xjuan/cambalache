@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<interface>
+  <!-- interface-name accessibility.ui -->
+  <requires lib="atk" version="1.0"/>
+  <requires lib="gtk+" version="3.24"/>
+  <object class="GtkLabel" id="label1">
+    <property name="label">I am a Label for a Button</property>
+  </object>
+  <object class="GtkButton" id="button1">
+    <accessibility>
+      <action action_name="click" translatable="yes">Click the button.</action>
+      <relation type="labelled-by" target="label1"/>
+    </accessibility>
+    <child internal-child="accessible">
+      <object class="AtkObject">
+        <property name="accessible-name">Clickable Button</property>
+      </object>
+    </child>
+  </object>
+</interface>

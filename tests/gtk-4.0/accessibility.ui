@@ -5,40 +5,13 @@
   <object class="GtkButton" id="a11y1">
     <accessibility>
       <state name="busy">t</state>
-      <state name="checked">mixed</state>
-      <state name="disabled">true</state>
-      <state name="expanded">undefined</state>
       <state name="hidden">True</state>
       <state name="invalid">grammar</state>
-      <state name="pressed">undefined</state>
-      <state name="selected">0</state>
     </accessibility>
   </object>
   <object class="GtkBox" id="a11y2">
     <child>
-      <object class="GtkButton">
-        <accessibility>
-          <property name="autocomplete">both</property>
-          <property name="description" translatable="yes">Bah</property>
-          <property name="has-popup">1</property>
-          <property name="key-shortcuts">shortcuts go here</property>
-          <property name="label" translatable="yes">label?</property>
-          <property name="level">99</property>
-          <property name="modal">no</property>
-          <property name="multi-line">0</property>
-          <property name="multi-selectable">false</property>
-          <property name="orientation">horizontal</property>
-          <property name="placeholder" translatable="yes">placeholder?</property>
-          <property name="read-only">F</property>
-          <property name="required">False</property>
-          <property name="role-description">Dunno</property>
-          <property name="sort">ascending</property>
-          <property name="value-max">11</property>
-          <property name="value-min">0</property>
-          <property name="value-now">10</property>
-          <property name="value-text" translatable="yes">Ten</property>
-        </accessibility>
-      </object>
+      <object class="GtkButton"/>
     </child>
   </object>
   <object class="GtkBox" id="a11y3">
@@ -51,7 +24,15 @@
       </object>
     </child>
     <child>
-      <object class="GtkLabel" id="label"/>
+      <object class="GtkLabel" id="label">
+        <accessibility>
+          <property name="help-text">help text</property>
+          <property name="label">a label</property>
+          <relation name="described-by">a11y3</relation>
+          <relation name="details">a11y2</relation>
+          <state name="expanded">True</state>
+        </accessibility>
+      </object>
     </child>
   </object>
 </interface>
