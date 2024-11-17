@@ -319,6 +319,12 @@ class CmbDB(GObject.GObject):
         c.close()
 
     def __init_builtin_types(self):
+        # Add special type for external object references. See gtk_builder_expose_object()
+        self.execute(
+            "INSERT INTO type (type_id, parent_id, library_id) VALUES (?, 'object', ?);",
+            (EXTERNAL_TYPE, "gtk" if self.target_tk == "gtk-4.0" else "gtk+")
+        )
+
         # Add GMenu related types
         for gtype, category in [
             (GMENU_TYPE, "model"),
@@ -383,9 +389,6 @@ class CmbDB(GObject.GObject):
             raise Exception(f"Unknown target toolkit {self.target_tk}")
 
         exclude_catalogs = {"gdk-3.0", "gtk+-3.0"} if self.target_tk == "gtk-4.0" else {"gdk-4.0", "gsk-4.0", "gtk-4.0"}
-
-        # Add special type for external object references. See gtk_builder_expose_object()
-        self.execute("INSERT INTO type (type_id, parent_id) VALUES (?, 'object');", (EXTERNAL_TYPE,))
 
         # Dictionary of catalog XML trees
         catalogs_tree = {}
@@ -892,6 +895,7 @@ class CmbDB(GObject.GObject):
         )
         object_id = c.fetchone()[0]
 
+        # FIXME: position could already exists, ensure it wont raise an unique constraint error
         if position is None or position < 0:
             if parent_id is None:
                 c.execute("SELECT count(object_id) FROM object WHERE ui_id=? AND parent_id IS NULL;", (ui_id, ))
@@ -1342,7 +1346,11 @@ class CmbDB(GObject.GObject):
 
                 # Update object position if this layout property is_position
                 if pinfo and pinfo.is_position:
-                    c.execute("UPDATE object SET position=? WHERE ui_id=? AND object_id=?;", (prop.text, ui_id, object_id))
+                    try:
+                        c.execute("UPDATE object SET position=? WHERE ui_id=? AND object_id=?;", (prop.text, ui_id, object_id))
+                    except Exception:
+                        # Ignore duplicated positions
+                        pass
                     continue
 
             try:
@@ -1589,8 +1597,8 @@ class CmbDB(GObject.GObject):
         # Insert object
         try:
             object_id = self.add_object(ui_id, klass, name, parent_id, internal_child, child_type, comment)
-        except Exception:
-            logger.warning(f"XML:{node.sourceline} - Error importing {klass}")
+        except Exception as e:
+            logger.warning(f"XML:{node.sourceline} - Error importing {klass} {e}")
             return
 
         c = self.conn.cursor()
