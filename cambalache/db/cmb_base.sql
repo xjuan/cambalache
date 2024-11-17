@@ -95,8 +95,8 @@ INSERT INTO type (type_id) VALUES
  * Keep a list of interfaces implemented by type
  */
 CREATE TABLE IF NOT EXISTS type_iface (
-  type_id TEXT REFERENCES type ON UPDATE CASCADE,
-  iface_id TEXT REFERENCES type ON UPDATE CASCADE,
+  type_id TEXT REFERENCES type ON UPDATE CASCADE ON DELETE CASCADE,
+  iface_id TEXT REFERENCES type ON UPDATE CASCADE ON DELETE CASCADE,
   PRIMARY KEY(type_id, iface_id)
 ) WITHOUT ROWID;
 

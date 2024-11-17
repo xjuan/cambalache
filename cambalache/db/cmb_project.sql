@@ -69,8 +69,13 @@ WHEN
   (SELECT name FROM object WHERE ui_id=NEW.ui_id AND object_id=NEW.template_id) IS NOT NULL
 BEGIN
   INSERT INTO type (type_id, parent_id)
-    SELECT name, type_id FROM object
-      WHERE ui_id=NEW.ui_id AND object_id=NEW.template_id;
+    SELECT name, type_id FROM object WHERE ui_id=NEW.ui_id AND object_id=NEW.template_id
+    ON CONFLICT DO NOTHING;
+
+  INSERT INTO type_iface (type_id, iface_id)
+    WITH v AS (SELECT name, type_id FROM object WHERE ui_id=NEW.ui_id AND object_id=NEW.template_id)
+      SELECT v.name, t.iface_id FROM type_iface AS t, v WHERE t.type_id=v.type_id
+    ON CONFLICT DO NOTHING;
 END;
 
 
@@ -171,7 +176,13 @@ WHEN
   NEW.name IS NOT NULL AND
   NEW.object_id IS (SELECT template_id FROM ui WHERE ui_id=NEW.ui_id)
 BEGIN
-  INSERT INTO type(type_id, parent_id, derivable) VALUES (NEW.name, NEW.type_id, 1);
+  INSERT INTO type(type_id, parent_id, derivable)
+    VALUES (NEW.name, NEW.type_id, 1)
+  ON CONFLICT DO NOTHING;
+
+  INSERT INTO type_iface (type_id, iface_id)
+    SELECT NEW.name, iface_id FROM type_iface WHERE type_id=NEW.type_id
+  ON CONFLICT DO NOTHING;
 END;
 
 CREATE TRIGGER on_object_delete_remove_type AFTER DELETE ON object
