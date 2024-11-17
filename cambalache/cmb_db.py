@@ -889,20 +889,31 @@ class CmbDB(GObject.GObject):
     ):
         c = self.conn.cursor()
 
-        c.execute(
-            "SELECT coalesce((SELECT MAX(object_id) FROM object WHERE ui_id=?), 0) + 1;",
-            (ui_id,),
-        )
-        object_id = c.fetchone()[0]
+        # Get new object id
+        object_id = c.execute("SELECT coalesce(MAX(object_id), 0) + 1 FROM object WHERE ui_id=?;", (ui_id,)).fetchone()[0]
 
-        # FIXME: position could already exists, ensure it wont raise an unique constraint error
+        # Check if position is already in use and ensure it wont raise an unique constraint error
+        if position is not None and position > 0:
+            row = c.execute(
+                "SELECT object_id FROM object WHERE ui_id=? AND parent_id=? AND position=?;",
+                (ui_id, parent_id, position)
+            ).fetchone()
+
+            if row is not None:
+                position = None
+
+        # Get position if not provided
         if position is None or position < 0:
             if parent_id is None:
-                c.execute("SELECT count(object_id) FROM object WHERE ui_id=? AND parent_id IS NULL;", (ui_id, ))
+                c.execute("SELECT coalesce(MAX(position), -1) + 1 FROM object WHERE ui_id=? AND parent_id IS NULL;", (ui_id, ))
             else:
-                c.execute("SELECT count(object_id) FROM object WHERE ui_id=? AND parent_id=?;", (ui_id, parent_id))
+                c.execute(
+                    "SELECT coalesce(MAX(position), -1) + 1 FROM object WHERE ui_id=? AND parent_id=?;",
+                    (ui_id, parent_id)
+                )
             position = c.fetchone()[0]
 
+        # Insert new object
         c.execute(
             """
             INSERT INTO object (ui_id, object_id, type_id, name, parent_id, internal, type, comment, position)
