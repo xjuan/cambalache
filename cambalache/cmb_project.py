@@ -721,12 +721,24 @@ class CmbProject(GObject.Object, Gio.ListModel):
         if type(key) is int:
             return self._object_id.get(key, None)
 
+        if type(key) is not str:
+            logger.warning(f"Wrong key type {type(key)} {key}", exc_info=True)
+
         obj = self._object_id.get(key, None)
 
         if obj:
             return obj
 
-        ui_id, object_id = [int(x) for x in key.split(".")]
+        tokens = key.split(".")
+
+        # Check all tokens are numeric
+        for token in tokens:
+            if not token.isnumeric():
+                logger.warning(f"Error in object key {key}", exc_info=True)
+                return None
+
+        ui_id, object_id = [int(x) for x in tokens]
+
         row = self.db.execute("SELECT * FROM object WHERE ui_id=? AND object_id=?;", (ui_id, object_id)).fetchone()
         if row:
             return self.__add_object(False, *row)
