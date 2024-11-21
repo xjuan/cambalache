@@ -23,7 +23,7 @@
 # SPDX-License-Identifier: LGPL-2.1-only
 #
 
-from gi.repository import GObject, Gtk
+from gi.repository import GLib, GObject, Gio, Gtk
 
 from .cmb_project import CmbProject
 from .cmb_type_info import CmbTypeInfo
@@ -48,13 +48,12 @@ class CmbTypeChooserWidget(Gtk.Box):
     derived_type_id = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
 
     scrolledwindow = Gtk.Template.Child()
-    treeview = Gtk.Template.Child()
+    listview = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         self.__project = None
-        self.__model = None
         self._search_text = ""
-        self._filter = None
+        self.__model = None
 
         super().__init__(**kwargs)
 
@@ -94,10 +93,6 @@ class CmbTypeChooserWidget(Gtk.Box):
 
         return retval
 
-    def __store_append_info(self, store, info):
-        if store:
-            store.append([info.type_id, info.type_id.lower(), info, True])
-
     def __model_from_project(self, project):
         if project is None:
             return None
@@ -113,7 +108,12 @@ class CmbTypeChooserWidget(Gtk.Box):
         order = {"toplevel": 0, "layout": 1, "control": 2, "display": 3, "model": 4}
 
         # type_id, type_id.lower(), CmbTypeInfo, sensitive
-        store = Gtk.ListStore(str, str, CmbTypeInfo, bool)
+        store = Gio.ListStore()
+
+        custom_filter = Gtk.CustomFilter()
+        custom_filter.set_filter_func(self.__custom_filter_func, None)
+        filter_model = Gtk.FilterListModel(model=store, filter=custom_filter)
+
         infos = []
 
         for key in project.type_info:
@@ -135,15 +135,15 @@ class CmbTypeChooserWidget(Gtk.Box):
             if show_categories and last_category != i.category:
                 last_category = i.category
                 category = categories.get(i.category, _("Others"))
-                store.append([f"<i>▾ {category}</i>", "", None, False])
+                store.append(CmbTypeInfo(type_id=f"<i><b>▾ {category}</b></i>"))
 
-            self.__store_append_info(store, i)
+            store.append(i)
 
         # Special case External object type
         if show_categories or self.uncategorized_only:
-            self.__store_append_info(store, project.type_info[constants.EXTERNAL_TYPE])
+            store.append(project.type_info[constants.EXTERNAL_TYPE])
 
-        return store
+        return filter_model
 
     @GObject.Property(type=CmbProject)
     def project(self):
@@ -154,21 +154,15 @@ class CmbTypeChooserWidget(Gtk.Box):
         if self.__project:
             self.__project.disconnect_by_func(self.__on_type_info_added)
             self.__project.disconnect_by_func(self.__on_type_info_removed)
-            self.__project.disconnect_by_func(self.__on_type_info_changed)
 
         self.__project = project
 
         self.__model = self.__model_from_project(project)
-        self._filter = Gtk.TreeModelFilter(child_model=self.__model) if self.__model else None
-        if self._filter:
-            self._filter.set_visible_func(self.__visible_func)
-
-        self.treeview.props.model = self._filter
+        self.listview.set_model(Gtk.NoSelection(model=self.__model))
 
         if project:
             project.connect("type-info-added", self.__on_type_info_added)
             project.connect("type-info-removed", self.__on_type_info_removed)
-            project.connect("type-info-changed", self.__on_type_info_changed)
 
     @Gtk.Template.Callback("on_searchentry_activate")
     def __on_searchentry_activate(self, entry):
@@ -181,61 +175,34 @@ class CmbTypeChooserWidget(Gtk.Box):
     @Gtk.Template.Callback("on_searchentry_search_changed")
     def __on_searchentry_search_changed(self, entry):
         self._search_text = entry.props.text.lower()
-        self._filter.refilter()
+        self.__model.props.filter.changed(Gtk.FilterChange.DIFFERENT)
 
-    @Gtk.Template.Callback("on_treeview_row_activated")
-    def __on_treeview_row_activated(self, treeview, path, column):
-        model = treeview.props.model
-        info = model[model.get_iter(path)][2]
+    @Gtk.Template.Callback("on_listview_activate")
+    def __on_listview_activate(self, listview, position):
+        info = self.__model.get_item(position)
 
-        if info is not None:
+        if info is not None and info.project:
             self.emit("type-selected", info)
 
-    def __visible_func(self, model, iter, data):
-        type_id, type_id_lower, info, sensitive = model[iter]
-
-        # Always show categories if we are not searching
-        if self._search_text == "" and info is None:
-            return True
-
-        return type_id_lower.find(self._search_text) >= 0
+    def __custom_filter_func(self, info, data):
+        return info.type_id.lower().find(self._search_text) >= 0
 
     def __on_type_info_added(self, project, info):
         if self.__model is None:
             return
 
         # Append new type info
-        # TODO: insert in order
         if self.__type_info_should_append(info):
-            self.__store_append_info(self.__model, info)
+            self.__model.props.model.insert_sorted(info, lambda a, b, d: GLib.strcmp0(a.type_id, b.type_id), None)
 
     def __on_type_info_removed(self, project, info):
         if self.__model is None:
             return
 
         # Find info and remove it from model
-        for row in self.__model:
-            if info == row[2]:
-                self.__model.remove(row.iter)
-
-    def __on_type_info_changed(self, project, info):
-        if self.__model is None:
-            return
-
-        info_row = None
-
-        # Find info and update it from model
-        for row in self.__model:
-            if info == row[2]:
-                info_row = row
-                break
-
-        if info_row is None:
-            return
-
-        # Update Type Name
-        info_row[0] = info.type_id
-        info_row[1] = info.type_id.lower()
+        found, position = self.__model.props.model.find(info)
+        if found:
+            self.__model.props.model.remove(position)
 
 
 Gtk.WidgetClass.set_css_name(CmbTypeChooserWidget, "CmbTypeChooserWidget")

@@ -60,12 +60,16 @@ class CmbTypeDataInfo(CmbBaseTypeDataInfo):
 
 
 class CmbTypeInfo(CmbBaseTypeInfo):
+    __gtype_name__ = "CmbTypeInfo"
+
     type_id = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
     parent_id = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
     parent = GObject.Property(type=GObject.Object, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        if self.project is None:
+            return
 
         self.hierarchy = self.__init_hierarchy()
         self.interfaces = self.__init_interfaces()
