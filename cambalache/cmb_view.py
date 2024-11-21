@@ -250,6 +250,7 @@ class CmbView(Gtk.Box):
         "placeholder-activated": (GObject.SignalFlags.RUN_LAST, None, (int, int, object, int, str)),
     }
 
+    show_merengue = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
     preview = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
 
     stack = Gtk.Template.Child()
@@ -310,6 +311,9 @@ class CmbView(Gtk.Box):
         self.__merengue.write_command(command, payload, args)
 
     def __get_ui_xml(self, ui_id, merengue=False):
+        if self.show_merengue:
+            merengue = True
+
         return self.__project.db.tostring(ui_id, merengue=merengue)
 
     def __update_view(self):
