@@ -1188,7 +1188,7 @@ class CmbDB(GObject.GObject):
                 name, translatable, context, comments = self.__node_get(
                     prop, "name", ["translatable:bool", "context", "comments"]
                 )
-                name = name.removeprefix("accessible-")
+                name = name.removeprefix("AtkObject::").removeprefix("accessible-")
             elif prop.tag == 'action':
                 name, translatable, context, comments = self.__node_get(
                     prop, "action_name", ["translatable:bool", "context", "comments"]
@@ -1198,11 +1198,15 @@ class CmbDB(GObject.GObject):
         else:
             name, translatable, context, comments = self.__node_get(prop, "name", ["translatable:bool", "context", "comments"])
 
-        # Accessibility properties are prefixed with cmb-a11y- to avoid name clashes
+        # Accessibility properties are prefixed with cmb-a11y-{tag} to avoid name clashes
         property_id = name.replace("_", "-")
         property_id = f"cmb-a11y-{prop.tag}-{property_id}"
 
         pinfo = self.__get_property_info(info, property_id)
+
+        if not pinfo:
+            self.__collect_error("unknown-property", prop, f"{info.type_id}:{property_id}")
+            return
 
         if pinfo.type_id == "CmbAccessibleList":
             # Check if this a11y list has already a value
