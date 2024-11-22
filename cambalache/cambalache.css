@@ -40,6 +40,15 @@ CmbPropertyLabel.hidden:hover > box > image  {
   opacity: 1;
 }
 
+button.close {
+  padding: unset;
+  margin: unset;
+  border: unset;
+  border-radius: 50%;
+  min-width: 20px;
+  min-height: 20px;
+}
+
 CmbPropertyLabel {
   min-width:unset;
   min-height: unset;
@@ -49,6 +58,22 @@ CmbPropertyLabel {
   background: unset;
   box-shadow: unset;
   outline: unset;
+}
+
+CmbPropertyLabel > box > label {
+  padding: 2px 4px;
+}
+
+CmbPropertyLabel:focus > box > label {
+/*
+  FIXME: use focus_border_color
+  $focus_border_color: if($variant == 'light', transparentize($selected_bg_color, 0.5), transparentize($selected_bg_color, 0.3));
+ */
+  outline-color: color-mix(in srgb, var(--accent-bg-color) 60%, transparent);
+  outline-offset: -2px;
+  outline-width: 2px;
+  outline-style: solid;
+  border-radius: 6px;
 }
 
 CmbPropertyLabel.modified > box > label {

@@ -30,6 +30,7 @@ from .cmb_property import CmbProperty
 from .cmb_layout_property import CmbLayoutProperty
 from .cmb_property_info import CmbPropertyInfo
 from .control import CmbObjectChooser, CmbFlagsEntry
+from cambalache import _
 
 
 class CmbPropertyLabel(Gtk.Button):
@@ -48,12 +49,13 @@ class CmbPropertyLabel(Gtk.Button):
             raise Exception("CmbPropertyLabel requires prop or layout_prop to be set")
             return
 
-        self.label = Gtk.Label(xalign=0, visible=True)
-        box = Gtk.Box(visible=True)
+        self.props.focus_on_click = False
+        self.label = Gtk.Label(halign=Gtk.Align.START, valign=Gtk.Align.CENTER)
+        box = Gtk.Box()
 
         # Update label status
         if self.prop:
-            self.bind_icon = Gtk.Image(icon_size=Gtk.IconSize.NORMAL, visible=True)
+            self.bind_icon = Gtk.Image(icon_size=Gtk.IconSize.NORMAL)
             box.append(self.bind_icon)
 
             # A11y properties are prefixed to avoid clashes, do not show prefix here
@@ -126,13 +128,23 @@ class CmbPropertyLabel(Gtk.Button):
         self.__update_property_label()
         popover.popdown()
 
+    def __on_close_clicked(self, button, popover):
+        popover.popdown()
+
     def __on_bind_button_clicked(self, button):
         popover = Gtk.Popover(position=Gtk.PositionType.LEFT)
         popover.set_parent(self)
 
-        grid = Gtk.Grid(hexpand=True, row_spacing=4, column_spacing=4, visible=True)
+        label = Gtk.Label(label="<b>Property Binding</b>", use_markup=True, halign=Gtk.Align.START, hexpand=True)
+        close = Gtk.Button(icon_name="window-close-symbolic", halign=Gtk.Align.END, css_classes=["close"])
+        close.connect("clicked", self.__on_close_clicked, popover)
 
-        grid.attach(Gtk.Label(label="<b>Property Binding</b>", use_markup=True, visible=True, xalign=0), 0, 0, 2, 1)
+        box = Gtk.Box(hexpand=True)
+        box.append(label)
+        box.append(close)
+
+        grid = Gtk.Grid(hexpand=True, row_spacing=6, column_spacing=6)
+        grid.attach(box, 0, 0, 2, 1)
 
         # Get bind property to initialize inputs
         bind_source, bind_property = self.__find_bind_source_property(self.prop.bind_source_id, self.prop.bind_property_id)
@@ -162,18 +174,16 @@ class CmbPropertyLabel(Gtk.Button):
 
         i = 1
         for prop_label, editor in [("source", object_editor), ("property", property_editor), ("flags", flags_editor)]:
-            editor.props.visible = True
-
-            label = Gtk.Label(label=prop_label, xalign=0, visible=True)
+            label = Gtk.Label(label=prop_label, xalign=0)
 
             grid.attach(label, 0, i, 1, 1)
             grid.attach(editor, 1, i, 1, 1)
             i += 1
 
-        clear = Gtk.Button(label="Clear", visible=True, halign=Gtk.Align.END)
+        clear = Gtk.Button(label=_("Clear"), halign=Gtk.Align.END)
         clear.connect("clicked", self.__on_clear_clicked, popover)
-
         grid.attach(clear, 0, i, 2, 1)
+
         object_editor.grab_focus()
 
         popover.set_child(grid)
