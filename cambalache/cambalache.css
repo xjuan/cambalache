@@ -40,7 +40,7 @@ CmbPropertyLabel.hidden:hover > box > image  {
   opacity: 1;
 }
 
-button.close {
+popover.cmb-binding-popover button.close {
   padding: unset;
   margin: unset;
   border: unset;

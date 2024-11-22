@@ -132,7 +132,7 @@ class CmbPropertyLabel(Gtk.Button):
         popover.popdown()
 
     def __on_bind_button_clicked(self, button):
-        popover = Gtk.Popover(position=Gtk.PositionType.LEFT)
+        popover = Gtk.Popover(position=Gtk.PositionType.LEFT, css_classes=["cmb-binding-popover"])
         popover.set_parent(self)
 
         label = Gtk.Label(label="<b>Property Binding</b>", use_markup=True, halign=Gtk.Align.START, hexpand=True)
