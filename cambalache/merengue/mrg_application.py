@@ -370,8 +370,8 @@ class MrgApplication(Gtk.Application):
         # We receive a command in each line
         retval = self.command_in.readline()
 
-        # if len(retval) == 0:
-        #     return GLib.SOURCE_CONTINUE
+        if len(retval) == 0:
+            return GLib.SOURCE_CONTINUE
 
         try:
             # Command is a Json string with a command, args and payload fields
@@ -383,10 +383,12 @@ class MrgApplication(Gtk.Application):
         else:
             command = cmd.get("command", None)
             args = cmd.get("args", {})
-            has_payload = cmd.get("payload", False)
+            payload = None
+            payload_length = cmd.get("payload_length", False)
 
             # Read payload
-            payload = GLib.strcompress(self.command_in.readline()) if has_payload else None
+            if payload_length:
+                payload = self.command_in.read(payload_length).decode()
 
             # Run command
             self.run_command(command, args, payload)

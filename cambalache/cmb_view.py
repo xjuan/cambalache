@@ -210,7 +210,10 @@ class CmbMerengueProcess(GObject.Object):
                 self.__pid = 0
 
     def write_command(self, command, payload=None, args=None):
-        cmd = {"command": command, "payload": payload is not None}
+        cmd = {"command": command}
+
+        if payload is not None:
+            cmd["payload_length"] = len(payload)
 
         if args is not None:
             cmd["args"] = args
@@ -229,8 +232,7 @@ class CmbMerengueProcess(GObject.Object):
         output_stream.write(b"\n")
 
         if payload is not None:
-            output_stream.write(GLib.strescape(payload).encode())
-            output_stream.write(b"\n")
+            output_stream.write(payload.encode())
 
         # Flush
         output_stream.flush()
