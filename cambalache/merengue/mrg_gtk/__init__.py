@@ -36,6 +36,7 @@ elif Gtk.MAJOR_VERSION == 4:
     from .mrg_gtk_stack_page import MrgGtkStackPage
 
 from .mrg_gtk_box import MrgGtkBox
+from .mrg_gtk_dialog import MrgGtkDialog
 from .mrg_gtk_expander import MrgGtkExpander
 from .mrg_gtk_frame import MrgGtkFrame
 from .mrg_gtk_grid import MrgGtkGrid
@@ -59,3 +60,4 @@ from .mrg_selection import MrgSelection
 from .mrg_g_binding import MrgGBindingProxy
 
 GObject.type_ensure(MrgGBindingProxy.__gtype__)
+
