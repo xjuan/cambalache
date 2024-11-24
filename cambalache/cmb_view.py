@@ -213,6 +213,8 @@ class CmbMerengueProcess(GObject.Object):
         cmd = {"command": command}
 
         if payload is not None:
+            # Encode to binary first, before calculating lenght
+            payload = payload.encode()
             cmd["payload_length"] = len(payload)
 
         if args is not None:
@@ -232,7 +234,7 @@ class CmbMerengueProcess(GObject.Object):
         output_stream.write(b"\n")
 
         if payload is not None:
-            output_stream.write(payload.encode())
+            output_stream.write(payload)
 
         # Flush
         output_stream.flush()
