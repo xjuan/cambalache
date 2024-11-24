@@ -1814,6 +1814,30 @@ class CmbDB(GObject.GObject):
             (ui_id,),
         )
 
+        # Fix data references to objects
+        self.conn.execute(
+            """
+            WITH RECURSIVE ancestor(type_id, generation, parent_id) AS (
+              SELECT type_id, 1, parent_id FROM type
+                WHERE parent_id IS NOT NULL AND
+                      parent_id != 'enum' AND
+                      parent_id != 'flags'
+              UNION ALL
+              SELECT ancestor.type_id, generation + 1, type.parent_id
+                FROM type JOIN ancestor ON type.type_id = ancestor.parent_id
+                WHERE type.parent_id IS NOT NULL
+            )
+            UPDATE object_data AS od SET value=o.object_id
+            FROM object AS o, type_data AS td, type AS t, ancestor AS a
+            WHERE
+                od.ui_id=? AND od.ui_id=o.ui_id AND od.value=o.name AND
+                od.owner_id=td.owner_id AND od.data_id=td.data_id AND
+                td.type_id=t.type_id AND
+                t.type_id=a.type_id AND a.generation=1 AND a.parent_id IN ('GObject', 'interface')
+            """,
+            (ui_id,),
+        )
+
         # Fix data arg references to objects
         self.conn.execute(
             """
@@ -2075,13 +2099,19 @@ class CmbDB(GObject.GObject):
 
         for row in c.execute(
             """
-            SELECT id, value, comment, translatable, translation_context, translation_comments
-            FROM object_data
-            WHERE ui_id=? AND object_id=? AND owner_id=? AND data_id=? AND parent_id=?;
+            SELECT od.id, od.value, od.comment, od.translatable, od.translation_context, od.translation_comments, td.type_id
+            FROM object_data AS od, type_data AS td
+            WHERE od.owner_id = td.owner_id AND od.data_id = td.data_id AND
+                  od.ui_id=? AND od.object_id=? AND od.owner_id=? AND od.data_id=? AND od.parent_id=?;
             """,
             (ui_id, object_id, owner_id, info.data_id, parent_id),
         ):
-            id, value, comment, translatable, translation_context, translation_comments = row
+            id, value, comment, translatable, translation_context, translation_comments, type_id = row
+
+            arg_info = self.type_info.get(type_id, None)
+            if arg_info and arg_info.is_object:
+                value = self.__get_object_name(ui_id, value, merengue=merengue)
+
             ntag = etree.Element(name)
             if value:
                 ntag.text = value
@@ -2091,7 +2121,7 @@ class CmbDB(GObject.GObject):
             for row in cc.execute(
                 """
                 SELECT od.key, od.value, td.type_id
-                FROM object_data_arg AS od, type_data_arg as td
+                FROM object_data_arg AS od, type_data_arg AS td
                 WHERE od.owner_id = td.owner_id AND od.data_id = td.data_id AND
                       od.ui_id=? AND od.object_id=? AND od.owner_id=? AND od.data_id=? AND
                       od.id=? AND od.value IS NOT NULL;
