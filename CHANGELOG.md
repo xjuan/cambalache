@@ -9,6 +9,34 @@ Cambalache used even/odd minor numbers to differentiate between stable and
 development releases.
 
 
+## 0.94.0
+
+2024-11-25 - Accessibility release
+
+ - Gtk 4 and Gtk 3 accessibility support
+ - Support property subclass override defaults
+ - AdwDialog placeholder support
+ - Improved object description in hierarchy
+ - Lots of bug fixes and minor UI improvements
+
+### Issues
+
+ - #252 "Workspace process error / "Error updating UI 1: gtk-builder-error-quark: .:185:38 Object with ID reset not found (13)" with specific UI file"
+ - #251 "GTK 3 message dialog from specific .ui file rendered incorrectly"
+ - #250 "Error trying to import specific (LibreOffice) GTK 3 .ui file: "'NoneType has no attribute 'type_id'""
+ - #240 "Do not show cryptic paths for imported ui files (flatpak)"
+ - #202 "cambalache crashes when using"
+ - #203 "AdwActionRow : wrong default for activatable property"
+ - #241 "Handle adding widgets in empty workspace"
+ - #234 "Hold <alt> to create object in place is not clear"
+ - #242 "Support quit via Ctrl + Q"
+ - #239 "Preview feature is not clear"
+ - #235 "Remember last saved / open location"
+ - #236 "`Import` menu operation is not clear"
+ - #233 "Widget tree is confusing"
+ - #137 "Add accessibility support"
+ - #232 "Crashes when restarting workspace"
+
 ## 0.92.0
 
 2024-09-27 - Adwaita + Casilda release

@@ -14,6 +14,18 @@
     </p>
   </description>
   <releases>
+    <release date="2024-11-27" version="0.94.0">
+      <description>
+        <p>Accessibility Release!</p>
+        <ul>
+          <li>Gtk 4 and Gtk 3 accessibility support</li>
+          <li>Support property subclass override defaults</li>
+          <li>AdwDialog placeholder support</li>
+          <li>Improved object description in hierarchy</li>
+          <li>Lots of bug fixes and minor UI improvements</li>
+        </ul>
+      </description>
+    </release>
     <release date="2024-09-27" version="0.92.0">
       <description>
         <p>Adwaita + Casilda Release!</p>
