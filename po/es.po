@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: cambalache\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-11-25 18:26-0500\n"
-"PO-Revision-Date: 2024-11-14 10:22-0500\n"
+"PO-Revision-Date: 2024-11-25 18:26-0500\n"
 "Last-Translator: Juan Pablo Ugarte <juanpablougarte@gmail.com>\n"
 "Language-Team: Spanish; Castilian\n"
 "Language: es\n"
@@ -1096,7 +1096,7 @@ msgstr "Advertencia: las uri de GFile tienen que ser absolutas para Gtk < 4.16"
 
 #: cambalache/cmb_property_label.py:183
 msgid "Clear"
-msgstr ""
+msgstr "Limpiar"
 
 #: cambalache/cmb_signal_editor.ui:47
 msgid "Signal"
