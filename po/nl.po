@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cambalache\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-14 10:20-0500\n"
+"POT-Creation-Date: 2024-11-25 18:26-0500\n"
 "PO-Revision-Date: 2022-06-08 14:12-0400\n"
 "Last-Translator: Juan Pablo Ugarte <juanpablougarte@gmail.com>\n"
 "Language-Team: Spanish; Castilian <>\n"
@@ -494,7 +494,7 @@ msgstr "Eigenschappen"
 
 #. Widget group for container widgets like GtkBox grid
 #: cambalache/app/cmb_window.ui:470 cambalache/cmb_type_chooser.ui:85
-#: cambalache/cmb_type_chooser_widget.py:107
+#: cambalache/cmb_type_chooser_widget.py:102
 msgid "Layout"
 msgstr "Lay-out"
 
@@ -658,13 +658,13 @@ msgstr ""
 msgid "The file changed on disk."
 msgstr ""
 
-#: cambalache/cmb_db.py:1830
+#: cambalache/cmb_db.py:1877
 #, fuzzy, python-brace-format
 msgid "Unknown root tag {tag}"
 msgstr "één onbekende tag '{detail}'"
 
 #. Translators: This text will be used in the next two string as {convert}
-#: cambalache/cmb_db.py:1839
+#: cambalache/cmb_db.py:1886
 msgid ""
 "\n"
 "Use gtk4-builder-tool first to convert file."
@@ -672,7 +672,7 @@ msgstr ""
 "\n"
 "Gebruik eerst gtk4-builder-tool om het bestand om te zetten."
 
-#: cambalache/cmb_db.py:1844
+#: cambalache/cmb_db.py:1891
 #, python-brace-format
 msgid ""
 "Can not import what looks like a {lib}-{ver} file in a {target_tk} project."
@@ -681,7 +681,7 @@ msgstr ""
 "Kon wat lijkt op een {lib}-{ver}-bestand niet importeren in een {target_tk}-"
 "project.{convert}"
 
-#: cambalache/cmb_db.py:1851
+#: cambalache/cmb_db.py:1898
 #, python-brace-format
 msgid "Can not import a {lib}-{ver} file in a {target_tk} project.{convert}"
 msgstr ""
@@ -918,199 +918,203 @@ msgid "Remove object {name}"
 msgstr "Object {name} verwijderen"
 
 #. Translators: This refers to "properties" in object property undo/redo messages
-#: cambalache/cmb_project.py:1126
+#: cambalache/cmb_project.py:1138
 #, fuzzy
 msgid "property"
 msgstr "Eigenschap wissen"
 
-#: cambalache/cmb_project.py:1129 cambalache/cmb_project.py:1171
+#: cambalache/cmb_project.py:1141 cambalache/cmb_project.py:1183
 msgid "True"
 msgstr ""
 
-#: cambalache/cmb_project.py:1129 cambalache/cmb_project.py:1171
+#: cambalache/cmb_project.py:1141 cambalache/cmb_project.py:1183
 msgid "False"
 msgstr ""
 
 #. Translators: This refers to accessibility properties in object property undo/redo messages
-#: cambalache/cmb_project.py:1146
+#: cambalache/cmb_project.py:1158
 #, fuzzy
 msgid "a11y property"
 msgstr "Eigenschap wissen"
 
 #. Translators: This refers to accessibility relations in object property undo/redo messages
-#: cambalache/cmb_project.py:1148
+#: cambalache/cmb_project.py:1160
 msgid "a11y relation"
 msgstr ""
 
 #. Translators: This refers to accessibility states in object property undo/redo messages
-#: cambalache/cmb_project.py:1150
+#: cambalache/cmb_project.py:1162
 msgid "a11y state"
 msgstr ""
 
 #. Translators: This refers to accessibility actions in object property undo/redo messages
-#: cambalache/cmb_project.py:1152
+#: cambalache/cmb_project.py:1164
 msgid "a11y action"
-msgstr ""
-
-#: cambalache/cmb_project.py:1214
-#, python-brace-format
-msgid "Create UI {ui}"
-msgstr "UI {ui} aanmaken"
-
-#: cambalache/cmb_project.py:1215
-#, python-brace-format
-msgid "Remove UI {ui}"
-msgstr "UI {ui} verwijderen"
-
-#: cambalache/cmb_project.py:1216
-#, fuzzy, python-brace-format
-msgid "Update {field} of UI {ui}"
-msgstr "UI {ui} bijwerken"
-
-#: cambalache/cmb_project.py:1219
-#, python-brace-format
-msgid "Set {ui} {lib} to {version}"
-msgstr ""
-
-#: cambalache/cmb_project.py:1220
-#, fuzzy, python-brace-format
-msgid "Remove {ui} {lib}"
-msgstr "UI {ui} verwijderen"
-
-#: cambalache/cmb_project.py:1221
-#, fuzzy, python-brace-format
-msgid "Update {lib} of UI {ui} to {version}"
-msgstr "UI {ui} bijwerken"
-
-#: cambalache/cmb_project.py:1224
-#, python-brace-format
-msgid "Add CSS provider {css}"
-msgstr ""
-
-#: cambalache/cmb_project.py:1225
-#, python-brace-format
-msgid "Remove CSS provider {css}"
 msgstr ""
 
 #: cambalache/cmb_project.py:1226
 #, python-brace-format
+msgid "Create UI {ui}"
+msgstr "UI {ui} aanmaken"
+
+#: cambalache/cmb_project.py:1227
+#, python-brace-format
+msgid "Remove UI {ui}"
+msgstr "UI {ui} verwijderen"
+
+#: cambalache/cmb_project.py:1228
+#, fuzzy, python-brace-format
+msgid "Update {field} of UI {ui}"
+msgstr "UI {ui} bijwerken"
+
+#: cambalache/cmb_project.py:1231
+#, python-brace-format
+msgid "Set {ui} {lib} to {version}"
+msgstr ""
+
+#: cambalache/cmb_project.py:1232
+#, fuzzy, python-brace-format
+msgid "Remove {ui} {lib}"
+msgstr "UI {ui} verwijderen"
+
+#: cambalache/cmb_project.py:1233
+#, fuzzy, python-brace-format
+msgid "Update {lib} of UI {ui} to {version}"
+msgstr "UI {ui} bijwerken"
+
+#: cambalache/cmb_project.py:1236
+#, python-brace-format
+msgid "Add CSS provider {css}"
+msgstr ""
+
+#: cambalache/cmb_project.py:1237
+#, python-brace-format
+msgid "Remove CSS provider {css}"
+msgstr ""
+
+#: cambalache/cmb_project.py:1238
+#, python-brace-format
 msgid "Update {field} of CSS provider {css}"
 msgstr ""
 
-#: cambalache/cmb_project.py:1229
+#: cambalache/cmb_project.py:1241
 #, python-brace-format
 msgid "Add {ui} to CSS provider {css}"
 msgstr ""
 
-#: cambalache/cmb_project.py:1230
+#: cambalache/cmb_project.py:1242
 #, python-brace-format
 msgid "Remove {ui} from CSS provider {css}"
 msgstr ""
 
-#: cambalache/cmb_project.py:1233
+#: cambalache/cmb_project.py:1245
 #, python-brace-format
 msgid "Create object {obj}"
 msgstr "Object {obj} aanmaken"
 
-#: cambalache/cmb_project.py:1234
+#: cambalache/cmb_project.py:1246
 #, python-brace-format
 msgid "Remove object {obj}"
 msgstr "Object {obj} verwijderen"
 
-#: cambalache/cmb_project.py:1235
+#: cambalache/cmb_project.py:1247
 #, fuzzy, python-brace-format
 msgid "Update {field} of object {obj}"
 msgstr "Object {obj} bijwerken"
 
 #. Translators: This text is used for object properties undo/redo messages
 #. prop_type could be "property", "a11y property", "a11y relation", "a11y state" or "a11y action"
-#: cambalache/cmb_project.py:1240
+#: cambalache/cmb_project.py:1252
 #, fuzzy, python-brace-format
 msgid "Set {obj} {prop} {prop_type} to {value}"
 msgstr "Eigenschap \"{prop}\" van {obj} op {value} instellen"
 
-#: cambalache/cmb_project.py:1241
+#: cambalache/cmb_project.py:1253
 #, fuzzy, python-brace-format
 msgid "Unset {obj} {prop} {prop_type}"
 msgstr "Eigenschap \"{prop}\" van {obj} op {value} instellen"
 
-#: cambalache/cmb_project.py:1242
+#: cambalache/cmb_project.py:1254
 #, fuzzy, python-brace-format
 msgid "Update {obj} {prop} {prop_type} to {value}"
 msgstr "Eigenschap \"{prop}\" van {obj} bijwerken naar {value}"
 
-#: cambalache/cmb_project.py:1245
+#: cambalache/cmb_project.py:1257
 #, fuzzy, python-brace-format
 msgid "Set {obj} {prop} layout property to {value}"
 msgstr "Layout-eigenschap \"{prop}\" van {obj} op {value} instellen"
 
-#: cambalache/cmb_project.py:1246
+#: cambalache/cmb_project.py:1258
 #, python-brace-format
 msgid "Unset {obj} {prop} layout property"
 msgstr ""
 
-#: cambalache/cmb_project.py:1247
+#: cambalache/cmb_project.py:1259
 #, fuzzy, python-brace-format
 msgid "Update {obj} {prop} layout property to {value}"
 msgstr "Layout-eigenschap \"{prop}\" van {obj} bijwerken naar {value}"
 
-#: cambalache/cmb_project.py:1250
+#: cambalache/cmb_project.py:1262
 #, python-brace-format
 msgid "Add {signal} signal to {obj}"
 msgstr "Signaal {signal} toevoegen aan {obj}"
 
-#: cambalache/cmb_project.py:1251
+#: cambalache/cmb_project.py:1263
 #, python-brace-format
 msgid "Remove {signal} signal from {obj}"
 msgstr "Signaal {signal} weghalen van {obj}"
 
-#: cambalache/cmb_project.py:1252
+#: cambalache/cmb_project.py:1264
 #, python-brace-format
 msgid "Update {signal} signal of {obj}"
 msgstr "Signaal {signal} op {obj} bijwerken"
 
-#: cambalache/cmb_project.py:1255 cambalache/cmb_project.py:1260
+#: cambalache/cmb_project.py:1267 cambalache/cmb_project.py:1272
 #, fuzzy, python-brace-format
 msgid "Add {data}={value} to {obj}"
 msgstr "Signaal {signal} toevoegen aan {obj}"
 
-#: cambalache/cmb_project.py:1256 cambalache/cmb_project.py:1261
+#: cambalache/cmb_project.py:1268 cambalache/cmb_project.py:1273
 #, fuzzy, python-brace-format
 msgid "Remove {data}={value} from {obj}"
 msgstr "Signaal {signal} weghalen van {obj}"
 
-#: cambalache/cmb_project.py:1257 cambalache/cmb_project.py:1262
+#: cambalache/cmb_project.py:1269 cambalache/cmb_project.py:1274
 #, fuzzy, python-brace-format
 msgid "Update {data} of {obj} to {value}"
 msgstr "Eigenschap \"{prop}\" van {obj} bijwerken naar {value}"
 
-#: cambalache/cmb_project.py:1463
+#: cambalache/cmb_project.py:1475
 #, python-brace-format
 msgid "Paste clipboard to {name}"
 msgstr "Klembord plakken naar {name}"
 
-#: cambalache/cmb_project.py:1495
+#: cambalache/cmb_project.py:1507
 #, python-brace-format
 msgid "Cut object {name}"
 msgstr "Object {name} knippen"
 
-#: cambalache/cmb_project.py:1497
+#: cambalache/cmb_project.py:1509
 #, python-brace-format
 msgid "Cut {n_objects} object"
 msgstr "{n_objects} objecten knippen"
 
-#: cambalache/cmb_project.py:1510
+#: cambalache/cmb_project.py:1522
 #, python-brace-format
 msgid "Add {type_id} parent to {name}"
 msgstr ""
 
-#: cambalache/cmb_project.py:1572
+#: cambalache/cmb_project.py:1584
 #, fuzzy, python-brace-format
 msgid "Remove parent of {name}"
 msgstr "Object {name} verwijderen"
 
 #: cambalache/cmb_property.py:182
 msgid "Warning: GFile uri needs to be absolute for Gtk < 4.16"
+msgstr ""
+
+#: cambalache/cmb_property_label.py:183
+msgid "Clear"
 msgstr ""
 
 #: cambalache/cmb_signal_editor.ui:47
@@ -1134,22 +1138,22 @@ msgid "After"
 msgstr "Na"
 
 #. Widget group for toplevels/windows
-#: cambalache/cmb_type_chooser.ui:72 cambalache/cmb_type_chooser_widget.py:106
+#: cambalache/cmb_type_chooser.ui:72 cambalache/cmb_type_chooser_widget.py:101
 msgid "Toplevel"
 msgstr "Hoogste niveau"
 
 #. Widget group for  control widget like buttons, entries
-#: cambalache/cmb_type_chooser.ui:98 cambalache/cmb_type_chooser_widget.py:108
+#: cambalache/cmb_type_chooser.ui:98 cambalache/cmb_type_chooser_widget.py:103
 msgid "Control"
 msgstr "Control"
 
 #. Widget group for display widgets (label, image)
-#: cambalache/cmb_type_chooser.ui:111 cambalache/cmb_type_chooser_widget.py:109
+#: cambalache/cmb_type_chooser.ui:111 cambalache/cmb_type_chooser_widget.py:104
 msgid "Display"
 msgstr "Weergave"
 
 #. Widget group for model objects (ListStore, TextBuffer)
-#: cambalache/cmb_type_chooser.ui:124 cambalache/cmb_type_chooser_widget.py:110
+#: cambalache/cmb_type_chooser.ui:124 cambalache/cmb_type_chooser_widget.py:105
 msgid "Model"
 msgstr "Model"
 
@@ -1194,15 +1198,15 @@ msgstr "Exporteren"
 msgid "Comment:"
 msgstr ""
 
-#: cambalache/cmb_view.py:596
+#: cambalache/cmb_view.py:604
 msgid "Restart workspace"
 msgstr "Werkruimte herstarten"
 
-#: cambalache/cmb_view.py:597
+#: cambalache/cmb_view.py:605
 msgid "Inspect UI definition"
 msgstr "UI-definitie inspecteren"
 
-#: cambalache/cmb_view.py:607
+#: cambalache/cmb_view.py:615
 msgid ""
 "Workspace process error\n"
 "Stopping auto restart"
@@ -1330,7 +1334,7 @@ msgid "Status"
 msgstr "Status"
 
 #: data/ar.xjuan.Cambalache.desktop.in:4
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:195
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:183
 msgid "UI Maker"
 msgstr "UI-bouwer"
 
@@ -1355,250 +1359,225 @@ msgstr ""
 "gebruikersinterfaces kan bouwen voor GTK en de GNOME-desktopomgeving."
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:19
-msgid "Accessibility Release!"
-msgstr ""
-
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:21
-msgid "Gtk 4 and Gtk 3 accessibility support"
-msgstr ""
-
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:22
-msgid "Support property subclass override defaults"
-msgstr ""
-
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:23
-#, fuzzy
-msgid "AdwDialog placeholder support"
-msgstr "Ondersteuning voor plaatshouders in werkruimte"
-
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:24
-msgid "Improved object description in hierarchy"
-msgstr ""
-
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:25
-msgid "Lots of bug fixes and minor UI improvements"
-msgstr ""
-
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:31
 msgid "Adwaita + Casilda Release!"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:33
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:21
 msgid "Basic port to Adwaita"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:34
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:22
 msgid "Use Casilda compositor widget for workspace"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:35
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:23
 msgid "Update widget catalogs to SDK 47"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:36
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:24
 msgid "Improved Drag&amp;Drop support"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:37
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:25
 msgid "Improve workspace performance"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:38
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:26
 msgid "Enable workspace animations"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:39
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:27
 #, fuzzy
 msgid "Fix window ordering"
 msgstr "Print-versie"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:40
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:28
 msgid "Support new desktop dark style"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:41
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:29
 #, fuzzy
 msgid "Support 3rd party libraries"
 msgstr ""
 "Vrijgave met ondersteuning voor softwarebibliotheken van derde partijen!"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:42
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:30
 msgid "Streamline headerbar"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:43
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:31
 msgid ""
 "Many thanks to emersion, kennylevinsen, vyivel and the wlroots community for "
 "their support and awesome project"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:49
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:37
 msgid "Gtk 4 port"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:51
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:39
 msgid "Migrate main application to Gtk 4"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:52
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:40
 msgid "Update widget catalogs to SDK 46"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:53
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:41
 #, fuzzy
 msgid "Add support for child custom fragments"
 msgstr "Voeg ondersteuning toe voor sjablonen"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:54
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:42
 msgid "Add add parent context menu action"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:55
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:43
 msgid "Mark AdwSplitButton.dropdown-tooltip translatable. (Danial Behzadi)"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:61
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:49
 msgid "GNOME 45 Release!"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:63
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:51
 msgid "Bump SDK dependency to SDK 45"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:64
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:52
 msgid "Add support for types and properties added in SDK 45"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:65
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:53
 msgid "Marked various missing translatable properties"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:71
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:59
 #, fuzzy
 msgid "GMenu release!"
 msgstr "Vrijgave met bugfixes!"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:73
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:61
 msgid "Add GMenu support"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:74
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:62
 msgid "Add UI requirements edit support"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:75
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:63
 msgid "Add Swedish translation. Anders Jonsson"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:76
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:64
 #, fuzzy
 msgid "Updated Italian translation. Lorenzo Capalbo"
 msgstr "Voeg Italiaanse vertaling toe (capaz)"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:77
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:65
 msgid ""
 "Show deprecated and not available warnings for Objects, properties and "
 "signals"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:78
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:66
 msgid "Output minimum required library version instead of latest one"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:79
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:67
 msgid "Fix output for templates with inline object properties"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:80
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:68
 #, fuzzy
 msgid "Various optimizations and bug fixes"
 msgstr "Verscheidene verbeteringen en oplossingen voor kleine problemen"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:81
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:69
 msgid "Bump test coverage to 66%"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:87
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:75
 #, fuzzy
 msgid "New Features release!"
 msgstr "Vrijgave op Flathub!"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:89
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:77
 msgid "User Templates: use your templates anywhere in your project"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:90
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:78
 msgid "Workspace CSS support: see your CSS changes live"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:91
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:79
 msgid "GtkBuildable Custom Tags: support for styles, items, etc"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:92
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:80
 msgid "Property Bindings: bind your property to any source property"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:93
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:81
 msgid "XML Fragments: add any xml to any object or UI as a fallback"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:94
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:82
 #, fuzzy
 msgid "Preview mode: hide placeholders in workspace"
 msgstr "GTK 4: Los probleem op met plaatshouders in GtkPaned"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:95
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:83
 msgid "WebKit support: new widget catalog available"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:96
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:84
 msgid "External objects references support"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:97
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:85
 #, fuzzy
 msgid "Add support for GdkPixbuf, GListModel and GListStore types"
 msgstr ""
 "Voeg ondersteuning toe voor enumeraties en vlaggen uit GdkPixbuf, Pango, "
 "Gio, Gdk en Gsk"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:98
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:86
 msgid "Add missing child type attributes to Gtk4 GtkActionBar (B. Teeuwen)"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:99
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:87
 #, fuzzy
 msgid "Added French Translation (rene-coty)"
 msgstr "Nederlandse vertaling toevoegen (Gert)"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:105
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:93
 msgid "3rd party libs release!"
 msgstr ""
 "Vrijgave met ondersteuning voor softwarebibliotheken van derde partijen!"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:107
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:95
 msgid "Add Adwaita and Handy library support"
 msgstr "Voeg ondersteuning toe voor softwarebibliotheken Adwaita en Handy"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:108
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:96
 msgid "Add inline object properties support (only Gtk 4)"
 msgstr ""
 "Voeg ondersteuning toe voor ingebedde objecteigenschappen (enkel GTK 4)"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:109
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:97
 msgid "Add special child type support (GtkWindow title widget)"
 msgstr "Voeg ondersteuning toe voor speciale child-types (titelbalk GtkWindow)"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:110
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:98
 msgid "Improve clipboard functionality"
 msgstr "Verbeter gebruik klembord op verschillende plaatsen"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:111
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:99
 msgid "Add support for reordering children position"
 msgstr "Sta toe om onderliggende widgets van volgorde te verwisselen"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:112
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:100
 msgid ""
 "Add/Improve worspace support for GtkMenu, GtkNotebook, GtkPopover, GtkStack, "
 "GtkAssistant, GtkListBox, GtkMenuItem and GtkCenterBox"
@@ -1606,132 +1585,136 @@ msgstr ""
 "Voeg ondersteuning toe voor en verbeter integratie met GtkMenu, GtkNotebook, "
 "GtkPopover, GtkStack, GtkAssistant, GtkListBox, GtkMenuItem en GtkCenterBox"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:113
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:101
 msgid "New property editors for icon name and color properties"
 msgstr "Nieuwe bewerkers voor icoon-namen en kleureigenschappen"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:114
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:102
 msgid "Add support for GdkPixbuf, Pango, Gio, Gdk and Gsk flags/enums types"
 msgstr ""
 "Voeg ondersteuning toe voor enumeraties en vlaggen uit GdkPixbuf, Pango, "
 "Gio, Gdk en Gsk"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:115
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:103
 msgid "Add Ukrainian translation (Volodymyr M. Lisivka)"
 msgstr "Voeg Oekraïnse vertaling toe (Volodymyr M. Lisivka)"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:116
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:104
 msgid "Add Italian translation (capaz)"
 msgstr "Voeg Italiaanse vertaling toe (capaz)"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:117
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:105
 msgid "Add Dutch translation (Gert)"
 msgstr "Nederlandse vertaling toevoegen (Gert)"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:123
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:111
 msgid "UX improvements Release!"
 msgstr "Vrijgave met UX-verbeteringen!"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:125
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:113
 msgid "New Type chooser bar"
 msgstr "Nieuw typeselectiebalk"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:126
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:114
 msgid "Workspace placeholder support"
 msgstr "Ondersteuning voor plaatshouders in werkruimte"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:127
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:115
 msgid "Translatable properties support (Philipp Unger)"
 msgstr "Ondersteuning voor vertaalbare eigenschappen (Philipp Unger)"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:128
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:116
 msgid "Clipboard actions support (Copy, Paste, Cut)"
 msgstr "Ondersteuning voor klembordacties (kopiëren, plakken, knippen)"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:129
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:117
 msgid "Better unsupported features report"
 msgstr "Beter rapport van niet-ondersteunde eigenschappen"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:130
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:118
 msgid "New Matrix channel #cambalache:gnome.org"
 msgstr "Nieuw Matrix-kanaal #cambalache:gnome.org"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:131
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:119
 msgid "You can now also support Cambalache on Liberapay"
 msgstr "Je kan Cambalache nu ook steunen via Liberapay"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:137
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:125
 msgid "New translations release!"
 msgstr "Vrijgave met nieuwe vertalingen!"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:139
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:127
 msgid "Add Czech translation. Vojtěch Perník"
 msgstr "Voeg Tsjechische vertaling toe (Vojtěch Perník)"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:140
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:128
 msgid "Add German translation. PhilProg"
 msgstr "Voeg Duitse vertaling toe (PhilProg)"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:141
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:129
 msgid "Add x-cambalache mimetype with icon"
 msgstr "Voeg x-cambalache MIME-type met icoon toe"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:147
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:135
 msgid "First public release!"
 msgstr "Eerste publieke vrijgave!"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:149
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:137
 msgid "Suport for both Gtk 3 and 4 versions"
 msgstr "Ondersteun zowel GTK 3 als 4"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:150
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:138
 msgid "Import and export multiple UI at once"
 msgstr "Importeer en exporteer meerdere UI-bestanden tegelijk"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:151
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:139
 msgid "Support plain (no custom tags) GtkBuilder features"
 msgstr "Ondersteun eenvoudige (zonder eigen tags) GtkBuilder-eigenschappen"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:152
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:140
 msgid "Undo / Redo stack"
 msgstr "Stapel om acties ongedaan te maken of opnieuw te doen"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:153
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:141
 msgid "LGPL version 2.1"
 msgstr "LGPL-versie 2.1"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:162
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:150
 msgid "Cambalache start window"
 msgstr "Startvenster Cambalache"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:166
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:154
 msgid "Cambalache new project page"
 msgstr "Nieuwe projectpagina Cambalache"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:170
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:158
 msgid "Cambalache workspace"
 msgstr "Cambalache-werkruimte"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:174
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:162
 msgid "GTK widget factory"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:194
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:182
 msgid "GUI Designer"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:196
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:184
 #, fuzzy
 msgid "user interface"
 msgstr "Bouwer van gebruikersinterfaces"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:197
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:185
 msgid "UI Builder"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:200
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:188
 msgid "Juan Pablo Ugarte"
 msgstr "Juan Pablo Ugarte"
+
+#, fuzzy
+#~ msgid "AdwDialog placeholder support"
+#~ msgstr "Ondersteuning voor plaatshouders in werkruimte"
 
 #, fuzzy, python-brace-format
 #~ msgid "Unset property {prop} of {obj}"

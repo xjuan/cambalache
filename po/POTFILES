@@ -16,6 +16,7 @@ cambalache/cmb_object_data_editor.py
 cambalache/cmb_object_editor.py
 cambalache/cmb_project.py
 cambalache/cmb_property.py
+cambalache/cmb_property_label.py
 cambalache/cmb_signal_editor.ui
 cambalache/cmb_type_chooser.ui
 cambalache/cmb_type_chooser_widget.py
