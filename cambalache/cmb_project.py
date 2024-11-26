@@ -471,7 +471,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         basename, relpath = self.__get_basename_relpath(filename)
 
         try:
-            self.history_push(_("Add UI {basename}").format(basename=basename))
+            self.history_push(_("Add UI {basename}").format(basename=basename or ""))
             ui_id = self.db.add_ui(basename, relpath, requirements)
             self.db.commit()
             self.history_pop()
@@ -487,7 +487,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
     def remove_ui(self, ui):
         try:
-            self.history_push(_('Remove UI "{name}"').format(name=ui.name))
+            self.history_push(_('Remove UI "{name}"').format(name=ui.display_name))
 
             # Remove template object first, to properly handle instances removal
             template_id = ui.template_id
@@ -527,7 +527,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         basename, relpath = self.__get_basename_relpath(filename)
 
         try:
-            self.history_push(_("Add CSS {basename}").format(basename=basename))
+            self.history_push(_("Add CSS {basename}").format(basename=basename or ""))
             css_id = self.db.add_css(relpath)
             self.db.commit()
             self.history_pop()
@@ -1094,11 +1094,11 @@ class CmbProject(GObject.Object, Gio.ListModel):
             if table == "ui":
                 ui_id = data[0]
                 ui = self.get_object_by_id(ui_id)
-                retval["ui"] = ui.display_name if ui else ui_id
+                retval["ui"] = ui.display_name if ui else CmbUI.get_display_name(ui_id, data[3])
             elif table == "ui_library":
                 ui_id = data[0]
                 ui = self.get_object_by_id(ui_id)
-                retval["ui"] = ui.display_name if ui else ui_id
+                retval["ui"] = ui.display_name if ui else CmbUI.get_display_name(ui_id, None)
                 retval["lib"] = data[1]
                 retval["version"] = data[2]
             elif table == "css":
@@ -1110,8 +1110,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 css = self.get_css_by_id(css_id)
                 ui = self.get_object_by_id(ui_id)
 
-                retval["css"] = css.display_name if css else css_id
-                retval["ui"] = ui.display_name if ui else ui_id
+                retval["css"] = css.display_name if css else CmbCSS.get_display_name(css_id, None)
+                retval["ui"] = ui.display_name if ui else CmbUI.get_display_name(ui_id, None)
             else:
                 if table == "object_signal":
                     ui_id = data[1]
