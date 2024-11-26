@@ -56,6 +56,7 @@ class CmbMerengueProcess(GObject.Object):
     }
 
     gtk_version = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
+    merengue_started = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         self.__command_queue = []
@@ -186,6 +187,8 @@ class CmbMerengueProcess(GObject.Object):
         GLib.child_watch_add(GLib.PRIORITY_DEFAULT_IDLE, pid, self.__on_exit, None)
 
     def __cleanup(self):
+        self.merengue_started = False
+
         if self.__on_command_in_source:
             GLib.source_remove(self.__on_command_in_source)
             self.__on_command_in_source = None
@@ -312,7 +315,8 @@ class CmbView(Gtk.Box):
         self.compositor.props.bg_color = bg_color
 
     def __merengue_command(self, command, payload=None, args=None):
-        self.__merengue.write_command(command, payload, args)
+        if self.__merengue.merengue_started:
+            self.__merengue.write_command(command, payload, args)
 
     def __get_ui_xml(self, ui_id, merengue=False):
         if self.show_merengue:
@@ -668,12 +672,14 @@ class CmbView(Gtk.Box):
         if command == "selection_changed":
             self.__command_selection_changed(**args)
         elif command == "started":
+            self.__merengue.merengue_started = True
             self.__merengue_command("gtk_settings_get", args={"property": "gtk-theme-name"})
 
             self.__load_namespaces()
 
             self.__load_css_providers()
 
+            self.__ui_id = 0
             self.__on_project_selection_changed(self.__project)
         elif command == "placeholder_selected":
             self.emit(
