@@ -53,9 +53,13 @@ class CmbCSS(CmbBaseCSS):
         if pspec.name == "filename":
             self.load_css()
 
+    @classmethod
+    def get_display_name(cls, css_id, filename):
+        return filename if filename else _("Unnamed CSS {css_id}").format(css_id=css_id)
+
     @GObject.Property(type=str)
     def display_name(self):
-        return self.filename if self.filename else _("Unnamed CSS {css_id}").format(css_id=self.css_id)
+        return CmbCSS.get_display_name(self.css_id, self.filename)
 
     @GObject.Property(type=int)
     def priority(self):

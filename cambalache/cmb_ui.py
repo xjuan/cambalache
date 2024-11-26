@@ -124,11 +124,12 @@ class CmbUI(CmbBaseUI, Gio.ListModel):
 
         c.close()
 
+    @classmethod
+    def get_display_name(cls, ui_id, filename):
+        return filename if filename else _("Unnamed {ui_id}").format(ui_id=ui_id)
+
     @GObject.Property(type=str)
     def display_name(self):
-        if self.filename:
-            return self.filename
-
         template_id = self.template_id
 
         if template_id:
@@ -136,7 +137,7 @@ class CmbUI(CmbBaseUI, Gio.ListModel):
             if template:
                 return template.name
 
-        return _("Unnamed {ui_id}").format(ui_id=self.ui_id)
+        return CmbUI.get_display_name(self.ui_id, self.filename)
 
     def __get_infered_target(self, library_id):
         ui_id = self.ui_id
