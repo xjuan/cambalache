@@ -109,7 +109,6 @@ class CmbProject(GObject.Object, Gio.ListModel):
         self._ignore_selection = False
 
         # Objects hash tables
-        # FIXME: Use an int key instead of a string (ui_id << 18 || object_id)
         self._object_id = {}
         self.__css_id = {}
 
@@ -1095,11 +1094,11 @@ class CmbProject(GObject.Object, Gio.ListModel):
             if table == "ui":
                 ui_id = data[0]
                 ui = self.get_object_by_id(ui_id)
-                retval["ui"] = ui.display_name
+                retval["ui"] = ui.display_name if ui else ui_id
             elif table == "ui_library":
                 ui_id = data[0]
                 ui = self.get_object_by_id(ui_id)
-                retval["ui"] = ui.display_name
+                retval["ui"] = ui.display_name if ui else ui_id
                 retval["lib"] = data[1]
                 retval["version"] = data[2]
             elif table == "css":
@@ -1111,8 +1110,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 css = self.get_css_by_id(css_id)
                 ui = self.get_object_by_id(ui_id)
 
-                retval["css"] = css.display_name
-                retval["ui"] = ui.display_name
+                retval["css"] = css.display_name if css else css_id
+                retval["ui"] = ui.display_name if ui else ui_id
             else:
                 if table == "object_signal":
                     ui_id = data[1]
@@ -1166,9 +1165,11 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
                             retval["prop"] = CmbPropertyInfo.accessible_property_remove_prefix(owner_id, property_id)
 
-                            if ((info := self.type_info.get(owner_id, None)) and
+                            if (
+                                (info := self.type_info.get(owner_id, None)) and
                                 (pinfo := info.properties.get(property_id, None)) and
-                                pinfo.type_id == "CmbAccessibleList"):
+                                pinfo.type_id == "CmbAccessibleList"
+                            ):
                                 names = self._get_object_list_names(ui_id, value)
                                 retval["value"] = ", ".join(names)
                             else:
@@ -1204,7 +1205,11 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         def get_msg(index):
             cmd = c.execute(
-                "SELECT command, range_id, table_name, column_name, message, old_values, new_values FROM history WHERE history_id=?",
+                """
+                SELECT command, range_id, table_name, column_name, message, old_values, new_values
+                FROM history
+                WHERE history_id=?
+                """,
                 (index,)
             ).fetchone()
 
