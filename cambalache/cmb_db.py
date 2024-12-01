@@ -28,6 +28,7 @@ import sys
 import sqlite3
 import ast
 import json
+import hashlib
 
 from lxml import etree
 from lxml.builder import E
@@ -51,10 +52,38 @@ PROJECT_SQL = _get_text_resource("db/cmb_project.sql")
 HISTORY_SQL = _get_text_resource("db/cmb_history.sql")
 
 
+class FileHash():
+    def __init__(self, fd):
+        self.__fd = fd
+        self.__hash = hashlib.sha256()
+
+    def close(self):
+        self.__fd.close()
+
+    def peek(self, size):
+        return self.__fd.peek(size)
+
+    def read(self, size):
+        data = self.__fd.read(size)
+        self.__hash.update(data)
+        return data
+
+    def flush(self):
+        self.__fd.flush()
+
+    def write(self, data):
+        self.__hash.update(data)
+        self.__fd.write(data)
+
+    def hexdigest(self):
+        return self.__hash.hexdigest()
+
+
 class CmbDB(GObject.GObject):
     __gtype_name__ = "CmbDB"
 
     target_tk = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    filename = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         self.version = self.__parse_version(config.FILE_FORMAT_VERSION)
@@ -681,6 +710,8 @@ class CmbDB(GObject.GObject):
         if filename is None or not os.path.isfile(filename):
             return
 
+        self.filename = filename
+
         tree = etree.parse(filename)
         root = tree.getroot()
 
@@ -703,8 +734,48 @@ class CmbDB(GObject.GObject):
         self.foreign_keys = False
         self.ignore_check_constraints = True
 
-        for child in root.getchildren():
-            self.__load_table_from_tuples(c, child.tag, child.text, version)
+        if version > (0, 94, 0):
+            for child in root.getchildren():
+                if child.tag == "ui":
+                    ui_filename, sha256 = self.__node_get(child, ["filename", "sha256"])
+                    if ui_filename:
+                        ui_id, hexdigest = self.__import_file(ui_filename)
+
+                        if sha256 != hexdigest:
+                            logger.warning(f"{ui_filename} hash mismatch, file was modified")
+                    else:
+                        root = etree.fromstring(child.text.encode())
+                        ui_id = self.__import_from_node(root, None)
+
+                    row = c.execute("SELECT template_id FROM ui WHERE ui_id=?;", (ui_id, )).fetchone()
+                    if row is None:
+                        continue
+
+                    # TODO: load properties and signals
+                    # properties = child.find("properties")
+                    # signals = child.find("signals")
+                elif child.tag == "css":
+                    css_filename, priority, is_global = self.__node_get(child, ["filename", "priority", "is_global"])
+                    css_id = self.add_css(css_filename, priority, is_global)
+
+                    # Load UI relation
+                    for ui in child.getchildren():
+                        if ui.tag != "ui":
+                            continue
+                        row = c.execute("SELECT ui_id FROM ui WHERE filename=?;", (ui.text, )).fetchone()
+                        if row:
+                            ui_id, = row
+                            c.execute("INSERT INTO css_ui VALUES (?, ?)", (css_id, ui_id))
+                else:
+                    raise Exception(f"Unknown tag {child.tag} in project file.")
+        else:
+            # Support old format
+            all_tables = self.__tables + ["property", "signal"]
+            for child in root.getchildren():
+                if child.tag in all_tables:
+                    self.__load_table_from_tuples(c, child.tag, child.text, version)
+                else:
+                    raise Exception(f"Unknown tag {child.tag} in project file.")
 
         self.foreign_keys = True
         self.ignore_check_constraints = False
@@ -800,71 +871,84 @@ class CmbDB(GObject.GObject):
 
         self.commit()
 
+    def __save_ui(self, ui_id, filename):
+        if filename is None:
+            return None
+
+        if not os.path.isabs(filename):
+            dirname = os.path.dirname(self.filename)
+            filename = os.path.join(dirname, filename)
+
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+
+        # Get XML tree
+        ui = self.export_ui(ui_id)
+
+        # Dump xml to file
+        with open(filename, "wb") as fd:
+            hash_file = FileHash(fd)
+            ui.write(hash_file, pretty_print=True, xml_declaration=True, encoding="UTF-8")
+            hexdigest = hash_file.hexdigest()
+            hash_file.close()
+
+        return hexdigest
+
     def save(self, filename):
-        def get_row(row):
-            r = None
-
-            for c in row:
-                if r:
-                    r += ","
-                else:
-                    r = ""
-
-                if type(c) is str:
-                    # FIXME: find a better way to escape string
-                    val = c.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
-                    r += f'"{val}"'
-                elif c is None:
-                    r += "None"
-                else:
-                    r += str(c)
-
-            return f"\t({r})"
-
-        def _dump_query(c, query):
-            c.execute(query)
-            row = c.fetchone()
-
-            if row is None:
-                return None
-
-            retval = ""
-            while row is not None:
-                retval += get_row(row)
-                row = c.fetchone()
-
-                if row:
-                    retval += ",\n"
-
-            return f"\n{retval}\n  "
-
-        def append_data(project, name, data):
-            if data is None:
-                return
-
-            element = etree.Element(name)
-            element.text = data
-            project.append(element)
+        self.filename = filename
 
         self.conn.commit()
+
         c = self.conn.cursor()
+        cc = self.conn.cursor()
 
         project = E("cambalache-project", version=config.FILE_FORMAT_VERSION, target_tk=self.target_tk)
 
-        for table in self.__tables:
-            data = _dump_query(c, f"SELECT * FROM {table};")
-            append_data(project, table, data)
+        # Save UI files
+        for row in c.execute("SELECT ui_id, template_id, filename FROM ui;"):
+            ui_id, template_id, ui_filename = row
 
-        # DUMP custom properties and signals
-        for table in ["property", "signal"]:
-            data = _dump_query(
-                c, f"SELECT {table}.* FROM {table},type WHERE {table}.owner_id == type.type_id AND type.library_id IS NULL;"
-            )
-            append_data(project, table, data)
+            ui = E.ui()
+
+            if ui_filename:
+                # Save File
+                self.__node_set(ui, "filename", ui_filename)
+                hexdigest = self.__save_ui(ui_id, ui_filename)
+                self.__node_set(ui, "sha256", hexdigest)
+            else:
+                # Save as CDATA
+                ui.text = etree.CDATA(self.tostring(ui_id))
+
+            # TODO: save custom properties and signals
+            if template_id:
+                pass
+
+            project.append(ui)
+
+        # Save CSS
+        for row in c.execute("SELECT css_id, filename, priority, is_global FROM css;"):
+            css_id, css_filename, priority, is_global = row
+
+            css = E.css()
+
+            self.__node_set(css, "filename", css_filename)
+            self.__node_set(css, "priority", priority)
+            self.__node_set(css, "is_global", is_global)
+
+            # Save CSS UI relation
+            for css_ui in cc.execute(
+                "SELECT ui.filename FROM css_ui, ui WHERE css_ui.css_id=? AND css_ui.ui_id=ui.ui_id;",
+                (css_id, )
+            ):
+                ui_filename, = css_ui
+                ui = E.ui(ui_filename)
+                css.append(ui)
+            project.append(css)
 
         # Dump xml to file
         with open(filename, "wb") as fd:
             tree = etree.ElementTree(project)
+            # FIXME: update DTD
             tree.write(
                 fd,
                 pretty_print=True,
@@ -876,6 +960,7 @@ class CmbDB(GObject.GObject):
             fd.close()
 
         c.close()
+        cc.close()
 
     def move_to_fs(self, filename):
         self.conn.commit()
@@ -1925,16 +2010,12 @@ class CmbDB(GObject.GObject):
             (ui_id,),
         )
 
-    def import_file(self, filename, projectdir="."):
+    def __import_from_node(self, root, relpath):
         custom_fragments = []
-
         self.foreign_keys = False
 
         # Clear parsing errors
         self.errors = {}
-
-        tree = etree.parse(filename)
-        root = tree.getroot()
 
         if root.tag != "interface":
             raise Exception(_("Unknown root tag {tag}").format(tag=root.tag))
@@ -1973,8 +2054,7 @@ class CmbDB(GObject.GObject):
         # Make sure there is no attributes in root tag other than domain
         domain, = self.__node_get(root, ["domain"])
 
-        basename = os.path.basename(filename)
-        relpath = os.path.relpath(filename, projectdir)
+        basename = os.path.basename(relpath) if relpath else None
         ui_id = self.add_ui(basename, relpath, requirements, domain, comment)
 
         # These values come from Glade
@@ -2038,7 +2118,7 @@ class CmbDB(GObject.GObject):
             c.execute("UPDATE ui SET custom_fragment=? WHERE ui_id=?", (fragment, ui_id))
 
         # Check for parsing errors and append .cmb if something is not supported
-        if len(self.errors):
+        if relpath and len(self.errors):
             filename, etx = os.path.splitext(relpath)
             c.execute("UPDATE ui SET filename=? WHERE ui_id=?", (f"{filename}.cmb.ui", ui_id))
 
@@ -2047,6 +2127,28 @@ class CmbDB(GObject.GObject):
 
         self.foreign_keys = True
 
+        return ui_id
+
+    def __import_file(self, filename, projectdir="."):
+        projectdir = os.path.dirname(self.filename)
+
+        if os.path.isabs(filename):
+            fullpath = filename
+        else:
+            fullpath = os.path.join(projectdir, filename)
+
+        relpath = os.path.relpath(fullpath, projectdir)
+
+        with open(fullpath, "rb") as fd:
+            hash_file = FileHash(fd)
+            tree = etree.parse(hash_file)
+            hexdigest = hash_file.hexdigest()
+            root = tree.getroot()
+
+        return self.__import_from_node(root, relpath), hexdigest
+
+    def import_file(self, filename, projectdir="."):
+        ui_id, sha256 = self.import_file(filename)
         return ui_id
 
     def __node_add_comment(self, node, comment):
