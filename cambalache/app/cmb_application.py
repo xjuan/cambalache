@@ -42,7 +42,9 @@ class CmbApplication(Adw.Application):
 
         self.add_main_option("version", b"v", GLib.OptionFlags.NONE, GLib.OptionArg.NONE, _("Print version"), None)
 
-        self.add_main_option("export-all", b"E", GLib.OptionFlags.NONE, GLib.OptionArg.FILENAME, _("Export project"), None)
+        self.add_main_option(
+            "export-all", b"E", GLib.OptionFlags.NONE, GLib.OptionArg.FILENAME, _("Deprecated: Export project"), None
+        )
 
     def add_new_window(self):
         window = CmbWindow(application=self)
@@ -245,10 +247,7 @@ class CmbApplication(Adw.Application):
             return 0
 
         if options.contains("export-all"):
-            filename = options.lookup_value("export-all")
-            filename = "".join([chr(c) for c in filename.unpack()])
-            project = CmbProject(filename=filename)
-            project.export()
+            print("Export has been deprecated and does nothing. Every UI file is updated on project save.")
             return 0
 
         return -1
