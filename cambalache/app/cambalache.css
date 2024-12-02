@@ -95,6 +95,8 @@ CmbAccessibleEditor {
 }
 
 CmbCSSEditor,
+CmbGResourceEditor,
+CmbGResourceFileEditor,
 stackswitcher.property-pane {
   padding: 4px;
 }

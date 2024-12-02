@@ -1,0 +1,238 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.95.0 -->
+<interface>
+  <!-- interface-name cmb_gresource_editor.ui -->
+  <!-- interface-copyright Juan Pablo Ugarte -->
+  <requires lib="gtk" version="4.12"/>
+  <template class="CmbGResourceEditor" parent="GtkBox">
+    <child>
+      <object class="GtkStack" id="stack">
+        <property name="transition-type">crossfade</property>
+        <child>
+          <object class="GtkStackPage">
+            <property name="child">
+              <object class="GtkGrid">
+                <property name="column-spacing">4</property>
+                <property name="row-spacing">4</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="halign">end</property>
+                    <property name="label" translatable="yes">Filename</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="CmbEntry" id="gresources_filename">
+                    <property name="hexpand">True</property>
+                    <layout>
+                      <property name="column">1</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="halign">end</property>
+                    <property name="label" translatable="yes">Add</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="column-span">1</property>
+                      <property name="row">1</property>
+                      <property name="row-span">1</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">* This resource file need to be compiled and loaded at runtime</property>
+                    <property name="valign">end</property>
+                    <property name="vexpand">True</property>
+                    <property name="wrap">True</property>
+                    <property name="xalign">0.0</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="column-span">2</property>
+                      <property name="row">2</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="add_gresource_button">
+                    <property name="halign">start</property>
+                    <property name="label">GResource</property>
+                    <signal name="clicked" handler="on_add_gresource_button_clicked"/>
+                    <layout>
+                      <property name="column">1</property>
+                      <property name="column-span">1</property>
+                      <property name="row">1</property>
+                      <property name="row-span">1</property>
+                    </layout>
+                  </object>
+                </child>
+              </object>
+            </property>
+            <property name="name">gresources</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkStackPage">
+            <property name="child">
+              <object class="GtkGrid">
+                <property name="column-spacing">4</property>
+                <property name="row-spacing">4</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="halign">start</property>
+                    <property name="label" translatable="yes">Prefix</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="CmbEntry" id="gresource_prefix">
+                    <property name="hexpand">True</property>
+                    <layout>
+                      <property name="column">1</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">* Files defined inside this will be available at gresource://prefix</property>
+                    <property name="valign">end</property>
+                    <property name="vexpand">True</property>
+                    <property name="wrap">True</property>
+                    <property name="xalign">0.0</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="column-span">2</property>
+                      <property name="row">2</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">Add</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="column-span">1</property>
+                      <property name="row">1</property>
+                      <property name="row-span">1</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="add_file_button">
+                    <property name="halign">start</property>
+                    <property name="label" translatable="yes">file</property>
+                    <signal name="clicked" handler="on_add_file_button_clicked"/>
+                    <layout>
+                      <property name="column">1</property>
+                      <property name="column-span">1</property>
+                      <property name="row">1</property>
+                      <property name="row-span">1</property>
+                    </layout>
+                  </object>
+                </child>
+              </object>
+            </property>
+            <property name="name">gresource</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkStackPage">
+            <property name="child">
+              <object class="GtkGrid">
+                <property name="column-spacing">4</property>
+                <property name="row-spacing">4</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="halign">start</property>
+                    <property name="label" translatable="yes">Filename</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="halign">start</property>
+                    <property name="label" translatable="yes">Compressed</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">1</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="halign">start</property>
+                    <property name="label" translatable="yes">Preprocess</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">2</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="halign">start</property>
+                    <property name="label" translatable="yes">Alias</property>
+                    <layout>
+                      <property name="column">0</property>
+                      <property name="row">3</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="CmbEntry" id="file_filename">
+                    <layout>
+                      <property name="column">1</property>
+                      <property name="row">0</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkSwitch" id="file_compressed">
+                    <property name="halign">start</property>
+                    <property name="hexpand">True</property>
+                    <layout>
+                      <property name="column">1</property>
+                      <property name="row">1</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="CmbEntry" id="file_preprocess">
+                    <property name="hexpand">True</property>
+                    <layout>
+                      <property name="column">1</property>
+                      <property name="row">2</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="CmbEntry" id="file_alias">
+                    <property name="hexpand">True</property>
+                    <layout>
+                      <property name="column">1</property>
+                      <property name="row">3</property>
+                    </layout>
+                  </object>
+                </child>
+              </object>
+            </property>
+            <property name="name">file</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>
