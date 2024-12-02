@@ -107,10 +107,6 @@ class CmbCSSEditor(Gtk.Grid):
         self.__update_provider_for()
         self.__update_ui_button_label()
 
-    @Gtk.Template.Callback("on_remove_button_clicked")
-    def __on_remove_button_clicked(self, button):
-        self.emit("remove-css")
-
     @Gtk.Template.Callback("on_save_button_clicked")
     def __on_save_button_clicked(self, button):
         self._object.save_css()

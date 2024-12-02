@@ -112,20 +112,6 @@
       <object class="GtkBox">
         <property name="spacing">4</property>
         <child>
-          <object class="GtkButton" id="remove_button">
-            <property name="focusable">1</property>
-            <!-- <property name="tooltip-text" translatable="1">Remove CSS file from project</property> -->
-            <property name="halign">start</property>
-            <property name="valign">end</property>
-            <signal name="clicked" handler="on_remove_button_clicked"/>
-            <child>
-              <object class="GtkImage">
-                <property name="icon-name">app-remove-symbolic</property>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
           <object class="GtkLabel">
             <property name="halign">center</property>
             <property name="label" translatable="yes">&lt;small&gt;Note: CSS files need to be loaded at runtime&lt;/small&gt;</property>
