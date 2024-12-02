@@ -26,6 +26,7 @@
 from gi.repository import GObject, Gdk, Gtk
 from .cmb_ui import CmbUI
 from .cmb_object import CmbObject
+from .cmb_gresource import CmbGResource
 from .cmb_context_menu import CmbContextMenu
 from .cmb_project import CmbProject
 from cambalache import _
@@ -95,6 +96,17 @@ class CmbColumnView(Gtk.ColumnView):
     def __get_object_ancestors(self, obj):
         if isinstance(obj, CmbObject):
             ancestors = {obj.ui}
+            parent = obj.parent
+            while parent:
+                ancestors.add(parent)
+                parent = parent.parent
+
+            return ancestors
+        elif isinstance(obj, CmbGResource):
+            if obj.resource_type == "gresources":
+                return {}
+
+            ancestors = {obj.gresources_bundle}
             parent = obj.parent
             while parent:
                 ancestors.add(parent)
@@ -176,6 +188,8 @@ class CmbColumnView(Gtk.ColumnView):
         if isinstance(item, CmbObject):
             return item
         elif isinstance(item, CmbUI):
+            return item
+        elif isinstance(item, CmbGResource):
             return item
 
         return None
@@ -270,6 +284,8 @@ class CmbColumnView(Gtk.ColumnView):
             drop_target.connect("drop", self.__on_ui_row_drop_drop)
             row_widget.add_controller(drop_target)
             row_widget.__drop_target = drop_target
+        elif isinstance(item, CmbGResource):
+            pass
         else:
             expander.props.hide_expander = True
             return
@@ -284,7 +300,7 @@ class CmbColumnView(Gtk.ColumnView):
 
         item.disconnect_by_func(self.__on_item_notify)
 
-        if isinstance(item, CmbObject) or isinstance(item, CmbUI):
+        if isinstance(item, CmbObject) or isinstance(item, CmbUI) or isinstance(item, CmbGResource):
             item.disconnect_by_func(self.__on_list_store_n_items_notify)
 
         if expander is None:
