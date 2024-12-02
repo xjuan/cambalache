@@ -31,9 +31,23 @@ from gi.repository import GLib, GObject, Gio, Gdk, Gtk, Pango, Adw
 from .cmb_tutor import CmbTutor, CmbTutorState
 from . import cmb_tutorial
 
-from cambalache import CmbProject, CmbUI, CmbCSS, CmbObject, CmbTypeChooserPopover, getLogger, config, utils, _
+from cambalache import (
+    CmbProject,
+    CmbUI,
+    CmbCSS,
+    CmbObject,
+    CmbGResource,
+    CmbGResourceEditor,
+    CmbTypeChooserPopover,
+    getLogger,
+    config,
+    utils,
+    _
+)
 
 logger = getLogger(__name__)
+
+GObject.type_ensure(CmbGResourceEditor.__gtype__)
 
 
 @Gtk.Template(resource_path="/ar/xjuan/Cambalache/app/cmb_window.ui")
@@ -48,6 +62,7 @@ class CmbWindow(Adw.ApplicationWindow):
     open_filter = Gtk.Template.Child()
     gtk3_import_filter = Gtk.Template.Child()
     gtk4_import_filter = Gtk.Template.Child()
+    import_gresource_filter = Gtk.Template.Child()
 
     headerbar = Gtk.Template.Child()
     title = Gtk.Template.Child()
@@ -73,7 +88,9 @@ class CmbWindow(Adw.ApplicationWindow):
     message_label = Gtk.Template.Child()
 
     # Workspace
+    workspace_stack = Gtk.Template.Child()
     view = Gtk.Template.Child()
+    source_view = Gtk.Template.Child()
     column_view = Gtk.Template.Child()
     type_chooser = Gtk.Template.Child()
     editor_stack = Gtk.Template.Child()
@@ -86,6 +103,7 @@ class CmbWindow(Adw.ApplicationWindow):
     accessible_editor = Gtk.Template.Child()
     signal_editor = Gtk.Template.Child()
     css_editor = Gtk.Template.Child()
+    gresource_editor = Gtk.Template.Child()
 
     # Tutor widgets
     intro_button = Gtk.Template.Child()
@@ -98,7 +116,7 @@ class CmbWindow(Adw.ApplicationWindow):
     FULLSCREEN = 1 << 4
 
     __portal_access_msg = _(
-        "Cambalache will not have access to the file for export because it is outside of your home directory. "
+        "Cambalache will not have access to the file for save because it is outside of your home directory. "
         "Consider using Flatseal or flatpak to give permissions to the host directory."
     )
 
@@ -120,6 +138,7 @@ class CmbWindow(Adw.ApplicationWindow):
             "add_css",
             "add_object",
             "add_object_toplevel",
+            "add_gresource",
             "add_placeholder",
             "add_placeholder_row",
             "add_ui",
@@ -132,8 +151,8 @@ class CmbWindow(Adw.ApplicationWindow):
             "debug",
             "delete",
             "donate",
-            "export",
             "import",
+            "import_gresource",
             "inspect",
             "intro",
             "liberapay",
@@ -178,7 +197,6 @@ class CmbWindow(Adw.ApplicationWindow):
             ("win.save", ["<Primary>s"]),
             ("win.save_as", ["<Shift><Primary>s"]),
             ("win.import", ["<Primary>i"]),
-            ("win.export", ["<Primary>e"]),
             ("win.close", ["<Primary>w"]),
             ("win.undo", ["<Primary>z"]),
             ("win.redo", ["<Primary><shift>z"]),
@@ -301,6 +319,7 @@ class CmbWindow(Adw.ApplicationWindow):
         if self.__project:
             self.__project.disconnect_by_func(self.__on_project_filename_notify)
             self.__project.disconnect_by_func(self.__on_project_selection_changed)
+            self.__project.disconnect_by_func(self.__on_project_gresource_changed)
             self.__project.disconnect_by_func(self.__on_project_changed)
 
         self.__project = project
@@ -321,6 +340,7 @@ class CmbWindow(Adw.ApplicationWindow):
         if project:
             self.__project.connect("notify::filename", self.__on_project_filename_notify)
             self.__project.connect("selection-changed", self.__on_project_selection_changed)
+            self.__project.connect("gresource-changed", self.__on_project_gresource_changed)
             self.__project.connect("changed", self.__on_project_changed)
             self.__on_project_selection_changed(project)
 
@@ -402,20 +422,6 @@ class CmbWindow(Adw.ApplicationWindow):
             lambda o, info: self.project.add_object(ui_id, info.type_id, None, object_id, layout, position, child_type),
         )
         popover.popup()
-
-    @Gtk.Template.Callback("on_ui_editor_remove_ui")
-    def __on_ui_editor_remove_ui(self, editor, ui):
-        self.__remove_object_with_confirmation(ui)
-
-    @Gtk.Template.Callback("on_ui_editor_export_ui")
-    def __on_ui_editor_export_ui(self, editor, ui):
-        if ui.export():
-            self._show_message(_("File Exported"))
-
-    @Gtk.Template.Callback("on_css_editor_remove_ui")
-    def __on_css_editor_remove_ui(self, editor):
-        self.__remove_object_with_confirmation(editor.object)
-        return True
 
     def __on_focus_widget_notify(self, obj, pspec):
         widget = self.props.focus_widget
@@ -506,25 +512,54 @@ class CmbWindow(Adw.ApplicationWindow):
         self.__update_action_undo_redo()
         self.__update_action_save()
 
+    def __update_gresource_view(self):
+        if self.workspace_stack.get_visible_child_name() != "gresource":
+            return
+
+        sel = self.project.get_selection()
+        if len(sel) < 1:
+            return
+
+        obj = sel[0]
+
+        if isinstance(obj, CmbGResource):
+            gresource_id = obj.gresources_bundle.gresource_id
+            resource_xml = self.project.db.gresource_tostring(gresource_id)
+        else:
+            resource_xml = ""
+
+        self.source_view.buffer.set_text(resource_xml)
+
+    def __on_project_gresource_changed(self, project, gresource, field):
+        self.__update_gresource_view()
+
     def __on_project_selection_changed(self, project):
         sel = project.get_selection()
         self.__update_action_clipboard()
 
         obj = sel[0] if len(sel) > 0 else None
 
-        if type(obj) is CmbUI:
+        if isinstance(obj, CmbUI):
             self.ui_editor.object = obj
             self.ui_requires_editor.object = obj
             self.ui_fragment_editor.object = obj
+            self.workspace_stack.set_visible_child_name("ui")
             self.editor_stack.set_visible_child_name("ui")
             obj = None
-        elif type(obj) is CmbObject:
+        elif isinstance(obj, CmbObject):
+            self.workspace_stack.set_visible_child_name("ui")
             self.editor_stack.set_visible_child_name("object")
             if obj:
                 self.__user_message_by_type(obj.info)
-        elif type(obj) is CmbCSS:
+        elif isinstance(obj, CmbCSS):
             self.css_editor.object = obj
             self.editor_stack.set_visible_child_name("css")
+            obj = None
+        elif isinstance(obj, CmbGResource):
+            self.gresource_editor.object = obj
+            self.workspace_stack.set_visible_child_name("gresource")
+            self.editor_stack.set_visible_child_name("gresource")
+            self.__update_gresource_view()
             obj = None
 
         self.object_editor.object = obj
@@ -589,7 +624,17 @@ class CmbWindow(Adw.ApplicationWindow):
     def __update_actions(self):
         has_project = self.__is_project_visible()
 
-        for action in ["save_as", "add_ui", "add_css", "delete", "import", "export", "close", "debug"]:
+        for action in [
+            "save_as",
+            "add_ui",
+            "add_css",
+            "add_gresource",
+            "import_gresource",
+            "delete",
+            "import",
+            "close",
+            "debug"
+        ]:
             self.actions[action].set_enabled(has_project)
 
         self.__update_action_save()
@@ -693,14 +738,14 @@ class CmbWindow(Adw.ApplicationWindow):
                     first_msg = _("Cambalache encounter the following issues:")
 
                     # Translators: this is the last message after the list of unsupported features
-                    last_msg = _("Your file will be exported as '{name}.cmb.ui' to avoid data loss.").format(name=name)
+                    last_msg = _("Your file will be saved as '{name}.cmb.ui' to avoid data loss.").format(name=name)
 
                     unsupported_features_list = [first_msg] + list + [last_msg]
                 else:
                     unsupported_feature = msg[0]
                     text = _(
                         "Cambalache encounter {unsupported_feature}\n"
-                        "Your file will be exported as '{name}.cmb.ui' to avoid data loss."
+                        "Your file will be saved as '{name}.cmb.ui' to avoid data loss."
                     ).format(unsupported_feature=unsupported_feature, name=name)
 
                 self.present_message_to_user(
@@ -937,10 +982,12 @@ class CmbWindow(Adw.ApplicationWindow):
 
         def on_dialog_response(dialog, response):
             if response == Gtk.ResponseType.YES:
-                if type(obj) is CmbUI:
+                if isinstance(obj, CmbUI):
                     self.project.remove_ui(obj)
-                elif type(obj) is CmbCSS:
+                elif isinstance(obj, CmbCSS):
                     self.project.remove_css(obj)
+                elif isinstance(obj, CmbGResource):
+                    self.project.remove_gresource(obj)
 
             dialog.destroy()
 
@@ -968,8 +1015,13 @@ class CmbWindow(Adw.ApplicationWindow):
 
         selection = self.project.get_selection()
         for obj in selection:
-            if type(obj) is CmbObject:
+            if isinstance(obj, CmbObject):
                 self.project.remove_object(obj)
+            if isinstance(obj, CmbGResource):
+                if obj.resource_type == "gresources":
+                    self.__remove_object_with_confirmation(obj)
+                else:
+                    self.project.remove_gresource(obj)
             else:
                 self.__remove_object_with_confirmation(obj)
 
@@ -1020,13 +1072,13 @@ class CmbWindow(Adw.ApplicationWindow):
             first_msg = _("Cambalache encounter the following issues:")
 
             # Translators: this is the last message after the list of unsupported features
-            last_msg = _("Your file will be exported as '{name}.cmb.ui' to avoid data loss.").format(name=name)
+            last_msg = _("Your file will be saved as '{name}.cmb.ui' to avoid data loss.").format(name=name)
 
             unsupported_features_list = [first_msg] + list + [last_msg]
         else:
             unsupported_feature = msg[0]
             text = _(
-                "Cambalache encounter {unsupported_feature}\nYour file will be exported as '{name}.cmb.ui' to avoid data loss."
+                "Cambalache encounter {unsupported_feature}\nYour file will be saved as '{name}.cmb.ui' to avoid data loss."
             ).format(unsupported_feature=unsupported_feature, name=name)
 
         self.present_message_to_user(
@@ -1058,6 +1110,29 @@ class CmbWindow(Adw.ApplicationWindow):
         )
         dialog.open_multiple(self, None, dialog_callback)
 
+    def _on_add_gresource_activate(self, action, data):
+        if self.project is None:
+            return
+
+        gresource = self.project.add_gresource("gresources")
+        self.project.set_selection([gresource])
+
+    def _on_import_gresource_activate(self, action, data):
+        if self.project is None:
+            return
+
+        def dialog_callback(dialog, res):
+            try:
+                for file in dialog.open_multiple_finish(res):
+                    self.project.import_gresource(file.get_path())
+            except Exception as e:
+                logger.warning(f"Error {e}", exc_info=True)
+
+        dialog = self.__file_open_dialog_new(
+            _("Choose file to import"), filter_obj=self.import_gresource_filter, accept_label=_("Import")
+        )
+        dialog.open_multiple(self, None, dialog_callback)
+
     def __save(self):
         if self.project.save():
             self.__last_saved_index = self.project.history_index
@@ -1077,16 +1152,6 @@ class CmbWindow(Adw.ApplicationWindow):
         self.__save()
 
         return False
-
-    def _on_export_activate(self, action, data):
-        if self.project is None:
-            return
-
-        self.save_project()
-
-        n = self.project.export()
-
-        self._show_message(_("{n} files exported").format(n=n) if n > 1 else _("File exported"))
 
     def _close_project_dialog_new(self):
         text = _("Save changes before closing?")
@@ -1294,7 +1359,7 @@ class CmbWindow(Adw.ApplicationWindow):
         elif node in ["add-ui", "add-window", "add-grid", "add-button"]:
             self.tutor_waiting_for_user_action = True
             self.tutor.pause()
-        elif node in ["donate", "export_all"]:
+        elif node in ["donate"]:
             self.menu_button.popdown()
         elif node == "show-type-popover":
             widget.props.popover.popdown()

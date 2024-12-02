@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.93.0 -->
+<!-- Created with Cambalache 0.95.0 -->
 <interface>
   <!-- interface-name cmb_window.ui -->
   <!-- interface-copyright Juan Pablo Ugarte -->
@@ -16,16 +16,26 @@
     </item>
     <section>
       <item>
+        <attribute name="action">win.add_ui</attribute>
+        <attribute name="label" translatable="yes">Add UI</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.add_css</attribute>
+        <attribute name="label" translatable="yes">Add CSS</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.add_gresource</attribute>
+        <attribute name="label">Add GResource</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
         <attribute name="action">win.import</attribute>
         <attribute name="label" translatable="yes">Import UI</attribute>
       </item>
       <item>
-        <attribute name="action">win.export</attribute>
-        <attribute name="label" translatable="yes">Export all UI</attribute>
-      </item>
-      <item>
-        <attribute name="action">win.add_css</attribute>
-        <attribute name="label" translatable="yes">Add CSS file</attribute>
+        <attribute name="action">win.import_gresource</attribute>
+        <attribute name="label">Import GResource</attribute>
       </item>
     </section>
     <section>
@@ -245,7 +255,7 @@
                             <child>
                               <object class="GtkEntry" id="np_name_entry">
                                 <property name="focusable">1</property>
-                                <property name="input-hints">GTK_INPUT_HINT_LOWERCASE | GTK_INPUT_HINT_NONE</property>
+                                <property name="input-hints">lowercase|none</property>
                                 <property name="input-purpose">alpha</property>
                                 <property name="placeholder-text" translatable="yes">&lt;project basename&gt;</property>
                                 <property name="width-chars">32</property>
@@ -395,7 +405,7 @@
                             <child>
                               <object class="GtkEntry" id="np_ui_entry">
                                 <property name="focusable">1</property>
-                                <property name="input-hints">GTK_INPUT_HINT_LOWERCASE | GTK_INPUT_HINT_NONE</property>
+                                <property name="input-hints">lowercase|none</property>
                                 <property name="input-purpose">alpha</property>
                                 <property name="sensitive">0</property>
                                 <property name="width-chars">32</property>
@@ -534,8 +544,6 @@
                                               <object class="CmbUIEditor" id="ui_editor">
                                                 <property name="hexpand">True</property>
                                                 <property name="vexpand">True</property>
-                                                <signal name="remove-ui" handler="on_ui_editor_remove_ui"/>
-                                                <signal name="export-ui" handler="on_ui_editor_export_ui"/>
                                               </object>
                                             </property>
                                             <property name="name">properties</property>
@@ -578,11 +586,19 @@
                                   <object class="CmbCSSEditor" id="css_editor">
                                     <property name="hexpand">True</property>
                                     <property name="vexpand">True</property>
-                                    <signal name="remove-css" handler="on_css_editor_remove_ui"/>
                                   </object>
                                 </property>
                                 <property name="name">css</property>
                                 <property name="title" translatable="yes">CSS Editor</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkStackPage">
+                                <property name="child">
+                                  <object class="CmbGResourceEditor" id="gresource_editor"/>
+                                </property>
+                                <property name="name">gresource</property>
+                                <property name="title">GResource Editor</property>
                               </object>
                             </child>
                           </object>
@@ -595,21 +611,46 @@
                         <property name="start-child">
                           <object class="GtkPaned">
                             <property name="end-child">
-                              <object class="GtkBox">
-                                <property name="orientation">vertical</property>
+                              <object class="GtkStack" id="workspace_stack">
                                 <child>
-                                  <object class="CmbTypeChooser" id="type_chooser">
-                                    <property name="spacing">2</property>
-                                    <signal name="chooser-popdown" handler="on_type_chooser_chooser_popdown"/>
-                                    <signal name="chooser-popup" handler="on_type_chooser_chooser_popup"/>
-                                    <signal name="type-selected" handler="on_type_chooser_type_selected"/>
+                                  <object class="GtkStackPage">
+                                    <property name="child">
+                                      <object class="GtkBox">
+                                        <property name="orientation">vertical</property>
+                                        <child>
+                                          <object class="CmbTypeChooser" id="type_chooser">
+                                            <property name="spacing">2</property>
+                                            <property name="valign">start</property>
+                                            <signal name="chooser-popdown" handler="on_type_chooser_chooser_popdown"/>
+                                            <signal name="chooser-popup" handler="on_type_chooser_chooser_popup"/>
+                                            <signal name="type-selected" handler="on_type_chooser_type_selected"/>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="CmbView" id="view">
+                                            <property name="vexpand">1</property>
+                                            <signal name="placeholder-activated" handler="on_view_placeholder_activated"/>
+                                            <signal name="placeholder-selected" handler="on_view_placeholder_selected"/>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </property>
+                                    <property name="name">ui</property>
                                   </object>
                                 </child>
                                 <child>
-                                  <object class="CmbView" id="view">
-                                    <property name="vexpand">1</property>
-                                    <signal name="placeholder-activated" handler="on_view_placeholder_activated"/>
-                                    <signal name="placeholder-selected" handler="on_view_placeholder_selected"/>
+                                  <object class="GtkStackPage">
+                                    <property name="child">
+                                      <object class="GtkScrolledWindow">
+                                        <property name="child">
+                                          <object class="CmbSourceView" id="source_view">
+                                            <property name="editable">False</property>
+                                            <property name="lang">xml</property>
+                                          </object>
+                                        </property>
+                                      </object>
+                                    </property>
+                                    <property name="name">gresource</property>
                                   </object>
                                 </child>
                               </object>
@@ -790,5 +831,9 @@
   <object class="GtkFileFilter" id="gtk3_import_filter">
     <property name="mime-types">application/x-gtk-builder
 application/x-glade</property>
+  </object>
+  <object class="GtkFileFilter" id="import_gresource_filter">
+    <property name="mime-types">text/xml</property>
+    <property name="patterns">*.gresource.xml</property>
   </object>
 </interface>
