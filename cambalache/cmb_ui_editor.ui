@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.91.3 -->
+<!-- Created with Cambalache 0.95.0 -->
 <interface>
   <!-- interface-name cmb_ui_editor.ui -->
   <!-- interface-copyright Juan Pablo Ugarte -->
@@ -138,44 +138,6 @@
         <layout>
           <property name="column">0</property>
           <property name="row">1</property>
-        </layout>
-      </object>
-    </child>
-    <child>
-      <object class="GtkBox">
-        <property name="spacing">4</property>
-        <property name="valign">end</property>
-        <property name="vexpand">1</property>
-        <child>
-          <object class="GtkButton" id="remove_button">
-            <property name="focusable">1</property>
-            <property name="receives-default">1</property>
-            <signal name="clicked" handler="on_remove_button_clicked"/>
-            <child>
-              <object class="GtkImage">
-                <property name="icon-name">user-trash-symbolic</property>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="GtkButton" id="export_button">
-            <property name="focusable">1</property>
-            <property name="halign">end</property>
-            <property name="hexpand">True</property>
-            <property name="label" translatable="yes">Export</property>
-            <property name="receives-default">1</property>
-            <property name="tooltip-text" translatable="yes">Export</property>
-            <signal name="clicked" handler="on_export_button_clicked"/>
-            <style>
-              <class name="suggested-action"/>
-            </style>
-          </object>
-        </child>
-        <layout>
-          <property name="column">0</property>
-          <property name="column-span">2</property>
-          <property name="row">7</property>
         </layout>
       </object>
     </child>

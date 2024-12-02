@@ -178,9 +178,6 @@ class CmbUI(CmbBaseUI, Gio.ListModel):
 
         return target
 
-    def export(self):
-        return self.project.export_ui(self)
-
     # GListModel iface
     def do_get_item(self, position):
         ui_id = self.ui_id

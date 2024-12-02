@@ -32,11 +32,6 @@ from .cmb_ui import CmbUI
 class CmbUIEditor(Gtk.Grid):
     __gtype_name__ = "CmbUIEditor"
 
-    __gsignals__ = {
-        "remove-ui": (GObject.SignalFlags.RUN_FIRST, None, (CmbUI,)),
-        "export-ui": (GObject.SignalFlags.RUN_FIRST, None, (CmbUI,)),
-    }
-
     filename = Gtk.Template.Child()
     template_id = Gtk.Template.Child()
     description = Gtk.Template.Child()
@@ -92,16 +87,6 @@ class CmbUIEditor(Gtk.Grid):
                 GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
             )
             self._bindings.append(binding)
-
-    @Gtk.Template.Callback("on_remove_button_clicked")
-    def __on_remove_button_clicked(self, button):
-        if self.object:
-            self.emit("remove-ui", self.object)
-
-    @Gtk.Template.Callback("on_export_button_clicked")
-    def __on_export_button_clicked(self, button):
-        if self.object:
-            self.emit("export-ui", self.object)
 
 
 Gtk.WidgetClass.set_css_name(CmbUIEditor, "CmbUIEditor")
