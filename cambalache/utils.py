@@ -23,6 +23,9 @@
 # SPDX-License-Identifier: LGPL-2.1-only
 #
 
+import hashlib
+
+from lxml import etree
 from gi.repository import Gdk, Gio
 
 
@@ -99,3 +102,87 @@ def content_type_guess(path):
         content_type, uncertain = Gio.content_type_guess(path, data)
 
     return content_type
+
+
+# XML utilities
+
+def xml_node_get(node, *args, errors=None):
+    keys = node.keys()
+    knowns = []
+    retval = []
+
+    def get_key_val(node, attr):
+        tokens = attr.split(":")
+        key = tokens[0]
+        val = node.get(key, None)
+
+        if len(tokens) > 1:
+            t = tokens[1]
+            if t == "bool":
+                return (key, val.lower() in {"1", "t", "y", "true", "yes"} if val else False)
+            elif t == "int":
+                return (key, int(val))
+
+        return (key, val)
+
+    for attr in args:
+        if isinstance(attr, list):
+            for opt in attr:
+                key, val = get_key_val(node, opt)
+                retval.append(val)
+                knowns.append(key)
+        elif attr in keys:
+            key, val = get_key_val(node, attr)
+            retval.append(val)
+            knowns.append(key)
+        elif errors is not None:
+            errors.append(("missing-attr", node, attr))
+
+    if errors is not None:
+        unknown = list(set(keys) - set(knowns))
+        for attr in unknown:
+            errors.append(("unknown-attr", node, attr))
+
+    return retval
+
+
+def xml_node_get_comment(node):
+    prev = node.getprevious()
+    if prev is not None and prev.tag is etree.Comment:
+        return prev.text if not prev.text.strip().startswith("interface-") else None
+    return None
+
+
+def xml_node_set(node, attr, val):
+    if val is not None:
+        node.set(attr, str(val))
+
+
+# Duck typing Classes
+
+
+class FileHash():
+    def __init__(self, fd):
+        self.__fd = fd
+        self.__hash = hashlib.sha256()
+
+    def close(self):
+        self.__fd.close()
+
+    def peek(self, size):
+        return self.__fd.peek(size)
+
+    def read(self, size):
+        data = self.__fd.read(size)
+        self.__hash.update(data)
+        return data
+
+    def flush(self):
+        self.__fd.flush()
+
+    def write(self, data):
+        self.__hash.update(data)
+        self.__fd.write(data)
+
+    def hexdigest(self):
+        return self.__hash.hexdigest()
