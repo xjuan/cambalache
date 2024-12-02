@@ -28,7 +28,6 @@ import sys
 import sqlite3
 import ast
 import json
-import hashlib
 
 from lxml import etree
 from lxml.builder import E
@@ -52,38 +51,10 @@ PROJECT_SQL = _get_text_resource("db/cmb_project.sql")
 HISTORY_SQL = _get_text_resource("db/cmb_history.sql")
 
 
-class FileHash():
-    def __init__(self, fd):
-        self.__fd = fd
-        self.__hash = hashlib.sha256()
-
-    def close(self):
-        self.__fd.close()
-
-    def peek(self, size):
-        return self.__fd.peek(size)
-
-    def read(self, size):
-        data = self.__fd.read(size)
-        self.__hash.update(data)
-        return data
-
-    def flush(self):
-        self.__fd.flush()
-
-    def write(self, data):
-        self.__hash.update(data)
-        self.__fd.write(data)
-
-    def hexdigest(self):
-        return self.__hash.hexdigest()
-
-
 class CmbDB(GObject.GObject):
     __gtype_name__ = "CmbDB"
 
     target_tk = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    filename = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         self.version = self.__parse_version(config.FILE_FORMAT_VERSION)
@@ -99,6 +70,7 @@ class CmbDB(GObject.GObject):
             "ui_library",
             "css",
             "css_ui",
+            "gresource",
             "object",
             "object_property",
             "object_layout_property",
@@ -704,81 +676,24 @@ class CmbDB(GObject.GObject):
         # Drop temp table
         c.execute(f"DROP TABLE temp.{table};")
 
-    def load(self, filename):
-        # TODO: drop all data before loading?
-
-        if filename is None or not os.path.isfile(filename):
-            return
-
-        self.filename = filename
-
-        tree = etree.parse(filename)
-        root = tree.getroot()
-
-        target_tk = root.get("target_tk", None)
-
-        if target_tk != self.target_tk:
-            raise Exception(f"Can not load a {target_tk} target in {self.target_tk} project.")
-
-        version = self.__parse_version(root.get("version", None))
-
-        if version > self.version:
-            version = ".".join(map(str, version))
-            raise Exception(
-                f"File format {version} is not supported by this release,\nplease update to a newer version to open this file."
-            )
-
+    def load_old_format(self, root, version):
         c = self.conn.cursor()
 
         # Avoid circular dependencies errors
         self.foreign_keys = False
         self.ignore_check_constraints = True
 
-        if version > (0, 94, 0):
-            for child in root.getchildren():
-                if child.tag == "ui":
-                    ui_filename, sha256 = self.__node_get(child, ["filename", "sha256"])
-                    if ui_filename:
-                        ui_id, hexdigest = self.__import_file(ui_filename)
-
-                        if sha256 != hexdigest:
-                            logger.warning(f"{ui_filename} hash mismatch, file was modified")
-                    else:
-                        root = etree.fromstring(child.text.encode())
-                        ui_id = self.__import_from_node(root, None)
-
-                    row = c.execute("SELECT template_id FROM ui WHERE ui_id=?;", (ui_id, )).fetchone()
-                    if row is None:
-                        continue
-
-                    # TODO: load properties and signals
-                    # properties = child.find("properties")
-                    # signals = child.find("signals")
-                elif child.tag == "css":
-                    css_filename, priority, is_global = self.__node_get(child, ["filename", "priority", "is_global"])
-                    css_id = self.add_css(css_filename, priority, is_global)
-
-                    # Load UI relation
-                    for ui in child.getchildren():
-                        if ui.tag != "ui":
-                            continue
-                        row = c.execute("SELECT ui_id FROM ui WHERE filename=?;", (ui.text, )).fetchone()
-                        if row:
-                            ui_id, = row
-                            c.execute("INSERT INTO css_ui VALUES (?, ?)", (css_id, ui_id))
-                else:
-                    raise Exception(f"Unknown tag {child.tag} in project file.")
-        else:
-            # Support old format
-            all_tables = self.__tables + ["property", "signal"]
-            for child in root.getchildren():
-                if child.tag in all_tables:
-                    self.__load_table_from_tuples(c, child.tag, child.text, version)
-                else:
-                    raise Exception(f"Unknown tag {child.tag} in project file.")
+        # Support old format
+        all_tables = self.__tables + ["property", "signal"]
+        for child in root.getchildren():
+            if child.tag in all_tables:
+                self.__load_table_from_tuples(c, child.tag, child.text, version)
+            else:
+                raise Exception(f"Unknown tag {child.tag} in project file.")
 
         self.foreign_keys = True
         self.ignore_check_constraints = False
+
         c.close()
 
     def __load_accessibility_metadata(self, node):
@@ -871,97 +786,6 @@ class CmbDB(GObject.GObject):
 
         self.commit()
 
-    def __save_ui(self, ui_id, filename):
-        if filename is None:
-            return None
-
-        if not os.path.isabs(filename):
-            dirname = os.path.dirname(self.filename)
-            filename = os.path.join(dirname, filename)
-
-        # Ensure directory exists
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
-
-        # Get XML tree
-        ui = self.export_ui(ui_id)
-
-        # Dump xml to file
-        with open(filename, "wb") as fd:
-            hash_file = FileHash(fd)
-            ui.write(hash_file, pretty_print=True, xml_declaration=True, encoding="UTF-8")
-            hexdigest = hash_file.hexdigest()
-            hash_file.close()
-
-        return hexdigest
-
-    def save(self, filename):
-        self.filename = filename
-
-        self.conn.commit()
-
-        c = self.conn.cursor()
-        cc = self.conn.cursor()
-
-        project = E("cambalache-project", version=config.FILE_FORMAT_VERSION, target_tk=self.target_tk)
-
-        # Save UI files
-        for row in c.execute("SELECT ui_id, template_id, filename FROM ui;"):
-            ui_id, template_id, ui_filename = row
-
-            ui = E.ui()
-
-            if ui_filename:
-                # Save File
-                self.__node_set(ui, "filename", ui_filename)
-                hexdigest = self.__save_ui(ui_id, ui_filename)
-                self.__node_set(ui, "sha256", hexdigest)
-            else:
-                # Save as CDATA
-                ui.text = etree.CDATA(self.tostring(ui_id))
-
-            # TODO: save custom properties and signals
-            if template_id:
-                pass
-
-            project.append(ui)
-
-        # Save CSS
-        for row in c.execute("SELECT css_id, filename, priority, is_global FROM css;"):
-            css_id, css_filename, priority, is_global = row
-
-            css = E.css()
-
-            self.__node_set(css, "filename", css_filename)
-            self.__node_set(css, "priority", priority)
-            self.__node_set(css, "is_global", is_global)
-
-            # Save CSS UI relation
-            for css_ui in cc.execute(
-                "SELECT ui.filename FROM css_ui, ui WHERE css_ui.css_id=? AND css_ui.ui_id=ui.ui_id;",
-                (css_id, )
-            ):
-                ui_filename, = css_ui
-                ui = E.ui(ui_filename)
-                css.append(ui)
-            project.append(css)
-
-        # Dump xml to file
-        with open(filename, "wb") as fd:
-            tree = etree.ElementTree(project)
-            # FIXME: update DTD
-            tree.write(
-                fd,
-                pretty_print=True,
-                xml_declaration=True,
-                encoding="UTF-8",
-                standalone=False,
-                doctype='<!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">',
-            )
-            fd.close()
-
-        c.close()
-        cc.close()
-
     def move_to_fs(self, filename):
         self.conn.commit()
 
@@ -1021,6 +845,60 @@ class CmbDB(GObject.GObject):
         c.close()
 
         return ui_id
+
+    def add_gresource(
+        self,
+        resource_type,
+        parent_id=None,
+        gresources_filename=None,
+        gresource_prefix=None,
+        file_filename=None,
+        file_compressed=None,
+        file_preprocess=None,
+        file_alias=None
+    ):
+        if resource_type not in ["gresources", "gresource", "file"]:
+            return
+
+        c = self.conn.cursor()
+
+        if resource_type == "gresources":
+            c.execute("SELECT count(gresource_id) FROM gresource WHERE parent_id IS NULL;")
+        else:
+            c.execute("SELECT count(gresource_id) FROM gresource WHERE parent_id=?;", (parent_id, ))
+        position = c.fetchone()[0]
+
+        c.execute(
+            """
+            INSERT INTO gresource (
+                resource_type,
+                parent_id,
+                position,
+                gresources_filename,
+                gresource_prefix,
+                file_filename,
+                file_compressed,
+                file_preprocess,
+                file_alias
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+            """,
+            (
+                resource_type,
+                parent_id,
+                position,
+                gresources_filename,
+                gresource_prefix,
+                file_filename,
+                file_compressed,
+                file_preprocess,
+                file_alias
+            )
+        )
+        gresource_id = c.lastrowid
+        c.close()
+
+        return gresource_id
 
     def add_object(
         self,
@@ -1141,41 +1019,12 @@ class CmbDB(GObject.GObject):
         self.__collect_error("unknown-tag", node, f"{owner}:{name}" if owner is not None and name else name)
 
     def __node_get(self, node, *args, collect_errors=True):
-        keys = node.keys()
-        knowns = []
-        retval = []
+        errors = [] if collect_errors else None
+        retval = utils.xml_node_get(node, *args, errors=errors)
 
-        def get_key_val(node, attr):
-            tokens = attr.split(":")
-            key = tokens[0]
-            val = node.get(key, None)
-
-            if len(tokens) > 1:
-                t = tokens[1]
-                if t == "bool":
-                    return (key, val.lower() in {"1", "t", "y", "true", "yes"} if val else False)
-                elif t == "int":
-                    return (key, int(val))
-
-            return (key, val)
-
-        for attr in args:
-            if isinstance(attr, list):
-                for opt in attr:
-                    key, val = get_key_val(node, opt)
-                    retval.append(val)
-                    knowns.append(key)
-            elif attr in keys:
-                key, val = get_key_val(node, attr)
-                retval.append(val)
-                knowns.append(key)
-            elif collect_errors:
-                self.__collect_error("missing-attr", node, attr)
-
-        if collect_errors:
-            unknown = list(set(keys) - set(knowns))
-            for attr in unknown:
-                self.__collect_error("unknown-attr", node, attr)
+        if errors:
+            for error, node, attr in errors:
+                self.__collect_error(error, node, attr)
 
         return retval
 
@@ -1221,6 +1070,10 @@ class CmbDB(GObject.GObject):
 
         property_id = name.replace("_", "-")
         pinfo = self.__get_property_info(info, property_id)
+
+        if pinfo is None:
+            self.__collect_error("unknown-property", prop, f"{info.type_id}:{property_id}")
+            return
 
         # Property value
         value = prop.text
@@ -1277,11 +1130,6 @@ class CmbDB(GObject.GObject):
         inline_object_id=None
     ):
         comment = self.__node_get_comment(prop)
-
-        # Insert property
-        if not pinfo:
-            self.__collect_error("unknown-property", prop, f"{info.type_id}:{property_id}")
-            return
 
         # Need to remap object ids on paste
         if object_id_map and pinfo.is_object:
@@ -2010,7 +1858,7 @@ class CmbDB(GObject.GObject):
             (ui_id,),
         )
 
-    def __import_from_node(self, root, relpath):
+    def import_from_node(self, root, relpath):
         custom_fragments = []
         self.foreign_keys = False
 
@@ -2129,35 +1977,48 @@ class CmbDB(GObject.GObject):
 
         return ui_id
 
-    def __import_file(self, filename, projectdir="."):
-        projectdir = os.path.dirname(self.filename)
+    def import_gresource_from_node(self, root, relpath):
+        # Clear parsing errors
+        self.errors = {}
 
-        if os.path.isabs(filename):
-            fullpath = filename
-        else:
-            fullpath = os.path.join(projectdir, filename)
+        if root.tag != "gresources":
+            raise Exception(_("Unknown root tag {tag}").format(tag=root.tag))
 
-        relpath = os.path.relpath(fullpath, projectdir)
+        gresource_id = self.add_gresource("gresources", gresources_filename=relpath)
 
-        with open(fullpath, "rb") as fd:
-            hash_file = FileHash(fd)
-            tree = etree.parse(hash_file)
-            hexdigest = hash_file.hexdigest()
-            root = tree.getroot()
+        for child in root.iterchildren():
+            if child.tag != "gresource":
+                self.__unknown_tag(child, root, child.tag)
+                continue
 
-        return self.__import_from_node(root, relpath), hexdigest
+            prefix, = self.__node_get(child, "prefix")
 
-    def import_file(self, filename, projectdir="."):
-        ui_id, sha256 = self.import_file(filename)
-        return ui_id
+            resource_id = self.add_gresource("gresource", parent_id=gresource_id, gresource_prefix=prefix)
+
+            for file in child.iterchildren():
+                if file.tag != "file":
+                    self.__unknown_tag(file, child, file.tag)
+                    continue
+
+                compressed, preprocess, alias = self.__node_get(
+                    file,
+                    ["compressed:bool", "preprocess", "alias"],
+                    collect_errors=False
+                )
+                self.add_gresource(
+                    "file",
+                    parent_id=resource_id,
+                    file_filename=file.text,
+                    file_compressed=compressed,
+                    file_preprocess=preprocess,
+                    file_alias=alias
+                )
+
+        return gresource_id
 
     def __node_add_comment(self, node, comment):
         if comment:
             node.addprevious(etree.Comment(comment))
-
-    def __node_set(self, node, attr, val):
-        if val is not None:
-            node.set(attr, str(val))
 
     def __export_menu(self, ui_id, object_id, merengue=False, ignore_id=False):
         c = self.conn.cursor()
@@ -2167,13 +2028,13 @@ class CmbDB(GObject.GObject):
 
         if type_id == GMENU_TYPE:
             obj = E.menu()
-            self.__node_set(obj, "id", f"__cmb__{ui_id}.{object_id}" if merengue else name)
+            utils.xml_node_set(obj, "id", f"__cmb__{ui_id}.{object_id}" if merengue else name)
         elif type_id == GMENU_SECTION_TYPE:
             obj = E.section()
-            self.__node_set(obj, "id", f"__cmb__{ui_id}.{object_id}" if merengue else name)
+            utils.xml_node_set(obj, "id", f"__cmb__{ui_id}.{object_id}" if merengue else name)
         elif type_id == GMENU_SUBMENU_TYPE:
             obj = E.submenu()
-            self.__node_set(obj, "id", f"__cmb__{ui_id}.{object_id}" if merengue else name)
+            utils.xml_node_set(obj, "id", f"__cmb__{ui_id}.{object_id}" if merengue else name)
         elif type_id == GMENU_ITEM_TYPE:
             obj = E.item()
         else:
@@ -2203,9 +2064,9 @@ class CmbDB(GObject.GObject):
                 node.text = value
 
             if translatable:
-                self.__node_set(node, "translatable", "yes")
-                self.__node_set(node, "context", translation_context)
-                self.__node_set(node, "comments", translation_comments)
+                utils.xml_node_set(node, "translatable", "yes")
+                utils.xml_node_set(node, "context", translation_context)
+                utils.xml_node_set(node, "comments", translation_comments)
 
             obj.append(node)
 
@@ -2303,9 +2164,9 @@ class CmbDB(GObject.GObject):
                     ntag.set(key, value)
 
             if translatable:
-                self.__node_set(ntag, "translatable", "yes")
-                self.__node_set(ntag, "context", translation_context)
-                self.__node_set(ntag, "comments", translation_comments)
+                utils.xml_node_set(ntag, "translatable", "yes")
+                utils.xml_node_set(ntag, "context", translation_context)
+                utils.xml_node_set(ntag, "comments", translation_comments)
 
             for tag in info.children:
                 self.__export_object_data(ui_id, object_id, owner_id, tag, info.children[tag], ntag, id)
@@ -2368,28 +2229,28 @@ class CmbDB(GObject.GObject):
 
             # Set object id
             if not ignore_id:
-                self.__node_set(obj, "id", f"__cmb__{ui_id}.{object_id}")
+                utils.xml_node_set(obj, "id", f"__cmb__{ui_id}.{object_id}")
         elif not merengue and template_id == object_id:
             obj = E.template()
-            self.__node_set(obj, "class", name)
-            self.__node_set(obj, "parent", type_id)
+            utils.xml_node_set(obj, "class", name)
+            utils.xml_node_set(obj, "parent", type_id)
         else:
             obj = E.object()
 
             if merengue:
                 workspace_type = info.workspace_type
-                self.__node_set(obj, "class", workspace_type if workspace_type else type_id)
+                utils.xml_node_set(obj, "class", workspace_type if workspace_type else type_id)
 
                 if merengue_template:
                     # From now own all output should be without an ID
                     # because we do not want so select internal widget from the template
                     ignore_id = True
                 elif not ignore_id:
-                    self.__node_set(obj, "id", f"__cmb__{ui_id}.{object_id}")
+                    utils.xml_node_set(obj, "id", f"__cmb__{ui_id}.{object_id}")
             else:
-                self.__node_set(obj, "class", type_id)
+                utils.xml_node_set(obj, "class", type_id)
                 if not ignore_id:
-                    self.__node_set(obj, "id", name)
+                    utils.xml_node_set(obj, "id", name)
 
         # Create class hierarchy list
         hierarchy = [type_id] + info.hierarchy if info else [type_id]
@@ -2482,17 +2343,17 @@ class CmbDB(GObject.GObject):
                 node.append(value_node)
 
             if translatable:
-                self.__node_set(node, "translatable", "yes")
-                self.__node_set(node, "context", translation_context)
-                self.__node_set(node, "comments", translation_comments)
+                utils.xml_node_set(node, "translatable", "yes")
+                utils.xml_node_set(node, "context", translation_context)
+                utils.xml_node_set(node, "comments", translation_comments)
 
             if bind_source_id and bind_owner_id and bind_property_id:
                 bind_source = self.__get_object_name(ui_id, bind_source_id, merengue=merengue)
 
                 if bind_source:
-                    self.__node_set(node, "bind-source", bind_source)
-                    self.__node_set(node, "bind-property", bind_property_id)
-                    self.__node_set(node, "bind-flags", bind_flags)
+                    utils.xml_node_set(node, "bind-source", bind_source)
+                    utils.xml_node_set(node, "bind-property", bind_property_id)
+                    utils.xml_node_set(node, "bind-flags", bind_flags)
 
             obj.append(node)
             self.__node_add_comment(node, comment)
@@ -2515,11 +2376,11 @@ class CmbDB(GObject.GObject):
                 signal_id, handler, detail, data, swap, after, comment = row
                 name = f"{signal_id}::{detail}" if detail is not None else signal_id
                 node = E.signal(name=name, handler=handler)
-                self.__node_set(node, "object", data)
+                utils.xml_node_set(node, "object", data)
                 if swap:
-                    self.__node_set(node, "swapped", "yes")
+                    utils.xml_node_set(node, "swapped", "yes")
                 if after:
-                    self.__node_set(node, "after", "yes")
+                    utils.xml_node_set(node, "after", "yes")
                 obj.append(node)
                 self.__node_add_comment(node, comment)
 
@@ -2655,9 +2516,9 @@ class CmbDB(GObject.GObject):
                     node.text = value
 
                 if translatable:
-                    self.__node_set(node, "translatable", "yes")
-                    self.__node_set(node, "context", translation_context)
-                    self.__node_set(node, "comments", translation_comments)
+                    utils.xml_node_set(node, "translatable", "yes")
+                    utils.xml_node_set(node, "context", translation_context)
+                    utils.xml_node_set(node, "comments", translation_comments)
 
                 self.__node_add_comment(node, comment)
 
@@ -2719,8 +2580,8 @@ class CmbDB(GObject.GObject):
 
             child_obj = self.__export_object(ui_id, child_id, merengue=merengue, ignore_id=ignore_id)
             child = E.child(child_obj)
-            self.__node_set(child, "internal-child", internal)
-            self.__node_set(child, "type", ctype)
+            utils.xml_node_set(child, "internal-child", internal)
+            utils.xml_node_set(child, "type", ctype)
             self.__node_add_comment(child_obj, comment)
 
             obj.append(child)
@@ -2798,7 +2659,7 @@ class CmbDB(GObject.GObject):
 
         node = E.interface()
         node.addprevious(etree.Comment(f" Created with Cambalache {config.VERSION} "))
-        self.__node_set(node, "domain", translation_domain)
+        utils.xml_node_set(node, "domain", translation_domain)
 
         self.__node_add_comment(node, comment)
 
@@ -2888,6 +2749,70 @@ class CmbDB(GObject.GObject):
             return None
 
         return etree.tostring(ui, pretty_print=True, xml_declaration=True, encoding="UTF-8").decode("UTF-8")
+
+    def export_gresource(self, gresources_id):
+        c = self.conn.cursor()
+
+        c.execute(
+            "SELECT gresources_filename FROM gresource WHERE resource_type='gresources' AND gresource_id=?;",
+            (gresources_id, )
+        )
+        row = c.fetchone()
+
+        if row is None:
+            c.close()
+            return None
+
+        root = E.gresources()
+        root.addprevious(etree.Comment(f" Created with Cambalache {config.VERSION} "))
+
+        cc = self.conn.cursor()
+
+        # Iterate over resources
+        for row in c.execute(
+            "SELECT gresource_id, gresource_prefix FROM gresource WHERE resource_type='gresource' AND parent_id=?;",
+            (gresources_id, )
+        ):
+            resource_id, resource_prefix = row
+
+            gresource = E.gresource()
+            utils.xml_node_set(gresource, "prefix", resource_prefix)
+            for row in cc.execute(
+                """
+                SELECT file_filename, file_compressed, file_preprocess, file_alias
+                FROM gresource
+                WHERE resource_type='file' AND parent_id=?;
+                """,
+                (resource_id, )
+            ):
+                filename, compressed, preprocess, alias = row
+
+                file = E.file()
+
+                if filename:
+                    file.text = filename
+
+                if compressed:
+                    utils.xml_node_set(file, "compressed", "true")
+
+                utils.xml_node_set(file, "preprocess", preprocess)
+                utils.xml_node_set(file, "alias", alias)
+                gresource.append(file)
+
+            root.append(gresource)
+
+        c.close()
+        cc.close()
+
+        return etree.ElementTree(root)
+
+    def gresource_tostring(self, gresource_id):
+        gresource = self.export_gresource(gresource_id)
+
+        if gresource is None:
+            return None
+
+        return etree.tostring(gresource, pretty_print=True, xml_declaration=True, encoding="UTF-8").decode("UTF-8")
 
     def clipboard_copy(self, selection):
         self.clipboard = []
