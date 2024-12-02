@@ -1187,9 +1187,8 @@ class CmbWindow(Adw.ApplicationWindow):
             about.props.translator_credits = "\n".join(translator_list)
 
     def _on_about_activate(self, action, data):
-        about = Adw.AboutWindow.new_from_appdata("/ar/xjuan/Cambalache/app/metainfo.xml", config.VERSION)
+        about = Adw.AboutDialog.new_from_appdata("/ar/xjuan/Cambalache/app/metainfo.xml", config.VERSION)
 
-        about.props.transient_for = self
         about.props.artists = [
             "Franco Dodorico",
             "Juan Pablo Ugarte",
@@ -1200,7 +1199,7 @@ class CmbWindow(Adw.ApplicationWindow):
         self.__update_translators(about)
         self.__populate_supporters(about)
 
-        about.present()
+        about.present(self)
 
     def _on_add_parent_activate(self, action, data):
         obj = self.project.get_selection()[0]
