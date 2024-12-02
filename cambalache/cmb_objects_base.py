@@ -3,7 +3,7 @@
 #
 # Cambalache Base Object wrappers
 #
-# Copyright (C) 2021-2022  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -427,6 +427,97 @@ class CmbBaseCSS(CmbBase):
     @is_global.setter
     def _set_is_global(self, value):
         self.db_set("UPDATE css SET is_global=? WHERE (css_id) IS (?);", (self.css_id,), value)
+
+
+class CmbBaseGResource(CmbBase):
+    __gtype_name__ = "CmbBaseGResource"
+
+    gresource_id = GObject.Property(type=int, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    resource_type = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    @classmethod
+    def from_row(
+        cls,
+        project,
+        gresource_id,
+        resource_type,
+        parent_id,
+        position,
+        gresources_filename,
+        gresource_prefix,
+        file_filename,
+        file_compressed,
+        file_preprocess,
+        file_alias,
+    ):
+        return cls(project=project, gresource_id=gresource_id)
+
+    @GObject.Property(type=int)
+    def parent_id(self):
+        return self.db_get("SELECT parent_id FROM gresource WHERE (gresource_id) IS (?);", (self.gresource_id,))
+
+    @parent_id.setter
+    def _set_parent_id(self, value):
+        self.db_set("UPDATE gresource SET parent_id=? WHERE (gresource_id) IS (?);", (self.gresource_id,), value)
+
+    @GObject.Property(type=int)
+    def position(self):
+        return self.db_get("SELECT position FROM gresource WHERE (gresource_id) IS (?);", (self.gresource_id,))
+
+    @position.setter
+    def _set_position(self, value):
+        self.db_set("UPDATE gresource SET position=? WHERE (gresource_id) IS (?);", (self.gresource_id,), value)
+
+    @GObject.Property(type=str)
+    def gresources_filename(self):
+        return self.db_get("SELECT gresources_filename FROM gresource WHERE (gresource_id) IS (?);", (self.gresource_id,))
+
+    @gresources_filename.setter
+    def _set_gresources_filename(self, value):
+        self.db_set("UPDATE gresource SET gresources_filename=? WHERE (gresource_id) IS (?);", (self.gresource_id,), value)
+
+    @GObject.Property(type=str)
+    def gresource_prefix(self):
+        return self.db_get("SELECT gresource_prefix FROM gresource WHERE (gresource_id) IS (?);", (self.gresource_id,))
+
+    @gresource_prefix.setter
+    def _set_gresource_prefix(self, value):
+        self.db_set("UPDATE gresource SET gresource_prefix=? WHERE (gresource_id) IS (?);", (self.gresource_id,), value)
+
+    @GObject.Property(type=str)
+    def file_filename(self):
+        return self.db_get("SELECT file_filename FROM gresource WHERE (gresource_id) IS (?);", (self.gresource_id,))
+
+    @file_filename.setter
+    def _set_file_filename(self, value):
+        self.db_set("UPDATE gresource SET file_filename=? WHERE (gresource_id) IS (?);", (self.gresource_id,), value)
+
+    @GObject.Property(type=bool, default=False)
+    def file_compressed(self):
+        return self.db_get("SELECT file_compressed FROM gresource WHERE (gresource_id) IS (?);", (self.gresource_id,))
+
+    @file_compressed.setter
+    def _set_file_compressed(self, value):
+        self.db_set("UPDATE gresource SET file_compressed=? WHERE (gresource_id) IS (?);", (self.gresource_id,), value)
+
+    @GObject.Property(type=str)
+    def file_preprocess(self):
+        return self.db_get("SELECT file_preprocess FROM gresource WHERE (gresource_id) IS (?);", (self.gresource_id,))
+
+    @file_preprocess.setter
+    def _set_file_preprocess(self, value):
+        self.db_set("UPDATE gresource SET file_preprocess=? WHERE (gresource_id) IS (?);", (self.gresource_id,), value)
+
+    @GObject.Property(type=str)
+    def file_alias(self):
+        return self.db_get("SELECT file_alias FROM gresource WHERE (gresource_id) IS (?);", (self.gresource_id,))
+
+    @file_alias.setter
+    def _set_file_alias(self, value):
+        self.db_set("UPDATE gresource SET file_alias=? WHERE (gresource_id) IS (?);", (self.gresource_id,), value)
 
 
 class CmbBaseProperty(CmbBase):

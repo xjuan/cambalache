@@ -1,7 +1,7 @@
 #
 # DbCodegen - Cambalache DB Code Generator
 #
-# Copyright (C) 2021-2023  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as
@@ -67,7 +67,7 @@ class CambalacheDb:
 
         return columns
 
-    def dump_table(self, fd, table, klass, mutable=False):
+    def dump_table(self, fd, table, klass, mutable=False, construct_only=[]):
         c = self.conn.cursor()
         columns = self._get_table_data(table)
 
@@ -78,19 +78,25 @@ class CambalacheDb:
         all_pk_columns = ""
         pks = []
         for col in columns:
-            if mutable and not col["pk"]:
+            name = col['name']
+            prop_type = col['type']
+
+            if mutable and not col["pk"] and name not in construct_only:
                 continue
 
-            fd.write(f"    {col['name']} = GObject.Property(type={col['type']}")
+            fd.write(f"    {name} = GObject.Property(type={prop_type}")
             fd.write(", flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY")
 
-            if col["type"] == "bool":
+            if prop_type == "bool":
                 fd.write(", default=False")
 
             fd.write(")\n")
 
-            pks.append(col["name"])
-            all_pk_columns += f"self.{col['name']}, "
+            if name in construct_only:
+                continue
+
+            pks.append(name)
+            all_pk_columns += f"self.{name}, "
 
         all_columns = ""
         all_columns_assign = ""
@@ -114,22 +120,23 @@ class CambalacheDb:
 
         if mutable:
             for col in columns:
-                if col["pk"]:
+                name = col['name']
+                if col["pk"] or name in construct_only:
                     continue
 
                 fd.write(f"\n    @GObject.Property(type={col['type']}")
                 if col["type"] == "bool":
                     fd.write(", default = False")
                 fd.write(")\n")
-                fd.write(f"    def {col['name']}(self):\n")
+                fd.write(f"    def {name}(self):\n")
                 fd.write(
-                    f"        return self.db_get(\"SELECT {col['name']} FROM {table} WHERE {_pk_columns} IS {_pk_values};\",\n"
+                    f"        return self.db_get(\"SELECT {name} FROM {table} WHERE {_pk_columns} IS {_pk_values};\",\n"
                 )
                 fd.write(f"                           ({all_pk_columns}))\n")
 
-                fd.write(f"\n    @{col['name']}.setter\n")
-                fd.write(f"    def _set_{col['name']}(self, value):\n")
-                fd.write(f"        self.db_set(\"UPDATE {table} SET {col['name']}=? WHERE {_pk_columns} IS {_pk_values};\",\n")
+                fd.write(f"\n    @{name}.setter\n")
+                fd.write(f"    def _set_{name}(self, value):\n")
+                fd.write(f"        self.db_set(\"UPDATE {table} SET {name}=? WHERE {_pk_columns} IS {_pk_values};\",\n")
                 fd.write(f"                    ({all_pk_columns}), value)\n")
 
         c.close()
@@ -142,7 +149,7 @@ class CambalacheDb:
 #
 # Cambalache Base Object wrappers
 #
-# Copyright (C) 2021-2022  Juan Pablo Ugarte
+# Copyright (C) 2021-2024  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -160,6 +167,8 @@ class CambalacheDb:
 #
 # Authors:
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
+#
+# SPDX-License-Identifier: LGPL-2.1-only
 #
 
 from gi.repository import GObject
@@ -179,6 +188,7 @@ from .cmb_base import CmbBase
             # Project Objects
             self.dump_table(fd, "ui", "CmbBaseUI", mutable=True)
             self.dump_table(fd, "css", "CmbBaseCSS", mutable=True)
+            self.dump_table(fd, "gresource", "CmbBaseGResource", mutable=True, construct_only=["resource_type"])
             self.dump_table(fd, "object_property", "CmbBaseProperty", mutable=True)
             self.dump_table(fd, "object_layout_property", "CmbBaseLayoutProperty", mutable=True)
             self.dump_table(fd, "object_signal", "CmbSignal", mutable=True)

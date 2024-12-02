@@ -113,6 +113,26 @@ CREATE TABLE css_ui (
 ) WITHOUT ROWID;
 
 
+/* GResource
+ *
+ */
+CREATE TABLE gresource (
+  gresource_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  resource_type TEXT CHECK (resource_type IN ('gresources', 'gresource', 'file')),
+  parent_id INTEGER REFERENCES gresource ON DELETE CASCADE,
+  position INTEGER NOT NULL CHECK (position >= 0),
+
+  gresources_filename TEXT UNIQUE,
+
+  gresource_prefix TEXT UNIQUE,
+
+  file_filename TEXT,
+  file_compressed BOOLEAN,
+  file_preprocess TEXT,
+  file_alias TEXT
+);
+
+
 /* Object
  *
  * TODO: check type_id is an object

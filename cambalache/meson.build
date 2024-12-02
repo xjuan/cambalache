@@ -35,6 +35,8 @@ install_data([
     'cmb_db_migration.py',
     'cmb_db_profile.py',
     'cmb_fragment_editor.py',
+    'cmb_gresource.py',
+    'cmb_gresource_editor.py',
     'cmb_layout_property.py',
     'cmb_library_info.py',
     'cmb_list_error.py',

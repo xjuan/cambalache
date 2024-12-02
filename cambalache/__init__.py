@@ -78,6 +78,7 @@ from .cmb_objects_base import CmbBaseObject
 from .cmb_css import CmbCSS
 from .cmb_ui import CmbUI
 from .cmb_object import CmbObject
+from .cmb_gresource import CmbGResource
 
 # from .cmb_object_data import CmbObjectData
 from .cmb_property import CmbProperty
@@ -94,6 +95,7 @@ from .cmb_signal_editor import CmbSignalEditor
 from .cmb_ui_editor import CmbUIEditor
 from .cmb_ui_requires_editor import CmbUIRequiresEditor
 from .cmb_css_editor import CmbCSSEditor
+from .cmb_gresource_editor import CmbGResourceEditor
 from .cmb_fragment_editor import CmbFragmentEditor
 from .cmb_accessible_editor import CmbAccessibleEditor
 from .cmb_type_chooser import CmbTypeChooser
