@@ -73,13 +73,6 @@ intro = [
     (_("and a button"), "intro_button", 3, "add-button"),
     (_("Quite easy! Isn't it?"), "intro_button", 3),
     (
-        _("Once you finish, you can export all UI files to xml here"),
-        _("Export all"),
-        5,
-        None,
-        CmbTutorPosition.LEFT,
-    ),
-    (
         _("If you have any question, contact us on Matrix!"),
         _("Contact"),
         7,
