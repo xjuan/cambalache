@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.91.1 -->
+<!-- Created with Cambalache 0.95.0 -->
 <interface>
   <!-- interface-name cmb_shortcuts.ui -->
   <!-- interface-copyright Juan Pablo Ugarte -->
@@ -35,12 +35,6 @@
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Control&gt;s</property>
                 <property name="title" translatable="yes">Save the project</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkShortcutsShortcut">
-                <property name="accelerator">&lt;Control&gt;e</property>
-                <property name="title" translatable="yes">Save and Export</property>
               </object>
             </child>
           </object>
