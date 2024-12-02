@@ -31,10 +31,12 @@ import sqlite3
 from gi.repository import GObject, Gio
 
 from lxml import etree
+from lxml.builder import E
 
 from .cmb_db import CmbDB
 from .cmb_ui import CmbUI
 from .cmb_css import CmbCSS
+from .cmb_gresource import CmbGResource
 from .cmb_base import CmbBase
 from .cmb_object import CmbObject
 from .cmb_object_data import CmbObjectData
@@ -44,8 +46,9 @@ from .cmb_layout_property import CmbLayoutProperty
 from .cmb_library_info import CmbLibraryInfo
 from .cmb_type_info import CmbTypeInfo
 from .cmb_objects_base import CmbSignal
-from . import constants
-from cambalache import getLogger, _, N_
+from .utils import FileHash
+from . import constants, utils
+from cambalache import config, getLogger, _, N_
 
 logger = getLogger(__name__)
 
@@ -62,6 +65,9 @@ class CmbProject(GObject.Object, Gio.ListModel):
         "css-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbCSS,)),
         "css-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbCSS,)),
         "css-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbCSS, str)),
+        "gresource-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbGResource,)),
+        "gresource-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbGResource,)),
+        "gresource-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbGResource, str)),
         "object-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject,)),
         "object-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject,)),
         "object-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, str)),
@@ -111,6 +117,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         # Objects hash tables
         self._object_id = {}
         self.__css_id = {}
+        self.__gresource_id = {}
 
         self.__template_info = {}
 
@@ -238,38 +245,180 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         c.close()
 
+    def __get_abs_path(self, filename):
+        projectdir = os.path.dirname(self.filename)
+        if os.path.isabs(filename):
+            fullpath = filename
+        else:
+            fullpath = os.path.join(projectdir, filename)
+
+        relpath = os.path.relpath(fullpath, projectdir)
+
+        return fullpath, relpath
+
+    def __parse_xml_file(self, filename):
+        fullpath, relpath = self.__get_abs_path(filename)
+
+        with open(fullpath, "rb") as fd:
+            hash_file = FileHash(fd)
+            tree = etree.parse(hash_file)
+            hexdigest = hash_file.hexdigest()
+            root = tree.getroot()
+
+            return root, relpath, hexdigest
+
+        return None, None
+
+    def __load_ui_from_node(self, node):
+        filename, sha256 = utils.xml_node_get(node, ["filename", "sha256"])
+        if filename:
+            root, relpath, hexdigest = self.__parse_xml_file(filename)
+
+            if sha256 != hexdigest:
+                logger.warning(f"{filename} hash mismatch, file was modified")
+
+            ui_id = self.db.import_from_node(root, relpath)
+        else:
+            content = node.find("content")
+            if content is not None:
+                root = etree.fromstring(content.text.encode())
+                ui_id = self.db.import_from_node(root, None)
+            else:
+                raise Exception("content tag is missing")
+
+        row = self.db.execute("SELECT template_id FROM ui WHERE ui_id=?;", (ui_id,)).fetchone()
+        template_id = row[0] if row else None
+        owner_id = None
+
+        if template_id:
+            row = self.db.execute("SELECT name FROM object WHERE ui_id=? AND object_id=?;", (ui_id, template_id)).fetchone()
+
+            owner_id = row[0] if row else None
+
+        if owner_id:
+            for property in node.findall("property"):
+                property_id, type_id = utils.xml_node_get(property, "id", "type-id")
+                self.db.execute(
+                    "INSERT INTO property(owner_id, property_id, type_id) VALUES (?, ?, ?);",
+                    (owner_id, property_id, type_id)
+                )
+
+                for key in [
+                    "is_object",
+                    "construct_only",
+                    "save_always",
+                    "default_value",
+                    "minimum",
+                    "maximum",
+                    "translatable",
+                    "disable_inline_object",
+                    "required",
+                    "original_owner_id",
+                    "disabled",
+                ]:
+                    val = property.get(key.replace("_", "-"), None)
+                    if val is not None:
+                        self.db.execute(
+                            f"UPDATE property SET {key}=? WHERE owner_id=? AND property_id=?;",
+                            (val, owner_id, property_id)
+                        )
+
+            for signal in node.findall("signal"):
+                signal_id, detailed = utils.xml_node_get(signal, "id", ["detailed"])
+                self.db.execute(
+                    "INSERT INTO signal(owner_id, signal_id, detailed) VALUES (?, ?, ?)", (owner_id, signal_id, detailed)
+                )
+
+        self.__populate_ui(ui_id)
+
+    def __load_css_from_node(self, node):
+        css_filename, priority, is_global = utils.xml_node_get(node, ["filename", "priority", "is_global"])
+        css_id = self.db.add_css(css_filename, priority, is_global)
+
+        # Load UI relation
+        for ui in node.getchildren():
+            if ui.tag != "ui":
+                continue
+            row = self.db.execute("SELECT ui_id FROM ui WHERE filename=?;", (ui.text,)).fetchone()
+            if row:
+                (ui_id,) = row
+                self.db.execute("INSERT INTO css_ui VALUES (?, ?)", (css_id, ui_id))
+
+        self.__populate_css(css_id)
+
+    def __load_gresource_from_node(self, node):
+        filename, sha256 = utils.xml_node_get(node, ["filename", "sha256"])
+
+        if filename:
+            root, relpath, hexdigest = self.__parse_xml_file(filename)
+
+            if sha256 != hexdigest:
+                logger.warning(f"{filename} hash mismatch, file was modified")
+
+            gresource_id = self.db.import_gresource_from_node(root, relpath)
+        else:
+            content = node.find("content")
+            if content:
+                root = etree.fromstring(content.text.encode())
+                gresource_id = self.db.import_gresource_from_node(root, None)
+            else:
+                raise Exception("content tag is missing")
+
+        self.__populate_gresource(gresource_id)
+
     def __load(self):
         if self.filename is None or not os.path.isfile(self.filename):
             return
 
         self.history_enabled = False
-        self.db.load(self.filename)
+
+        tree = etree.parse(self.filename)
+        root = tree.getroot()
+
+        target_tk = root.get("target_tk", None)
+
+        if target_tk != self.target_tk:
+            raise Exception(f"Can not load a {target_tk} target in {self.target_tk} project.")
+
+        version = root.get("version", None)
+        version = (0, 0, 0) if version is None else utils.parse_version(version)
+
+        if version > self.db.version:
+            version = ".".join(map(str, version))
+            raise Exception(
+                f"File format {version} is not supported by this release,\nplease update to a newer version to open this file."
+            )
+
+        if version > (0, 94, 0):
+            for child in root.getchildren():
+                if child.tag == "ui":
+                    self.__load_ui_from_node(child)
+                elif child.tag == "css":
+                    self.__load_css_from_node(child)
+                elif child.tag == "gresources":
+                    self.__load_gresource_from_node(child)
+                else:
+                    raise Exception(f"Unknown tag {child.tag} in project file.")
+        else:
+            self.db.load_old_format(root, version)
+
         self.history_enabled = True
 
-        self.__populate_items()
+    def __populate_ui(self, ui_id):
+        row = self.db.execute("SELECT * FROM ui WHERE ui_id=?;", (ui_id,)).fetchone()
+        ui = self.__add_ui(True, *row)
+        ui.notify("n-items")
+        return ui
 
-    def __populate_items(self, ui_id=None):
-        c = self.db.cursor()
+    def __populate_css(self, css_id):
+        row = self.db.execute("SELECT * FROM css WHERE css_id=?;", (css_id,)).fetchone()
+        return self.__add_css(True, *row)
 
-        if ui_id:
-            rows = c.execute("SELECT * FROM ui WHERE ui_id=?;", (ui_id,))
-        else:
-            rows = c.execute("SELECT * FROM ui;")
-
-        # Populate tree view ui first
-        for row in rows:
-            ui = self.__add_ui(True, *row)
-            ui.notify("n-items")
-
-        # Populate CSS
-        if ui_id is None:
-            rows = c.execute("SELECT * FROM css;")
-
-            # Populate tree view
-            for row in rows:
-                self.__add_css(True, *row)
-
-        c.close()
+    def __populate_gresource(self, gresource_id):
+        row = self.db.execute("SELECT * FROM gresource WHERE gresource_id=?;", (gresource_id,)).fetchone()
+        gresource = self.__add_gresource(True, *row)
+        gresource.notify("n-items")
+        return gresource
 
     @GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
     def filename(self):
@@ -283,12 +432,165 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         self.__filename = value
 
-    def save(self):
-        if self.filename:
-            self.db.save(self.filename)
-            return True
+    def __save_xml_and_update_node(self, node, root, filename):
+        if root is None or filename is None:
+            return
 
-        return False
+        if not os.path.isabs(filename):
+            if self.filename is None:
+                return
+
+            dirname = os.path.dirname(self.filename)
+            fullpath = os.path.join(dirname, filename)
+        else:
+            fullpath = filename
+
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(fullpath), exist_ok=True)
+
+        # Dump xml to file
+        with open(fullpath, "wb") as fd:
+            hash_file = FileHash(fd)
+            root.write(hash_file, pretty_print=True, xml_declaration=True, encoding="UTF-8")
+            hexdigest = hash_file.hexdigest()
+            hash_file.close()
+
+        # Store filename and hash in node
+        utils.xml_node_set(node, "filename", filename)
+        utils.xml_node_set(node, "sha256", hexdigest)
+
+    def __save_xml_in_node(self, node, root):
+        xml_string = etree.tostring(root, pretty_print=True, encoding="UTF-8").decode("UTF-8")
+        content = E.content(etree.CDATA(xml_string))
+        node.append(content)
+
+    def __save_ui_and_get_node(self, ui_id, template_id, filename):
+        ui = E.ui()
+
+        # Save custom properties and signals
+        if template_id:
+            owner = self.db.execute("SELECT name FROM object WHERE ui_id=? AND object_id=?;", (ui_id, template_id)).fetchone()
+            owner_id = owner[0] if owner else None
+
+            if owner_id:
+                # TODO: save all columns?
+                c = self.db.cursor()
+                for row in c.execute("SELECT * FROM property WHERE owner_id=? ORDER BY property_id;", (owner_id,)):
+                    property = dict(zip([col[0] for col in c.description], row))
+                    node = E.property(id=property["property_id"])
+
+                    for key in [
+                        "type_id",
+                        "is_object",
+                        "construct_only",
+                        "save_always",
+                        "default_value",
+                        "minimum",
+                        "maximum",
+                        "translatable",
+                        "disable_inline_object",
+                        "required",
+                        "original_owner_id",
+                        "disabled",
+                    ]:
+                        utils.xml_node_set(node, key.replace("_", "-"), property.get(key, None))
+
+                    ui.append(node)
+
+                for row in self.db.execute(
+                    "SELECT signal_id, detailed FROM signal WHERE owner_id=? ORDER BY signal_id;", (owner_id,)
+                ):
+                    signal_id, detailed = row
+                    node = E.signal(id=signal_id)
+                    utils.xml_node_set(node, "detailed", detailed)
+                    ui.append(node)
+
+        # Save UI file
+        # TODO: only save if there was a change in the UI
+        root = self.db.export_ui(ui_id)
+        if filename:
+            self.__save_xml_and_update_node(ui, root, filename)
+        else:
+            self.__save_xml_in_node(ui, root)
+
+        return ui
+
+    def __save_css_and_get_node(self, css_id, filename, priority, is_global):
+        css = E.css()
+
+        utils.xml_node_set(css, "filename", filename)
+        utils.xml_node_set(css, "priority", priority)
+        utils.xml_node_set(css, "is_global", is_global)
+
+        # TODO: save CSS file if it has changes
+
+        # Save CSS UI relation
+        for css_ui in self.db.execute(
+            "SELECT ui.filename FROM css_ui, ui WHERE css_ui.css_id=? AND css_ui.ui_id=ui.ui_id;", (css_id,)
+        ):
+            (ui_filename,) = css_ui
+            ui = E.ui(ui_filename)
+            css.append(ui)
+
+        return css
+
+    def __save_gresource_and_get_node(self, gresource_id, filename):
+        gresources = E.gresources()
+
+        # TODO: only save if there was a change in the file
+        root = self.db.export_gresource(gresource_id)
+        if filename:
+            self.__save_xml_and_update_node(gresources, root, filename)
+        else:
+            self.__save_xml_in_node(gresources, root)
+
+        return gresources
+
+    def save(self):
+        if self.filename is None:
+            return False
+
+        self.db.commit()
+
+        c = self.db.cursor()
+
+        project = E("cambalache-project", version=config.FILE_FORMAT_VERSION, target_tk=self.target_tk)
+
+        # Save UI files
+        for row in c.execute("SELECT ui_id, template_id, filename FROM ui;"):
+            ui_id, template_id, ui_filename = row
+            ui = self.__save_ui_and_get_node(ui_id, template_id, ui_filename)
+            project.append(ui)
+
+        # Save CSS reference
+        for row in c.execute("SELECT css_id, filename, priority, is_global FROM css;"):
+            css_id, css_filename, priority, is_global = row
+            css = self.__save_css_and_get_node(css_id, css_filename, priority, is_global)
+            project.append(css)
+
+        # Save GResources
+        for row in c.execute("SELECT gresource_id, gresources_filename FROM gresource WHERE resource_type='gresources';"):
+            gresource_id, gresources_filename = row
+            gresources = self.__save_gresource_and_get_node(gresource_id, gresources_filename)
+            project.append(gresources)
+
+        # Dump project xml to file
+        with open(self.filename, "wb") as fd:
+            tree = etree.ElementTree(project)
+            # FIXME: update DTD
+            tree.write(
+                fd,
+                pretty_print=True,
+                xml_declaration=True,
+                encoding="UTF-8",
+                standalone=False,
+                doctype='<!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">',
+            )
+            fd.close()
+
+        c.close()
+
+        return True
 
     def __get_import_errors(self):
         errors = self.db.errors
@@ -356,12 +658,12 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         # Import file
         dirname = os.path.dirname(self.filename if self.filename else filename)
-        ui_id = self.db.import_file(filename, dirname)
+        ui_id, hexdigest = self.db.import_file(filename, dirname)
 
         import_end = time.monotonic()
 
         # Populate UI
-        self.__populate_items(ui_id)
+        self.__populate_ui(ui_id)
 
         self.history_pop()
 
@@ -376,46 +678,17 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         return (ui, msgs, detail_msg)
 
-    def __export(self, ui_id, filename, dirname=None):
-        if filename is None:
-            return False
+    def import_gresource(self, filename):
+        self.history_push(_('Import GResource "{filename}"').format(filename=filename))
 
-        if not os.path.isabs(filename):
-            if dirname is None:
-                dirname = os.path.dirname(self.filename)
-            filename = os.path.join(dirname, filename)
+        root, relpath, hexdigest = self.__parse_xml_file(filename)
+        gresource_id = self.db.import_gresource_from_node(root, relpath)
 
-        # Ensure directory exists
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        # Populate UI
+        self.__populate_gresource(gresource_id)
 
-        # Get XML tree
-        ui = self.db.export_ui(ui_id)
-
-        # Dump xml to file
-        with open(filename, "wb") as fd:
-            ui.write(fd, pretty_print=True, xml_declaration=True, encoding="UTF-8")
-            fd.close()
-
-        return True
-
-    def export_ui(self, ui):
-        return self.__export(ui.ui_id, ui.filename)
-
-    def export(self):
-        c = self.db.cursor()
-
-        dirname = os.path.dirname(self.filename)
-
-        n_files = 0
-
-        for row in c.execute("SELECT ui_id, filename FROM ui WHERE filename IS NOT NULL;"):
-            ui_id, filename = row
-            if self.__export(ui_id, filename, dirname=dirname):
-                n_files += 1
-
-        c.close()
-
-        return n_files
+        self.history_pop()
+        return gresource_id
 
     def __selection_remove(self, obj):
         if obj not in self.__selection:
@@ -424,11 +697,11 @@ class CmbProject(GObject.Object, Gio.ListModel):
         try:
             self.__selection.remove(obj)
         except Exception:
-            pass
+            logger.warning(f"Error removing {obj} from selection", exc_info=True)
         else:
             self.emit("selection-changed")
 
-    def __get_basename_relpath(self, filename):
+    def _get_basename_relpath(self, filename):
         if filename is None:
             return (None, None)
 
@@ -471,7 +744,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         return ui
 
     def add_ui(self, filename=None, requirements={}):
-        basename, relpath = self.__get_basename_relpath(filename)
+        basename, relpath = self._get_basename_relpath(filename)
 
         try:
             self.history_push(_("Add UI {basename}").format(basename=basename or ""))
@@ -527,7 +800,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         return css
 
     def add_css(self, filename=None):
-        basename, relpath = self.__get_basename_relpath(filename)
+        basename, relpath = self._get_basename_relpath(filename)
 
         try:
             self.history_push(_("Add CSS {basename}").format(basename=basename or ""))
@@ -554,6 +827,88 @@ class CmbProject(GObject.Object, Gio.ListModel):
         except Exception as e:
             print(e)
 
+    def __add_gresource(
+        self,
+        emit,
+        gresource_id,
+        resource_type,
+        parent_id=None,
+        position=None,
+        gresources_filename=None,
+        gresource_prefix=None,
+        file_filename=None,
+        file_compressed=None,
+        file_preprocess=None,
+        file_alias=None,
+    ):
+        gresource = CmbGResource(project=self, gresource_id=gresource_id, resource_type=resource_type)
+        self.__gresource_id[gresource_id] = gresource
+        if emit:
+            self.emit("gresource-added", gresource)
+
+        return gresource
+
+    def add_gresource(
+        self,
+        resource_type,
+        parent_id=None,
+        gresources_filename=None,
+        gresource_prefix=None,
+        file_filename=None,
+        file_compressed=None,
+        file_preprocess=None,
+        file_alias=None,
+    ):
+        try:
+            if resource_type == "gresources":
+                basename, relpath = self._get_basename_relpath(gresources_filename)
+                self.history_push(_("Add GResource {basename}").format(basename=basename))
+            elif resource_type == "gresource":
+                self.history_push(_("Add GResource prefix {prefix}").format(prefix=gresource_prefix))
+            elif resource_type == "file":
+                self.history_push(_("Add GResource file {filename}").format(filename=file_filename))
+
+            gresource_id = self.db.add_gresource(
+                resource_type,
+                parent_id=parent_id,
+                gresources_filename=gresources_filename,
+                gresource_prefix=gresource_prefix,
+                file_filename=file_filename,
+                file_compressed=file_compressed,
+                file_preprocess=file_preprocess,
+                file_alias=file_alias,
+            )
+            self.db.commit()
+            self.history_pop()
+        except Exception:
+            return None
+        else:
+            return self.__add_gresource(True, gresource_id, resource_type)
+
+    def __remove_gresource(self, gresource):
+        if gresource is None:
+            logger.warning("Tried to remove a None GResource", exc_info=True)
+            return
+
+        print("__remove_gresource", gresource, self.__gresource_id.get(gresource.gresource_id, None))
+
+        self.__gresource_id.pop(gresource.gresource_id, None)
+
+        self.__selection_remove(gresource)
+        print("SELECTION", self.__selection)
+        self.emit("gresource-removed", gresource)
+
+    def remove_gresource(self, gresource):
+        try:
+            print("remove_gresource", gresource)
+            self.history_push(_('Remove GResource "{name}"').format(name=gresource.display_name))
+            self.db.execute("DELETE FROM gresource WHERE gresource_id=?;", (gresource.gresource_id,))
+            self.history_pop()
+            self.db.commit()
+            self.__remove_gresource(gresource)
+        except Exception as e:
+            logger.warning(f"Error removing gresource {e}", exc_info=True)
+
     def get_css_providers(self):
         return list(self.__css_id.values())
 
@@ -572,7 +927,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         custom_fragment=None,
         custom_child_fragment=None,
     ):
-        obj = CmbObject(project=self, ui_id=ui_id, object_id=object_id, info=self.type_info[obj_type])
+        obj = CmbObject(project=self, ui_id=ui_id, object_id=object_id, info=self.type_info.get(obj_type))
         self._object_id[f"{ui_id}.{object_id}"] = obj
 
         if emit:
@@ -673,7 +1028,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 template_ui = obj.ui
                 template_instances = []
 
-                for row in self.db.execute("SELECT ui_id, object_id FROM object WHERE type_id=?;", (obj.name, )):
+                for row in self.db.execute("SELECT ui_id, object_id FROM object WHERE type_id=?;", (obj.name,)):
                     obj_ui_id, obj_object_id = row
                     tmpl_obj = self.get_object_by_id(obj_ui_id, obj_object_id)
                     if tmpl_obj:
@@ -684,7 +1039,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
             self.history_push(_("Remove object {name}").format(name=name))
 
             if template_instances is not None and len(template_instances):
-                self.db.execute("DELETE FROM object WHERE type_id=?;", (obj.name, ))
+                self.db.execute("DELETE FROM object WHERE type_id=?;", (obj.name,))
 
             self.db.execute("DELETE FROM object WHERE ui_id=? AND object_id=?;", (ui_id, object_id))
 
@@ -713,7 +1068,10 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 pass
             elif isinstance(obj, CmbCSS):
                 pass
+            elif isinstance(obj, CmbGResource):
+                pass
             else:
+                logger.warning(f"Unknown object type {obj}")
                 return
 
         self.__selection = selection
@@ -772,6 +1130,15 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
     def get_css_by_id(self, css_id):
         return self.__css_id.get(css_id, None)
+
+    def get_gresource_by_id(self, key):
+        obj = self.__gresource_id.get(key, None)
+
+        if obj:
+            return obj
+
+        row = self.db.execute("SELECT * FROM gresource WHERE gresource_id=?;", (key,)).fetchone()
+        return self.__add_gresource(False, *row) if row else None
 
     def __undo_redo_property_notify(self, obj, layout, prop, owner_id, property_id):
         properties = obj.layout_dict if layout else obj.properties_dict
@@ -927,7 +1294,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         elif table == "object_layout_property":
             child = self.get_object_by_id(pk[0], pk[2])
             self.__undo_redo_property_notify(child, True, "value", pk[3], pk[4])
-        elif table in ["object", "ui", "css"]:
+        elif table in ["object", "ui", "css", "gresource"]:
             if removing:
                 if table == "object":
                     obj = self.get_object_by_id(pk[0], pk[1])
@@ -938,6 +1305,9 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 elif table == "css":
                     obj = self.get_css_by_id(pk[0])
                     self.__remove_css(obj)
+                elif table == "gresource":
+                    obj = self.get_gresource_by_id(pk[0])
+                    self.__remove_gresource(obj)
             else:
                 if table == "ui":
                     self.__add_ui(True, *row)
@@ -948,6 +1318,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
                         self.__update_template_type_info(obj.ui)
                 elif table == "css":
                     self.__add_css(True, *row)
+                elif table == "gresource":
+                    self.__add_gresource(True, *row)
         elif table in ["object_signal", "object_data", "object_data_arg"]:
             if table == "object_signal":
                 obj = self.get_object_by_id(row[1], row[2])
@@ -1043,8 +1415,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
             parent, position, removed, added = tuples
 
             # Compress removed and added if possible
-            if prev_parent == parent and prev_position == position and \
-               prev_removed + removed == 1 and prev_added + added == 1:
+            if prev_parent == parent and prev_position == position and prev_removed + removed == 1 and prev_added + added == 1:
                 # Compress
                 compressed_list.pop()
                 compressed_list.append((parent, position, 1, 1))
@@ -1162,15 +1533,15 @@ class CmbProject(GObject.Object, Gio.ListModel):
                                 # Translators: This refers to accessibility states in object property undo/redo messages
                                 "CmbAccessibleState": _("a11y state"),
                                 # Translators: This refers to accessibility actions in object property undo/redo messages
-                                "CmbAccessibleAction": _("a11y action")
+                                "CmbAccessibleAction": _("a11y action"),
                             }.get(owner_id, None)
 
                             retval["prop"] = CmbPropertyInfo.accessible_property_remove_prefix(owner_id, property_id)
 
                             if (
-                                (info := self.type_info.get(owner_id, None)) and
-                                (pinfo := info.properties.get(property_id, None)) and
-                                pinfo.type_id == "CmbAccessibleList"
+                                (info := self.type_info.get(owner_id, None))
+                                and (pinfo := info.properties.get(property_id, None))
+                                and pinfo.type_id == "CmbAccessibleList"
                             ):
                                 names = self._get_object_list_names(ui_id, value)
                                 retval["value"] = ", ".join(names)
@@ -1258,14 +1629,14 @@ class CmbProject(GObject.Object, Gio.ListModel):
                     "object_property": {
                         # Translators: This text is used for object properties undo/redo messages
                         # prop_type could be "property", "a11y property", "a11y relation", "a11y state" or "a11y action"
-                        "INSERT": _('Set {obj} {prop} {prop_type} to {value}'),
-                        "DELETE": _('Unset {obj} {prop} {prop_type}'),
-                        "UPDATE": _('Update {obj} {prop} {prop_type} to {value}'),
+                        "INSERT": _("Set {obj} {prop} {prop_type} to {value}"),
+                        "DELETE": _("Unset {obj} {prop} {prop_type}"),
+                        "UPDATE": _("Update {obj} {prop} {prop_type} to {value}"),
                     },
                     "object_layout_property": {
-                        "INSERT": _('Set {obj} {prop} layout property to {value}'),
-                        "DELETE": _('Unset {obj} {prop} layout property'),
-                        "UPDATE": _('Update {obj} {prop} layout property to {value}'),
+                        "INSERT": _("Set {obj} {prop} layout property to {value}"),
+                        "DELETE": _("Unset {obj} {prop} layout property"),
+                        "UPDATE": _("Update {obj} {prop} layout property to {value}"),
                     },
                     "object_signal": {
                         "INSERT": _("Add {signal} signal to {obj}"),
@@ -1345,6 +1716,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 return
 
             if template_info is None:
+                parent_info = self.type_info.get(parent_id, None)
+
                 info = CmbTypeInfo(
                     project=self,
                     type_id=type_id,
@@ -1355,13 +1728,13 @@ class CmbProject(GObject.Object, Gio.ListModel):
                     version=None,
                     deprecated_version=None,
                     abstract=None,
-                    layout=None,
-                    category=None,
-                    workspace_type=None,
+                    layout=parent_info.layout,
+                    category=parent_info.category,
+                    workspace_type=parent_info.workspace_type,
                 )
 
                 # Set parent back reference
-                info.parent = self.type_info.get(parent_id, None)
+                info.parent = parent_info
 
                 self.type_info[type_id] = info
                 self.__template_info[ui.ui_id] = (type_id, ui.template_id)
@@ -1447,6 +1820,9 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
     def _css_changed(self, obj, field):
         self.emit("css-changed", obj, field)
+
+    def _gresource_changed(self, obj, field):
+        self.emit("gresource-changed", obj, field)
 
     def db_move_to_fs(self, filename):
         self.db.move_to_fs(filename)
@@ -1553,10 +1929,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 child_type=child_type,
             )
 
-            self.db.execute(
-                "UPDATE object SET parent_id=? WHERE ui_id=? AND object_id=?;",
-                (new_parent_id, ui_id, object_id)
-            )
+            self.db.execute("UPDATE object SET parent_id=? WHERE ui_id=? AND object_id=?;", (new_parent_id, ui_id, object_id))
 
             self.db.execute("UPDATE object SET position=0 WHERE ui_id=? AND object_id=?;", (ui_id, object_id))
             self.db.ignore_check_constraints = False
@@ -1565,7 +1938,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
             if grand_parent_id is not None:
                 self.db.execute(
                     "UPDATE object_layout_property SET child_id=? WHERE ui_id=? AND object_id=? AND child_id=?;",
-                    (new_parent_id, ui_id, grand_parent_id, object_id)
+                    (new_parent_id, ui_id, grand_parent_id, object_id),
                 )
 
             self.history_pop()
@@ -1612,14 +1985,14 @@ class CmbProject(GObject.Object, Gio.ListModel):
             # Remove all object layout properties
             self.db.execute(
                 "DELETE FROM object_layout_property WHERE ui_id=? AND object_id=? AND child_id=?;",
-                (ui_id, parent_id, object_id)
+                (ui_id, parent_id, object_id),
             )
 
             # Move all layout properties from parent to object
             if grand_parent_id:
                 self.db.execute(
                     "UPDATE object_layout_property SET child_id=? WHERE ui_id=? AND object_id=? AND child_id=?;",
-                    (object_id, ui_id, grand_parent_id, parent_id)
+                    (object_id, ui_id, grand_parent_id, parent_id),
                 )
 
             self.db.ignore_check_constraints = True
@@ -1628,12 +2001,11 @@ class CmbProject(GObject.Object, Gio.ListModel):
             if grand_parent_id:
                 self.db.execute(
                     "UPDATE object SET parent_id=?, position=? WHERE ui_id=? AND object_id=?;",
-                    (grand_parent_id, position, ui_id, object_id)
+                    (grand_parent_id, position, ui_id, object_id),
                 )
             else:
                 self.db.execute(
-                    "UPDATE object SET parent_id=NULL, position=? WHERE ui_id=? AND object_id=?;",
-                    (position, ui_id, object_id)
+                    "UPDATE object SET parent_id=NULL, position=? WHERE ui_id=? AND object_id=?;", (position, ui_id, object_id)
                 )
 
             self.db.execute("DELETE FROM object WHERE ui_id=? AND object_id=?;", (ui_id, parent_id))
@@ -1707,6 +2079,23 @@ class CmbProject(GObject.Object, Gio.ListModel):
     def do_css_changed(self, css, field):
         self.emit("changed")
 
+    def do_gresource_added(self, gresource):
+        if gresource.resource_type == "gresources":
+            nitems = len(self.__items)
+            self.__items.append(gresource)
+            self.items_changed(nitems, 0, 1)
+        self.emit("changed")
+
+    def do_gresource_removed(self, gresource):
+        if gresource.resource_type == "gresources":
+            i = self.__items.index(gresource)
+            self.__items.pop(i)
+            self.items_changed(i, 1, 0)
+        self.emit("changed")
+
+    def do_gresource_changed(self, gresource, field):
+        self.emit("changed")
+
     def do_object_added(self, obj):
         self.emit("changed")
 
@@ -1761,6 +2150,3 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
     def do_get_n_items(self):
         return len(self.__items)
-
-
-

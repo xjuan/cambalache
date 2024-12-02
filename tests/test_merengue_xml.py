@@ -157,7 +157,7 @@ def test_no_signals():
     path = os.path.join(basedir, "gtk+-3.0", "signals.ui")
 
     project = CmbProject(target_tk="gtk+-3.0")
-    ui_id = project.db.import_file(path)
+    ui_id = project.import_file(path)
     str_exported = project.db.tostring(ui_id, merengue=True)
 
     root = etree.fromstring(str_exported.encode())
