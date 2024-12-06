@@ -29,6 +29,7 @@ import time
 import sqlite3
 
 from gi.repository import GObject, Gio
+from graphlib import TopologicalSorter, CycleError
 
 from lxml import etree
 from lxml.builder import E
@@ -286,6 +287,11 @@ class CmbProject(GObject.Object, Gio.ListModel):
             else:
                 raise Exception("content tag is missing")
 
+        msgs, detail_msg = self.__get_import_errors()
+        self.db.errors = None
+        if msgs:
+            logger.warning(f"Error loading {filename}: {detail_msg}")
+
         row = self.db.execute("SELECT template_id FROM ui WHERE ui_id=?;", (ui_id,)).fetchone()
         template_id = row[0] if row else None
         owner_id = None
@@ -390,15 +396,52 @@ class CmbProject(GObject.Object, Gio.ListModel):
             )
 
         if version > (0, 94, 0):
+            ui_graph = {}
+            ui_node_template = {}
+
+            css_list = []
+            gresourses_list = []
+
             for child in root.getchildren():
                 if child.tag == "ui":
-                    self.__load_ui_from_node(child)
+                    # Collect template class <-> node relation
+                    template = child.get("template-class", None)
+                    if template:
+                        ui_node_template[template] = child
+
+                    # Collect node dependencies
+                    dependencies = []
+                    for requires in child.findall("requires"):
+                        dependencies.append(requires.text)
+
+                    ui_graph[child] = dependencies
                 elif child.tag == "css":
-                    self.__load_css_from_node(child)
+                    css_list.append(child)
                 elif child.tag == "gresources":
-                    self.__load_gresource_from_node(child)
+                    gresourses_list.append(child)
                 else:
                     raise Exception(f"Unknown tag {child.tag} in project file.")
+
+            # Replace dependencies with nodes
+            ui_node_graph = {}
+            for node, dependencies in ui_graph.items():
+                ui_node_graph[node] = [ui_node_template[key] for key in dependencies]
+
+            try:
+                ts = TopologicalSorter(ui_node_graph)
+                sorted_ui_nodes = tuple(ts.static_order())
+            except CycleError as e:
+                raise Exception(f"Could not load project because of dependency cycle {e}")
+
+            # Load UI in topological order
+            for node in sorted_ui_nodes:
+                self.__load_ui_from_node(node)
+
+            for node in css_list:
+                self.__load_css_from_node(node)
+
+            for node in gresourses_list:
+                self.__load_gresource_from_node(node)
         else:
             self.db.load_old_format(root, version)
 
@@ -467,13 +510,22 @@ class CmbProject(GObject.Object, Gio.ListModel):
     def __save_ui_and_get_node(self, ui_id, template_id, filename):
         ui = E.ui()
 
+        # Get a list of types declared in the project used by this UI
+        for row in self.db.execute(
+            """
+            SELECT DISTINCT(o.type_id)
+            FROM object AS o, type AS t WHERE o.type_id == t.type_id AND o.ui_id=? AND t.library_id IS NULL;
+            """,
+            (ui_id,)
+        ):
+            ui.append(E.requires(row[0]))
+
         # Save custom properties and signals
         if template_id:
             owner = self.db.execute("SELECT name FROM object WHERE ui_id=? AND object_id=?;", (ui_id, template_id)).fetchone()
             owner_id = owner[0] if owner else None
 
             if owner_id:
-                # TODO: save all columns?
                 c = self.db.cursor()
                 for row in c.execute("SELECT * FROM property WHERE owner_id=? ORDER BY property_id;", (owner_id,)):
                     property = dict(zip([col[0] for col in c.description], row))
@@ -496,6 +548,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
                         utils.xml_node_set(node, key.replace("_", "-"), property.get(key, None))
 
                     ui.append(node)
+                c.close()
 
                 for row in self.db.execute(
                     "SELECT signal_id, detailed FROM signal WHERE owner_id=? ORDER BY signal_id;", (owner_id,)
@@ -504,6 +557,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
                     node = E.signal(id=signal_id)
                     utils.xml_node_set(node, "detailed", detailed)
                     ui.append(node)
+
+                utils.xml_node_set(ui, "template-class", owner_id)
 
         # Save UI file
         # TODO: only save if there was a change in the UI
@@ -657,8 +712,10 @@ class CmbProject(GObject.Object, Gio.ListModel):
             self.db.execute("DELETE FROM ui WHERE filename=?;", (filename,))
 
         # Import file
-        dirname = os.path.dirname(self.filename if self.filename else filename)
-        ui_id, hexdigest = self.db.import_file(filename, dirname)
+        self.foreign_keys = False
+        root, relpath, hexdigest = self.__parse_xml_file(filename)
+        ui_id = self.import_from_node(filename, relpath)
+        self.foreign_keys = True
 
         import_end = time.monotonic()
 
