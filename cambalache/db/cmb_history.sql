@@ -41,7 +41,7 @@ CREATE TABLE history (
   command TEXT NOT NULL,
   range_id INTEGER REFERENCES history,
   table_name TEXT,
-  column_name TEXT,
+  columns JSON,
   message TEXT,
   table_pk JSON,
   new_values JSON,
