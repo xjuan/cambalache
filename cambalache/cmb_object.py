@@ -335,7 +335,7 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
 
         project.db.execute(
             "UPDATE object SET parent_id=?, position=? WHERE ui_id=? AND object_id=?;",
-            (new_parent_id, new_position, ui_id, object_id)
+            (new_parent_id, new_position or 0, ui_id, object_id)
         )
 
         # Update children positions in old parent

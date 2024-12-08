@@ -158,10 +158,15 @@ class CmbDB(GObject.GObject):
     def history_delete(self, table, table_pk):
         self.execute(self.__history_commands[table]["DELETE"], table_pk)
 
-    def history_update(self, table, column, table_pk, values):
-        command = self.__history_commands[table]["UPDATE"].format(column=column)
-        i = self.__table_column_mapping[table][column]
-        self.execute(command, [values[i]] + table_pk)
+    def history_update(self, table, columns, table_pk, values):
+        update_command = self.__history_commands[table]["UPDATE"]
+        set_expression = f"({','.join(columns)}) = ({','.join(['?' for i in columns])})"
+
+        exp_vals = []
+        for col in columns:
+            exp_vals.append(values[self.__table_column_mapping[table][col]])
+
+        self.execute(update_command.format(set_expression=set_expression), exp_vals + table_pk)
 
     def __create_history_triggers(self, c, table):
         # Get table columns
@@ -185,6 +190,7 @@ class CmbDB(GObject.GObject):
             """
         self.__clear_history = clear_history
 
+        # Collect Column info
         i = 0
         column_mapping = {}
         for row in c.execute(f"PRAGMA table_info({table});"):
@@ -199,6 +205,28 @@ class CmbDB(GObject.GObject):
                 non_pk_columns.append(col)
 
             i += 1
+
+        # Collect unique constraint indexes
+        unique_constraints_indexes = []
+        for row in c.execute(f"PRAGMA index_list({table});"):
+            n, name, is_unique, index_type, is_partial = row
+            if is_unique and index_type == "u":
+                unique_constraints_indexes.append(name)
+
+        # Collect unique constraints indexes with more than one non pk column
+        unique_constraints = []
+        for index_name in unique_constraints_indexes:
+            index_columns = []
+
+            for row in c.execute(f"PRAGMA index_info({index_name});"):
+                index_rank, table_rank, name = row
+                if name not in pk_columns:
+                    index_columns.append(name)
+
+            if len(index_columns) > 1:
+                unique_constraints.append(index_columns)
+
+        unique_constraints_flat = [i for constraints in unique_constraints for i in constraints]
 
         # Map column index to column name
         self.__table_column_mapping[table] = column_mapping
@@ -215,7 +243,7 @@ class CmbDB(GObject.GObject):
         self.__history_commands[table] = {
             "DELETE": f"DELETE FROM {table} WHERE ({pkcolumns}) IS ({pkcolumns_format});",
             "INSERT": f"INSERT INTO {table} ({columns}) VALUES ({columns_format});",
-            "UPDATE": f"UPDATE {table} SET {{column}} = ? WHERE ({pkcolumns}) IS ({pkcolumns_format});",
+            "UPDATE": f"UPDATE {table} SET {{set_expression}} WHERE ({pkcolumns}) IS ({pkcolumns_format});",
         }
 
         # INSERT Trigger
@@ -249,8 +277,43 @@ class CmbDB(GObject.GObject):
         if len(pk_columns) == 0:
             return
 
+        # UPDATE Trigger for each non PK column unique indexes
+        for columns in unique_constraints:
+            underscore_columns = "_".join(columns)
+            colon_columns = ",".join(columns)
+            new_columns = ",".join(f"NEW.{col}" for col in columns)
+            old_columns = ",".join(f"OLD.{col}" for col in columns)
+            string_columns = ",".join(f"'{col}'" for col in columns)
+
+            c.execute(
+                f"""
+                CREATE TRIGGER on_{table}_update_{underscore_columns} AFTER UPDATE OF {colon_columns} ON {table}
+                WHEN
+                  ({new_columns}) IS NOT ({old_columns}) AND {history_is_enabled} AND
+                  (
+                    (SELECT table_pk FROM history WHERE history_id = {history_seq}) IS NOT json_array({old_pk_values})
+                    OR
+                    (
+                      (SELECT command, table_name, columns FROM history WHERE history_id = {history_seq})
+                      IS NOT ('UPDATE', '{table}', json_array({string_columns}))
+                      AND
+                      (SELECT command, table_name, columns FROM history WHERE history_id = {history_seq})
+                      IS NOT ('INSERT', '{table}',  NULL)
+                    )
+                  )
+                BEGIN
+                  {clear_history};
+                  INSERT INTO history (history_id, command, table_name, columns, table_pk, new_values, old_values)
+                    VALUES ({history_next_seq}, 'UPDATE', '{table}', json_array({string_columns}), json_array({new_pk_values}), json_array({new_values}), json_array({old_values}));
+                END;
+                """
+            )
+
         # UPDATE Trigger for each non PK column
         for column in non_pk_columns:
+            if column in unique_constraints_flat:
+                continue
+
             c.execute(
                 f"""
                 CREATE TRIGGER on_{table}_update_{column} AFTER UPDATE OF {column} ON {table}
@@ -260,17 +323,17 @@ class CmbDB(GObject.GObject):
                     (SELECT table_pk FROM history WHERE history_id = {history_seq}) IS NOT json_array({old_pk_values})
                     OR
                     (
-                      (SELECT command, table_name, column_name FROM history WHERE history_id = {history_seq})
-                      IS NOT ('UPDATE', '{table}', '{column}')
+                      (SELECT command, table_name, columns FROM history WHERE history_id = {history_seq})
+                      IS NOT ('UPDATE', '{table}', json_array('{column}'))
                       AND
-                      (SELECT command, table_name, column_name FROM history WHERE history_id = {history_seq})
+                      (SELECT command, table_name, columns FROM history WHERE history_id = {history_seq})
                       IS NOT ('INSERT', '{table}',  NULL)
                     )
                   )
                 BEGIN
                   {clear_history};
-                  INSERT INTO history (history_id, command, table_name, column_name, table_pk, new_values, old_values)
-                    VALUES ({history_next_seq}, 'UPDATE', '{table}', '{column}', json_array({new_pk_values}), json_array({new_values}), json_array({old_values}));
+                  INSERT INTO history (history_id, command, table_name, columns, table_pk, new_values, old_values)
+                    VALUES ({history_next_seq}, 'UPDATE', '{table}', json_array('{column}'), json_array({new_pk_values}), json_array({new_values}), json_array({old_values}));
                 END;
                 """
             )
@@ -282,8 +345,8 @@ class CmbDB(GObject.GObject):
                   NEW.{column} IS NOT OLD.{column} AND {history_is_enabled} AND
                   (SELECT table_pk FROM history WHERE history_id = {history_seq}) IS json_array({old_pk_values})
                   AND
-                  (SELECT command, table_name, column_name FROM history WHERE history_id = {history_seq})
-                  IS ('UPDATE', '{table}', '{column}')
+                  (SELECT command, table_name, columns FROM history WHERE history_id = {history_seq})
+                  IS ('UPDATE', '{table}', json_array('{column}'))
                 BEGIN
                   UPDATE history SET new_values=json_array({new_values}) WHERE history_id = {history_seq};
                 END;
@@ -297,7 +360,7 @@ class CmbDB(GObject.GObject):
                   NEW.{column} IS NOT OLD.{column} AND {history_is_enabled} AND
                   (SELECT table_pk FROM history WHERE history_id = {history_seq}) IS json_array({old_pk_values})
                   AND
-                  (SELECT command, table_name, column_name FROM history WHERE history_id = {history_seq})
+                  (SELECT command, table_name, columns FROM history WHERE history_id = {history_seq})
                   IS ('INSERT', '{table}', NULL)
                 BEGIN
                   UPDATE history SET new_values=json_array({new_values}) WHERE history_id = {history_seq};
