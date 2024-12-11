@@ -1414,6 +1414,7 @@
 	("GtkWidget",2,"name","gchararray")
   </type_data_arg>
   <type_child_type>
+	("GtkDialog","action",None,None),
 	("GtkExpander","label",1,None),
 	("GtkFrame","label",1,None),
 	("GtkMenuItem","submenu",None,None),
