@@ -8,6 +8,17 @@ packaging changes like new dependencies or build system changes.
 Cambalache used even/odd minor numbers to differentiate between stable and
 development releases.
 
+## 0.94.1
+
+2024-11-26 - First bugfix release in the series!
+
+    - Fix issue with undoing a parent change.
+    - Fix workspace initialization error
+    - Fix warning on undo/redo message generation
+
+### Issues
+
+ - #253 "Error updating UI 1: gtk-builder-error-quark: .:8:1 Invalid object type 'AdwApplicationWindow' (6)"
 
 ## 0.94.0
 

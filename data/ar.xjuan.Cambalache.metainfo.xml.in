@@ -14,6 +14,15 @@
     </p>
   </description>
   <releases>
+    <release date="2024-12-13" version="0.94.1">
+      <description>
+        <p>First bugfix release in the series!</p>
+        <ul>
+          <li>Fix issue with undoing a parent change.</li>
+          <li>Fix workspace initialization error (#253)</li>
+        </ul>
+      </description>
+    </release>
     <release date="2024-11-27" version="0.94.0">
       <description>
         <p>Accessibility Release!</p>
