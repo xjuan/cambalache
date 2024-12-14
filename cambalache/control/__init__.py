@@ -25,6 +25,7 @@
 from .cmb_boolean_undefined import CmbBooleanUndefined
 from .cmb_child_type_combo_box import CmbChildTypeComboBox
 from .cmb_entry import CmbEntry
+from .cmb_file_button import CmbFileButton
 from .cmb_file_entry import CmbFileEntry
 from .cmb_icon_name_entry import CmbIconNameEntry
 from .cmb_pixbuf_entry import CmbPixbufEntry
