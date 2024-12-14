@@ -26,6 +26,9 @@
 from gi.repository import GObject, Gio
 
 from .cmb_base import CmbBase
+from cambalache import _, getLogger
+
+logger = getLogger(__name__)
 
 
 class CmbPath(CmbBase, Gio.ListModel):
@@ -49,17 +52,17 @@ class CmbPath(CmbBase, Gio.ListModel):
 
     @GObject.Property(type=str)
     def display_name(self):
-        return self.path
+        return self.path or _("{n} unsaved files").format(n=self.n_items)
 
-    def get_item(self, directory):
+    def get_path_item(self, directory):
         return self.__path_items.get(directory, None)
 
-    def add_item(self, item, path=None):
-        if path:
-            self.__path_items[path] = item
-
+    def add_item(self, item):
         display_name = item.display_name
         is_path = isinstance(item, CmbPath)
+
+        if is_path:
+            self.__path_items[item.path] = item
 
         i = 0
         for list_item in self.__items:
@@ -78,10 +81,19 @@ class CmbPath(CmbBase, Gio.ListModel):
         self.__items.insert(i, item)
         self.items_changed(i, 0, 1)
 
+        if not self.path:
+            self.notify("display-name")
+
     def remove_item(self, item):
+        if isinstance(item, CmbPath) and item.path in self.__path_items:
+            del self.__path_items[item.path]
+
         i = self.__items.index(item)
         self.__items.pop(i)
         self.items_changed(i, 1, 0)
+
+        if not self.path:
+            self.notify("display-name")
 
     # GListModel iface
     @GObject.Property(type=int)

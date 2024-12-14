@@ -112,6 +112,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         # GListModel
         self.__items = []
         self.__path_items = {}
+        self.__unsaved_item = None
 
         # Selection
         self.__selection = []
@@ -1123,7 +1124,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         return self.__selection
 
     def set_selection(self, selection):
-        if self._ignore_selection or type(selection) is not list or self.__selection == selection:
+        if self._ignore_selection or not isinstance(selection, list) or self.__selection == selection:
             return
 
         for obj in selection:
@@ -2106,36 +2107,34 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         return f"{lib}-{ver}" if lib is not None else None
 
-    def __get_object_from_path(self, path):
-        try:
-            iter = self.get_iter(path)
-        except Exception:
-            return None
-
-        return self[iter][0] if iter else None
-
-    def get_item(self, directory):
+    def get_path_item(self, directory):
         return self.__path_items.get(directory, None)
 
-    def add_item(self, item, path=None):
-        if path:
-            self.__path_items[path] = item
-
+    def add_item(self, item):
         display_name = item.display_name
         is_path = isinstance(item, CmbPath)
 
-        i = 0
-        for list_item in self.__items:
-            if is_path:
-                if not isinstance(list_item, CmbPath):
+        if is_path and item.path:
+            self.__path_items[item.path] = item
+
+        if item == self.__unsaved_item:
+            i = len(self.__items)
+        else:
+            i = 0
+            for list_item in self.__items:
+                if list_item == self.__unsaved_item:
                     break
 
-                if display_name < list_item.display_name:
-                    break
-            elif not isinstance(list_item, CmbPath) and display_name < list_item.display_name:
-                break
+                if is_path:
+                    if not isinstance(list_item, CmbPath):
+                        break
 
-            i += 1
+                    if display_name < list_item.display_name:
+                        break
+                elif not isinstance(list_item, CmbPath) and display_name < list_item.display_name:
+                    break
+
+                i += 1
 
         self.__items.insert(i, item)
         self.items_changed(i, 0, 1)
@@ -2145,12 +2144,12 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         node = self
         for directory in dirname.parts:
-            item = node.get_item(directory)
+            item = node.get_path_item(directory)
 
             # Ensure we have the path in it
             if item is None:
                 item = CmbPath(path=directory)
-                node.add_item(item, path=directory)
+                node.add_item(item)
 
             node = item
 
@@ -2159,21 +2158,56 @@ class CmbProject(GObject.Object, Gio.ListModel):
     # Default handlers
     def __add_item(self, item, filename):
         if filename is None:
-            filename = "external/"
+            # Ensure folder for unsaved files
+            if self.__unsaved_item is None:
+                self.__unsaved_item = CmbPath()
+                self.add_item(self.__unsaved_item)
 
-        path = self.__get_path_for_filename(filename)
+            # Use unsaved special folder
+            path = self.__unsaved_item
+        else:
+            path = self.__get_path_for_filename(filename)
+
         path.add_item(item)
 
     def __remove_item(self, item):
         path_parent = item.path_parent
 
-        # TODO: cleanup empty paths
         if path_parent:
             path_parent.remove_item(item)
         else:
+            if self.__unsaved_item == item:
+                self.__unsaved_item = None
+
+            if isinstance(item, CmbPath) and item.path in self.__path_items:
+                del self.__path_items[item.path]
+
             i = self.__items.index(item)
             self.__items.pop(i)
             self.items_changed(i, 1, 0)
+
+    def __update_path(self, item, filename):
+        in_selection = [item] == self.__selection
+
+        path_parent = item.path_parent
+
+        # Remove item
+        self.__remove_item(item)
+        # add it again
+        self.__add_item(item, filename)
+
+        if in_selection:
+            self.set_selection([item])
+
+        # Clear unused paths
+        if path_parent.n_items == 0:
+            while path_parent is not None:
+                next_parent = path_parent.path_parent
+
+                if path_parent.n_items <= 1:
+                    logger.warning(path_parent)
+
+                path_parent = next_parent
 
     def do_ui_added(self, ui):
         self.__add_item(ui, ui.filename)
@@ -2184,6 +2218,9 @@ class CmbProject(GObject.Object, Gio.ListModel):
         self.emit("changed")
 
     def do_ui_changed(self, ui, field):
+        if field == "filename":
+            self.__update_path(ui, ui.filename)
+
         self.emit("changed")
 
     def do_ui_library_changed(self, ui, lib):
@@ -2198,6 +2235,9 @@ class CmbProject(GObject.Object, Gio.ListModel):
         self.emit("changed")
 
     def do_css_changed(self, css, field):
+        if field == "filename":
+            self.__update_path(css, css.filename)
+
         self.emit("changed")
 
     def do_gresource_added(self, gresource):
@@ -2211,6 +2251,9 @@ class CmbProject(GObject.Object, Gio.ListModel):
         self.emit("changed")
 
     def do_gresource_changed(self, gresource, field):
+        if gresource.resource_type == "gresources" and field == "gresources_filename":
+            self.__update_path(gresource, gresource.gresources_filename)
+
         self.emit("changed")
 
     def do_object_added(self, obj):
