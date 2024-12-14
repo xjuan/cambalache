@@ -28,6 +28,7 @@ import json
 import time
 import sqlite3
 
+from pathlib import Path
 from gi.repository import GObject, Gio
 from graphlib import TopologicalSorter, CycleError
 
@@ -41,6 +42,7 @@ from .cmb_gresource import CmbGResource
 from .cmb_base import CmbBase
 from .cmb_object import CmbObject
 from .cmb_object_data import CmbObjectData
+from .cmb_path import CmbPath
 from .cmb_property import CmbProperty
 from .cmb_property_info import CmbPropertyInfo
 from .cmb_layout_property import CmbLayoutProperty
@@ -96,7 +98,6 @@ class CmbProject(GObject.Object, Gio.ListModel):
     }
 
     target_tk = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
-    __filename = None
 
     undo_msg = GObject.Property(type=str)
     redo_msg = GObject.Property(type=str)
@@ -110,6 +111,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         # GListModel
         self.__items = []
+        self.__path_items = {}
 
         # Selection
         self.__selection = []
@@ -121,6 +123,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
         self.__gresource_id = {}
 
         self.__template_info = {}
+
+        self.__filename = None
 
         super().__init__(**kwargs)
 
@@ -247,7 +251,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         c.close()
 
     def __get_abs_path(self, filename):
-        projectdir = os.path.dirname(self.filename)
+        projectdir = os.path.dirname(self.filename) if self.filename else "."
         if os.path.isabs(filename):
             fullpath = filename
         else:
@@ -474,6 +478,10 @@ class CmbProject(GObject.Object, Gio.ListModel):
             value = value + ".cmb"
 
         self.__filename = value
+
+    @GObject.Property(type=str, flags=GObject.ParamFlags.READABLE)
+    def dirname(self):
+        return os.path.dirname(self.__filename) if self.__filename else "."
 
     def __save_xml_and_update_node(self, node, root, filename):
         if root is None or filename is None:
@@ -714,7 +722,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         # Import file
         self.foreign_keys = False
         root, relpath, hexdigest = self.__parse_xml_file(filename)
-        ui_id = self.import_from_node(filename, relpath)
+        ui_id = self.db.import_from_node(root, relpath)
         self.foreign_keys = True
 
         import_end = time.monotonic()
@@ -1335,6 +1343,10 @@ class CmbProject(GObject.Object, Gio.ListModel):
                     ui._library_changed(pk[1])
             elif table == "css":
                 obj = self.get_css_by_id(pk[0])
+                if obj:
+                    obj.notify(column)
+            elif table == "gresource":
+                obj = self.get_gresource_by_id(pk[0])
                 if obj:
                     obj.notify(column)
 
@@ -2102,17 +2114,73 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         return self[iter][0] if iter else None
 
+    def get_item(self, directory):
+        return self.__path_items.get(directory, None)
+
+    def add_item(self, item, path=None):
+        if path:
+            self.__path_items[path] = item
+
+        display_name = item.display_name
+        is_path = isinstance(item, CmbPath)
+
+        i = 0
+        for list_item in self.__items:
+            if is_path:
+                if not isinstance(list_item, CmbPath):
+                    break
+
+                if display_name < list_item.display_name:
+                    break
+            elif not isinstance(list_item, CmbPath) and display_name < list_item.display_name:
+                break
+
+            i += 1
+
+        self.__items.insert(i, item)
+        self.items_changed(i, 0, 1)
+
+    def __get_path_for_filename(self, filename):
+        dirname = Path(os.path.dirname(filename))
+
+        node = self
+        for directory in dirname.parts:
+            item = node.get_item(directory)
+
+            # Ensure we have the path in it
+            if item is None:
+                item = CmbPath(path=directory)
+                node.add_item(item, path=directory)
+
+            node = item
+
+        return node
+
     # Default handlers
+    def __add_item(self, item, filename):
+        if filename is None:
+            filename = "external/"
+
+        path = self.__get_path_for_filename(filename)
+        path.add_item(item)
+
+    def __remove_item(self, item):
+        path_parent = item.path_parent
+
+        # TODO: cleanup empty paths
+        if path_parent:
+            path_parent.remove_item(item)
+        else:
+            i = self.__items.index(item)
+            self.__items.pop(i)
+            self.items_changed(i, 1, 0)
+
     def do_ui_added(self, ui):
-        nitems = len(self.__items)
-        self.__items.append(ui)
-        self.items_changed(nitems, 0, 1)
+        self.__add_item(ui, ui.filename)
         self.emit("changed")
 
     def do_ui_removed(self, ui):
-        i = self.__items.index(ui)
-        self.__items.pop(i)
-        self.items_changed(i, 1, 0)
+        self.__remove_item(ui)
         self.emit("changed")
 
     def do_ui_changed(self, ui, field):
@@ -2122,15 +2190,11 @@ class CmbProject(GObject.Object, Gio.ListModel):
         self.emit("changed")
 
     def do_css_added(self, css):
-        nitems = len(self.__items)
-        self.__items.append(css)
-        self.items_changed(nitems, 0, 1)
+        self.__add_item(css, css.filename)
         self.emit("changed")
 
     def do_css_removed(self, css):
-        i = self.__items.index(css)
-        self.__items.pop(i)
-        self.items_changed(i, 1, 0)
+        self.__remove_item(css)
         self.emit("changed")
 
     def do_css_changed(self, css, field):
@@ -2138,16 +2202,12 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
     def do_gresource_added(self, gresource):
         if gresource.resource_type == "gresources":
-            nitems = len(self.__items)
-            self.__items.append(gresource)
-            self.items_changed(nitems, 0, 1)
+            self.__add_item(gresource, gresource.gresources_filename)
         self.emit("changed")
 
     def do_gresource_removed(self, gresource):
         if gresource.resource_type == "gresources":
-            i = self.__items.index(gresource)
-            self.__items.pop(i)
-            self.items_changed(i, 1, 0)
+            self.__remove_item(gresource)
         self.emit("changed")
 
     def do_gresource_changed(self, gresource, field):

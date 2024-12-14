@@ -91,7 +91,7 @@ class CmbWindow(Adw.ApplicationWindow):
     workspace_stack = Gtk.Template.Child()
     view = Gtk.Template.Child()
     source_view = Gtk.Template.Child()
-    column_view = Gtk.Template.Child()
+    list_view = Gtk.Template.Child()
     type_chooser = Gtk.Template.Child()
     editor_stack = Gtk.Template.Child()
     ui_editor = Gtk.Template.Child()
@@ -325,7 +325,7 @@ class CmbWindow(Adw.ApplicationWindow):
         self.__project = project
         self.view.project = project
         self.type_chooser.project = project
-        self.column_view.project = project
+        self.list_view.project = project
 
         # Clear Editors
         self.ui_editor.object = None
@@ -1017,7 +1017,7 @@ class CmbWindow(Adw.ApplicationWindow):
         for obj in selection:
             if isinstance(obj, CmbObject):
                 self.project.remove_object(obj)
-            if isinstance(obj, CmbGResource):
+            elif isinstance(obj, CmbGResource):
                 if obj.resource_type == "gresources":
                     self.__remove_object_with_confirmation(obj)
                 else:

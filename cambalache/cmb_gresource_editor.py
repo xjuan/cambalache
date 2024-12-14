@@ -89,6 +89,8 @@ class CmbGResourceEditor(Gtk.Box):
         resource_type = obj.resource_type
         self.set_sensitive(True)
         self.stack.set_visible_child_name(resource_type)
+        self.gresources_filename.dirname = obj.project.dirname
+        self.file_filename.dirname = obj.project.dirname
 
         for for_type, field, target in self.fields:
             if resource_type != for_type:

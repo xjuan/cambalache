@@ -24,12 +24,17 @@
 #
 
 from gi.repository import GObject, Gio
+
+from .cmb_path import CmbPath
 from .cmb_objects_base import CmbBaseGResource
 from .cmb_list_error import CmbListError
 from cambalache import _
 
 
 class CmbGResource(CmbBaseGResource, Gio.ListModel):
+
+    path_parent = GObject.Property(type=CmbPath, flags=GObject.ParamFlags.READWRITE)
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 

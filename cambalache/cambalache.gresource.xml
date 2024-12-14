@@ -2,6 +2,7 @@
 <!-- Created with Cambalache 0.95.0 -->
 <gresources>
   <gresource prefix="/ar/xjuan/Cambalache">
+    <file>control/cmb_file_button.ui</file>
     <file>control/cmb_translatable_widget.ui</file>
     <file>db/cmb_base.sql</file>
     <file>db/cmb_project.sql</file>

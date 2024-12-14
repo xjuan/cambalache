@@ -89,7 +89,7 @@ from .cmb_project import CmbProject
 
 from .cmb_db_inspector import CmbDBInspector
 from .cmb_view import CmbView
-from .cmb_column_view import CmbColumnView
+from .cmb_list_view import CmbListView
 from .cmb_object_editor import CmbObjectEditor
 from .cmb_signal_editor import CmbSignalEditor
 from .cmb_ui_editor import CmbUIEditor

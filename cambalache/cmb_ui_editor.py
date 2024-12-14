@@ -77,6 +77,7 @@ class CmbUIEditor(Gtk.Grid):
 
         self.set_sensitive(True)
         self.template_id.object = obj
+        self.filename.dirname = obj.project.dirname
 
         for field in self.fields:
             binding = GObject.Object.bind_property(

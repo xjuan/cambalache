@@ -222,13 +222,13 @@
 </interface>
 ]]></content>
   </ui>
-  <ui template-class="CmbColumnView">
+  <ui template-class="CmbListView">
     <content><![CDATA[<!-- Created with Cambalache 0.95.0 -->
 <interface>
-  <!-- interface-name CmbColumnView -->
+  <!-- interface-name CmbListView -->
   <!-- interface-copyright Juan Pablo Ugarte -->
   <requires lib="gtk" version="4.0"/>
-  <template class="CmbColumnView" parent="GtkColumnView"/>
+  <template class="CmbListView" parent="GtkListView"/>
 </interface>
 ]]></content>
   </ui>
@@ -238,9 +238,7 @@
   <ui template-class="CmbContextMenu" filename="cmb_context_menu.ui" sha256="81eba3adf715348a5c03ef4cbc151eebd5d9aa8b5a14c5968232f68a61ae573c"/>
   <ui template-class="CmbDBInspector" filename="cmb_db_inspector.ui" sha256="4451cdb08d24bd4a802ea692c0ebb4ef46af13152984c0b435d29bf4eb7dab55"/>
   <ui filename="app/cmb_shortcuts.ui" sha256="2aa7de3aebf770adc3adc2c0ebf23275942067489323c0b404aeec7c1e2377d9"/>
-  <ui template-class="CmbGResourceEditor" filename="cmb_gresource_editor.ui" sha256="a98d4651a3f1e9673051350fbee9478dc225762376a5ab0c1f3509c55aa5b39c">
-    <requires>CmbEntry</requires>
-  </ui>
+  <ui template-class="CmbFileButton" filename="control/cmb_file_button.ui" sha256="f859b4f85d7c80c1fef69b68ebb9129423d9c72fdb38d304132784f7361cbbfd"/>
   <ui template-class="CmbPixbufEntry">
     <requires>CmbFileEntry</requires>
     <content><![CDATA[<!-- Created with Cambalache 0.95.0 -->
@@ -253,15 +251,6 @@
   </ui>
   <ui template-class="CmbFragmentEditor" filename="cmb_fragment_editor.ui" sha256="0c2de873c689cd60558a835a39edaf4e1d5e68ef3afeb157628e13fd57282057">
     <requires>CmbSourceView</requires>
-  </ui>
-  <ui template-class="CmbCSSEditor" filename="cmb_css_editor.ui" sha256="1623ddd97e4a6aa80f9c2e864c6e4c293f4ad9bad56e922bda6208d278a526b8">
-    <requires>CmbEntry</requires>
-    <requires>CmbSourceView</requires>
-  </ui>
-  <ui template-class="CmbUIEditor" filename="cmb_ui_editor.ui" sha256="8197b2a38a94c7f6517691f9f84b9321adf7a0ce53632564aeae0703f4bcba60">
-    <requires>CmbTextBuffer</requires>
-    <requires>CmbEntry</requires>
-    <requires>CmbToplevelChooser</requires>
   </ui>
   <ui template-class="CmbTypeChooser" filename="cmb_type_chooser.ui" sha256="1b4be880ede6d6d6e88e452418c435640d91f5f61cad97b3f82f44429247e5e6">
     <requires>CmbTypeChooserPopover</requires>
@@ -276,7 +265,21 @@
     <signal id="placeholder-activated"/>
     <signal id="placeholder-selected"/>
   </ui>
-  <ui template-class="CmbWindow" filename="app/cmb_window.ui" sha256="ce10aa900f4a027746462d0c7615218bc388a61aac7b9f8b749e456af55a8f88">
+  <ui template-class="CmbGResourceEditor" filename="cmb_gresource_editor.ui" sha256="46969468ae070bdd315ca4091869d0b8a9bcb24c10cde82208bfd7d36f39fdd0">
+    <requires>CmbFileButton</requires>
+    <requires>CmbEntry</requires>
+  </ui>
+  <ui template-class="CmbCSSEditor" filename="cmb_css_editor.ui" sha256="6f39c9cb2f112dac9da415322792a717b8c0a80845dcbb2edacd7695388cba63">
+    <requires>CmbFileButton</requires>
+    <requires>CmbSourceView</requires>
+  </ui>
+  <ui template-class="CmbUIEditor" filename="cmb_ui_editor.ui" sha256="0e4e205a3737fa207406ce74f4d8d3fbb4a477409b8a7b425b3d53c41309b306">
+    <requires>CmbTextBuffer</requires>
+    <requires>CmbFileButton</requires>
+    <requires>CmbEntry</requires>
+    <requires>CmbToplevelChooser</requires>
+  </ui>
+  <ui template-class="CmbWindow" filename="app/cmb_window.ui" sha256="b63ea063a70ee7437e944640f8edaf4e4492ba1789045d890149ca1555a079e6">
     <requires>CmbScrolledWindow</requires>
     <requires>CmbObjectEditor</requires>
     <requires>CmbSignalEditor</requires>
@@ -289,12 +292,12 @@
     <requires>CmbTypeChooser</requires>
     <requires>CmbView</requires>
     <requires>CmbSourceView</requires>
-    <requires>CmbColumnView</requires>
+    <requires>CmbListView</requires>
   </ui>
   <css filename="cambalache.css" is_global="1"/>
   <css filename="app/cambalache.css">
     <ui>app/cmb_window.ui</ui>
   </css>
-  <gresources filename="cambalache.gresource.xml" sha256="2a7251213356056718f7220afbdf7af931d6f58c88c2ef705b143cd53b7cd171"/>
+  <gresources filename="cambalache.gresource.xml" sha256="50b2fef168cd27eb43027669250bf5953153537d1d83e9824a5b38c661655fab"/>
   <gresources filename="app/app.gresource.xml" sha256="3684aa78fce08d8e81d0907317214aeb179c5aea091dd0df405476b43e286941"/>
 </cambalache-project>

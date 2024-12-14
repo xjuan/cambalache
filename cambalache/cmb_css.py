@@ -24,7 +24,10 @@
 #
 
 import os
+
 from gi.repository import GObject, Gio
+
+from .cmb_path import CmbPath
 from .cmb_objects_base import CmbBaseCSS
 from cambalache import _
 
@@ -34,6 +37,7 @@ class CmbCSS(CmbBaseCSS):
         "file-changed": (GObject.SignalFlags.RUN_FIRST, None, ()),
     }
 
+    path_parent = GObject.Property(type=CmbPath, flags=GObject.ParamFlags.READWRITE)
     css = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
@@ -55,7 +59,7 @@ class CmbCSS(CmbBaseCSS):
 
     @classmethod
     def get_display_name(cls, css_id, filename):
-        return filename if filename else _("Unnamed CSS {css_id}").format(css_id=css_id)
+        return os.path.basename(filename) if filename else _("Unnamed CSS {css_id}").format(css_id=css_id)
 
     @GObject.Property(type=str)
     def display_name(self):

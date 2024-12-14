@@ -23,8 +23,10 @@
 # SPDX-License-Identifier: LGPL-2.1-only
 #
 
+import os
 from gi.repository import GObject, Gio
 
+from .cmb_path import CmbPath
 from .cmb_list_error import CmbListError
 from .cmb_objects_base import CmbBaseUI, CmbBaseObject
 from cambalache import getLogger, _
@@ -36,6 +38,8 @@ class CmbUI(CmbBaseUI, Gio.ListModel):
     __gsignals__ = {
         "library-changed": (GObject.SignalFlags.RUN_FIRST, None, (str,)),
     }
+
+    path_parent = GObject.Property(type=CmbPath, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -126,18 +130,19 @@ class CmbUI(CmbBaseUI, Gio.ListModel):
 
     @classmethod
     def get_display_name(cls, ui_id, filename):
-        return filename if filename else _("Unnamed {ui_id}").format(ui_id=ui_id)
+        return os.path.basename(filename) if filename else _("Unnamed {ui_id}").format(ui_id=ui_id)
 
     @GObject.Property(type=str)
     def display_name(self):
+        filename = self.filename
         template_id = self.template_id
 
-        if template_id:
+        if filename is None and template_id:
             template = self.project.get_object_by_id(self.ui_id, template_id)
             if template:
                 return template.name
 
-        return CmbUI.get_display_name(self.ui_id, self.filename)
+        return CmbUI.get_display_name(self.ui_id, filename)
 
     def __get_infered_target(self, library_id):
         ui_id = self.ui_id

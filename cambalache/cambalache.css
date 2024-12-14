@@ -84,10 +84,23 @@ CmbPropertyLabel.warning > box > label {
   text-decoration: underline wavy @warning_color;
 }
 
-row.drop-before:drop(active) {
+listview.cmb-list-view treeexpander {
+  padding: 4px;
+}
+
+treeexpander.cmb-path  > expander {
+  -gtk-icon-source: -gtk-icontheme("folder-symbolic");
+}
+
+treeexpander.cmb-path  > expander:checked {
+  -gtk-icon-source: -gtk-icontheme("folder-open-symbolic");
+}
+
+treeexpander.drop-before:drop(active) {
   box-shadow: 0px 1px 0px @theme_selected_bg_color inset;
 }
 
-row.drop-after:drop(active) {
+treeexpander.drop-after:drop(active) {
   box-shadow: 0px -1px 0px @theme_selected_bg_color inset;
 }
+

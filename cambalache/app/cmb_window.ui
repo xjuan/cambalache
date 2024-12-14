@@ -668,7 +668,7 @@
                                     <property name="propagate-natural-height">True</property>
                                     <property name="propagate-natural-width">True</property>
                                     <child>
-                                      <object class="CmbColumnView" id="column_view"/>
+                                      <object class="CmbListView" id="list_view"/>
                                     </child>
                                   </object>
                                 </child>

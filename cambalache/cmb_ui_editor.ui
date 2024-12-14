@@ -62,11 +62,8 @@
       </object>
     </child>
     <child>
-      <object class="CmbEntry" id="filename">
-        <property name="can-focus">True</property>
+      <object class="CmbFileButton" id="filename">
         <property name="hexpand">True</property>
-        <property name="placeholder-text" translatable="yes">&lt;file name relative to project&gt;</property>
-        <property name="visible">True</property>
         <layout>
           <property name="column">1</property>
           <property name="row">0</property>

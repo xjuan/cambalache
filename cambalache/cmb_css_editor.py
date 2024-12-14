@@ -81,6 +81,7 @@ class CmbCSSEditor(Gtk.Grid):
             self.set_sensitive(False)
             return
 
+        self.filename.dirname = obj.project.dirname
         self.set_sensitive(True)
 
         for field, target in self.fields:

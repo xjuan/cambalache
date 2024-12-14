@@ -25,7 +25,7 @@
                   </object>
                 </child>
                 <child>
-                  <object class="CmbEntry" id="gresources_filename">
+                  <object class="CmbFileButton" id="gresources_filename">
                     <property name="hexpand">True</property>
                     <layout>
                       <property name="column">1</property>
@@ -192,14 +192,6 @@
                   </object>
                 </child>
                 <child>
-                  <object class="CmbEntry" id="file_filename">
-                    <layout>
-                      <property name="column">1</property>
-                      <property name="row">0</property>
-                    </layout>
-                  </object>
-                </child>
-                <child>
                   <object class="GtkSwitch" id="file_compressed">
                     <property name="halign">start</property>
                     <property name="hexpand">True</property>
@@ -224,6 +216,16 @@
                     <layout>
                       <property name="column">1</property>
                       <property name="row">3</property>
+                    </layout>
+                  </object>
+                </child>
+                <child>
+                  <object class="CmbFileButton" id="file_filename">
+                    <layout>
+                      <property name="column">1</property>
+                      <property name="column-span">1</property>
+                      <property name="row">0</property>
+                      <property name="row-span">1</property>
                     </layout>
                   </object>
                 </child>
