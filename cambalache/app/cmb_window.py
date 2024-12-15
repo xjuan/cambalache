@@ -60,9 +60,12 @@ class CmbWindow(Adw.ApplicationWindow):
     }
 
     open_filter = Gtk.Template.Child()
-    gtk3_import_filter = Gtk.Template.Child()
-    gtk4_import_filter = Gtk.Template.Child()
-    import_gresource_filter = Gtk.Template.Child()
+    gtk4_filter = Gtk.Template.Child()
+    gtk3_filter = Gtk.Template.Child()
+    gtk_builder_filter = Gtk.Template.Child()
+    glade_filter = Gtk.Template.Child()
+    css_filter = Gtk.Template.Child()
+    gresource_filter = Gtk.Template.Child()
 
     headerbar = Gtk.Template.Child()
     title = Gtk.Template.Child()
@@ -127,6 +130,15 @@ class CmbWindow(Adw.ApplicationWindow):
 
         super().__init__(**kwargs)
 
+        self.gtk4_import_filters = Gio.ListStore()
+
+        for filter in [self.gtk4_filter, self.gtk_builder_filter, self.css_filter, self.gresource_filter]:
+            self.gtk4_import_filters.append(filter)
+
+        self.gtk3_import_filters = Gio.ListStore()
+        for filter in [self.gtk3_filter, self.gtk_builder_filter, self.glade_filter, self.css_filter, self.gresource_filter]:
+            self.gtk3_import_filters.append(filter)
+
         self.__recent_manager = self.__get_recent_manager()
 
         self.editor_stack.set_size_request(420, -1)
@@ -152,7 +164,6 @@ class CmbWindow(Adw.ApplicationWindow):
             "delete",
             "donate",
             "import",
-            "import_gresource",
             "inspect",
             "intro",
             "liberapay",
@@ -629,7 +640,6 @@ class CmbWindow(Adw.ApplicationWindow):
             "add_ui",
             "add_css",
             "add_gresource",
-            "import_gresource",
             "delete",
             "import",
             "close",
@@ -644,11 +654,12 @@ class CmbWindow(Adw.ApplicationWindow):
         self.__update_action_add_object()
         self.__update_action_remove_parent()
 
-    def __file_open_dialog_new(self, title, filter_obj=None, accept_label=None, use_project_dir=False):
+    def __file_open_dialog_new(self, title, filter_obj=None, accept_label=None, use_project_dir=False, filters=None):
         dialog = Gtk.FileDialog(
             modal=True,
             title=title,
             default_filter=filter_obj,
+            filters=filters,
             accept_label=accept_label,
         )
 
@@ -1094,18 +1105,28 @@ class CmbWindow(Adw.ApplicationWindow):
         def dialog_callback(dialog, res):
             try:
                 for file in dialog.open_multiple_finish(res):
-                    self.import_file(file.get_path())
+                    path = file.get_path()
+                    content_type = utils.content_type_guess(path)
+
+                    print("IMPORT", path, content_type)
+
+                    if content_type in ["application/x-gtk-builder", "application/x-glade"]:
+                        self.import_file(file.get_path())
+                    elif content_type == "text/css":
+                        self.project.add_css(path)
+                    elif content_type == "application/xml" and path.endswith("gresource.xml"):
+                        self.project.import_gresource(path)
             except Exception as e:
                 logger.warning(f"Error {e}")
 
         if self.project.target_tk == "gtk-4.0":
-            import_filter = self.gtk4_import_filter
+            import_filters = self.gtk4_import_filters
         else:
-            import_filter = self.gtk3_import_filter
+            import_filters = self.gtk3_import_filters
 
         dialog = self.__file_open_dialog_new(
             _("Choose file to import"),
-            filter_obj=import_filter,
+            filters=import_filters,
             accept_label=_("Import")
         )
         dialog.open_multiple(self, None, dialog_callback)
@@ -1116,22 +1137,6 @@ class CmbWindow(Adw.ApplicationWindow):
 
         gresource = self.project.add_gresource("gresources")
         self.project.set_selection([gresource])
-
-    def _on_import_gresource_activate(self, action, data):
-        if self.project is None:
-            return
-
-        def dialog_callback(dialog, res):
-            try:
-                for file in dialog.open_multiple_finish(res):
-                    self.project.import_gresource(file.get_path())
-            except Exception as e:
-                logger.warning(f"Error {e}", exc_info=True)
-
-        dialog = self.__file_open_dialog_new(
-            _("Choose file to import"), filter_obj=self.import_gresource_filter, accept_label=_("Import")
-        )
-        dialog.open_multiple(self, None, dialog_callback)
 
     def __save(self):
         if self.project.save():
