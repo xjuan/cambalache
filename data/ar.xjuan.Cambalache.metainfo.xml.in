@@ -14,6 +14,18 @@
     </p>
   </description>
   <releases>
+    <release version="0.95.0">
+      <description>
+        <p>Unreleased</p>
+        <ul>
+          <li>Add GResource support</li>
+          <li>New project format</li>
+          <li>Save directly to .ui files</li>
+          <li>Show directory structure in navigation panel</li>
+          <li>Unified import dialog for UI, CSS and gresources</li>
+        </ul>
+      </description>
+    </release>
     <release date="2024-11-27" version="0.94.0">
       <description>
         <p>Accessibility Release!</p>
