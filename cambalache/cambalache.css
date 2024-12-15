@@ -84,23 +84,42 @@ CmbPropertyLabel.warning > box > label {
   text-decoration: underline wavy @warning_color;
 }
 
-listview.cmb-list-view treeexpander {
-  padding: 4px;
+listview.cmb-list-view {
+ background-color: @theme_bg_color;
 }
 
-treeexpander.cmb-path  > expander {
+listview.cmb-list-view > row {
+  padding: 2px 8px;
+  min-height: 30px;
+}
+
+listview.cmb-list-view > row:drop(active):not(.drop-after):not(.drop-before) {
+  outline: 2px solid color-mix(in srgb, @theme_bg_color 80%, black);
+  outline-offset: -4px;
+}
+
+listview.cmb-list-view > row.drop-before:drop(active) {
+  border: 0;
+  border-radius: 0;
+  border-top: 2px solid color-mix(in srgb, @theme_bg_color 80%, black);
+  margin-top: -2px;
+}
+
+listview.cmb-list-view > row.drop-after:drop(active) {
+  border: 0;
+  border-radius: 0;
+  border-bottom: 2px solid color-mix(in srgb, @theme_bg_color 80%, black);
+  margin-bottom: 0;
+}
+
+listview.cmb-list-view > row > treeexpander.cmb-path  > expander {
   -gtk-icon-source: -gtk-icontheme("folder-symbolic");
 }
 
-treeexpander.cmb-path  > expander:checked {
+listview.cmb-list-view > row > treeexpander.cmb-path  > expander:checked {
   -gtk-icon-source: -gtk-icontheme("folder-open-symbolic");
 }
 
-treeexpander.drop-before:drop(active) {
-  box-shadow: 0px 1px 0px @theme_selected_bg_color inset;
+listview.cmb-list-view > row > treeexpander.cmb-unsaved-path  > expander {
+  -gtk-icon-source: -gtk-icontheme("view-list-symbolic");
 }
-
-treeexpander.drop-after:drop(active) {
-  box-shadow: 0px -1px 0px @theme_selected_bg_color inset;
-}
-

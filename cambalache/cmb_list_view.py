@@ -31,6 +31,7 @@ from .cmb_gresource import CmbGResource
 from .cmb_context_menu import CmbContextMenu
 from .cmb_path import CmbPath
 from .cmb_project import CmbProject
+from .cmb_tree_expander import CmbTreeExpander
 
 
 class CmbListView(Gtk.ListView):
@@ -62,6 +63,7 @@ class CmbListView(Gtk.ListView):
 
         self.connect("activate", self.__on_activate)
 
+        self.add_css_class("navigation-sidebar")
         self.add_css_class("cmb-list-view")
 
     def __on_button_press(self, gesture, npress, x, y):
@@ -89,6 +91,8 @@ class CmbListView(Gtk.ListView):
             return parent if parent else obj.ui
         elif isinstance(obj, CmbGResource):
             return obj.path_parent if obj.resource_type == "gresources" else obj.parent
+        elif isinstance(obj, CmbProject):
+            return None
 
         return obj.path_parent
 

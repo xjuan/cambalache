@@ -23,7 +23,7 @@
 # SPDX-License-Identifier: LGPL-2.1-only
 #
 
-from gi.repository import GObject, Gdk, Gtk
+from gi.repository import GObject, Gdk, Gtk, Graphene
 
 from .cmb_ui import CmbUI
 from .cmb_object import CmbObject
@@ -43,37 +43,41 @@ class CmbTreeExpander(Gtk.TreeExpander):
         self.label = Gtk.Inscription(hexpand=True)
         self.set_child(self.label)
 
-        # Drag source
-        drag_source = Gtk.DragSource()
-        drag_source.connect("prepare", self.__on_drag_prepare)
-        drag_source.connect("drag-begin", self.__on_drag_begin)
-        self.add_controller(drag_source)
-
-        # Drop target
-        drop_target = Gtk.DropTarget.new(type=GObject.TYPE_NONE, actions=Gdk.DragAction.COPY)
-        drop_target.set_gtypes([CmbObject, CmbUI])
-        drop_target.connect("accept", self.__on_drop_accept)
-        drop_target.connect("motion", self.__on_drop_motion)
-        drop_target.connect("drop", self.__on_drop_drop)
-        self.add_controller(drop_target)
+        self.__parent = None
+        self.__drag_source = None
+        self.__drop_target = None
 
     def update_bind(self):
         item = self.props.item
 
+        self.__parent = self.props.parent
+        # Drag source
+        self.__drag_source = Gtk.DragSource()
+        self.__drag_source.connect("prepare", self.__on_drag_prepare)
+        self.__drag_source.connect("drag-begin", self.__on_drag_begin)
+        self.__parent.add_controller(self.__drag_source)
+
+        # Drop target
+        self.__drop_target = Gtk.DropTarget.new(type=GObject.TYPE_NONE, actions=Gdk.DragAction.COPY)
+        self.__drop_target.set_gtypes([CmbObject, CmbUI])
+        self.__drop_target.connect("accept", self.__on_drop_accept)
+        self.__drop_target.connect("motion", self.__on_drop_motion)
+        self.__drop_target.connect("drop", self.__on_drop_drop)
+        self.__parent.add_controller(self.__drop_target)
+
         # Handle label
         self.__update_label(item)
         item.connect("notify::display-name", self.__on_item_display_name_notify)
-
-        self.remove_css_class("cmb-path")
 
         self.__project = item.project
 
         if isinstance(item, CmbCSS):
             self.props.hide_expander = True
             return
-
-        if isinstance(item, CmbPath):
-            self.add_css_class("cmb-path")
+        elif isinstance(item, CmbPath):
+            self.props.hide_expander = False
+            self.add_css_class("cmb-path" if item.path else "cmb-unsaved-path")
+            return
 
         self.props.hide_expander = item.props.n_items == 0
         item.connect("notify::n-items", self.__on_item_n_items_notify)
@@ -81,13 +85,22 @@ class CmbTreeExpander(Gtk.TreeExpander):
     def clear_bind(self):
         item = self.props.item
 
+        if self.__parent:
+            self.__parent.remove_controller(self.__drag_source)
+            self.__parent.remove_controller(self.__drop_target)
+            self.__parent = None
+            self.__drag_source = None
+            self.__drop_target = None
+
+        self.remove_css_class("cmb-path")
+        self.remove_css_class("cmb-unsaved-path")
+
         item.disconnect_by_func(self.__on_item_display_name_notify)
 
-        if not isinstance(item, CmbCSS):
-            item.disconnect_by_func(self.__on_item_n_items_notify)
+        if isinstance(item, CmbCSS) or isinstance(item, CmbPath):
+            return
 
-        if isinstance(item, CmbPath):
-            self.remove_css_class("cmb-path")
+        item.disconnect_by_func(self.__on_item_n_items_notify)
 
     def __on_item_n_items_notify(self, item, pspec):
         self.props.hide_expander = item.props.n_items == 0
@@ -241,8 +254,13 @@ class CmbTreeExpander(Gtk.TreeExpander):
         if not isinstance(item, CmbObject):
             return None
 
+        self.__drag_point = Graphene.Point()
+        self.__drag_point.x = x
+        self.__drag_point.y = y
         return Gdk.ContentProvider.new_for_value(self.props.item)
 
     def __on_drag_begin(self, drag_source, drag):
         drag._item = self.props.item
-        drag_source.set_icon(Gtk.WidgetPaintable.new(self.label), 0, 0)
+        valid, p = self.__parent.compute_point(self.label, self.__drag_point)
+        if valid:
+            drag_source.set_icon(Gtk.WidgetPaintable.new(self.label), p.x, p.y)
