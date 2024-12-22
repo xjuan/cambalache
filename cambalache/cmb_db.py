@@ -2197,16 +2197,23 @@ class CmbDB(GObject.GObject):
 
     def __export_object(self, ui_id, object_id, merengue=False, template_id=None, ignore_id=False):
         c = self.conn.cursor()
-        cc = self.conn.cursor()
 
         c.execute("SELECT type_id, name, custom_fragment FROM object WHERE ui_id=? AND object_id=?;", (ui_id, object_id))
         type_id, name, custom_fragment = c.fetchone()
 
         # Special case <menu>
         if type_id == GMENU_TYPE:
+            c.close()
             return self.__export_menu(ui_id, object_id, merengue=merengue, ignore_id=ignore_id)
 
         info = self.type_info.get(type_id, None)
+
+        if info is None:
+            logger.warning(f"Type info missing for type {type_id}")
+            c.close()
+            return None
+
+        cc = self.conn.cursor()
 
         merengue_template = merengue and info.library_id is None and info.parent_id is not None
         # Check if this is a custom template object
@@ -2732,6 +2739,9 @@ class CmbDB(GObject.GObject):
         ):
             object_id, comment = row
             child = self.__export_object(ui_id, object_id, merengue=merengue, template_id=template_id)
+            if child is None:
+                continue
+
             node.append(child)
             self.__node_add_comment(child, comment)
 
