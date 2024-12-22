@@ -34,6 +34,7 @@ class CmbFlagsEntry(Gtk.Entry):
     id_column = GObject.Property(type=int, default=1, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
     text_column = GObject.Property(type=int, default=1, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
     value_column = GObject.Property(type=int, default=2, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    separator = GObject.Property(type=str, default="|", flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self, **kwargs):
         self.flags = {}
@@ -84,7 +85,7 @@ class CmbFlagsEntry(Gtk.Entry):
         for row in self.info.flags:
             flag_id = row[self.id_column]
             if self.flags.get(flag_id, False):
-                retval = flag_id if retval is None else f"{retval} | {flag_id}"
+                retval = flag_id if retval is None else f"{retval} {self.separator} {flag_id}"
 
         return retval if retval is not None else ""
 
@@ -104,7 +105,7 @@ class CmbFlagsEntry(Gtk.Entry):
             self._checks[check].props.active = False
 
         if value:
-            tokens = [t.strip() for t in value.split("|")]
+            tokens = [t.strip() for t in value.split(self.separator)]
 
             for row in self.info.flags:
                 flag_id = row[self.id_column]
