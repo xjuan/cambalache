@@ -450,6 +450,13 @@ class CmbProject(GObject.Object, Gio.ListModel):
         else:
             self.db.load_old_format(root, version)
 
+            for row in self.db.execute("SELECT * FROM ui;"):
+                ui = self.__add_ui(True, *row)
+                ui.notify("n-items")
+
+            for row in self.db.execute("SELECT * FROM css;"):
+                self.__add_css(True, *row)
+
         self.history_enabled = True
 
     def __populate_ui(self, ui_id):
