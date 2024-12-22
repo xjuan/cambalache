@@ -234,10 +234,10 @@
   </ui>
   <ui template-class="CmbTypeChooserWidget" filename="cmb_type_chooser_widget.ui" sha256="15dedacc452656abdb9d245ec876370705c610422201213d944c1f6329c5c8f6"/>
   <ui template-class="CmbSignalEditor" filename="cmb_signal_editor.ui" sha256="97f0e972edc660d0329ef8659318aa51b62c7ba2e15f94e3f4599718a63a8ec3"/>
-  <ui template-class="CmbObjectDataEditor" filename="cmb_object_data_editor.ui" sha256="2a42782c6b83ea1ff06035302bfcf77c5dac0414811f06441cdca38ccfcf4696"/>
+  <ui template-class="CmbObjectDataEditor" filename="cmb_object_data_editor.ui" sha256="4a590fc58d66e781f731134214a9fdeefabd8b8c11edcc50f6530cac81f796d1"/>
   <ui template-class="CmbContextMenu" filename="cmb_context_menu.ui" sha256="81eba3adf715348a5c03ef4cbc151eebd5d9aa8b5a14c5968232f68a61ae573c"/>
   <ui template-class="CmbDBInspector" filename="cmb_db_inspector.ui" sha256="4451cdb08d24bd4a802ea692c0ebb4ef46af13152984c0b435d29bf4eb7dab55"/>
-  <ui filename="app/cmb_shortcuts.ui" sha256="2aa7de3aebf770adc3adc2c0ebf23275942067489323c0b404aeec7c1e2377d9"/>
+  <ui filename="app/cmb_shortcuts.ui" sha256="d7ac37fd2430788a9e210ed4bc84dcfeba5609bdcc801afb192bfd900c7a8883"/>
   <ui template-class="CmbFileButton" filename="control/cmb_file_button.ui" sha256="f859b4f85d7c80c1fef69b68ebb9129423d9c72fdb38d304132784f7361cbbfd"/>
   <ui template-class="CmbPixbufEntry">
     <requires>CmbFileEntry</requires>

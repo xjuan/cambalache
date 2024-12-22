@@ -15,26 +15,56 @@
             <property name="view">shortcuts</property>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="accelerator">&lt;Control&gt;n</property>
+                <property name="accelerator">&lt;primary&gt;n</property>
                 <property name="title" translatable="yes">Create new project</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="accelerator">&lt;Control&gt;o</property>
+                <property name="accelerator">&lt;primary&gt;o</property>
                 <property name="title" translatable="yes">Open a project</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="accelerator">&lt;Control&gt;w</property>
-                <property name="title" translatable="yes">Close the project</property>
+                <property name="accelerator">&lt;primary&gt;i</property>
+                <property name="title" translatable="yes">Import file</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="accelerator">&lt;Control&gt;s</property>
-                <property name="title" translatable="yes">Save the project</property>
+                <property name="accelerator">&lt;primary&gt;s</property>
+                <property name="title" translatable="yes">Save project</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;primary&gt;&lt;shift&gt;s</property>
+                <property name="title" translatable="yes">Save project as</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;primary&gt;w</property>
+                <property name="title" translatable="yes">Close the project</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkShortcutsGroup">
+            <property name="title" translatable="yes">General</property>
+            <property name="view">general</property>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;primary&gt;question</property>
+                <property name="title" translatable="yes">Keyboard Shortcuts</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;primary&gt;q</property>
+                <property name="title" translatable="yes">Quit application</property>
               </object>
             </child>
           </object>
@@ -45,25 +75,31 @@
             <property name="view">shortcuts</property>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="accelerator">&lt;Control&gt;Insert</property>
+                <property name="accelerator">Delete</property>
+                <property name="title" translatable="yes">Delete object</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;primary&gt;Insert</property>
                 <property name="title" translatable="yes">Add  slot/column</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="accelerator">&lt;Control&gt;Delete</property>
+                <property name="accelerator">&lt;primary&gt;Delete</property>
                 <property name="title" translatable="yes">Remove slot/column</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="accelerator">&lt;Control&gt;&lt;shift&gt;Insert</property>
+                <property name="accelerator">&lt;primary&gt;&lt;shift&gt;Insert</property>
                 <property name="title" translatable="yes">Add row</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
-                <property name="accelerator">&lt;Control&gt;&lt;shift&gt;Delete</property>
+                <property name="accelerator">&lt;primary&gt;&lt;shift&gt;Delete</property>
                 <property name="title" translatable="yes">Remove row</property>
               </object>
             </child>
