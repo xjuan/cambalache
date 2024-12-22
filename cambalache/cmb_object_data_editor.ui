@@ -70,7 +70,6 @@
       <object class="GtkGrid" id="grid">
         <property name="column-spacing">4</property>
         <property name="row-spacing">4</property>
-        <property name="vexpand">1</property>
       </object>
     </child>
   </template>
