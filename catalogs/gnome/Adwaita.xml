@@ -187,9 +187,17 @@
       </properties>
     </AdwPreferencesDialog>
 
+    <AdwWindow>
+      <properties>
+        <property original-owner-id="GtkWindow" id="titlebar" disabled="True"/>
+        <property original-owner-id="GtkWindow" id="child" disabled="True"/>
+      </properties>
+    </AdwWindow>
+
     <AdwApplicationWindow>
       <properties>
         <property original-owner-id="GtkWindow" id="titlebar" disabled="True"/>
+        <property original-owner-id="GtkWindow" id="child" disabled="True"/>
       </properties>
     </AdwApplicationWindow>
 
