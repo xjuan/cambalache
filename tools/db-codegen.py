@@ -184,6 +184,7 @@ from .cmb_base import CmbBase
             self.dump_table(fd, "type_data", "CmbBaseTypeDataInfo")
             self.dump_table(fd, "type_data_arg", "CmbBaseTypeDataArgInfo")
             self.dump_table(fd, "type_child_type", "CmbTypeChildInfo")
+            self.dump_table(fd, "type_internal_child", "CmbBaseTypeInternalChildInfo")
 
             # Project Objects
             self.dump_table(fd, "ui", "CmbBaseUI", mutable=True)

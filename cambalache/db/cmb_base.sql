@@ -170,6 +170,18 @@ CREATE TABLE IF NOT EXISTS type_child_constraint (
 ) WITHOUT ROWID;
 
 
+/* Type Internal Child
+ *
+ */
+CREATE TABLE IF NOT EXISTS type_internal_child (
+  type_id TEXT REFERENCES type ON UPDATE CASCADE,
+  internal_child_id TEXT,
+  internal_parent_id TEXT,
+  internal_type TEXT REFERENCES type ON UPDATE CASCADE,
+  PRIMARY KEY(type_id, internal_child_id),
+  FOREIGN KEY(type_id, internal_parent_id) REFERENCES type_internal_child(type_id, internal_child_id)
+) WITHOUT ROWID;
+
 
 /* Type Tree
  *

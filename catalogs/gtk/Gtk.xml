@@ -24,6 +24,12 @@
       </properties>
     </GtkAccessible>
 
+    <GtkAssistant>
+      <internal-children>
+        <child name="action_area"/>
+      </internal-children>
+    </GtkAssistant>
+
     <GtkAssistantPage>
       <properties>
         <property id="title" translatable="True"/>
@@ -148,6 +154,14 @@
       <children-types>
         <type>action</type>
       </children-types>
+      <internal-children target="Gtk-4.0">
+        <child name="action_area"/>
+      </internal-children>
+      <internal-children target="Gtk+-3.0">
+        <child name="vbox">
+          <child name="action_area"/>
+        </child>
+      </internal-children>
     </GtkDialog>
 
     <GtkListStore>
@@ -324,6 +338,9 @@
       <properties>
         <property id="tearoff-title" translatable="True"/>
       </properties>
+      <internal-children>
+        <child name="entry" type="GtkEntry"/>
+      </internal-children>
     </GtkComboBox>
 
     <GtkAppChooserButton>
@@ -386,6 +403,12 @@
         <property target="Gtk+-3.0" id="icon-name" type="CmbIconName"/>
       </properties>
     </GtkAction>
+
+    <GtkTreeView>
+      <internal-children>
+        <child name="selection" anarchist="True"/>
+      </internal-children>
+    </GtkTreeView>
 
     <GtkTreeViewColumn>
       <properties>
@@ -569,6 +592,45 @@
       </data>
     </GtkFileFilter>
 
+    <GtkScaleButton>
+      <internal-children>
+        <child name="plus_button"/>
+        <child name="minus_button"/>
+      </internal-children>
+    </GtkScaleButton>
+
+    <GtkInfoBar>
+      <internal-children target="Gtk+-3.0">
+        <child name="action_area"/>
+        <child name="content_area"/>
+      </internal-children>
+    </GtkInfoBar>
+
+    <GtkColorSelectionDialog target="Gtk+-3.0">
+      <internal-children>
+        <child name="vbox">
+          <child name="color_selection"/>
+        </child>
+        <child name="action_area">
+          <child name="ok_button"/>
+          <child name="cancel_button"/>
+          <child name="help_button"/>
+        </child>
+      </internal-children>
+    </GtkColorSelectionDialog>
+
+    <GtkFontSelectionDialog target="Gtk+-3.0">
+      <internal-children>
+        <child name="vbox">
+          <child name="font_selection"/>
+        </child>
+        <child name="action_area">
+          <child name="ok_button"/>
+          <child name="cancel_button"/>
+          <child name="apply_button"/>
+        </child>
+      </internal-children>
+    </GtkFontSelectionDialog>
   </types>
 
   <categories>
@@ -580,6 +642,8 @@
       <GtkDialog/>
       <GtkAboutDialog/>
       <GtkFileChooserDialog/>
+      <GtkColorSelectionDialog/>
+      <GtkFontSelectionDialog/>
       <GtkColorChooserDialog/>
       <GtkFontChooserDialog/>
       <GtkMessageDialog/>

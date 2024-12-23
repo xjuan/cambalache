@@ -22,6 +22,8 @@
 # Authors:
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
+# SPDX-License-Identifier: LGPL-2.1-only
+#
 
 from gi.repository import GObject
 from .cmb_base import CmbBase
@@ -282,6 +284,28 @@ class CmbTypeChildInfo(CmbBase):
             child_type=child_type,
             max_children=max_children,
             linked_property_id=linked_property_id,
+        )
+
+
+class CmbBaseTypeInternalChildInfo(CmbBase):
+    __gtype_name__ = "CmbBaseTypeInternalChildInfo"
+
+    type_id = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    internal_child_id = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    internal_parent_id = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    internal_type = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    @classmethod
+    def from_row(cls, project, type_id, internal_child_id, internal_parent_id, internal_type):
+        return cls(
+            project=project,
+            type_id=type_id,
+            internal_child_id=internal_child_id,
+            internal_parent_id=internal_parent_id,
+            internal_type=internal_type,
         )
 
 

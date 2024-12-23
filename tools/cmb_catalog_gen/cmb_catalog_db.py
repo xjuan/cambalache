@@ -25,11 +25,13 @@ import json
 import os
 import sqlite3
 
-from gi.repository import Gio
+from gi.repository import Gio, GObject
 from lxml import etree
 from lxml.builder import E
 
 from .cmb_gir_data import CmbGirData
+
+CmbCatalogUtils = None
 
 # Global XML name space
 nsmap = {}
@@ -124,6 +126,7 @@ class CmbCatalogDB:
             "type_data_arg",
             "type_child_type",
             "type_child_constraint",
+            "type_internal_child",
             "property",
             "signal",
         ]:
@@ -384,6 +387,42 @@ class CmbCatalogDB:
             (type_id, child_type_id, allowed, shortcut),
         )
 
+    def _import_internal_children(self, c, node, type_id, internal_parent_id=None):
+        global CmbCatalogUtils
+
+        if node.tag != "child":
+            return
+
+        name = node.get("name", None)
+        internal_type = node.get("type", None)
+
+        if CmbCatalogUtils is None:
+            import gi
+            gi.require_version("CmbCatalogUtils", "4.0" if self.lib.target_tk == "Gtk-4.0" else "3.0")
+            from gi.repository import CmbCatalogUtils
+
+        if internal_type is None:
+            instance = self.lib._get_instance_from_type(type_id)
+
+            if instance:
+                internal = CmbCatalogUtils.buildable_get_internal_child(instance, name)
+                internal_type = GObject.type_name(internal.__gtype__) if internal else None
+
+        if internal_type is None:
+            print("WARNING can not infer internal child type for", type_id, name)
+            return
+
+        c.execute(
+            """
+            INSERT INTO type_internal_child (type_id, internal_child_id, internal_parent_id, internal_type)
+            VALUES (?, ?, ?, ?);
+            """,
+            (type_id, name, internal_parent_id, internal_type),
+        )
+
+        for child in node.iterchildren("child"):
+            self._import_internal_children(c, child, type_id, name)
+
     def get_bool(self, node, prop, default="false"):
         val = node.get(prop, default)
         return 1 if val.lower() in ["true", "yes", "1", "t", "y"] else 0
@@ -515,6 +554,13 @@ class CmbCatalogDB:
                     continue
                 for constraint in constraints:
                     self._import_type_constraint(c, constraint, owner_id)
+
+            # Read internal children types
+            for types in klass.iterchildren("internal-children"):
+                if check_target(types):
+                    continue
+                for type in types:
+                    self._import_internal_children(c, type, owner_id)
 
     def populate_categories(self, c, categories):
         for category in categories:

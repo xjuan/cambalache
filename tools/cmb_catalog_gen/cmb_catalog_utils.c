@@ -102,6 +102,37 @@ cmb_catalog_utils_implements_buildable_add_child(GObject *buildable)
 }
 
 /**
+ * cmb_catalog_utils_buildable_get_internal_child:
+ * @buildable: Object to check
+ * @childname: internal child
+ *
+ * Return internal child
+ *
+ * Returns: (transfer none): the internal child of the buildable object
+ */
+GObject *
+cmb_catalog_utils_buildable_get_internal_child(GtkBuildable *buildable,
+                                               const char   *childname)
+{
+  GtkBuilder *builder = NULL;
+  GtkBuildableIface *iface;
+  GObject *retval = NULL;
+
+  g_return_val_if_fail (GTK_IS_BUILDABLE (buildable), NULL);
+  g_return_val_if_fail (childname != NULL, NULL);
+
+  iface = GTK_BUILDABLE_GET_IFACE (buildable);
+  if (!iface->get_internal_child)
+    return NULL;
+
+  builder = gtk_builder_new ();
+  retval = (* iface->get_internal_child) (buildable, builder, childname);
+  g_object_unref(builder);
+
+  return retval;
+}
+
+/**
  * cmb_catalog_utils_pspec_enum_get_default_nick:
  * @gtype:
  * @default_value:
