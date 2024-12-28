@@ -19,10 +19,11 @@
         <p>Unreleased</p>
         <ul>
           <li>Add GResource support</li>
+          <li>Add internal children support</li>
           <li>New project format</li>
           <li>Save directly to .ui files</li>
-          <li>Show directory structure in navigation panel</li>
-          <li>Unified import dialog for UI, CSS and gresources</li>
+          <li>Show directory structure in navigation</li>
+          <li>Unified import dialog for all file types</li>
         </ul>
       </description>
     </release>

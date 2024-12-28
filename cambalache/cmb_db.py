@@ -900,6 +900,21 @@ class CmbDB(GObject.GObject):
 
         return gresource_id
 
+    def __add_internal_child(self, ui_id, object_id, child):
+        child_id = self.execute("SELECT coalesce(MAX(object_id), 0) + 1 FROM object WHERE ui_id=?;", (ui_id,)).fetchone()[0]
+        position = self.execute(
+            "SELECT coalesce(MAX(position), -1) + 1 FROM object WHERE ui_id=? AND parent_id=?;",
+            (ui_id, object_id)
+        ).fetchone()[0]
+
+        self.execute(
+            "INSERT INTO object (ui_id, object_id, type_id, parent_id, internal, position) VALUES (?, ?, ?, ?, ?, ?);",
+            (ui_id, child_id, child.internal_type, object_id, child.internal_child_id, position),
+        )
+
+        for internal_child_id, internal_child in child.children.items():
+            self.__add_internal_child(ui_id, child_id, internal_child)
+
     def add_object(
         self,
         ui_id,
@@ -947,6 +962,11 @@ class CmbDB(GObject.GObject):
             """,
             (ui_id, object_id, obj_type, name, parent_id, internal_child, child_type, comment, position),
         )
+
+        # Automatically add internal children
+        info = self.type_info.get(obj_type, None)
+        for internal_child_id, child in info.internal_children.items():
+            self.__add_internal_child(ui_id, object_id, child)
 
         # Get parent type for later
         if layout or inline_property:
@@ -2195,6 +2215,33 @@ class CmbDB(GObject.GObject):
                 for child in taginfo.children:
                     self.__export_object_data(ui_id, object_id, owner_id, child, taginfo.children[child], ntag, id, merengue=merengue)
 
+    def __internal_object_is_empty(self, ui_id, object_id):
+        # Check if internal object is empty or not, it has name, xml fragments, children, property or any other data
+        row = self.execute(
+            """
+            WITH RECURSIVE d(ui_id, object_id)
+            AS (
+              VALUES(?, ?)
+              UNION
+              SELECT o.ui_id, o.object_id FROM object AS o, d WHERE o.ui_id=d.ui_id AND o.parent_id=d.object_id
+            )
+            SELECT
+              (SELECT COUNT(ui_id) FROM object
+               WHERE (ui_id, object_id) IN d AND
+               (name IS NOT NULL OR type IS NOT NULL OR custom_fragment IS NOT NULL OR custom_child_fragment IS NOT NULL)
+              ),
+              (SELECT COUNT(ui_id) FROM object WHERE internal IS NULL AND (ui_id, parent_id) IN d),
+              (SELECT COUNT(ui_id) FROM object_property WHERE (ui_id, object_id) IN d),
+              (SELECT COUNT(ui_id) FROM object_layout_property WHERE (ui_id, child_id) IN d),
+              (SELECT COUNT(ui_id) FROM object_signal WHERE (ui_id, object_id) IN d),
+              (SELECT COUNT(ui_id) FROM object_data WHERE (ui_id, object_id) IN d);
+            """,
+            (ui_id, object_id)
+        ).fetchone()
+        n_objs, n_children, n_props, n_layout_props, n_signals, n_data = row
+
+        return n_objs == 0 and n_children == 0 and n_props == 0 and n_layout_props == 0 and n_signals == 0 and n_data == 0
+
     def __export_object(self, ui_id, object_id, merengue=False, template_id=None, ignore_id=False):
         c = self.conn.cursor()
 
@@ -2573,6 +2620,10 @@ class CmbDB(GObject.GObject):
             (ui_id, object_id, ui_id, object_id),
         ):
             child_id, internal, ctype, comment, position, custom_child_fragment = row
+
+            # Here we try to output internal children only if nescesary
+            if not merengue and internal and self.__internal_object_is_empty(ui_id, child_id):
+                continue
 
             if merengue and is_box:
                 position = position if position is not None else 0
