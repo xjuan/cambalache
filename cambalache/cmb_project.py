@@ -1086,6 +1086,10 @@ class CmbProject(GObject.Object, Gio.ListModel):
         self.emit("object-removed", obj)
 
     def remove_object(self, obj):
+        internal = obj.internal
+        if internal:
+            raise Exception("Internal objects can not be removed")
+
         try:
             template_ui = None
             template_instances = None
