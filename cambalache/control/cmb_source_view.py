@@ -49,7 +49,7 @@ class CmbSourceView(GtkSource.View):
 
     @GObject.Property(type=str)
     def text(self):
-        return self.buffer.props.text
+        return self.buffer.props.text if len(self.buffer.props.text) else None
 
     @text.setter
     def _set_text(self, value):
