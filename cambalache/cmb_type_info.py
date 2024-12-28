@@ -29,6 +29,7 @@ from .cmb_objects_base import (
     CmbBaseTypeInfo,
     CmbBaseTypeDataInfo,
     CmbBaseTypeDataArgInfo,
+    CmbBaseTypeInternalChildInfo,
     CmbTypeChildInfo,
     CmbSignalInfo,
 )
@@ -59,6 +60,15 @@ class CmbTypeDataInfo(CmbBaseTypeDataInfo):
         return f"CmbTypeDataArgInfo<{self.owner_id}>::{self.key}"
 
 
+class CmbTypeInternalChildInfo(CmbBaseTypeInternalChildInfo):
+    def __init__(self, **kwargs):
+        self.children = {}
+        super().__init__(**kwargs)
+
+    def __str__(self):
+        return f"CmbTypeInternalChildInfo<{self.type_id}>::{self.internal_child_id}"
+
+
 class CmbTypeInfo(CmbBaseTypeInfo):
     __gtype_name__ = "CmbTypeInfo"
 
@@ -76,6 +86,7 @@ class CmbTypeInfo(CmbBaseTypeInfo):
         self.properties = self.__init_properties_signals(CmbPropertyInfo, "property")
         self.signals = self.__init_properties_signals(CmbSignalInfo, "signal")
         self.data = self.__init_data()
+        self.internal_children = self.__init_internal_children()
         self.child_constraint, self.child_type_shortcuts = self.__init_child_constraint()
 
         if self.parent_id == "enum":
@@ -144,7 +155,7 @@ class CmbTypeInfo(CmbBaseTypeInfo):
 
         c = self.project.db.cursor()
         for row in c.execute(f"SELECT * FROM {table} WHERE owner_id=? ORDER BY {table}_id;", (self.type_id,)):
-            retval[row[1]] = Klass.from_row(self, *row)
+            retval[row[1]] = Klass.from_row(self.project, *row)
 
         c.close()
         return retval
@@ -153,14 +164,14 @@ class CmbTypeInfo(CmbBaseTypeInfo):
         args = {}
         children = {}
         parent_id = parent_id if parent_id is not None else 0
-        retval = CmbTypeDataInfo.from_row(self, owner_id, data_id, parent_id, key, type_id, translatable)
+        retval = CmbTypeDataInfo.from_row(self.project, owner_id, data_id, parent_id, key, type_id, translatable)
 
         c = self.project.db.cursor()
 
         # Collect Arguments
         for row in c.execute("SELECT * FROM type_data_arg WHERE owner_id=? AND data_id=?;", (owner_id, data_id)):
             _key = row[2]
-            args[_key] = CmbTypeDataArgInfo.from_row(self, *row)
+            args[_key] = CmbTypeDataArgInfo.from_row(self.project, *row)
 
         # Recurse children
         for row in c.execute("SELECT * FROM type_data WHERE owner_id=? AND parent_id=?;", (owner_id, data_id)):
@@ -183,6 +194,40 @@ class CmbTypeInfo(CmbBaseTypeInfo):
         ):
             key = row[3]
             retval[key] = self.__type_get_data(*row)
+
+        c.close()
+        return retval
+
+    def __type_get_internal_child(self, type_id, internal_child_id, internal_parent_id, internal_type):
+        retval = CmbTypeInternalChildInfo.from_row(self.project, type_id, internal_child_id, internal_parent_id, internal_type)
+        children = {}
+
+        c = self.project.db.cursor()
+
+        # Recurse children
+        for row in c.execute(
+            "SELECT * FROM type_internal_child WHERE type_id=? AND internal_parent_id=?;",
+            (type_id, internal_child_id)
+        ):
+            key = row[1]
+            children[key] = self.__type_get_internal_child(*row)
+
+        c.close()
+
+        retval.children = children
+
+        return retval
+
+    def __init_internal_children(self):
+        retval = {}
+
+        c = self.project.db.cursor()
+        for row in c.execute(
+            "SELECT * FROM type_internal_child WHERE type_id=? AND internal_parent_id IS NULL ORDER BY internal_child_id;",
+            (self.type_id,)
+        ):
+            key = row[1]
+            retval[key] = self.__type_get_internal_child(*row)
 
         c.close()
         return retval
