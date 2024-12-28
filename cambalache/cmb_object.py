@@ -613,8 +613,11 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
             display_name = _("{name} (template)").format(name=name)
         else:
             inline_prop = self.inline_property_id
+            internal = self.internal
             if inline_prop:
                 display_name = f"{type_id} <b>{inline_prop}</b> <i>{name}</i>"
+            elif internal:
+                display_name = f"{type_id} <b>{internal}</b> <i>{name}</i>"
             else:
                 display_name = f"{type_id} <i>{name}</i>"
 
