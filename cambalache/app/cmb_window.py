@@ -1026,15 +1026,18 @@ class CmbWindow(Adw.ApplicationWindow):
 
         selection = self.project.get_selection()
         for obj in selection:
-            if isinstance(obj, CmbObject):
-                self.project.remove_object(obj)
-            elif isinstance(obj, CmbGResource):
-                if obj.resource_type == "gresources":
-                    self.__remove_object_with_confirmation(obj)
+            try:
+                if isinstance(obj, CmbObject):
+                    self.project.remove_object(obj)
+                elif isinstance(obj, CmbGResource):
+                    if obj.resource_type == "gresources":
+                        self.__remove_object_with_confirmation(obj)
+                    else:
+                        self.project.remove_gresource(obj)
                 else:
-                    self.project.remove_gresource(obj)
-            else:
-                self.__remove_object_with_confirmation(obj)
+                    self.__remove_object_with_confirmation(obj)
+            except Exception as e:
+                self.present_message_to_user(_("Error deleting {name}").format(name=obj.display_name_type), secondary_text=str(e))
 
     def _on_add_object_activate(self, action, data):
         info = self.type_chooser.props.selected_type
