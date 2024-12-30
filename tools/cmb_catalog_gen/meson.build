@@ -38,6 +38,7 @@ foreach d : [['3', gtk3_dep], ['4', gtk4_dep]]
     sources,
     dependencies: dep,
     install: true,
+    install_dir: privatecmb_catalog_gendir,
   )
 
   gnome.generate_gir(

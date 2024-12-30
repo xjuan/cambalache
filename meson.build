@@ -22,6 +22,8 @@ localedir = join_paths(get_option('prefix'), get_option('localedir'))
 gnome = import('gnome')
 
 i18n = import('i18n')
+privatecambalachedir = join_paths(get_option('prefix'), get_option('libdir'), 'cambalache')
+privatecmb_catalog_gendir = join_paths(get_option('prefix'), get_option('libdir'), 'cmb_catalog_gen')
 
 
 # Python requirements ['module', 'version', 'gi required version]
