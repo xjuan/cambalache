@@ -1893,7 +1893,7 @@ class CmbDB(GObject.GObject):
         target_tk = self.target_tk
         lib, ver, inferred = CmbDB._get_target_from_node(root)
 
-        if lib is not None and (target_tk == "gtk-4.0" and lib != "gtk") or (target_tk == "gtk+-3.0" and lib != "gtk+"):
+        if lib is not None and ((target_tk == "gtk-4.0" and lib != "gtk") or (target_tk == "gtk+-3.0" and lib != "gtk+")):
             # Translators: This text will be used in the next two string as {convert}
             convert = _("\nUse gtk4-builder-tool first to convert file.") if target_tk == "gtk-4.0" else ""
 

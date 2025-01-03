@@ -713,6 +713,10 @@ class CmbWindow(Adw.ApplicationWindow):
             if target_tk is None:
                 target_tk = CmbProject.get_target_from_ui_file(filename)
 
+            if target_tk is None:
+                self.ask_gtk_version(filename)
+                return
+
             self.project = CmbProject(filename=os.path.join(dirname, f"{name}.cmb"), target_tk=target_tk)
             self.__set_page("workspace")
             self.__update_actions()
