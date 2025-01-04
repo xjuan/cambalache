@@ -138,13 +138,17 @@ class CmbSignalEditor(Gtk.Box):
                 if data_obj:
                     signal.user_data = data_obj.object_id
                     name = data_obj.name
+                    signal.swap = True
                 else:
                     signal.user_data = 0
+                    signal.swap = False
+                    self.treestore[iter_][Col.SWAP.value] = signal.swap
                     name = ""
 
                 self.treestore[iter_][Col.USER_DATA.value] = name
             else:
                 signal.user_data = 0
+                signal.swap = False
                 self.treestore[iter_][Col.USER_DATA.value] = ""
 
     @Gtk.Template.Callback("on_swap_toggled")

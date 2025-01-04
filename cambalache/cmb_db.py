@@ -2428,11 +2428,19 @@ class CmbDB(GObject.GObject):
                 ),
             ):
                 signal_id, handler, detail, data, swap, after, comment = row
+
                 name = f"{signal_id}::{detail}" if detail is not None else signal_id
                 node = E.signal(name=name, handler=handler)
-                utils.xml_node_set(node, "object", data)
-                if swap:
+
+                if data:
+                    utils.xml_node_set(node, "object", data)
+
+                    # if object is set, swap defaults to True
+                    if not swap:
+                        utils.xml_node_set(node, "swapped", "no")
+                elif swap:
                     utils.xml_node_set(node, "swapped", "yes")
+
                 if after:
                     utils.xml_node_set(node, "after", "yes")
                 obj.append(node)
