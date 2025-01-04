@@ -181,6 +181,10 @@ class CmbApplication(Adw.Application):
     def _on_open_activate(self, action, data):
         filename, target_tk = data.unpack()
 
+        # FIXME: use nullable parameter
+        target_tk = target_tk if target_tk else None
+        filename = filename if filename else None
+
         window = self.props.active_window
 
         if window and window.project is None:
@@ -192,7 +196,9 @@ class CmbApplication(Adw.Application):
         target_tk, filename, uipath = data.unpack()
 
         # FIXME: use nullable parameter
+        target_tk = target_tk if target_tk else None
         filename = filename if filename else None
+        uipath = uipath if uipath else None
 
         window = self.props.active_window
 

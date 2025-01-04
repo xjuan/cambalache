@@ -710,10 +710,10 @@ class CmbWindow(Adw.ApplicationWindow):
             basename = os.path.basename(filename)
             name, ext = os.path.splitext(basename)
 
-            if target_tk is None:
+            if not target_tk:
                 target_tk = CmbProject.get_target_from_ui_file(filename)
 
-            if target_tk is None:
+            if not target_tk:
                 self.ask_gtk_version(filename)
                 return
 
@@ -859,7 +859,7 @@ class CmbWindow(Adw.ApplicationWindow):
             except Exception as e:
                 logger.warning(f"Error {e}")
 
-        dialog = self.__file_open_dialog_new(_("Choose project to open"), filter_obj=self.open_filter)
+        dialog = self.__file_open_dialog_new(_("Choose project to open"))
         dialog.open(self, None, dialog_callback)
 
     def _on_select_project_location_activate(self, action, data):
