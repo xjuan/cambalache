@@ -453,6 +453,7 @@ class CmbWindow(Adw.ApplicationWindow):
         sensitive = len(editable.get_chars(0, -1)) != 0
         self.np_location_chooser.set_sensitive(sensitive)
         self.np_ui_entry.set_sensitive(sensitive)
+        self.__update_action_new()
 
     def __update_dark_mode(self, style_manager):
         if style_manager.props.dark:
@@ -632,6 +633,9 @@ class CmbWindow(Adw.ApplicationWindow):
         else:
             self.title.remove_css_class("changed")
 
+    def __update_action_new(self):
+        self.actions["new"].set_enabled(len(self.np_name_entry.props.text) > 0)
+
     def __update_actions(self):
         has_project = self.__is_project_visible()
 
@@ -647,6 +651,7 @@ class CmbWindow(Adw.ApplicationWindow):
         ]:
             self.actions[action].set_enabled(has_project)
 
+        self.__update_action_new()
         self.__update_action_save()
         self.__update_action_intro()
         self.__update_action_clipboard()
@@ -924,7 +929,7 @@ class CmbWindow(Adw.ApplicationWindow):
             else:
                 self.project.redo()
         except Exception as e:
-            logger.warning(f"Undo/Redo error", exc_info=True)
+            logger.warning("Undo/Redo error", exc_info=True)
             self.present_message_to_user(
                 _("Undo/Redo stack got corrupted"),
                 secondary_text=_("Please try to reproduce and file an issue\n Error: {msg}").format(msg=str(e))
