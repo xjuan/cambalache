@@ -5,7 +5,7 @@ conf.set('VERSION', meson.project_version())
 conf.set('PYTHON', python_bin.full_path())
 conf.set('localedir', localedir)
 conf.set('pkgdatadir', pkgdatadir)
-conf.set('privatecambalachedir', privatecambalachedir)
+conf.set('privatecmb_catalog_gendir', privatecmb_catalog_gendir)
 
 configure_file(
   input: 'cmb-catalog-gen.in',
