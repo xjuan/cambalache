@@ -2,7 +2,7 @@
 <interface>
   <!-- interface-name signals.ui -->
   <requires lib="gtk" version="4.0"/>
-  <object class="GtkWindow">
+  <object class="GtkWindow" id="win1">
     <signal name="activate-default" handler="on_window_activate_default"/>
     <child>
       <object class="GtkBox">
@@ -12,6 +12,8 @@
             <signal name="clicked" handler="on_button_clicked" swapped="yes"/>
             <signal name="clicked" handler="on_button_clicked2" after="yes"/>
             <signal name="clicked" handler="on_button_clicked3" swapped="yes" after="yes"/>
+            <signal name="clicked" handler="on_button_clicked4" object="win1"/>
+            <signal name="clicked" handler="on_button_clicked5" object="win1" swapped="no"/>
             <signal name="notify::label" handler="on_notify"/>
           </object>
         </child>

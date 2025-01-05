@@ -1292,6 +1292,11 @@ class CmbDB(GObject.GObject):
         if object_id_map and user_data:
             user_data = object_id_map.get(user_data, user_data)
 
+        # If object/user_data is set then swapped is by default on
+        if user_data and signal.get("swapped", None) is None:
+            # Force swapped to true when there is an object
+            swap = True
+
         # Insert signal
         if not owner_id:
             self.__collect_error("unknown-signal", signal, f"{info.type_id}:{signal_id}")
