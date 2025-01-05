@@ -39,7 +39,6 @@ install_data([
     'cmb_layout_property.py',
     'cmb_library_info.py',
     'cmb_list_error.py',
-    'cmb_list_store.py',
     'cmb_list_view.py',
     'cmb_object.py',
     'cmb_object_data.py',
