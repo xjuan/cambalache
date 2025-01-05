@@ -859,7 +859,7 @@ class CmbWindow(Adw.ApplicationWindow):
             except Exception as e:
                 logger.warning(f"Error {e}")
 
-        dialog = self.__file_open_dialog_new(_("Choose project to open"))
+        dialog = self.__file_open_dialog_new(_("Choose project to open"), filter_obj=self.open_filter)
         dialog.open(self, None, dialog_callback)
 
     def _on_select_project_location_activate(self, action, data):
