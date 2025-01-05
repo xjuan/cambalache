@@ -21,16 +21,20 @@
 #   Juan Pablo Ugarte <juanpablougarte@gmail.com>
 #
 
+import gi
 import os
 import argparse
 import json
 import signal
 
-from cmb_catalog_gen import CmbCatalogDB
-from gi.repository import Gio
+gi.require_version('GIRepository', '2.0')
+from gi.repository import GIRepository, Gio
 
+GIRepository.Repository.prepend_library_path('@privatecambalachedir@')
 resource = Gio.Resource.load(os.path.join('@pkgdatadir@', "cambalache.gresource"))
 resource._register()
+
+from cmb_catalog_gen import CmbCatalogDB
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 

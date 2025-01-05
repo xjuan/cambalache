@@ -130,6 +130,7 @@ catalogsdir = '{catalogsdir}'
         f"""VERSION = '{version}'
 pkgdatadir = '{localpkgdatadir}'
 merenguedir = '{cambalachedir}'
+privatecambalachedir = '{localdir}'
 """,
     )
 

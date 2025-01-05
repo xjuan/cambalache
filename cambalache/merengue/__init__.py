@@ -23,13 +23,17 @@
 #
 
 import os
+import gi
 import logging
 
+gi.require_version('GIRepository', '2.0')
 from . import config
-from gi.repository import Gio
+from gi.repository import GIRepository, Gio
 
 resource = Gio.Resource.load(os.path.join(config.pkgdatadir, "merengue.gresource"))
 resource._register()
+
+GIRepository.Repository.prepend_library_path(config.privatecambalachedir)
 
 
 def getLogger(name):
