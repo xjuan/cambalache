@@ -1963,7 +1963,7 @@ class CmbDB(GObject.GObject):
             elif child.tag == "requires":
                 pass
             elif child.tag is etree.Comment:
-                comment = etree.tostring(child).decode("utf-8").strip()
+                comment = child.text.strip()
                 comment = comment.removeprefix("<!--").removesuffix("-->").strip()
 
                 # Import interface data from Glade comments

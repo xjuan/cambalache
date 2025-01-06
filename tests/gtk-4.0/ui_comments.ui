@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--a test case with special chars like ñ 👍 Ã-->
+<interface domain="my-system">
+  <!-- interface-name main.ui -->
+  <!-- interface-description Järjestelmä -->
+  <!-- interface-copyright © 2024 -->
+  <!-- interface-authors example <example@company.com> -->
+  <requires lib="gtk" version="4.12"/>
+  <object class="GtkBox" id="content"/>
+</interface>

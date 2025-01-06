@@ -108,6 +108,7 @@ def test_gtk3_menu():
 def test_gtk3_accessibility():
     assert_original_and_exported("gtk+-3.0", "accessibility.ui")
 
+
 #
 # Gtk 4.0 Tests
 #
@@ -181,3 +182,7 @@ def test_gtk4_string_list():
 
 def test_gtk4_accessibility():
     assert_original_and_exported("gtk-4.0", "accessibility.ui")
+
+
+def test_gtk4_ui_comments():
+    assert_original_and_exported("gtk-4.0", "ui_comments.ui")
