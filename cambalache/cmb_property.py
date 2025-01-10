@@ -64,7 +64,47 @@ class CmbProperty(CmbBaseProperty):
 
     @value.setter
     def _set_value(self, value):
-        self.__update_values(value, self.bind_property)
+        self.__update_values(value, self.translatable, self.translation_context, self.translation_comments, self.bind_property)
+
+    @GObject.Property(type=bool, default=False)
+    def translatable(self):
+        return super().translatable
+
+    @translatable.setter
+    def _set_translatable(self, value):
+        self.__update_values(self.value, value, self.translation_context, self.translation_comments, self.bind_property)
+
+    @GObject.Property(type=str)
+    def translation_context(self):
+        return self.db_get(
+            "SELECT translation_context FROM object_property WHERE (ui_id, object_id, owner_id, property_id) IS (?, ?, ?, ?);",
+            (
+                self.ui_id,
+                self.object_id,
+                self.owner_id,
+                self.property_id,
+            ),
+        )
+
+    @translation_context.setter
+    def _set_translation_context(self, value):
+        self.__update_values(self.value, self.translatable, value, self.translation_comments, self.bind_property)
+
+    @GObject.Property(type=str)
+    def translation_comments(self):
+        return self.db_get(
+            "SELECT translation_comments FROM object_property WHERE (ui_id, object_id, owner_id, property_id) IS (?, ?, ?, ?);",
+            (
+                self.ui_id,
+                self.object_id,
+                self.owner_id,
+                self.property_id,
+            ),
+        )
+
+    @translation_comments.setter
+    def _set_translation_comments(self, value):
+        self.__update_values(self.value, self.translatable, self.translation_context, value, self.bind_property)
 
     def reset(self):
         self.project.db.execute(
@@ -72,7 +112,7 @@ class CmbProperty(CmbBaseProperty):
             (self.ui_id, self.object_id, self.owner_id, self.property_id),
         )
 
-    def __update_values(self, value, bind_property):
+    def __update_values(self, value, translatable, translation_context, translation_comments, bind_property):
         c = self.project.db.cursor()
 
         bind_source_id, bind_owner_id, bind_property_id = (None, None, None)
@@ -82,15 +122,22 @@ class CmbProperty(CmbBaseProperty):
             bind_property_id = bind_property.property_id
 
         if (
-            value is None or value == self.info.default_value or (self.info.is_object and value == 0)
-        ) and bind_property is None:
+            (value is None or value == self.info.default_value or (self.info.is_object and value == 0)) and
+            bind_property is None and
+            not translatable and
+            translation_context is None and
+            translation_comments is None
+        ):
             self.reset()
         else:
             if (
-                value is None
-                and bind_source_id == self.bind_source_id
-                and bind_owner_id == self.bind_owner_id
-                and bind_property_id == self.bind_property_id
+                value == self.value and
+                translatable == self.translatable and
+                translation_context == self.translation_context and
+                translation_comments == self.translation_comments and
+                bind_source_id == self.bind_source_id and
+                bind_owner_id == self.bind_owner_id and
+                bind_property_id == self.bind_property_id
             ):
                 return
 
@@ -104,11 +151,17 @@ class CmbProperty(CmbBaseProperty):
                 c.execute(
                     """
                     UPDATE object_property
-                    SET value=?, bind_source_id=?, bind_owner_id=?, bind_property_id=?
+                    SET
+                      value=?,
+                      translatable=?, translation_context=?, translation_comments=?,
+                      bind_source_id=?, bind_owner_id=?, bind_property_id=?
                     WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id=?;
                     """,
                     (
                         value,
+                        translatable,
+                        translation_context,
+                        translation_comments,
                         bind_source_id,
                         bind_owner_id,
                         bind_property_id,
@@ -122,8 +175,13 @@ class CmbProperty(CmbBaseProperty):
                 c.execute(
                     """
                     INSERT INTO object_property
-                        (ui_id, object_id, owner_id, property_id, value, bind_source_id, bind_owner_id, bind_property_id)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+                        (
+                          ui_id, object_id, owner_id, property_id,
+                          value,
+                          translatable, translation_context, translation_comments,
+                          bind_source_id, bind_owner_id, bind_property_id
+                        )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
                     """,
                     (
                         self.ui_id,
@@ -131,6 +189,9 @@ class CmbProperty(CmbBaseProperty):
                         self.owner_id,
                         self.property_id,
                         value,
+                        translatable,
+                        translation_context,
+                        translation_comments,
                         bind_source_id,
                         bind_owner_id,
                         bind_property_id,
@@ -163,7 +224,7 @@ class CmbProperty(CmbBaseProperty):
 
     @bind_property.setter
     def _set_bind_property(self, bind_property):
-        self.__update_values(self.value, bind_property)
+        self.__update_values(self.value, self.translatable, self.translation_context, self.translation_comments, bind_property)
         self.project._object_property_binding_changed(self.object, self)
 
     def _update_version_warning(self):
