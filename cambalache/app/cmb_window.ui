@@ -9,11 +9,11 @@
   <menu id="main_menu">
     <item>
       <attribute name="action">win.create_new</attribute>
-      <attribute name="label">New Project</attribute>
+      <attribute name="label" translatable="yes">New Project</attribute>
     </item>
     <section>
       <submenu>
-        <attribute name="label">Add file</attribute>
+        <attribute name="label" translatable="yes">Add file</attribute>
         <item>
           <attribute name="action">win.add_ui</attribute>
           <attribute name="label" translatable="yes">Add UI</attribute>
@@ -24,7 +24,7 @@
         </item>
         <item>
           <attribute name="action">win.add_gresource</attribute>
-          <attribute name="label">Add GResource</attribute>
+          <attribute name="label" translatable="yes">Add GResource</attribute>
         </item>
       </submenu>
       <item>
@@ -35,11 +35,11 @@
     <section>
       <item>
         <attribute name="action">win.save</attribute>
-        <attribute name="label">Save</attribute>
+        <attribute name="label" translatable="yes">Save</attribute>
       </item>
       <item>
         <attribute name="action">win.save_as</attribute>
-        <attribute name="label">Save As</attribute>
+        <attribute name="label" translatable="yes">Save As</attribute>
       </item>
       <item>
         <attribute name="action">win.close</attribute>
@@ -92,7 +92,7 @@
               <object class="AdwSplitButton" id="open_button">
                 <property name="action-name">win.open</property>
                 <property name="dropdown-tooltip">Recent Projects</property>
-                <property name="label">_Open</property>
+                <property name="label" translatable="yes">_Open</property>
                 <property name="menu-model">recent_menu</property>
                 <property name="use-underline">True</property>
               </object>

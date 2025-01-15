@@ -279,7 +279,7 @@
     <requires>CmbEntry</requires>
     <requires>CmbToplevelChooser</requires>
   </ui>
-  <ui template-class="CmbWindow" filename="app/cmb_window.ui" sha256="687678e48b50eb188268d2eaa4d66324e47a7945b37d10aaae63d2c44465f17c">
+  <ui template-class="CmbWindow" filename="app/cmb_window.ui" sha256="34b86353b87bbc5629be8433bdf25e05a14559ba72e10c4a22d7d2563def3dfe">
     <requires>CmbScrolledWindow</requires>
     <requires>CmbObjectEditor</requires>
     <requires>CmbSignalEditor</requires>
