@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cambalache\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-26 17:53-0500\n"
+"POT-Creation-Date: 2025-01-09 12:09+0200\n"
 "PO-Revision-Date: 2023-06-13 19:30+0200\n"
 "Last-Translator: Juan Pablo Ugarte <juanpablougarte@gmail.com>\n"
 "Language-Team: Spanish; Castilian <>\n"
@@ -23,11 +23,12 @@ msgstr ""
 msgid "Print version"
 msgstr "Druckversion"
 
-#: cambalache/app/cmb_application.py:45
-msgid "Export project"
+#: cambalache/app/cmb_application.py:46
+#, fuzzy
+msgid "Deprecated: Export project"
 msgstr "Projekt exportieren"
 
-#: cambalache/app/cmb_application.py:105
+#: cambalache/app/cmb_application.py:107
 msgid "Select which files:"
 msgstr "Wähle aus, welche Dateien:"
 
@@ -43,35 +44,59 @@ msgstr "Neues Projekt erstellen"
 msgid "Open a project"
 msgstr "Ein Projekt öffnen"
 
-#: cambalache/app/cmb_shortcuts.ui:31
+#: cambalache/app/cmb_shortcuts.ui:31 cambalache/app/cmb_window.ui:32
+#, fuzzy
+msgid "Import file"
+msgstr "Datei \"{filename}\" importieren"
+
+#: cambalache/app/cmb_shortcuts.ui:37
+msgid "Save project"
+msgstr "Projekt speichern"
+
+#: cambalache/app/cmb_shortcuts.ui:43
+#, fuzzy
+msgid "Save project as"
+msgstr "Projekt speichern"
+
+#: cambalache/app/cmb_shortcuts.ui:49
 msgid "Close the project"
 msgstr "Das Projekt schließen"
 
-#: cambalache/app/cmb_shortcuts.ui:37
-msgid "Save the project"
-msgstr "Das Projekt speichern"
-
-#: cambalache/app/cmb_shortcuts.ui:43
-msgid "Save and Export"
+#: cambalache/app/cmb_shortcuts.ui:56
+msgid "General"
 msgstr ""
 
-#: cambalache/app/cmb_shortcuts.ui:50 cambalache/app/cmb_window.ui:641
+#: cambalache/app/cmb_shortcuts.ui:61 cambalache/app/cmb_window.ui:66
+msgid "Keyboard Shortcuts"
+msgstr "Tastenkürzel"
+
+#: cambalache/app/cmb_shortcuts.ui:67
+#, fuzzy
+msgid "Quit application"
+msgstr "Anwendungen"
+
+#: cambalache/app/cmb_shortcuts.ui:74 cambalache/app/cmb_window.ui:676
 msgid "Workspace"
 msgstr "Arbeitsbereich"
 
-#: cambalache/app/cmb_shortcuts.ui:55
+#: cambalache/app/cmb_shortcuts.ui:79
+#, fuzzy
+msgid "Delete object"
+msgstr "Das Projekt schließen"
+
+#: cambalache/app/cmb_shortcuts.ui:85
 msgid "Add  slot/column"
 msgstr "Platzhalter/Spalte hinzufügen"
 
-#: cambalache/app/cmb_shortcuts.ui:61
+#: cambalache/app/cmb_shortcuts.ui:91
 msgid "Remove slot/column"
 msgstr "Platzhalter/Spalte entfernen"
 
-#: cambalache/app/cmb_shortcuts.ui:67
+#: cambalache/app/cmb_shortcuts.ui:97
 msgid "Add row"
 msgstr "Zeile hinzufügen"
 
-#: cambalache/app/cmb_shortcuts.ui:73
+#: cambalache/app/cmb_shortcuts.ui:103
 msgid "Remove row"
 msgstr "Zeile entfernen"
 
@@ -107,7 +132,8 @@ msgstr "und das Hauptmenü"
 msgid "Where you can create a new project"
 msgstr "Neues Projekt erstellen"
 
-#: cambalache/app/cmb_tutorial.py:38 cambalache/app/cmb_window.ui:414
+#: cambalache/app/cmb_tutorial.py:38 cambalache/app/cmb_window.ui:12
+#: cambalache/app/cmb_window.ui:418
 msgid "New Project"
 msgstr "Neues Projekt"
 
@@ -116,7 +142,7 @@ msgstr "Neues Projekt"
 msgid "Import UI files"
 msgstr "Datei \"{filename}\" importieren"
 
-#: cambalache/app/cmb_tutorial.py:45 cambalache/app/cmb_window.py:1057
+#: cambalache/app/cmb_tutorial.py:45 cambalache/app/cmb_window.py:1142
 msgid "Import"
 msgstr "Importieren"
 
@@ -188,24 +214,14 @@ msgid "Quite easy! Isn't it?"
 msgstr "Sehr einfach, nicht war?"
 
 #: cambalache/app/cmb_tutorial.py:76
-msgid "Once you finish, you can export all UI files to xml here"
-msgstr ""
-"Wenn du fertig bist, kannst du hier alle UI-Dateien in eine XML-Datei "
-"exportieren"
-
-#: cambalache/app/cmb_tutorial.py:77
-msgid "Export all"
-msgstr "Alles Exportieren"
-
-#: cambalache/app/cmb_tutorial.py:83
 msgid "If you have any question, contact us on Matrix!"
 msgstr ""
 
-#: cambalache/app/cmb_tutorial.py:84 cambalache/app/cmb_window.ui:52
+#: cambalache/app/cmb_tutorial.py:77 cambalache/app/cmb_window.ui:56
 msgid "Contact"
 msgstr "Kontakt"
 
-#: cambalache/app/cmb_tutorial.py:90
+#: cambalache/app/cmb_tutorial.py:83
 #, fuzzy
 msgid ""
 "That is all for now.\n"
@@ -214,184 +230,175 @@ msgstr ""
 "Das war alles fürs Erste.\n"
 "Wenn du Cambalache nützlich findest, denke bitte über eine Spende nach"
 
-#: cambalache/app/cmb_tutorial.py:91 cambalache/app/cmb_window.ui:56
-#: cambalache/app/cmb_window.ui:706 cambalache/app/cmb_window.ui:747
+#: cambalache/app/cmb_tutorial.py:84 cambalache/app/cmb_window.ui:60
+#: cambalache/app/cmb_window.ui:741 cambalache/app/cmb_window.ui:782
 msgid "Donate"
 msgstr "Spenden"
 
-#: cambalache/app/cmb_tutorial.py:96
+#: cambalache/app/cmb_tutorial.py:89
 msgid "Have a nice day!"
 msgstr "Einen schönen Tag!"
 
-#: cambalache/app/cmb_window.py:101
+#: cambalache/app/cmb_window.py:122
 msgid ""
-"Cambalache will not have access to the file for export because it is outside "
+"Cambalache will not have access to the file for save because it is outside "
 "of your home directory. Consider using Flatseal or flatpak to give "
 "permissions to the host directory."
 msgstr ""
 
 #. Bind preview
-#: cambalache/app/cmb_window.py:264
+#: cambalache/app/cmb_window.py:293
 #, fuzzy
 msgid "Hide placeholders"
 msgstr "Unterstützung für Arbeitsplatzplatzhalter"
 
-#: cambalache/app/cmb_window.py:335 cambalache/app/cmb_window.ui:190
-#: data/ar.xjuan.Cambalache.desktop.in:3
+#: cambalache/app/cmb_window.py:366 cambalache/app/cmb_window.ui:194
+#: data/ar.xjuan.Cambalache.desktop.in:2
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:6
 msgid "Cambalache"
 msgstr "Cambalache"
 
-#: cambalache/app/cmb_window.py:342
+#: cambalache/app/cmb_window.py:373
 msgid "Untitled"
 msgstr "Unbetitelt"
 
-#: cambalache/app/cmb_window.py:377
+#: cambalache/app/cmb_window.py:408
 msgid "Hold <alt> to create object in place"
 msgstr "Halte <alt> gedrückt, um ein Objekt an Ort und Stelle zu erstellen"
 
-#: cambalache/app/cmb_window.py:413
-#, fuzzy
-msgid "File Exported"
-msgstr "Datei exportiert"
-
-#: cambalache/app/cmb_window.py:452
+#: cambalache/app/cmb_window.py:470
 msgid "<Choose a UI filename to create>"
 msgstr "<Wählen Sie einen zu erstellenden UI-Dateinamen>"
 
-#: cambalache/app/cmb_window.py:545 cambalache/app/cmb_window.ui:152
+#: cambalache/app/cmb_window.py:592 cambalache/app/cmb_window.ui:156
 msgid "Start interactive introduction"
 msgstr "Starte interaktive Tour"
 
 #. Translators: This is used to create a unordered list of unsupported features to show the user
-#: cambalache/app/cmb_window.py:690 cambalache/app/cmb_window.py:1017
+#: cambalache/app/cmb_window.py:755 cambalache/app/cmb_window.py:1092
 #, python-brace-format
 msgid "    • {message}"
 msgstr "    • {message}"
 
 #. Translators: This will be the heading of a list of unsupported features
-#: cambalache/app/cmb_window.py:693 cambalache/app/cmb_window.py:1020
+#: cambalache/app/cmb_window.py:758 cambalache/app/cmb_window.py:1095
 msgid "Cambalache encounter the following issues:"
 msgstr "Cambalache hat ein Problem festgestellt:"
 
 #. Translators: this is the last message after the list of unsupported features
-#: cambalache/app/cmb_window.py:696 cambalache/app/cmb_window.py:1023
-#, python-brace-format
-msgid "Your file will be exported as '{name}.cmb.ui' to avoid data loss."
+#: cambalache/app/cmb_window.py:761 cambalache/app/cmb_window.py:1098
+#, fuzzy, python-brace-format
+msgid "Your file will be saved as '{name}.cmb.ui' to avoid data loss."
 msgstr ""
 "Die Datei wird als '{name}.cmb.ui' exportiert um Datenverlust zu vermeiden."
 
-#: cambalache/app/cmb_window.py:702 cambalache/app/cmb_window.py:1029
-#, python-brace-format
+#: cambalache/app/cmb_window.py:767 cambalache/app/cmb_window.py:1104
+#, fuzzy, python-brace-format
 msgid ""
 "Cambalache encounter {unsupported_feature}\n"
-"Your file will be exported as '{name}.cmb.ui' to avoid data loss."
+"Your file will be saved as '{name}.cmb.ui' to avoid data loss."
 msgstr ""
 "Cambalache hat folgendes festgestellt: {unsupported_feature}\n"
 "Die Datei wird als '{name}.cmb.ui' exportiert um Datenverlust zu vermeiden."
 
-#: cambalache/app/cmb_window.py:707 cambalache/app/cmb_window.py:715
-#: cambalache/app/cmb_window.py:904 cambalache/app/cmb_window.py:1033
+#: cambalache/app/cmb_window.py:772 cambalache/app/cmb_window.py:780
+#: cambalache/app/cmb_window.py:969 cambalache/app/cmb_window.py:1108
 #, python-brace-format
 msgid "Error importing {filename}"
 msgstr "Fehler beim Importieren von {filename}"
 
-#: cambalache/app/cmb_window.py:724
+#: cambalache/app/cmb_window.py:789
 #, python-brace-format
 msgid "Which is the target Gtk version of {filename}?"
 msgstr ""
 
-#: cambalache/app/cmb_window.py:769
+#: cambalache/app/cmb_window.py:834
 #, python-brace-format
 msgid "Unknown file type {content_type}"
 msgstr ""
 
-#: cambalache/app/cmb_window.py:781
+#: cambalache/app/cmb_window.py:846
 #, python-brace-format
 msgid "Error loading {filename}"
 msgstr "Fehler beim Laden von {filename}"
 
-#: cambalache/app/cmb_window.py:787
+#: cambalache/app/cmb_window.py:852
 #, fuzzy, python-brace-format
 msgid "Error opening {filename}"
 msgstr "Fehler beim Laden von {filename}"
 
-#: cambalache/app/cmb_window.py:802
+#: cambalache/app/cmb_window.py:867
 msgid "Choose project to open"
 msgstr "Projekt zum Öffnen auswählen"
 
-#: cambalache/app/cmb_window.py:814
+#: cambalache/app/cmb_window.py:879
 #, fuzzy
 msgid "Select project location"
 msgstr "Erstelle ein neues Projekt um fortzufahren"
 
-#: cambalache/app/cmb_window.py:849
+#: cambalache/app/cmb_window.py:914
 msgid "File name already exists, choose a different name."
 msgstr "Dateiname existiert bereits, wählen Sie einen anderen Namen."
 
-#: cambalache/app/cmb_window.py:869
+#: cambalache/app/cmb_window.py:934
 #, fuzzy
 msgid "Undo/Redo stack got corrupted"
 msgstr "Stapel rückgängig machen / wiederherstellen"
 
-#: cambalache/app/cmb_window.py:870
+#: cambalache/app/cmb_window.py:935
 #, python-brace-format
 msgid ""
 "Please try to reproduce and file an issue\n"
 " Error: {msg}"
 msgstr ""
 
-#: cambalache/app/cmb_window.py:912 cambalache/app/cmb_window.py:1137
+#: cambalache/app/cmb_window.py:977 cambalache/app/cmb_window.py:1219
 msgid "Choose a new file to save the project"
 msgstr "Wählen Sie eine neue Datei, um das Projekt zu speichern"
 
-#: cambalache/app/cmb_window.py:935
+#: cambalache/app/cmb_window.py:1000
 #, python-brace-format
 msgid "Do you really want to remove {name}?"
 msgstr "Möchten Sie wirklich {name} entfernen?"
 
-#: cambalache/app/cmb_window.py:1055
+#: cambalache/app/cmb_window.py:1049
+#, fuzzy, python-brace-format
+msgid "Error deleting {name}"
+msgstr "Fehler beim Laden von {filename}"
+
+#: cambalache/app/cmb_window.py:1140
 msgid "Choose file to import"
 msgstr "Datei zum Importieren auswählen"
 
-#: cambalache/app/cmb_window.py:1072
+#: cambalache/app/cmb_window.py:1164
 msgid "Choose a file to save the project"
 msgstr "Wählen Sie eine Datei um das Projekt zu speichern"
 
-#: cambalache/app/cmb_window.py:1089
-#, python-brace-format
-msgid "{n} files exported"
-msgstr "{n} Dateien exportiert"
-
-#: cambalache/app/cmb_window.py:1089
-msgid "File exported"
-msgstr "Datei exportiert"
-
-#: cambalache/app/cmb_window.py:1092
+#: cambalache/app/cmb_window.py:1174
 msgid "Save changes before closing?"
 msgstr "Veränderungen vor dem Schließen speichern?"
 
-#: cambalache/app/cmb_window.py:1103
+#: cambalache/app/cmb_window.py:1185
 msgid "Close without Saving"
 msgstr "Schließen ohne zu speichern"
 
-#: cambalache/app/cmb_window.py:1105 cambalache/app/cmb_window.ui:376
+#: cambalache/app/cmb_window.py:1187 cambalache/app/cmb_window.ui:380
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: cambalache/app/cmb_window.py:1107
+#: cambalache/app/cmb_window.py:1189 cambalache/app/cmb_window.ui:38
 msgid "Save"
 msgstr "Speichern"
 
-#: cambalache/app/cmb_window.py:1168
+#: cambalache/app/cmb_window.py:1250
 msgid "Supporters"
 msgstr "Unterstützer"
 
-#: cambalache/app/cmb_window.py:1402
+#: cambalache/app/cmb_window.py:1483
 msgid "<Ctrl>+Ins/Del to add/remove placeholders"
 msgstr "<Strg>+Einfg/Entf um Platzhalter hinzuzufügen/zu entfernen"
 
-#: cambalache/app/cmb_window.py:1404
+#: cambalache/app/cmb_window.py:1485
 msgid ""
 "<Ctrl>+Ins/Del to add/remove columns\n"
 "<Shift>+<Ctrl>+Ins/Del to add/remove rows"
@@ -399,45 +406,56 @@ msgstr ""
 "<Strg>+Einfg/Entf um Zeilen hinzuzufügen/zu entfernen\n"
 "<Strg>+Einfg/Entf um Spalten hinzuzufügen/zu entfernen"
 
-#: cambalache/app/cmb_window.py:1406
+#: cambalache/app/cmb_window.py:1487
 msgid "<Ctrl>+Ins/Del to add/remove pages"
 msgstr "<Strg>+Einfg/Entf um Seiten hinzuzufügen/zu entfernen"
 
-#: cambalache/app/cmb_window.ui:20
+#: cambalache/app/cmb_window.ui:16
 #, fuzzy
-msgid "Import UI"
-msgstr "Importieren"
+msgid "Add file"
+msgstr "Neue Benutzeroberfläche zum Projekt hinzufügen"
 
-#: cambalache/app/cmb_window.ui:24
+#: cambalache/app/cmb_window.ui:19
 #, fuzzy
-msgid "Export all UI"
-msgstr "Alles Exportieren"
+msgid "Add UI"
+msgstr "Zeile hinzufügen"
 
-#: cambalache/app/cmb_window.ui:28
-msgid "Add CSS file"
+#: cambalache/app/cmb_window.ui:23
+#, fuzzy
+msgid "Add CSS"
 msgstr "CSS-Datei hinzufügen"
 
+#: cambalache/app/cmb_window.ui:27
+#, fuzzy
+msgid "Add GResource"
+msgstr "Benutzeroberfläche {basename} hinzufügen"
+
 #: cambalache/app/cmb_window.ui:42
+#, fuzzy
+msgid "Save As"
+msgstr "Speichern"
+
+#: cambalache/app/cmb_window.ui:46
 msgid "Close Project"
 msgstr "Projekt schließen"
 
-#: cambalache/app/cmb_window.ui:48
+#: cambalache/app/cmb_window.ui:52
 msgid "Interactive intro"
 msgstr "Interaktive Tour"
 
-#: cambalache/app/cmb_window.ui:62
-msgid "Keyboard Shortcuts"
-msgstr "Tastenkürzel"
-
-#: cambalache/app/cmb_window.ui:66
+#: cambalache/app/cmb_window.ui:70
 msgid "About"
 msgstr "Über"
 
-#: cambalache/app/cmb_window.ui:140
+#: cambalache/app/cmb_window.ui:95
+msgid "_Open"
+msgstr "_Öffnen"
+
+#: cambalache/app/cmb_window.ui:144
 msgid "Add new UI to project"
 msgstr "Neue Benutzeroberfläche zum Projekt hinzufügen"
 
-#: cambalache/app/cmb_window.ui:201
+#: cambalache/app/cmb_window.ui:205
 msgid ""
 "<b>\n"
 "\n"
@@ -449,71 +467,71 @@ msgstr ""
 "<span size=\"18000\">Neues Projekt</span>\n"
 "</b>"
 
-#: cambalache/app/cmb_window.ui:218
+#: cambalache/app/cmb_window.ui:222
 msgid "Name"
 msgstr "Name"
 
-#: cambalache/app/cmb_window.ui:228
+#: cambalache/app/cmb_window.ui:232
 msgid "Toolkit target"
 msgstr "Ziel-Toolkit"
 
-#: cambalache/app/cmb_window.ui:238
+#: cambalache/app/cmb_window.ui:242
 msgid "Location"
 msgstr "Speicherort"
 
-#: cambalache/app/cmb_window.ui:250
+#: cambalache/app/cmb_window.ui:254
 msgid "<project basename>"
 msgstr "<Projektbasisname>"
 
-#: cambalache/app/cmb_window.ui:264
+#: cambalache/app/cmb_window.ui:268
 msgid "Create"
 msgstr "Erstellen"
 
-#: cambalache/app/cmb_window.ui:284
+#: cambalache/app/cmb_window.ui:288
 msgid "Old stable version"
 msgstr "Alte stabile Version"
 
-#: cambalache/app/cmb_window.ui:311
+#: cambalache/app/cmb_window.ui:315
 msgid "Recommended for new projects"
 msgstr "Empfohlen für neue Projekte"
 
-#: cambalache/app/cmb_window.ui:388
+#: cambalache/app/cmb_window.ui:392
 msgid "UI Filename"
 msgstr "UI-Dateiname"
 
-#: cambalache/app/cmb_window.ui:455 cambalache/app/cmb_window.ui:542
+#: cambalache/app/cmb_window.ui:459 cambalache/app/cmb_window.ui:544
 #: cambalache/cmb_accessible_editor.py:102
 #: cambalache/cmb_accessible_editor.py:111
 msgid "Properties"
 msgstr "Eigenschaften"
 
 #. Widget group for container widgets like GtkBox grid
-#: cambalache/app/cmb_window.ui:470 cambalache/cmb_type_chooser.ui:85
+#: cambalache/app/cmb_window.ui:474 cambalache/cmb_type_chooser.ui:85
 #: cambalache/cmb_type_chooser_widget.py:102
 msgid "Layout"
 msgstr "Layout"
 
-#: cambalache/app/cmb_window.ui:479
+#: cambalache/app/cmb_window.ui:483
 msgid "Signals"
 msgstr "Signale"
 
-#: cambalache/app/cmb_window.ui:509
+#: cambalache/app/cmb_window.ui:513
 msgid "Object Editor"
 msgstr "Objekt-Editor"
 
-#: cambalache/app/cmb_window.ui:553
+#: cambalache/app/cmb_window.ui:555
 msgid "Requires"
 msgstr ""
 
-#: cambalache/app/cmb_window.ui:572
+#: cambalache/app/cmb_window.ui:574
 msgid "UI Editor"
 msgstr "UI-Editor"
 
-#: cambalache/app/cmb_window.ui:585
+#: cambalache/app/cmb_window.ui:586
 msgid "CSS Editor"
 msgstr "CSS-Editor"
 
-#: cambalache/app/cmb_window.ui:690
+#: cambalache/app/cmb_window.ui:725
 msgid ""
 "• Liberapay is a recurrent donations platform\n"
 "\n"
@@ -535,7 +553,7 @@ msgstr ""
 "\n"
 "• ~5 % Zahlungsbearbeitungsgebühr"
 
-#: cambalache/app/cmb_window.ui:731
+#: cambalache/app/cmb_window.ui:766
 #, fuzzy
 msgid ""
 "• Patreon is a membership platform for creators\n"
@@ -574,36 +592,16 @@ msgstr "Anwendungen"
 msgid "Actions"
 msgstr "Aktionen"
 
-#: cambalache/cmb_column_view.py:406
-#, fuzzy, python-brace-format
-msgid "Move {name} as toplevel"
-msgstr "Füge Objekt als oberste Ebene hinzu"
-
-#: cambalache/cmb_column_view.py:433
-#, python-brace-format
-msgid "Move {name} to {target}"
-msgstr ""
-
-#: cambalache/cmb_column_view.py:453
-#, python-brace-format
-msgid "Move {name} before {target}"
-msgstr ""
-
-#: cambalache/cmb_column_view.py:455
-#, python-brace-format
-msgid "Move {name} after {target}"
-msgstr ""
-
 #: cambalache/cmb_context_menu.py:102
 msgid "CSS theme"
 msgstr "CSS-Thema"
 
-#: cambalache/cmb_css.py:58
+#: cambalache/cmb_css.py:62
 #, fuzzy, python-brace-format
 msgid "Unnamed CSS {css_id}"
 msgstr "Unbenannte {ui_id}"
 
-#: cambalache/cmb_css_editor.py:177
+#: cambalache/cmb_css_editor.py:174
 msgid "None"
 msgstr ""
 
@@ -623,42 +621,38 @@ msgstr ""
 msgid "This provider will be used in all UI."
 msgstr ""
 
-#: cambalache/cmb_css_editor.ui:45 cambalache/cmb_ui_editor.ui:68
-msgid "<file name relative to project>"
-msgstr "<Dateiname relativ zum Projekt>"
-
-#: cambalache/cmb_css_editor.ui:103
+#: cambalache/cmb_css_editor.ui:100
 msgid "Provider for:"
 msgstr ""
 
-#: cambalache/cmb_css_editor.ui:104
+#: cambalache/cmb_css_editor.ui:101
 msgid "List of UI where this provider will be used"
 msgstr ""
 
-#: cambalache/cmb_css_editor.ui:131
+#: cambalache/cmb_css_editor.ui:114
 msgid "<small>Note: CSS files need to be loaded at runtime</small>"
 msgstr ""
 
-#: cambalache/cmb_css_editor.ui:143
+#: cambalache/cmb_css_editor.ui:126
 #, fuzzy
 msgid "Save CSS file"
 msgstr "CSS-Datei hinzufügen"
 
-#: cambalache/cmb_css_editor.ui:175
+#: cambalache/cmb_css_editor.ui:158
 msgid "Reload"
 msgstr ""
 
-#: cambalache/cmb_css_editor.ui:188
+#: cambalache/cmb_css_editor.ui:171
 msgid "The file changed on disk."
 msgstr ""
 
-#: cambalache/cmb_db.py:1877
+#: cambalache/cmb_db.py:1894 cambalache/cmb_db.py:2010
 #, fuzzy, python-brace-format
 msgid "Unknown root tag {tag}"
 msgstr "Ein unbekanntes Tag '{detail}'"
 
 #. Translators: This text will be used in the next two string as {convert}
-#: cambalache/cmb_db.py:1886
+#: cambalache/cmb_db.py:1903
 msgid ""
 "\n"
 "Use gtk4-builder-tool first to convert file."
@@ -666,7 +660,7 @@ msgstr ""
 "\n"
 "Benutze erst gtk4-builder-tool um Datei zu konvertieren"
 
-#: cambalache/cmb_db.py:1891
+#: cambalache/cmb_db.py:1908
 #, python-brace-format
 msgid ""
 "Can not import what looks like a {lib}-{ver} file in a {target_tk} project."
@@ -675,7 +669,7 @@ msgstr ""
 "Eine Datei im {lib}-{ver} Format kann nicht in ein {target_tk} Projekt "
 "umgewandelt werden.{convert}"
 
-#: cambalache/cmb_db.py:1898
+#: cambalache/cmb_db.py:1915
 #, python-brace-format
 msgid "Can not import a {lib}-{ver} file in a {target_tk} project.{convert}"
 msgstr ""
@@ -692,6 +686,60 @@ msgstr ""
 
 #: cambalache/cmb_fragment_editor.ui:48
 msgid "Child Fragment"
+msgstr ""
+
+#: cambalache/cmb_gresource.py:79
+#, fuzzy, python-brace-format
+msgid "Unnamed GResource {id}"
+msgstr "Unbenannte {ui_id}"
+
+#: cambalache/cmb_gresource.py:82
+#, python-brace-format
+msgid "Unprefixed resource {id}"
+msgstr ""
+
+#: cambalache/cmb_gresource.py:85
+#, fuzzy, python-brace-format
+msgid "Unnamed file {id}"
+msgstr "Unbenannte {ui_id}"
+
+#: cambalache/cmb_gresource_editor.ui:20 cambalache/cmb_gresource_editor.ui:157
+#, fuzzy
+msgid "Filename"
+msgstr "Dateiname:"
+
+#: cambalache/cmb_gresource_editor.ui:39 cambalache/cmb_gresource_editor.ui:121
+#: cambalache/cmb_object_editor.py:105
+#, fuzzy
+msgid "Add"
+msgstr "Zeile hinzufügen"
+
+#: cambalache/cmb_gresource_editor.ui:50
+msgid "* This resource file need to be compiled and loaded at runtime"
+msgstr ""
+
+#: cambalache/cmb_gresource_editor.ui:89
+msgid "Prefix"
+msgstr ""
+
+#: cambalache/cmb_gresource_editor.ui:107
+msgid "* Files defined inside this will be available at gresource://prefix"
+msgstr ""
+
+#: cambalache/cmb_gresource_editor.ui:133
+msgid "file"
+msgstr ""
+
+#: cambalache/cmb_gresource_editor.ui:167
+msgid "Compressed"
+msgstr ""
+
+#: cambalache/cmb_gresource_editor.ui:177
+msgid "Preprocess"
+msgstr ""
+
+#: cambalache/cmb_gresource_editor.ui:187
+msgid "Alias"
 msgstr ""
 
 #: cambalache/cmb_object.py:494
@@ -745,11 +793,6 @@ msgstr "{type} ist nicht ableitbar."
 msgid "Template"
 msgstr "Vorlage"
 
-#: cambalache/cmb_object_editor.py:105
-#, fuzzy
-msgid "Add"
-msgstr "Zeile hinzufügen"
-
 #: cambalache/cmb_object_editor.py:117
 msgid "Type Name"
 msgstr "Typenname"
@@ -770,334 +813,364 @@ msgstr ""
 msgid "This property is disabled for {type_id}"
 msgstr ""
 
-#: cambalache/cmb_project.py:303
+#: cambalache/cmb_path.py:55
+#, python-brace-format
+msgid "{n} unsaved files"
+msgstr ""
+
+#: cambalache/cmb_project.py:676
 #, python-brace-format
 msgid "one unknown class '{detail}'"
 msgstr "Eine unbekannte Klasse '{detail}'"
 
-#: cambalache/cmb_project.py:303
+#: cambalache/cmb_project.py:676
 #, python-brace-format
 msgid "{n} unknown classes ({detail})"
 msgstr "{n} unbekannte Klassen ({detail})"
 
-#: cambalache/cmb_project.py:304
+#: cambalache/cmb_project.py:677
 #, python-brace-format
 msgid "one unknown property '{detail}'"
 msgstr "Eine unbekannte Property '{detail}'"
 
-#: cambalache/cmb_project.py:304
+#: cambalache/cmb_project.py:677
 #, python-brace-format
 msgid "{n} unknown properties ({detail})"
 msgstr "{n} unbekannte Properties ({detail})"
 
-#: cambalache/cmb_project.py:305
+#: cambalache/cmb_project.py:678
 #, python-brace-format
 msgid "one unknown signal '{detail}'"
 msgstr "Ein unbekanntes Signal '{detail}'"
 
-#: cambalache/cmb_project.py:305
+#: cambalache/cmb_project.py:678
 #, python-brace-format
 msgid "{n} unknown signals ({detail})"
 msgstr "{n} unbekannte Signale ({detail})"
 
-#: cambalache/cmb_project.py:306
+#: cambalache/cmb_project.py:679
 #, python-brace-format
 msgid "one unknown tag '{detail}'"
 msgstr "Ein unbekanntes Tag '{detail}'"
 
-#: cambalache/cmb_project.py:306
+#: cambalache/cmb_project.py:679
 #, python-brace-format
 msgid "{n} unknown tags ({detail})"
 msgstr "{n} unbekannte Tags ({detail})"
 
-#: cambalache/cmb_project.py:307
+#: cambalache/cmb_project.py:680
 #, python-brace-format
 msgid "one unknown attribute '{detail}'"
 msgstr "Ein unbekanntes Attribut '{detail}'"
 
-#: cambalache/cmb_project.py:307
+#: cambalache/cmb_project.py:680
 #, python-brace-format
 msgid "{n} unknown attributes ({detail})"
 msgstr "{n} unbekannte Attribute ({detail})"
 
-#: cambalache/cmb_project.py:308
+#: cambalache/cmb_project.py:681
 #, python-brace-format
 msgid "one missing attribute '{detail}'"
 msgstr "Ein fehlendes Attribut '{detail}'"
 
-#: cambalache/cmb_project.py:308
+#: cambalache/cmb_project.py:681
 #, python-brace-format
 msgid "{n} missing attributes ({detail})"
 msgstr "{n} fehlende Attribute ({detail})"
 
-#: cambalache/cmb_project.py:309
+#: cambalache/cmb_project.py:682
 #, fuzzy, python-brace-format
 msgid "one wrong inline object '{detail}'"
 msgstr "Eine unbekannte Property '{detail}'"
 
-#: cambalache/cmb_project.py:309
+#: cambalache/cmb_project.py:682
 #, fuzzy, python-brace-format
 msgid "{n} wrong inline object ({detail})"
 msgstr "{n} unbekannte Properties ({detail})"
 
-#: cambalache/cmb_project.py:313
+#: cambalache/cmb_project.py:686
 #, python-brace-format
 msgid "xml:{line} unknown class '{detail}'"
 msgstr "xml:{line} Unbekannte Klasse '{detail}'"
 
-#: cambalache/cmb_project.py:314
+#: cambalache/cmb_project.py:687
 #, python-brace-format
 msgid "xml:{line} unknown property '{detail}'"
 msgstr "xml:{line} Unbekannte Property '{detail}'"
 
-#: cambalache/cmb_project.py:315
+#: cambalache/cmb_project.py:688
 #, python-brace-format
 msgid "xml:{line} unknown signal '{detail}'"
 msgstr "xml:{line} Unbekanntes Signal '{detail}'"
 
-#: cambalache/cmb_project.py:316
+#: cambalache/cmb_project.py:689
 #, python-brace-format
 msgid "xml:{line} unknown tag '{detail}'"
 msgstr "xml:{line} Unbekanntest Tag '{detail}'"
 
-#: cambalache/cmb_project.py:317
+#: cambalache/cmb_project.py:690
 #, python-brace-format
 msgid "xml:{line} unknown attribute '{detail}'"
 msgstr "xml:{line} Unbekanntes Attribut '{detail}'"
 
-#: cambalache/cmb_project.py:318
+#: cambalache/cmb_project.py:691
 #, python-brace-format
 msgid "xml:{line} missing attribute '{detail}'"
 msgstr "xml:{line} Fehlendes Attribut '{detail}'"
 
-#: cambalache/cmb_project.py:319
+#: cambalache/cmb_project.py:692
 #, fuzzy, python-brace-format
 msgid "xml:{line} not an inline object '{detail}'"
 msgstr "xml:{line} Unbekanntes Signal '{detail}'"
 
-#: cambalache/cmb_project.py:351
+#: cambalache/cmb_project.py:724
 #, python-brace-format
 msgid "Import file \"{filename}\""
 msgstr "Datei \"{filename}\" importieren"
 
-#: cambalache/cmb_project.py:474
+#: cambalache/cmb_project.py:755
+#, fuzzy, python-brace-format
+msgid "Import GResource \"{filename}\""
+msgstr "Datei \"{filename}\" importieren"
+
+#: cambalache/cmb_project.py:823
 #, python-brace-format
 msgid "Add UI {basename}"
 msgstr "Benutzeroberfläche {basename} hinzufügen"
 
-#: cambalache/cmb_project.py:490
+#: cambalache/cmb_project.py:839
 #, python-brace-format
 msgid "Remove UI \"{name}\""
 msgstr "Benutzeroberfläche \"{name}\" entfernen"
 
-#: cambalache/cmb_project.py:530
+#: cambalache/cmb_project.py:879
 #, python-brace-format
 msgid "Add CSS {basename}"
 msgstr "CSS {basename} hinzufügen"
 
-#: cambalache/cmb_project.py:546
+#: cambalache/cmb_project.py:895
 #, python-brace-format
 msgid "Remove CSS \"{name}\""
 msgstr "CSS \"{name}\" entfernen"
 
-#: cambalache/cmb_project.py:618
+#: cambalache/cmb_project.py:938
+#, fuzzy, python-brace-format
+msgid "Add GResource {basename}"
+msgstr "Benutzeroberfläche {basename} hinzufügen"
+
+#: cambalache/cmb_project.py:940
+#, python-brace-format
+msgid "Add GResource prefix {prefix}"
+msgstr ""
+
+#: cambalache/cmb_project.py:942
+#, fuzzy, python-brace-format
+msgid "Add GResource file {filename}"
+msgstr "Datei \"{filename}\" importieren"
+
+#: cambalache/cmb_project.py:977
+#, fuzzy, python-brace-format
+msgid "Remove GResource \"{name}\""
+msgstr "Benutzeroberfläche \"{name}\" entfernen"
+
+#: cambalache/cmb_project.py:1049
 #, python-brace-format
 msgid "Add object {name}"
 msgstr "Objekt {name} hinzufügen"
 
-#: cambalache/cmb_project.py:681
+#: cambalache/cmb_project.py:1116
 #, python-brace-format
 msgid "Remove object {name}"
 msgstr "Objekt {name} entfernen"
 
 #. Translators: This refers to "properties" in object property undo/redo messages
-#: cambalache/cmb_project.py:1137
+#: cambalache/cmb_project.py:1591
 #, fuzzy
 msgid "property"
 msgstr "Eigenschaften lehren"
 
-#: cambalache/cmb_project.py:1140 cambalache/cmb_project.py:1184
+#: cambalache/cmb_project.py:1594 cambalache/cmb_project.py:1638
 msgid "True"
 msgstr ""
 
-#: cambalache/cmb_project.py:1140 cambalache/cmb_project.py:1184
+#: cambalache/cmb_project.py:1594 cambalache/cmb_project.py:1638
 msgid "False"
 msgstr ""
 
 #. Translators: This refers to accessibility properties in object property undo/redo messages
-#: cambalache/cmb_project.py:1157
+#: cambalache/cmb_project.py:1611
 #, fuzzy
 msgid "a11y property"
 msgstr "Eigenschaften lehren"
 
 #. Translators: This refers to accessibility relations in object property undo/redo messages
-#: cambalache/cmb_project.py:1159
+#: cambalache/cmb_project.py:1613
 msgid "a11y relation"
 msgstr ""
 
 #. Translators: This refers to accessibility states in object property undo/redo messages
-#: cambalache/cmb_project.py:1161
+#: cambalache/cmb_project.py:1615
 msgid "a11y state"
 msgstr ""
 
 #. Translators: This refers to accessibility actions in object property undo/redo messages
-#: cambalache/cmb_project.py:1163
+#: cambalache/cmb_project.py:1617
 msgid "a11y action"
 msgstr ""
 
-#: cambalache/cmb_project.py:1231
+#: cambalache/cmb_project.py:1687
 #, python-brace-format
 msgid "Create UI {ui}"
 msgstr "Benutzeroberfläche {ui} erstellen"
 
-#: cambalache/cmb_project.py:1232
+#: cambalache/cmb_project.py:1688
 #, python-brace-format
 msgid "Remove UI {ui}"
 msgstr "Benutzeroberfläche {ui} entfernen"
 
-#: cambalache/cmb_project.py:1233
+#: cambalache/cmb_project.py:1689
 #, python-brace-format
 msgid "Update {field} of UI {ui}"
 msgstr "Aktualisiere {field} von UI {ui}"
 
-#: cambalache/cmb_project.py:1236
+#: cambalache/cmb_project.py:1692
 #, python-brace-format
 msgid "Set {ui} {lib} to {version}"
 msgstr ""
 
-#: cambalache/cmb_project.py:1237
+#: cambalache/cmb_project.py:1693
 #, fuzzy, python-brace-format
 msgid "Remove {ui} {lib}"
 msgstr "Benutzeroberfläche {ui} entfernen"
 
-#: cambalache/cmb_project.py:1238
+#: cambalache/cmb_project.py:1694
 #, fuzzy, python-brace-format
 msgid "Update {lib} of UI {ui} to {version}"
 msgstr "Aktualisiere {field} von UI {ui}"
 
-#: cambalache/cmb_project.py:1241
+#: cambalache/cmb_project.py:1697
 #, python-brace-format
 msgid "Add CSS provider {css}"
 msgstr "CSS-Provider {css} hinzufügen"
 
-#: cambalache/cmb_project.py:1242
+#: cambalache/cmb_project.py:1698
 #, python-brace-format
 msgid "Remove CSS provider {css}"
 msgstr "CSS-Provider {css} entfernen"
 
-#: cambalache/cmb_project.py:1243
+#: cambalache/cmb_project.py:1699
 #, python-brace-format
 msgid "Update {field} of CSS provider {css}"
 msgstr "Aktualisiere {field} von CSS-Provider {css}"
 
-#: cambalache/cmb_project.py:1246
+#: cambalache/cmb_project.py:1702
 #, python-brace-format
 msgid "Add {ui} to CSS provider {css}"
 msgstr "{ui} zu CSS-Provider {css} hinzufügen"
 
-#: cambalache/cmb_project.py:1247
+#: cambalache/cmb_project.py:1703
 #, python-brace-format
 msgid "Remove {ui} from CSS provider {css}"
 msgstr "{ui} von CSS-Provider {css} entfernen"
 
-#: cambalache/cmb_project.py:1250
+#: cambalache/cmb_project.py:1706
 #, python-brace-format
 msgid "Create object {obj}"
 msgstr "Objekt {obj} erstellen"
 
-#: cambalache/cmb_project.py:1251
+#: cambalache/cmb_project.py:1707
 #, python-brace-format
 msgid "Remove object {obj}"
 msgstr "Objekt {obj} entfernen"
 
-#: cambalache/cmb_project.py:1252
+#: cambalache/cmb_project.py:1708
 #, python-brace-format
 msgid "Update {field} of object {obj}"
 msgstr "Aktualisiere {field} von Objekt {obj}"
 
 #. Translators: This text is used for object properties undo/redo messages
 #. prop_type could be "property", "a11y property", "a11y relation", "a11y state" or "a11y action"
-#: cambalache/cmb_project.py:1257
+#: cambalache/cmb_project.py:1713
 #, fuzzy, python-brace-format
 msgid "Set {obj} {prop} {prop_type} to {value}"
 msgstr "Eigenschaft \"{prop}\" von {obj} auf {value} setzen"
 
-#: cambalache/cmb_project.py:1258
+#: cambalache/cmb_project.py:1714
 #, fuzzy, python-brace-format
 msgid "Unset {obj} {prop} {prop_type}"
 msgstr "Eigenschaft \"{prop}\" von {obj} auf {value} setzen"
 
-#: cambalache/cmb_project.py:1259
+#: cambalache/cmb_project.py:1715
 #, fuzzy, python-brace-format
 msgid "Update {obj} {prop} {prop_type} to {value}"
 msgstr "Eigenschaft \"{prop}\" von {obj} auf {value} aktualisieren"
 
-#: cambalache/cmb_project.py:1262
+#: cambalache/cmb_project.py:1718
 #, fuzzy, python-brace-format
 msgid "Set {obj} {prop} layout property to {value}"
 msgstr "Layouteigenschaft \"{prop}\" von {obj} auf {value} setzen"
 
-#: cambalache/cmb_project.py:1263
+#: cambalache/cmb_project.py:1719
 #, python-brace-format
 msgid "Unset {obj} {prop} layout property"
 msgstr ""
 
-#: cambalache/cmb_project.py:1264
+#: cambalache/cmb_project.py:1720
 #, fuzzy, python-brace-format
 msgid "Update {obj} {prop} layout property to {value}"
 msgstr "Layout-Eigenschaft \"{prop}\" von {obj} auf {value} aktualisieren"
 
-#: cambalache/cmb_project.py:1267
+#: cambalache/cmb_project.py:1723
 #, python-brace-format
 msgid "Add {signal} signal to {obj}"
 msgstr "{signal}-Signal zu {obj} hinzufügen"
 
-#: cambalache/cmb_project.py:1268
+#: cambalache/cmb_project.py:1724
 #, python-brace-format
 msgid "Remove {signal} signal from {obj}"
 msgstr "{signal}-Signal von {obj} entfernen"
 
-#: cambalache/cmb_project.py:1269
+#: cambalache/cmb_project.py:1725
 #, python-brace-format
 msgid "Update {signal} signal of {obj}"
 msgstr "{signal}-Signal von {obj} aktualisieren"
 
-#: cambalache/cmb_project.py:1272 cambalache/cmb_project.py:1277
+#: cambalache/cmb_project.py:1728 cambalache/cmb_project.py:1733
 #, python-brace-format
 msgid "Add {data}={value} to {obj}"
 msgstr "{data}={value} zu {obj} hinzufügen"
 
-#: cambalache/cmb_project.py:1273 cambalache/cmb_project.py:1278
+#: cambalache/cmb_project.py:1729 cambalache/cmb_project.py:1734
 #, python-brace-format
 msgid "Remove {data}={value} from {obj}"
 msgstr "{data}={value} zu {obj} hinzufügen"
 
-#: cambalache/cmb_project.py:1274 cambalache/cmb_project.py:1279
+#: cambalache/cmb_project.py:1730 cambalache/cmb_project.py:1735
 #, python-brace-format
 msgid "Update {data} of {obj} to {value}"
 msgstr "Aktualisiere {data} von {obj} zu {value}"
 
-#: cambalache/cmb_project.py:1480
+#: cambalache/cmb_project.py:1945
 #, python-brace-format
 msgid "Paste clipboard to {name}"
 msgstr "Zwischenablage in {name} einfügen"
 
-#: cambalache/cmb_project.py:1512
+#: cambalache/cmb_project.py:1977
 #, python-brace-format
 msgid "Cut object {name}"
 msgstr "Objekt {name} ausschneiden"
 
-#: cambalache/cmb_project.py:1514
+#: cambalache/cmb_project.py:1979
 #, python-brace-format
 msgid "Cut {n_objects} object"
 msgstr "{n_objects} Objekt ausschneiden"
 
-#: cambalache/cmb_project.py:1527
+#: cambalache/cmb_project.py:1992
 #, python-brace-format
 msgid "Add {type_id} parent to {name}"
 msgstr ""
 
-#: cambalache/cmb_project.py:1589
+#: cambalache/cmb_project.py:2051
 #, fuzzy, python-brace-format
 msgid "Remove parent of {name}"
 msgstr "Objekt {name} entfernen"
@@ -1110,25 +1183,45 @@ msgstr ""
 msgid "Clear"
 msgstr ""
 
-#: cambalache/cmb_signal_editor.ui:47
+#: cambalache/cmb_signal_editor.ui:44
 msgid "Signal"
 msgstr "Signal"
 
-#: cambalache/cmb_signal_editor.ui:64
+#: cambalache/cmb_signal_editor.ui:61
 msgid "Handler"
 msgstr "Steuerung"
 
-#: cambalache/cmb_signal_editor.ui:80
+#: cambalache/cmb_signal_editor.ui:77
 msgid "Data"
 msgstr "Benutzerdaten"
 
-#: cambalache/cmb_signal_editor.ui:96
+#: cambalache/cmb_signal_editor.ui:93
 msgid "Swap"
 msgstr "Vertauschen"
 
-#: cambalache/cmb_signal_editor.ui:110
+#: cambalache/cmb_signal_editor.ui:107
 msgid "After"
 msgstr "Danach"
+
+#: cambalache/cmb_tree_expander.py:199
+#, python-brace-format
+msgid "Move {name} to {target}"
+msgstr ""
+
+#: cambalache/cmb_tree_expander.py:208
+#, python-brace-format
+msgid "Move {name} before {target}"
+msgstr ""
+
+#: cambalache/cmb_tree_expander.py:210
+#, python-brace-format
+msgid "Move {name} after {target}"
+msgstr ""
+
+#: cambalache/cmb_tree_expander.py:242
+#, fuzzy, python-brace-format
+msgid "Move {name} as toplevel"
+msgstr "Füge Objekt als oberste Ebene hinzu"
 
 #. Widget group for toplevels/windows
 #: cambalache/cmb_type_chooser.ui:72 cambalache/cmb_type_chooser_widget.py:101
@@ -1154,7 +1247,7 @@ msgstr "Modell"
 msgid "Others"
 msgstr "Andere"
 
-#: cambalache/cmb_ui.py:139
+#: cambalache/cmb_ui.py:133
 #, python-brace-format
 msgid "Unnamed {ui_id}"
 msgstr "Unbenannte {ui_id}"
@@ -1175,19 +1268,15 @@ msgstr "Autoren:"
 msgid "Domain:"
 msgstr "Domain:"
 
-#: cambalache/cmb_ui_editor.ui:80
+#: cambalache/cmb_ui_editor.ui:77
 msgid "<translation domain>"
 msgstr "<Übersetzungs-Domain>"
 
-#: cambalache/cmb_ui_editor.ui:137
+#: cambalache/cmb_ui_editor.ui:134
 msgid "Template:"
 msgstr "Vorlage:"
 
-#: cambalache/cmb_ui_editor.ui:166 cambalache/cmb_ui_editor.ui:168
-msgid "Export"
-msgstr "Exportieren"
-
-#: cambalache/cmb_ui_editor.ui:202
+#: cambalache/cmb_ui_editor.ui:161
 msgid "Comment:"
 msgstr "Kommentar:"
 
@@ -1231,6 +1320,11 @@ msgstr ""
 #: cambalache/control/cmb_boolean_undefined.py:38
 msgid "false"
 msgstr ""
+
+#: cambalache/control/cmb_file_button.py:37
+#, fuzzy
+msgid "Select filename"
+msgstr "Datei auswählen"
 
 #: cambalache/control/cmb_file_entry.py:40
 msgid "Select File"
@@ -1326,13 +1420,13 @@ msgstr "Plätze"
 msgid "Status"
 msgstr "Status"
 
-#: data/ar.xjuan.Cambalache.desktop.in:4
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:195
+#: data/ar.xjuan.Cambalache.desktop.in:3
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:208
 msgid "UI Maker"
 msgstr "UI-Ersteller"
 
 #. Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
-#: data/ar.xjuan.Cambalache.desktop.in:14
+#: data/ar.xjuan.Cambalache.desktop.in:13
 msgid "UI Maker;GUI designer;user interface;ui builder;"
 msgstr "UI-Ersteller;GUI-Designer;Benutzeroberfläche;UI-Builder;"
 
@@ -1352,247 +1446,278 @@ msgstr ""
 "Benutzeroberflächen für Gtk und die GNOME-Desktop-Umgebung ermöglicht."
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:19
-msgid "Accessibility Release!"
-msgstr ""
+#, fuzzy
+msgid "Unreleased"
+msgstr "Fehlerbehebungs-Veröffentlichung!"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:21
-msgid "Gtk 4 and Gtk 3 accessibility support"
+msgid "Add GResource support"
 msgstr ""
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:22
+#, fuzzy
+msgid "Add internal children support"
+msgstr "Unterstützung für Arbeitsplatzplatzhalter"
+
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:23
+#, fuzzy
+msgid "New project format"
+msgstr "Neues Projekt"
+
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:24
+msgid "Save directly to .ui files"
+msgstr ""
+
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:25
+msgid "Show directory structure in navigation"
+msgstr ""
+
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:26
+msgid "Unified import dialog for all file types"
+msgstr ""
+
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:32
+msgid "Accessibility Release!"
+msgstr ""
+
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:34
+msgid "Gtk 4 and Gtk 3 accessibility support"
+msgstr ""
+
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:35
 msgid "Support property subclass override defaults"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:23
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:36
 #, fuzzy
 msgid "AdwDialog placeholder support"
 msgstr "Unterstützung für Arbeitsplatzplatzhalter"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:24
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:37
 msgid "Improved object description in hierarchy"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:25
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:38
 msgid "Lots of bug fixes and minor UI improvements"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:31
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:44
 msgid "Adwaita + Casilda Release!"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:33
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:46
 msgid "Basic port to Adwaita"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:34
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:47
 msgid "Use Casilda compositor widget for workspace"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:35
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:48
 msgid "Update widget catalogs to SDK 47"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:36
-msgid "Improved Drag&amp;Drop support"
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:49
+msgid "Improved Drag&Drop support"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:37
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:50
 msgid "Improve workspace performance"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:38
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:51
 msgid "Enable workspace animations"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:39
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:52
 #, fuzzy
 msgid "Fix window ordering"
 msgstr "Behebe metainfo-Version"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:40
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:53
 msgid "Support new desktop dark style"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:41
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:54
 #, fuzzy
 msgid "Support 3rd party libraries"
 msgstr "Drittanbieter-Bibliotheken-Veröffentlichung!"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:42
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:55
 msgid "Streamline headerbar"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:43
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:56
 msgid ""
 "Many thanks to emersion, kennylevinsen, vyivel and the wlroots community for "
 "their support and awesome project"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:49
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:62
 msgid "Gtk 4 port"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:51
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:64
 msgid "Migrate main application to Gtk 4"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:52
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:65
 msgid "Update widget catalogs to SDK 46"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:53
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:66
 #, fuzzy
 msgid "Add support for child custom fragments"
 msgstr "Füge Unterstützung für Vorlagen hinzu"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:54
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:67
 msgid "Add add parent context menu action"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:55
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:68
 msgid "Mark AdwSplitButton.dropdown-tooltip translatable. (Danial Behzadi)"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:61
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:74
 msgid "GNOME 45 Release!"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:63
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:76
 msgid "Bump SDK dependency to SDK 45"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:64
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:77
 msgid "Add support for types and properties added in SDK 45"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:65
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:78
 msgid "Marked various missing translatable properties"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:71
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:84
 #, fuzzy
 msgid "GMenu release!"
 msgstr "Fehlerbehebungs-Veröffentlichung!"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:73
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:86
 msgid "Add GMenu support"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:74
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:87
 msgid "Add UI requirements edit support"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:75
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:88
 msgid "Add Swedish translation. Anders Jonsson"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:76
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:89
 #, fuzzy
 msgid "Updated Italian translation. Lorenzo Capalbo"
 msgstr "FügeItalienische Übersetzung hinzu (capaz)"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:77
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:90
 msgid ""
 "Show deprecated and not available warnings for Objects, properties and "
 "signals"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:78
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:91
 msgid "Output minimum required library version instead of latest one"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:79
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:92
 msgid "Fix output for templates with inline object properties"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:80
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:93
 #, fuzzy
 msgid "Various optimizations and bug fixes"
 msgstr "Diverse Verbesserungen und kleinere Korrekturen"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:81
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:94
 msgid "Bump test coverage to 66%"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:87
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:100
 #, fuzzy
 msgid "New Features release!"
 msgstr "Flathub-Veröffentlichung!"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:89
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:102
 msgid "User Templates: use your templates anywhere in your project"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:90
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:103
 msgid "Workspace CSS support: see your CSS changes live"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:91
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:104
 msgid "GtkBuildable Custom Tags: support for styles, items, etc"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:92
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:105
 msgid "Property Bindings: bind your property to any source property"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:93
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:106
 msgid "XML Fragments: add any xml to any object or UI as a fallback"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:94
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:107
 #, fuzzy
 msgid "Preview mode: hide placeholders in workspace"
 msgstr "GTK 4: Behebe Platzhalter in GtkPaned"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:95
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:108
 msgid "WebKit support: new widget catalog available"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:96
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:109
 msgid "External objects references support"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:97
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:110
 #, fuzzy
 msgid "Add support for GdkPixbuf, GListModel and GListStore types"
 msgstr "Füge Support für GdkPixbuf, Pango, Gio, Gdk und Gsk flag-/enum-Typen"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:98
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:111
 msgid "Add missing child type attributes to Gtk4 GtkActionBar (B. Teeuwen)"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:99
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:112
 #, fuzzy
 msgid "Added French Translation (rene-coty)"
 msgstr "Niederländische Übersetzung hinzufügen (Gert)"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:105
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:118
 msgid "3rd party libs release!"
 msgstr "Drittanbieter-Bibliotheken-Veröffentlichung!"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:107
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:120
 msgid "Add Adwaita and Handy library support"
 msgstr "Füge Adwaita- und Handy-Support hinzu"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:108
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:121
 msgid "Add inline object properties support (only Gtk 4)"
 msgstr "Füge Unterstützung für Inline-Objekteigenschaften hinzu (nur Gtk 4)"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:109
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:122
 msgid "Add special child type support (GtkWindow title widget)"
 msgstr ""
 "Füge spezielle Unterstützung für untergeordnete Typen hinzu(GtkWindow-Titel-"
 "Widget)"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:110
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:123
 msgid "Improve clipboard functionality"
 msgstr "Verbesserung der Funktionalität der Zwischenablage"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:111
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:124
 msgid "Add support for reordering children position"
 msgstr "Füge Unterstützung für die Neuordnung der Position von Kindern hinzu"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:112
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:125
 msgid ""
 "Add/Improve worspace support for GtkMenu, GtkNotebook, GtkPopover, GtkStack, "
 "GtkAssistant, GtkListBox, GtkMenuItem and GtkCenterBox"
@@ -1600,131 +1725,167 @@ msgstr ""
 "Füge/Verbessere Arbeitsplatz-Support für GtkMenu, GtkNotebook, GtkPopover, "
 "GtkStack, GtkAssistant, GtkListBox, GtkMenuItem und GtkCenterBox hinzu"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:113
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:126
 msgid "New property editors for icon name and color properties"
 msgstr "Neuer Eigenschaften-Editor für für Symbolnamen und Farbeigenschaften"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:114
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:127
 msgid "Add support for GdkPixbuf, Pango, Gio, Gdk and Gsk flags/enums types"
 msgstr "Füge Support für GdkPixbuf, Pango, Gio, Gdk und Gsk flag-/enum-Typen"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:115
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:128
 msgid "Add Ukrainian translation (Volodymyr M. Lisivka)"
 msgstr "Füge Ukrainische Übersetzung hinzu (Volodymyr M. Lisivka)"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:116
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:129
 msgid "Add Italian translation (capaz)"
 msgstr "FügeItalienische Übersetzung hinzu (capaz)"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:117
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:130
 msgid "Add Dutch translation (Gert)"
 msgstr "Niederländische Übersetzung hinzufügen (Gert)"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:123
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:136
 msgid "UX improvements Release!"
 msgstr "UX-Verbesserungs-Veröffentlichung!"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:125
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:138
 msgid "New Type chooser bar"
 msgstr "Neue Typauswahlleiste"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:126
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:139
 msgid "Workspace placeholder support"
 msgstr "Unterstützung für Arbeitsplatzplatzhalter"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:127
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:140
 msgid "Translatable properties support (Philipp Unger)"
 msgstr "Unterstützung für übersetzbare Eigenschaften (Philipp Unger)"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:128
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:141
 msgid "Clipboard actions support (Copy, Paste, Cut)"
 msgstr ""
 "Unterstützung von Zwischenablageaktionen (Kopieren, Einfügen, Ausschneiden)"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:129
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:142
 msgid "Better unsupported features report"
 msgstr "Besserer Bericht über nicht unterstützte Funktionen"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:130
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:143
 msgid "New Matrix channel #cambalache:gnome.org"
 msgstr "Neuer Matrix-Channel #cambalache:gnome.org"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:131
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:144
 msgid "You can now also support Cambalache on Liberapay"
 msgstr "Du kannst Cambalache jetzt auch auf Liberypay unterstützen"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:137
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:150
 msgid "New translations release!"
 msgstr "Neue Übersetzungs-Veröffentlichung!"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:139
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:152
 msgid "Add Czech translation. Vojtěch Perník"
 msgstr "Füge Tschechische Übersetzung hinzu. Vojtěch Perník"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:140
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:153
 msgid "Add German translation. PhilProg"
 msgstr "Deutsche Übersetzung hinzugefügt. PhilProg"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:141
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:154
 msgid "Add x-cambalache mimetype with icon"
 msgstr "Füge x-xcmbalache-mimetyp mit Symbol hinzu"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:147
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:160
 msgid "First public release!"
 msgstr "Erste öffentliche Veröffentlchung!"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:149
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:162
 msgid "Suport for both Gtk 3 and 4 versions"
 msgstr "Unterstützung für Gtk 3- und 4-Versionen"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:150
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:163
 msgid "Import and export multiple UI at once"
 msgstr "Importiere und exportiere mehrere Benutzeroberflächen gleichzeitig"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:151
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:164
 msgid "Support plain (no custom tags) GtkBuilder features"
 msgstr ""
 "Unterstützt einfache (keine benutzerdefinierten Tags) GtkBuilder-Funktionen"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:152
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:165
 msgid "Undo / Redo stack"
 msgstr "Stapel rückgängig machen / wiederherstellen"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:153
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:166
 msgid "LGPL version 2.1"
 msgstr "LGPL Version 2.1"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:162
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:175
 msgid "Cambalache start window"
 msgstr "Cambalache Startfenster"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:166
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:179
 msgid "Cambalache new project page"
 msgstr "Neues Projekt erstellen"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:170
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:183
 msgid "Cambalache workspace"
 msgstr "Cambalache Workspace"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:174
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:187
 msgid "GTK widget factory"
 msgstr ""
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:194
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:207
 msgid "GUI Designer"
 msgstr "GUI-Designer"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:196
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:209
 msgid "user interface"
 msgstr "Benutzeroberfläche"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:197
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:210
 msgid "UI Builder"
 msgstr "UI-Bauer"
 
-#: data/ar.xjuan.Cambalache.metainfo.xml.in:200
+#: data/ar.xjuan.Cambalache.metainfo.xml.in:213
 msgid "Juan Pablo Ugarte"
 msgstr "Juan Pablo Ugarte"
+
+#~ msgid "Save the project"
+#~ msgstr "Das Projekt speichern"
+
+#~ msgid "Once you finish, you can export all UI files to xml here"
+#~ msgstr ""
+#~ "Wenn du fertig bist, kannst du hier alle UI-Dateien in eine XML-Datei "
+#~ "exportieren"
+
+#~ msgid "Export all"
+#~ msgstr "Alles Exportieren"
+
+#, fuzzy
+#~ msgid "File Exported"
+#~ msgstr "Datei exportiert"
+
+#, python-brace-format
+#~ msgid "{n} files exported"
+#~ msgstr "{n} Dateien exportiert"
+
+#~ msgid "File exported"
+#~ msgstr "Datei exportiert"
+
+#, fuzzy
+#~ msgid "Import UI"
+#~ msgstr "Importieren"
+
+#, fuzzy
+#~ msgid "Export all UI"
+#~ msgstr "Alles Exportieren"
+
+#~ msgid "<file name relative to project>"
+#~ msgstr "<Dateiname relativ zum Projekt>"
+
+#~ msgid "Export"
+#~ msgstr "Exportieren"
 
 #~ msgid "Preview mode"
 #~ msgstr "Vorschau-Modus"
@@ -1856,9 +2017,6 @@ msgstr "Juan Pablo Ugarte"
 #~ msgid "_Cancel"
 #~ msgstr "_Abbrechen"
 
-#~ msgid "_Open"
-#~ msgstr "_Öffnen"
-
 #, python-brace-format
 #~ msgid ""
 #~ "Workspace not available\n"
@@ -1873,9 +2031,6 @@ msgstr "Juan Pablo Ugarte"
 #~ msgid "or create a new one"
 #~ msgstr "oder ein neues Projekt erstellen"
 
-#~ msgid "Add new UI file"
-#~ msgstr "Neue Benutzeroberfläche zum Projekt hinzufügen"
-
 #~ msgid "just like Save As"
 #~ msgstr "genau wie Speichern Unter"
 
@@ -1887,9 +2042,6 @@ msgstr "Juan Pablo Ugarte"
 
 #~ msgid "Choose a location to save the project"
 #~ msgstr "Wählen Sie einen Speicherort zum Speichern des Projekts"
-
-#~ msgid "Save project"
-#~ msgstr "Projekt speichern"
 
 #~ msgid "Save project with a different file name"
 #~ msgstr "Projekt unter anderem Dateinamen speichern"
