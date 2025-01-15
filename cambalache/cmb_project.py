@@ -1510,6 +1510,10 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         # Update GListModel
         for parent, position, removed, added in compressed_list:
+            # Ignore negative positions, they are used to avoid unique constrain errors on reparenting
+            if position < 0:
+                continue
+
             parent.items_changed(position, removed, added)
             if removed != added:
                 parent.notify("n-items")
