@@ -28,7 +28,9 @@ from gi.repository import GObject
 from .cmb_objects_base import CmbBaseProperty
 from .cmb_property_info import CmbPropertyInfo
 from . import utils
-from cambalache import _
+from cambalache import _, getLogger
+
+logger = getLogger(__name__)
 
 
 class CmbProperty(CmbBaseProperty):
@@ -107,10 +109,51 @@ class CmbProperty(CmbBaseProperty):
         self.__update_values(self.value, self.translatable, self.translation_context, value, self.bind_property)
 
     def reset(self):
+        if self.info.internal_child:
+            self.project.history_push(_("Unset {obj} {prop} {prop_type}").format(**self.__get_msgs()))
+
         self.project.db.execute(
             "DELETE FROM object_property WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id=?;",
             (self.ui_id, self.object_id, self.owner_id, self.property_id),
         )
+        self.__update_internal_child()
+
+        if self.info.internal_child:
+            self.project.history_pop()
+
+    def __update_internal_child(self):
+        internal_info = self.info.internal_child
+        if internal_info and internal_info.internal_parent_id:
+            logger.warning("Adding an internal child within an internal child automatically is not implemented")
+            return
+        elif internal_info is None:
+            return
+
+        value = self.value
+        child_id = self.db_get(
+            "SELECT object_id FROM object WHERE ui_id=? AND parent_id=? AND internal=?",
+            (self.ui_id, self.object_id, internal_info.internal_child_id)
+        )
+
+        if value and not child_id:
+            self.project.add_object(
+                self.ui_id,
+                internal_info.internal_type,
+                parent_id=self.object_id,
+                internal=internal_info.internal_child_id
+            )
+        elif child_id:
+            internal_child = self.project.get_object_by_id(self.ui_id, child_id)
+            if internal_child:
+                self.project.remove_object(internal_child, allow_internal_removal=True)
+
+    def __get_msgs(self, value=None):
+        return {
+            "obj": self.object.display_name_type,
+            "prop": self.property_id,
+            "prop_type": _("property"),
+            "value": str(value)
+        }
 
     def __update_values(self, value, translatable, translation_context, translation_comments, bind_property):
         c = self.project.db.cursor()
@@ -148,6 +191,9 @@ class CmbProperty(CmbBaseProperty):
             )
 
             if count:
+                if self.info.internal_child:
+                    self.project.history_push(_("Update {obj} {prop} {prop_type} to {value}").format(**self.__get_msgs(value)))
+
                 c.execute(
                     """
                     UPDATE object_property
@@ -172,6 +218,9 @@ class CmbProperty(CmbBaseProperty):
                     ),
                 )
             else:
+                if self.info.internal_child:
+                    self.project.history_push(_("Set {obj} {prop} {prop_type} to {value}").format(**self.__get_msgs(value)))
+
                 c.execute(
                     """
                     INSERT INTO object_property
@@ -197,6 +246,11 @@ class CmbProperty(CmbBaseProperty):
                         bind_property_id,
                     ),
                 )
+
+            self.__update_internal_child()
+
+            if self.info.internal_child:
+                self.project.history_pop()
 
         if self._init is False:
             self.object._property_changed(self)
