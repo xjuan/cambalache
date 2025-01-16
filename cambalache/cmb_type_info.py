@@ -198,8 +198,15 @@ class CmbTypeInfo(CmbBaseTypeInfo):
         c.close()
         return retval
 
-    def __type_get_internal_child(self, type_id, internal_child_id, internal_parent_id, internal_type):
-        retval = CmbTypeInternalChildInfo.from_row(self.project, type_id, internal_child_id, internal_parent_id, internal_type)
+    def __type_get_internal_child(self, type_id, internal_child_id, internal_parent_id, internal_type, creation_property_id):
+        retval = CmbTypeInternalChildInfo.from_row(
+            self.project,
+            type_id,
+            internal_child_id,
+            internal_parent_id,
+            internal_type,
+            creation_property_id
+        )
         children = {}
 
         c = self.project.db.cursor()
@@ -215,6 +222,11 @@ class CmbTypeInfo(CmbBaseTypeInfo):
         c.close()
 
         retval.children = children
+
+        # Internal child back reference in property
+        if creation_property_id:
+            if creation_property_id in self.properties:
+                self.properties[creation_property_id].internal_child = retval
 
         return retval
 
