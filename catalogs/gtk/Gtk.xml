@@ -339,7 +339,7 @@
         <property id="tearoff-title" translatable="True"/>
       </properties>
       <internal-children>
-        <child name="entry" type="GtkEntry"/>
+        <child name="entry" type="GtkEntry" creation-property-id="has-entry"/>
       </internal-children>
     </GtkComboBox>
 

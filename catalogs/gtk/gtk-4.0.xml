@@ -1750,12 +1750,12 @@
 	("GtkStack","GtkStackPage",1,1)
   </type_child_constraint>
   <type_internal_child>
-	("GtkAssistant","action_area",None,"GtkBox"),
-	("GtkComboBox","entry",None,"GtkEntry"),
-	("GtkDialog","action_area",None,"GtkBox"),
-	("GtkScaleButton","minus_button",None,"GtkButton"),
-	("GtkScaleButton","plus_button",None,"GtkButton"),
-	("GtkTreeView","selection",None,"GtkTreeSelection")
+	("GtkAssistant","action_area",None,"GtkBox",None),
+	("GtkComboBox","entry",None,"GtkEntry","has-entry"),
+	("GtkDialog","action_area",None,"GtkBox",None),
+	("GtkScaleButton","minus_button",None,"GtkButton",None),
+	("GtkScaleButton","plus_button",None,"GtkButton",None),
+	("GtkTreeView","selection",None,"GtkTreeSelection",None)
   </type_internal_child>
   <property>
 	("CmbAccessibleProperty","cmb-a11y-property-autocomplete","GtkAccessibleAutocomplete",None,None,None,"none",None,None,None,None,None,None,None,None,None,None,None),
