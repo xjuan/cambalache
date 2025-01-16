@@ -105,6 +105,11 @@ def content_type_guess(path):
 
 
 # XML utilities
+def bool_from_string(value):
+    if isinstance(value, str):
+        return value.lower() in {"1", "t", "y", "true", "yes"} if value else False
+    return bool(value)
+
 
 def xml_node_get(node, *args, errors=None):
     keys = node.keys()
@@ -119,7 +124,7 @@ def xml_node_get(node, *args, errors=None):
         if len(tokens) > 1:
             t = tokens[1]
             if t == "bool":
-                return (key, val.lower() in {"1", "t", "y", "true", "yes"} if val else False)
+                return (key, bool_from_string(val))
             elif t == "int":
                 return (key, int(val))
 

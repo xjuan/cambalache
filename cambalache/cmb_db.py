@@ -901,6 +901,23 @@ class CmbDB(GObject.GObject):
         return gresource_id
 
     def __add_internal_child(self, ui_id, object_id, child):
+        # Do not automatically create internal child that depend on a property
+        if child.creation_property_id:
+            row = self.execute(
+                "SELECT value FROM object_property WHERE ui_id=? AND object_id=? AND property_id=?;",
+                (ui_id, object_id, child.creation_property_id)
+            ).fetchone()
+
+            if not row:
+                row = self.execute(
+                    "SELECT default_value FROM property WHERE owner_id=? AND property_id=?;",
+                    (child.type_id, child.creation_property_id)
+                ).fetchone()
+
+            should_create = utils.bool_from_string(row[0]) if row else False
+            if not should_create:
+                return
+
         child_id = self.execute("SELECT coalesce(MAX(object_id), 0) + 1 FROM object WHERE ui_id=?;", (ui_id,)).fetchone()[0]
         position = self.execute(
             "SELECT coalesce(MAX(position), -1) + 1 FROM object WHERE ui_id=? AND parent_id=?;",
@@ -921,7 +938,7 @@ class CmbDB(GObject.GObject):
         obj_type,
         name=None,
         parent_id=None,
-        internal_child=None,
+        internal=None,
         child_type=None,
         comment=None,
         layout=None,
@@ -960,7 +977,7 @@ class CmbDB(GObject.GObject):
             INSERT INTO object (ui_id, object_id, type_id, name, parent_id, internal, type, comment, position)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
             """,
-            (ui_id, object_id, obj_type, name, parent_id, internal_child, child_type, comment, position),
+            (ui_id, object_id, obj_type, name, parent_id, internal, child_type, comment, position),
         )
 
         # Automatically add internal children
