@@ -993,7 +993,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         obj_type,
         name=None,
         parent_id=None,
-        internal_child=None,
+        internal=None,
         child_type=None,
         comment=None,
         position=0,
@@ -1033,7 +1033,16 @@ class CmbProject(GObject.Object, Gio.ListModel):
             return True
 
     def add_object(
-        self, ui_id, obj_type, name=None, parent_id=None, layout=None, position=None, child_type=None, inline_property=None
+        self,
+        ui_id,
+        obj_type,
+        name=None,
+        parent_id=None,
+        layout=None,
+        position=None,
+        child_type=None,
+        inline_property=None,
+        internal=None,
     ):
         if parent_id:
             parent = self.get_object_by_id(ui_id, parent_id)
@@ -1056,6 +1065,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 position=position,
                 inline_property=inline_property,
                 child_type=child_type,
+                internal=internal,
             )
             self.history_pop()
             self.db.commit()
@@ -1085,9 +1095,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         self.emit("object-removed", obj)
 
-    def remove_object(self, obj):
-        internal = obj.internal
-        if internal:
+    def remove_object(self, obj, allow_internal_removal=False):
+        if not allow_internal_removal and obj.internal:
             raise Exception("Internal objects can not be removed")
 
         try:
@@ -1746,11 +1755,14 @@ class CmbProject(GObject.Object, Gio.ListModel):
             if msg is None:
                 return None
 
-            msgs = []
-            for column in columns:
-                msgs.append(msg.format(**get_msg_vars(table, column, values)))
+            if columns:
+                msgs = []
+                for column in columns:
+                    msgs.append(msg.format(**get_msg_vars(table, column, values)))
 
-            return "\n".join(msgs) if len(msgs) > 1 else (msgs[0] if msgs else None)
+                return "\n".join(msgs) if len(msgs) > 1 else (msgs[0] if msgs else None)
+            else:
+                return msg.format(**get_msg_vars(table, None, values))
 
         undo_msg = get_msg(self.history_index)
         redo_msg = get_msg(self.history_index + 1)
