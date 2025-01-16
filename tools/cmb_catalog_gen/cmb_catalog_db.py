@@ -395,6 +395,7 @@ class CmbCatalogDB:
 
         name = node.get("name", None)
         internal_type = node.get("type", None)
+        creation_property_id = node.get("creation-property-id", None)
 
         if CmbCatalogUtils is None:
             import gi
@@ -414,10 +415,11 @@ class CmbCatalogDB:
 
         c.execute(
             """
-            INSERT INTO type_internal_child (type_id, internal_child_id, internal_parent_id, internal_type)
-            VALUES (?, ?, ?, ?);
+            INSERT INTO type_internal_child
+                (type_id, internal_child_id, internal_parent_id, internal_type, creation_property_id)
+            VALUES (?, ?, ?, ?, ?);
             """,
-            (type_id, name, internal_parent_id, internal_type),
+            (type_id, name, internal_parent_id, internal_type, creation_property_id),
         )
 
         for child in node.iterchildren("child"):

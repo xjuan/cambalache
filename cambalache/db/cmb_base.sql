@@ -178,33 +178,11 @@ CREATE TABLE IF NOT EXISTS type_internal_child (
   internal_child_id TEXT,
   internal_parent_id TEXT,
   internal_type TEXT REFERENCES type ON UPDATE CASCADE,
+  creation_property_id TEXT,
   PRIMARY KEY(type_id, internal_child_id),
   FOREIGN KEY(type_id, internal_parent_id) REFERENCES type_internal_child(type_id, internal_child_id)
+  FOREIGN KEY(type_id, creation_property_id) REFERENCES property(owner_id, property_id)
 ) WITHOUT ROWID;
-
-
-/* Type Tree
- *
- * VIEW of ancestors and ifaces by type
- */
-CREATE VIEW  IF NOT EXISTS type_tree AS
-WITH RECURSIVE ancestor(type_id, generation, parent_id) AS (
-  SELECT type_id, 1, parent_id FROM type
-    WHERE parent_id IS NOT NULL AND
-          parent_id != 'interface' AND
-          parent_id != 'enum' AND
-          parent_id != 'flags'
-  UNION ALL
-  SELECT ancestor.type_id, generation + 1, type.parent_id
-    FROM type JOIN ancestor ON type.type_id = ancestor.parent_id
-    WHERE type.parent_id IS NOT NULL
-)
-SELECT * FROM ancestor
-UNION
-SELECT ancestor.type_id, 0, type_iface.iface_id
-  FROM ancestor JOIN type_iface
-  WHERE ancestor.type_id = type_iface.type_id
-ORDER BY type_id,generation;
 
 
 /* Property

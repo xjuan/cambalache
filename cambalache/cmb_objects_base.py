@@ -294,18 +294,20 @@ class CmbBaseTypeInternalChildInfo(CmbBase):
     internal_child_id = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
     internal_parent_id = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
     internal_type = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    creation_property_id = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     @classmethod
-    def from_row(cls, project, type_id, internal_child_id, internal_parent_id, internal_type):
+    def from_row(cls, project, type_id, internal_child_id, internal_parent_id, internal_type, creation_property_id):
         return cls(
             project=project,
             type_id=type_id,
             internal_child_id=internal_child_id,
             internal_parent_id=internal_parent_id,
             internal_type=internal_type,
+            creation_property_id=creation_property_id,
         )
 
 
