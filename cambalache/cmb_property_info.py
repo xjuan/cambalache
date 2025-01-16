@@ -23,6 +23,7 @@
 # SPDX-License-Identifier: LGPL-2.1-only
 #
 
+from gi.repository import GObject
 from .cmb_objects_base import CmbBasePropertyInfo
 
 from cambalache import getLogger
@@ -31,6 +32,8 @@ logger = getLogger(__name__)
 
 
 class CmbPropertyInfo(CmbBasePropertyInfo):
+    internal_child = GObject.Property(type=GObject.GObject, flags=GObject.ParamFlags.READWRITE)
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
