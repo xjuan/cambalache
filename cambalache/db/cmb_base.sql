@@ -203,7 +203,7 @@ CREATE TABLE IF NOT EXISTS property (
   deprecated_version TEXT,
   translatable BOOLEAN CHECK (type_id IN (NULL, 'gchararray')),
   disable_inline_object BOOLEAN DEFAULT 0,
-  is_position BOOLEAN DEFAULT 0,
+  deprecated TEXT,
   required BOOLEAN DEFAULT 0,
   workspace_default TEXT,
   original_owner_id TEXT REFERENCES type ON UPDATE CASCADE,
