@@ -464,7 +464,6 @@ class CmbCatalogDB:
 
                     translatable = self.get_bool(prop, "translatable")
                     save_always = self.get_bool(prop, "save-always")
-                    is_position = self.get_bool(prop, "is-position")
                     type_id = prop.get("type", None)
 
                     if self.lib.target_tk == "Gtk-4.0":
@@ -500,15 +499,13 @@ class CmbCatalogDB:
                     c.execute(
                         """
                         UPDATE property
-                        SET translatable=?, save_always=?, disable_inline_object=?, is_position=?, required=?,
-                            workspace_default=?, disabled=?
+                        SET translatable=?, save_always=?, disable_inline_object=?, required=?, workspace_default=?, disabled=?
                         WHERE owner_id=? AND property_id=?;
                         """,
                         (
                             translatable,
                             save_always,
                             disable_inline_object,
-                            is_position,
                             required,
                             workspace_default,
                             disabled,
@@ -599,36 +596,6 @@ class CmbCatalogDB:
 
         for row in c.execute(
             "SELECT owner_id, property_id FROM property WHERE type_id='gchararray' AND property_id LIKE '%icon-name%';"
-        ):
-            owner_id, property_id = row
-
-            ids = retval.get(owner_id, None)
-            if ids is None:
-                ids = []
-                retval[owner_id] = ids
-
-            ids.append(property_id)
-            n += 1
-
-        c.close()
-
-        return retval if n else None
-
-    def get_position_layout_properties(self):
-        retval = {}
-        n = 0
-        c = self.conn.cursor()
-
-        for row in c.execute(
-            """
-            SELECT p.owner_id, p.property_id
-            FROM property AS p, type AS t
-            WHERE p.owner_id=t.type_id AND
-                t.layout='child' AND
-                p.type_id='gint' AND
-                p.is_position IN (NULL, 0) AND
-                p.property_id LIKE '%position%';
-            """
         ):
             owner_id, property_id = row
 

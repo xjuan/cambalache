@@ -130,13 +130,6 @@ if __name__ == '__main__':
             json.dumps(ignored_named_icons, indent=2, sort_keys=True),
         )
 
-    position_properties = db.get_position_layout_properties()
-    if position_properties:
-        print(
-            'Possible position properties (You need to specify is-position="True"): ',
-            json.dumps(position_properties, indent=2, sort_keys=True),
-        )
-
     translatable_properties = db.get_possibly_translatable_properties()
     if translatable_properties:
         print(
