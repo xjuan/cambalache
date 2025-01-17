@@ -62,7 +62,6 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
         self.__signals_dict = None
         self.__data = None
         self.__data_dict = None
-        self.position_layout_property = None
         self.inline_property_id = None
         self.version_warning = None
         self.__is_template = False
@@ -206,10 +205,6 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
                 property_id=info.property_id,
                 info=info,
             )
-
-            # Keep a reference to the position layout property
-            if info.is_position:
-                self.position_layout_property = prop
 
             self.__layout.append(prop)
 
@@ -535,23 +530,6 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
         # Set new position
         db.execute("UPDATE object SET position=? WHERE ui_id=? AND object_id=?;", (position, self.ui_id, child.object_id))
 
-        # Update position layout property (Example GtkBox position in Gtk3)
-        if child.position_layout_property:
-            db.execute(
-                """
-                UPDATE object_layout_property AS olp SET value=o.position
-                FROM object AS o
-                WHERE
-                    o.ui_id=? AND
-                    o.parent_id=? AND
-                    olp.ui_id=o.ui_id AND
-                    olp.object_id=o.parent_id AND
-                    olp.child_id=o.object_id AND
-                    olp.property_id=?;
-                """,
-                (self.ui_id, self.object_id, child.position_layout_property.property_id)
-            )
-
         db.ignore_check_constraints = False
 
         list_position = child.list_position
@@ -562,8 +540,10 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
             self.items_changed(list_position, 0, 1)
             self.items_changed(old_list_position+1, 1, 0)
         else:
-            self.items_changed(old_list_position, 1, 0)
-            self.items_changed(list_position, 0, 1)
+            if old_list_position != list_position:
+                self.items_changed(old_list_position, 1, 0)
+                self.items_changed(list_position, 0, 1)
+
         self.project._ignore_selection = False
 
         self.project.history_pop()
