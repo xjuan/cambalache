@@ -36,3 +36,7 @@ class CmbListError(CmbBase):
     def display_name(self):
         return "list error"
 
+    @GObject.Property(type=int)
+    def n_items(self):
+        return 0
+
