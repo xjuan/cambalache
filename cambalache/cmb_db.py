@@ -1392,19 +1392,6 @@ class CmbDB(GObject.GObject):
             property_id = name.replace("_", "-")
             comment = self.__node_get_comment(prop)
             owner_id = self.__get_layout_property_owner(parent_type[0], property_id)
-            owner_info = self.type_info.get(owner_id, None)
-
-            if owner_info:
-                pinfo = owner_info.properties.get(property_id, None)
-
-                # Update object position if this layout property is_position
-                if pinfo and pinfo.is_position:
-                    try:
-                        c.execute("UPDATE object SET position=? WHERE ui_id=? AND object_id=?;", (prop.text, ui_id, object_id))
-                    except Exception:
-                        # Ignore duplicated positions
-                        pass
-                    continue
 
             try:
                 c.execute(
@@ -2633,9 +2620,18 @@ class CmbDB(GObject.GObject):
 
         child_position = 0
 
-        # FIXME: only export placeholders for GtkBox
-        # This needs to be removed and handled directly in merengue by passing postion together with idi
-        is_box = info.is_a("GtkBox")
+        # FIXME: only export placeholders for GtkBox and box like containers
+        # This needs to be removed and handled directly in merengue by passing position together with id
+        is_box = info.is_a("GtkBox") or type_id in [
+            "GtkHeaderBar",
+            "GtkNotebook",
+            "GtkActionBar",
+            "GtkPopoverMenuBar",
+            "GtkStack",
+            "GtkToolItemGroup",
+            "GtkPopoverMenu",
+            "HdyHeaderBar"
+        ]
 
         # Children
         for row in c.execute(
@@ -2656,6 +2652,19 @@ class CmbDB(GObject.GObject):
                 continue
 
             if merengue and is_box:
+                # FIXME: On Gtk 3 we get the position from the layout property
+                if self.target_tk == "gtk+-3.0":
+                    r = cc.execute(
+                        """
+                        SELECT value
+                        FROM object_layout_property
+                        WHERE ui_id=? AND object_id=? AND child_id=? AND owner_id=? AND property_id='position'
+                        """,
+                        (ui_id, object_id, child_id, layout_class)
+                    ).fetchone()
+                    if r:
+                        position = int(r[0]) if r[0] else 0
+
                 position = position if position is not None else 0
 
                 while child_position < position:
