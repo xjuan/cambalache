@@ -35,9 +35,7 @@ class CmbLayoutProperty(CmbBaseLayoutProperty):
     info = GObject.Property(type=CmbPropertyInfo, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self, **kwargs):
-        self.__on_init = True
         super().__init__(**kwargs)
-        self.__on_init = False
         self.version_warning = None
 
         owner_info = self.project.type_info.get(self.info.owner_id, None)
@@ -68,11 +66,6 @@ class CmbLayoutProperty(CmbBaseLayoutProperty):
 
     @value.setter
     def _set_value(self, value):
-        # Update object position if this is a position property
-        if self.info.is_position and not self.__on_init:
-            self.object.parent.reorder_child(self.object, int(value) if value else 0)
-            return
-
         c = self.project.db.cursor()
 
         if value is None or value == self.info.default_value:
@@ -112,9 +105,6 @@ class CmbLayoutProperty(CmbBaseLayoutProperty):
                     """,
                     (self.ui_id, self.object_id, self.child_id, self.owner_id, self.property_id, value),
                 )
-
-        if not self.__on_init:
-            self.object._layout_property_changed(self)
 
         c.close()
 
