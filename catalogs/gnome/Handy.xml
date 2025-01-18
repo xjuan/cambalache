@@ -34,12 +34,6 @@
       </properties>
     </HdyHeaderBar>
 
-    <HdyHeaderBarLayoutChild>
-      <properties>
-        <property id="position" is-position="True"/>
-      </properties>
-    </HdyHeaderBarLayoutChild>
-
     <HdyPreferencesGroup>
       <properties>
         <property id="description" translatable="True"/>
