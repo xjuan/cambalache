@@ -26,8 +26,6 @@ from gi.repository import GObject, Gtk
 
 from merengue import utils, MrgPlaceholder
 
-preselected_widget = None
-
 
 class FindInContainerData:
     def __init__(self, toplevel, x, y):
@@ -42,6 +40,7 @@ class MrgSelection(GObject.GObject):
     app = GObject.Property(type=GObject.GObject, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
+        self.__selecting = False
         self._container = None
         self.gesture = None
 
@@ -59,28 +58,13 @@ class MrgSelection(GObject.GObject):
             self.gesture = utils.gesture_click_new(self._container, propagation_phase=Gtk.PropagationPhase.CAPTURE)
             self.gesture.connect("pressed", self.__on_gesture_button_pressed)
             self.gesture.connect("released", self.__on_gesture_button_released)
-        else:
+        elif self.gesture:
+            self.gesture.disconnect_by_func(self.__on_gesture_button_pressed)
+            self.gesture.disconnect_by_func(self.__on_gesture_button_released)
             self.gesture = None
 
     def __on_gesture_button_pressed(self, gesture, n_press, x, y):
-        global preselected_widget
-
         child = self.get_child_at_position(self._container, x, y)
-
-        if not self.is_widget_from_ui(child):
-            return
-
-        # Pre select a widget on button press
-        if preselected_widget != child:
-            preselected_widget = child
-            gesture.set_state(Gtk.EventSequenceState.CLAIMED)
-
-    def __on_gesture_button_released(self, gesture, n_press, x, y):
-        global preselected_widget
-
-        child = self.get_child_at_position(self._container, x, y)
-        if child != preselected_widget:
-            return
 
         if isinstance(child, MrgPlaceholder):
             controller = child.controller
@@ -103,7 +87,15 @@ class MrgSelection(GObject.GObject):
         # Select widget on button release only if its preselected
         self.app.write_command("selection_changed", args={"selection": [object_id]})
         controller.selected = True
-        gesture.set_state(Gtk.EventSequenceState.CLAIMED)
+
+        if not isinstance(child, Gtk.Window) and not isinstance(child, Gtk.HeaderBar):
+            gesture.set_state(Gtk.EventSequenceState.CLAIMED)
+            self.__selecting = True
+
+    def __on_gesture_button_released(self, gesture, n_press, x, y):
+        if self.__selecting:
+            gesture.set_state(Gtk.EventSequenceState.CLAIMED)
+            self.__selecting = False
 
     def is_widget_from_ui(self, obj):
         if isinstance(obj, MrgPlaceholder):
@@ -157,3 +149,4 @@ class MrgSelection(GObject.GObject):
                 return widget
 
         return None
+
