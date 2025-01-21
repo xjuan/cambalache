@@ -25,7 +25,6 @@
 
 import os
 import gi
-import sys
 import json
 import importlib
 
@@ -80,10 +79,6 @@ class MrgApplication(Gtk.Application):
         # Current UI ID
         self.ui_id = None
 
-        # The widget that got the last button press this is used to select
-        # a widget on button release
-        self.preselected_widget = None
-
         self.settings = Gtk.Settings.get_default()
 
         # Keep a reference to the default seat to easily ungrab the pointer
@@ -125,7 +120,6 @@ class MrgApplication(Gtk.Application):
 
     def clear_all(self):
         self.ui_id = None
-        self.preselected_widget = None
 
         # Unset controllers objects
         for key in self.controllers:
