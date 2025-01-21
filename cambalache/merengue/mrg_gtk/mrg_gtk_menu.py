@@ -22,7 +22,7 @@
 # SPDX-License-Identifier: LGPL-2.1-only
 #
 
-from gi.repository import GObject, Gdk, Gtk
+from gi.repository import GObject, Gdk, Gtk, CambalachePrivate
 
 from .mrg_selection import MrgSelection
 from .mrg_gtk_widget import MrgGtkWidget
@@ -43,7 +43,7 @@ class MrgGtkMenu(MrgGtkWidget):
         if self.object is None:
             return
 
-        self.object.popup_at_widget(self.__button, Gdk.Gravity.SOUTH_WEST, Gdk.Gravity.NORTH_WEST, None)
+        self.object.popup_at_widget(self.object.get_attach_widget(), Gdk.Gravity.SOUTH_WEST, Gdk.Gravity.NORTH_WEST, None)
 
     def object_changed(self, old, new):
         self.selection = None
@@ -52,6 +52,10 @@ class MrgGtkMenu(MrgGtkWidget):
             if self.window:
                 self.window.destroy()
                 self.window = None
+            return
+
+        self.selection = MrgSelection(app=self.app, container=self.object)
+        if self.object.get_attach_widget() is not None:
             return
 
         if self.window is None:
@@ -63,21 +67,19 @@ class MrgGtkMenu(MrgGtkWidget):
             self.__button.add(image)
 
             self.window = Gtk.Window(title="Menu Preview Window", deletable=False, width_request=320, height_request=240)
-
-            self.window.set_default_size(640, 480)
             self.window.add(self.__button)
 
-        self.selection = MrgSelection(app=self.app, container=self.object)
         self.__button.set_popup(self.object)
-        self.object.show_all()
         self.window.show_all()
+        CambalachePrivate.widget_set_application_id(self.window, f"Casilda:{self.ui_id}.{self.object_id}")
 
     def on_selected_changed(self):
         super().on_selected_changed()
 
-        if self.__button:
-            self.__button.set_active(True)
+        if self.selected:
+            self.popup()
+        else:
+            self.object.popdown()
 
     def show_child(self, child):
-        if self.__button:
-            self.__button.set_active(True)
+        self.popup()
