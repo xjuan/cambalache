@@ -219,6 +219,7 @@ class CmbMerengueProcess(GObject.Object):
             # Encode to binary first, before calculating lenght
             payload = payload.encode()
             cmd["payload_length"] = len(payload)
+            logger.debug(f"write_command {command} {len(payload)}")
 
         if args is not None:
             cmd["args"] = args
@@ -233,11 +234,18 @@ class CmbMerengueProcess(GObject.Object):
     def __socket_write_command(self, cmd, payload=None):
         # Send command in one line as json
         output_stream = self.__connection.props.output_stream
-        output_stream.write(json.dumps(cmd).encode())
-        output_stream.write(b"\n")
+
+        def write_data(data):
+            total_bytes = len(data)
+            total_sent = 0
+            while total_sent < total_bytes:
+                total_sent += output_stream.write(data[total_sent:])
+
+        write_data(json.dumps(cmd).encode())
+        write_data(b"\n")
 
         if payload is not None:
-            output_stream.write(payload)
+            write_data(payload)
 
         # Flush
         output_stream.flush()
