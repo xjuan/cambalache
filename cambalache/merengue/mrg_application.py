@@ -321,7 +321,7 @@ class MrgApplication(Gtk.Application):
             css.set_property(field, value)
 
     def run_command(self, command, args, payload):
-        logger.debug(f"{command} {args}")
+        logger.debug(f"{command} {args} payload={len(payload) if payload else -1}")
 
         if command == "clear_all":
             self.clear_all()
@@ -382,7 +382,9 @@ class MrgApplication(Gtk.Application):
 
             # Read payload
             if payload_length:
-                payload = self.command_in.read(payload_length).decode()
+                payload = self.command_in.read(payload_length)
+                logger.debug(f"Payload read {payload_length=}, {len(payload)}")
+                payload = payload.decode()
 
             # Run command
             self.run_command(command, args, payload)
