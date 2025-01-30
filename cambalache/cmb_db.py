@@ -1115,6 +1115,9 @@ class CmbDB(GObject.GObject):
         # Property value
         value = prop.text
 
+        if pinfo.is_object and value:
+            value = value.strip()
+
         # Initialize to null
         inline_object_id = None
 
