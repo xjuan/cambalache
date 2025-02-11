@@ -42,14 +42,15 @@ class MrgGtkLabel(MrgGtkWidget):
 
         # Ensure a label so that it can be selected in the workspace
         if self.object.props.label == "":
-            self.object.set_label("<label>")
+            label = f"&lt;label {self.object_id}&gt;" if self.object.props.use_markup else f"<label {self.object_id}>"
+            self.object.set_label(label)
 
     def object_changed(self, old, new):
         super().object_changed(old, new)
         self.__init_label()
 
     def set_object_property(self, name, value):
-        if name == "label" and value == "":
+        if (name == "label" and value == "") or name == "use-markup":
             self.__init_label()
             return
 
