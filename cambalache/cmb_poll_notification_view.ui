@@ -1,0 +1,64 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.95.0 -->
+<interface>
+  <!-- interface-name cmb_poll_notification_view.ui -->
+  <requires lib="gtk" version="4.0"/>
+  <template class="CmbPollNotificationView" parent="GtkBox">
+    <property name="orientation">vertical</property>
+    <property name="spacing">6</property>
+    <child>
+      <object class="GtkLabel" id="title_label">
+        <property name="halign">start</property>
+        <property name="use-markup">True</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkLabel" id="description_label">
+        <property name="halign">start</property>
+        <property name="use-markup">True</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkBox" id="option_box">
+        <property name="orientation">vertical</property>
+        <property name="spacing">4</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkBox">
+        <property name="spacing">4</property>
+        <property name="vexpand-set">True</property>
+        <child>
+          <object class="GtkButton" id="refresh_button">
+            <property name="child">
+              <object class="GtkLabel">
+                <property name="label">&lt;small&gt;Refresh&lt;/small&gt;</property>
+                <property name="use-markup">True</property>
+              </object>
+            </property>
+            <signal name="clicked" handler="on_refresh_button_clicked"/>
+            <style>
+              <class name="flat"/>
+              <class name="compact"/>
+              <class name="link"/>
+              <class name="text-button"/>
+            </style>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="total_label">
+            <property name="use-markup">True</property>
+            <style>
+              <class name="link"/>
+            </style>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="end_date_label">
+            <property name="use-markup">True</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

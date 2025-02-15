@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.95.0 -->
+<interface>
+  <!-- interface-name r.ui -->
+  <requires lib="gtk" version="4.0"/>
+  <template class="CmbPollOptionCheck" parent="GtkCheckButton">
+    <child>
+      <object class="GtkBox">
+        <property name="hexpand">True</property>
+        <property name="orientation">vertical</property>
+        <property name="valign">center</property>
+        <child>
+          <object class="GtkLabel" id="label">
+            <property name="halign">start</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkProgressBar" id="bar"/>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>
