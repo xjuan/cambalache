@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.95.0 -->
+<interface>
+  <!-- interface-name cmb_version_notification_view.ui -->
+  <requires lib="gtk" version="4.12"/>
+  <template class="CmbVersionNotificationView" parent="GtkBox">
+    <property name="orientation">vertical</property>
+    <property name="spacing">6</property>
+    <child>
+      <object class="GtkLabel" id="version_label">
+        <property name="halign">start</property>
+        <property name="use-markup">True</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkLabel" id="release_notes_label">
+        <property name="halign">start</property>
+        <property name="lines">16</property>
+        <property name="max-width-chars">32</property>
+        <property name="use-markup">True</property>
+        <property name="valign">start</property>
+        <property name="vexpand">True</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkBox">
+        <property name="spacing">4</property>
+        <property name="valign">end</property>
+        <child>
+          <object class="GtkLinkButton" id="read_more_button">
+            <property name="label" translatable="yes">Read more...</property>
+            <property name="uri">https://blogs.gnome.org/xjuan/</property>
+            <style>
+              <class name="compact"/>
+            </style>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLinkButton" id="download_button">
+            <property name="label" translatable="yes">Get it on Flathub</property>
+            <property name="uri">https://flathub.org/apps/ar.xjuan.Cambalache</property>
+            <style>
+              <class name="compact"/>
+            </style>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>
