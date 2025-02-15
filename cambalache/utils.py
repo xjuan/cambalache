@@ -24,6 +24,7 @@
 #
 
 import hashlib
+import datetime
 
 from lxml import etree
 from gi.repository import Gdk, Gio
@@ -102,6 +103,10 @@ def content_type_guess(path):
         content_type, uncertain = Gio.content_type_guess(path, data)
 
     return content_type
+
+
+def utcnow():
+    return int(datetime.datetime.now(datetime.UTC).timestamp())
 
 
 # XML utilities
