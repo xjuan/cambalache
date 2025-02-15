@@ -11,6 +11,8 @@
 
     <child name="state" schema="ar.xjuan.Cambalache.state"/>
 
+    <child name="notification" schema="ar.xjuan.Cambalache.notification"/>
+
   </schema>
 
   <schema id="ar.xjuan.Cambalache.state" path="/ar/xjuan/Cambalache/state/">
@@ -18,12 +20,24 @@
   </schema>
 
   <schema id="ar.xjuan.Cambalache.state.window" path="/ar/xjuan/Cambalache/state/window/">
-    <key name='state' type='u'>
+    <key name="state" type="u">
       <default>0</default>
     </key>
 
-    <key name='size' type='(ii)'>
+    <key name="size" type="(ii)">
       <default>(0,0)</default>
+    </key>
+  </schema>
+
+  <schema id="ar.xjuan.Cambalache.notification" path="/ar/xjuan/Cambalache/notification/">
+    <key name="uuid" type="s">
+      <default>""</default>
+    </key>
+    <key name="next-request" type="t">
+      <default>0</default>
+    </key>
+    <key name="notifications" type="s">
+      <default>""</default>
     </key>
   </schema>
 

@@ -40,7 +40,8 @@ CmbPropertyLabel.hidden:hover > box > image  {
   opacity: 1;
 }
 
-popover.cmb-binding-popover button.close {
+popover.cmb-binding-popover button.close,
+list.notifications button.close {
   padding: unset;
   margin: unset;
   border: unset;
@@ -122,4 +123,9 @@ listview.cmb-list-view > row > treeexpander.cmb-path  > expander:checked {
 
 listview.cmb-list-view > row > treeexpander.cmb-unsaved-path  > expander {
   -gtk-icon-source: -gtk-icontheme("view-list-symbolic");
+}
+
+button.compact {
+  padding: 2px 4px;
+  font-weight: normal;
 }

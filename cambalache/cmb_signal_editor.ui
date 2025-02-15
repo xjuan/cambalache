@@ -37,9 +37,6 @@
             <property name="focusable">1</property>
             <property name="model">treestore</property>
             <property name="tooltip-column">9</property>
-            <child internal-child="selection">
-              <object class="GtkTreeSelection"/>
-            </child>
             <child>
               <object class="GtkTreeViewColumn" id="signal_id_column">
                 <property name="min-width">64</property>

@@ -2,24 +2,30 @@
 <!-- Created with Cambalache 0.95.0 -->
 <gresources>
   <gresource prefix="/ar/xjuan/Cambalache">
-    <file>control/cmb_file_button.ui</file>
-    <file>control/cmb_translatable_widget.ui</file>
-    <file>db/cmb_base.sql</file>
-    <file>db/cmb_project.sql</file>
-    <file>db/cmb_history.sql</file>
-    <file>cmb_view.ui</file>
+    <file>cambalache.css</file>
     <file>cmb_context_menu.ui</file>
+    <file>cmb_css_editor.ui</file>
+    <file>cmb_db_inspector.ui</file>
+    <file>cmb_fragment_editor.ui</file>
+    <file>cmb_gresource_editor.ui</file>
+    <file>cmb_notification_list_view.ui</file>
+    <file>cmb_version_notification_view.ui</file>
+    <file>cmb_message_notification_view.ui</file>
+    <file>cmb_poll_option_check.ui</file>
+    <file>cmb_poll_notification_view.ui</file>
+    <file>cmb_object_data_editor.ui</file>
+    <file>cmb_signal_editor.ui</file>
     <file>cmb_type_chooser.ui</file>
     <file>cmb_type_chooser_widget.ui</file>
     <file>cmb_ui_editor.ui</file>
-    <file>cmb_gresource_editor.ui</file>
-    <file>cmb_css_editor.ui</file>
-    <file>cmb_fragment_editor.ui</file>
-    <file>cmb_object_data_editor.ui</file>
-    <file>cmb_signal_editor.ui</file>
-    <file>cmb_db_inspector.ui</file>
-    <file>cambalache.css</file>
-    <file>icons/scalable/actions/bind-symbolic.svg</file>
+    <file>cmb_view.ui</file>
+    <file>control/cmb_file_button.ui</file>
+    <file>control/cmb_translatable_widget.ui</file>
+    <file>db/cmb_base.sql</file>
+    <file>db/cmb_history.sql</file>
+    <file>db/cmb_project.sql</file>
     <file>icons/scalable/actions/binded-symbolic.svg</file>
+    <file>icons/scalable/actions/bind-symbolic.svg</file>
+    <file>cmb_notification_list_row.ui</file>
   </gresource>
 </gresources>

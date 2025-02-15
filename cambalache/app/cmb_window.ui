@@ -52,6 +52,10 @@
         <attribute name="label" translatable="yes">Interactive intro</attribute>
       </item>
       <item>
+        <attribute name="action">win.notification</attribute>
+        <attribute name="label" translatable="yes">Notifications</attribute>
+      </item>
+      <item>
         <attribute name="action">win.contact</attribute>
         <attribute name="label" translatable="yes">Contact</attribute>
       </item>
@@ -174,12 +178,18 @@
                       <object class="GtkBox">
                         <property name="orientation">vertical</property>
                         <child>
+                          <object class="CmbNotificationListView" id="front_notification_list_view">
+                            <property name="halign">start</property>
+                            <property name="valign">center</property>
+                            <property name="vexpand">True</property>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkLabel" id="version_label">
                             <property name="halign">center</property>
                             <property name="margin-bottom">4</property>
                             <property name="name">version</property>
                             <property name="valign">end</property>
-                            <property name="vexpand">1</property>
                             <attributes>
                               <attribute name="size" value="9000"/>
                             </attributes>
@@ -809,9 +819,7 @@
                 <property name="halign">center</property>
                 <property name="transition-type">slide-up</property>
                 <property name="valign">end</property>
-                <style>
-                  <class name="message"/>
-                </style>
+                <style/>
               </object>
             </child>
           </object>
@@ -846,5 +854,20 @@ application/x-glade
 text/css</property>
     <property name="name">All supported files</property>
     <property name="suffixes">gresource.xml</property>
+  </object>
+  <object class="AdwDialog" id="notification_dialog">
+    <property name="child">
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="AdwHeaderBar"/>
+        </child>
+        <child>
+          <object class="CmbNotificationListView" id="notification_list_view"/>
+        </child>
+      </object>
+    </property>
+    <property name="follows-content-size">True</property>
+    <property name="title" translatable="yes">Notifications</property>
   </object>
 </interface>

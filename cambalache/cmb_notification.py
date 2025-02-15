@@ -30,15 +30,13 @@ import http.client
 import time
 import platform
 
+from urllib.parse import urlparse
 from .config import VERSION
 from gi.repository import GObject, GLib, Gio, Gdk, Gtk, Adw, HarfBuzz
 from cambalache import getLogger
 from . import utils
 
 logger = getLogger(__name__)
-
-# REQUEST_INTERVAL = 24 * 60 * 60
-REQUEST_INTERVAL = 4
 
 
 class CmbBaseData(GObject.GObject):
@@ -131,6 +129,7 @@ class CmbNotificationCenter(GObject.GObject):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
+        self.retry_interval = 1
         self.user_agent = self.__get_user_agent()
         self.store = Gio.ListStore(item_type=CmbNotification)
         self.settings = Gio.Settings(schema_id="ar.xjuan.Cambalache.notification")
@@ -144,7 +143,17 @@ class CmbNotificationCenter(GObject.GObject):
 
         self.__load_notifications()
 
-        self.connection = http.client.HTTPConnection("localhost", 8080, timeout=8)
+        backend = urlparse(os.environ.get("CMB_NOTIFICATION_URL", "https://xjuan.ar:1934"))
+        self.REQUEST_INTERVAL = 4 if backend.hostname == "localhost" else 24 * 60 * 60
+
+        if backend.scheme == "https":
+            logger.info(f"Connecting to {backend.scheme}://{backend.hostname}:{backend.port}")
+            self.connection = http.client.HTTPSConnection(backend.hostname, backend.port, timeout=8)
+        else:
+            self.connection = None
+            logger.warning(f"{backend.scheme} is not supported, only HTTPS")
+            return
+
         self.__get_notification()
 
     def __get_container(self):
@@ -239,7 +248,7 @@ class CmbNotificationCenter(GObject.GObject):
             self.emit("new-notification", notification)
 
         now = int(time.time())
-        self.next_request = now + REQUEST_INTERVAL
+        self.next_request = now + self.REQUEST_INTERVAL
         self.__get_notification()
 
     def __get_notification_thread(self):
@@ -253,17 +262,27 @@ class CmbNotificationCenter(GObject.GObject):
             response = self.connection.getresponse()
             assert response.status == 200
 
+            # Reset retry interval
+            self.retry_interval = 1
+
             data = response.read().decode()
             if data:
                 GLib.idle_add(self.__get_notification_idle, json.loads(data))
         except Exception as e:
-            # If it fails we just wait for next time the app starts
-            logger.warning(f"Error on notification request {e}")
-            GLib.timeout_add_seconds(REQUEST_INTERVAL, self.__get_notification)
+            # If it fails we just wait a bit before retrying
+            self.retry_interval *= 2
+            self.retry_interval = min(self.retry_interval, 256)
+
+            logger.warning(f"Error on notification request {e}, retrying in {self.retry_interval}s")
+            GLib.timeout_add_seconds(self.retry_interval, self.__get_notification)
 
         self.connection.close()
 
     def __run_in_thread(self, function, *args, **kwargs):
+        if not self.connection:
+            logger.warning("No connection defined")
+            return
+
         thread = threading.Thread(target=function, args=args, kwargs=kwargs)
         thread.daemon = True
         thread.start()
@@ -305,7 +324,7 @@ class CmbNotificationCenter(GObject.GObject):
             data = response.read().decode()
             GLib.idle_add(self.__poll_vote_idle, json.loads(data))
         except Exception as e:
-            logger.warning(f"Error on poll vote request {e}")
+            logger.warning(f"Error voting {e}")
             GLib.idle_add(self.__poll_vote_exception_idle, poll_uuid)
 
         self.connection.close()

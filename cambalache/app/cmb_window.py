@@ -40,6 +40,7 @@ from cambalache import (
     CmbGResourceEditor,
     CmbTypeChooserPopover,
     getLogger,
+    notification_center,
     config,
     utils,
     _
@@ -77,6 +78,9 @@ class CmbWindow(Adw.ApplicationWindow):
 
     # Start screen
     version_label = Gtk.Template.Child()
+    front_notification_list_view = Gtk.Template.Child()
+    notification_dialog = Gtk.Template.Child()
+    notification_list_view = Gtk.Template.Child()
 
     # New Project
     np_name_entry = Gtk.Template.Child()
@@ -148,9 +152,9 @@ class CmbWindow(Adw.ApplicationWindow):
         for action in [
             "about",
             "add_css",
+            "add_gresource",
             "add_object",
             "add_object_toplevel",
-            "add_gresource",
             "add_placeholder",
             "add_placeholder_row",
             "add_ui",
@@ -168,6 +172,7 @@ class CmbWindow(Adw.ApplicationWindow):
             "intro",
             "liberapay",
             "new",
+            "notification",
             "open",
             "paste",
             "patreon",
@@ -307,6 +312,10 @@ class CmbWindow(Adw.ApplicationWindow):
 
         self.__recent_manager.connect("changed", lambda rm: self.__update_recent_menu())
         self.__update_recent_menu()
+
+        self.notification_list_view.notification_center = notification_center
+        self.front_notification_list_view.notification_center = notification_center
+        notification_center.connect("new-notification", self.__on_new_notification)
 
     def __get_recent_manager(self):
         # Load the user host recently used file
@@ -593,6 +602,9 @@ class CmbWindow(Adw.ApplicationWindow):
 
         self.intro_button.set_visible(enabled)
 
+    def __update_action_notification(self):
+        self.actions["notification"].set_enabled(len(notification_center.store) > 0)
+
     def __update_action_add_object(self):
         has_project = self.__is_project_visible()
         has_selection = True if self.project and len(self.project.get_selection()) > 0 else False
@@ -654,6 +666,7 @@ class CmbWindow(Adw.ApplicationWindow):
         self.__update_action_new()
         self.__update_action_save()
         self.__update_action_intro()
+        self.__update_action_notification()
         self.__update_action_clipboard()
         self.__update_action_undo_redo()
         self.__update_action_add_object()
@@ -1505,4 +1518,13 @@ class CmbWindow(Adw.ApplicationWindow):
         else:
             self.message_revealer.props.reveal_child = False
 
+    def __notification_present(self):
+        if self.stack.get_visible_child_name() != "cambalache":
+            self.notification_dialog.present(self)
 
+    def _on_notification_activate(self, action, data):
+        self.__notification_present()
+
+    def __on_new_notification(self, center, notification):
+        self.__notification_present()
+        self.__update_action_notification()

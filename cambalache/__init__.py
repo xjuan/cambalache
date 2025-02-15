@@ -34,6 +34,7 @@ gi.require_version("Gdk", "4.0")
 gi.require_version("Gtk", "4.0")
 gi.require_version("GtkSource", "5")
 gi.require_version("WebKit", "6.0")
+gi.require_version('Adw', '1')
 
 # Ensure _() builtin
 if "_" not in builtins.__dict__:
@@ -55,7 +56,7 @@ resource._register()
 provider = Gtk.CssProvider()
 provider.load_from_resource("/ar/xjuan/Cambalache/cambalache.css")
 display = Gdk.Display.get_default()
-Gtk.StyleContext.add_provider_for_display(display, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+Gtk.StyleContext.add_provider_for_display(display, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION - 1)
 
 # FIXME: this is needed in flatpak for icons to work
 Gtk.IconTheme.get_for_display(display).add_search_path("/app/share/icons")
@@ -90,6 +91,8 @@ from .cmb_project import CmbProject
 from .cmb_db_inspector import CmbDBInspector
 from .cmb_view import CmbView
 from .cmb_list_view import CmbListView
+from .cmb_notification import notification_center, CmbNotification
+from .cmb_notification_list_view import CmbNotificationListView
 from .cmb_object_editor import CmbObjectEditor
 from .cmb_signal_editor import CmbSignalEditor
 from .cmb_ui_editor import CmbUIEditor
