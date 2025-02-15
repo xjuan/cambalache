@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.95.0 -->
+<interface>
+  <!-- interface-name cmb_notification_list_view.ui -->
+  <requires lib="gtk" version="4.6"/>
+  <template class="CmbNotificationListView" parent="GtkBox">
+    <property name="hexpand">True</property>
+    <child>
+      <object class="GtkScrolledWindow">
+        <property name="hexpand">True</property>
+        <property name="propagate-natural-height">True</property>
+        <property name="propagate-natural-width">True</property>
+        <child>
+          <object class="GtkListBox" id="list_box">
+            <property name="activate-on-single-click">False</property>
+            <property name="selection-mode">none</property>
+            <property name="show-separators">True</property>
+            <style>
+              <class name="notifications"/>
+            </style>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.95.0 -->
+<interface>
+  <!-- interface-name cmb_notification_list_row.ui -->
+  <requires lib="gtk" version="4.12"/>
+  <template class="CmbNotificationListRow" parent="GtkListBoxRow">
+    <signal name="map" handler="on_map"/>
+    <child>
+      <object class="GtkRevealer">
+        <child>
+          <object class="GtkBox" id="box">
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkBox">
+                <property name="spacing">4</property>
+                <property name="vexpand-set">True</property>
+                <child>
+                  <object class="GtkLabel" id="date_label">
+                    <property name="halign">end</property>
+                    <property name="hexpand">True</property>
+                    <property name="use-markup">True</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="close_button">
+                    <property name="icon-name">window-close-symbolic</property>
+                    <signal name="clicked" handler="on_close_button_clicked"/>
+                    <style>
+                      <class name="flat"/>
+                      <class name="compact"/>
+                      <class name="close"/>
+                    </style>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>
