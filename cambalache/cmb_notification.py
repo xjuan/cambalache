@@ -120,6 +120,7 @@ class CmbNotificationCenter(GObject.GObject):
     }
 
     # Settings
+    enabled = GObject.Property(type=bool, default=True, flags=GObject.ParamFlags.READWRITE)
     uuid = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
     next_request = GObject.Property(type=int, flags=GObject.ParamFlags.READWRITE)
     notifications = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
@@ -134,12 +135,8 @@ class CmbNotificationCenter(GObject.GObject):
         self.store = Gio.ListStore(item_type=CmbNotification)
         self.settings = Gio.Settings(schema_id="ar.xjuan.Cambalache.notification")
 
-        for prop in ["uuid", "next-request", "notifications"]:
+        for prop in ["enabled", "uuid", "next-request", "notifications"]:
             self.settings.bind(prop, self, prop.replace("-", "_"), Gio.SettingsBindFlags.DEFAULT)
-
-        logger.info(f"Cambalache User Agent: {self.user_agent}")
-        logger.info(f"Cambalache UUID: {self.uuid}")
-        logger.info(f"Next request in {self.next_request - int(time.time())} seconds")
 
         self.__load_notifications()
 
@@ -147,14 +144,17 @@ class CmbNotificationCenter(GObject.GObject):
         self.REQUEST_INTERVAL = 4 if backend.hostname == "localhost" else 24 * 60 * 60
 
         if backend.scheme == "https":
-            logger.info(f"Connecting to {backend.scheme}://{backend.hostname}:{backend.port}")
+            logger.info(f"Backend: {backend.scheme}://{backend.hostname}:{backend.port}")
             self.connection = http.client.HTTPSConnection(backend.hostname, backend.port, timeout=8)
         else:
             self.connection = None
             logger.warning(f"{backend.scheme} is not supported, only HTTPS")
             return
 
-        self.__get_notification()
+        logger.info(f"User Agent: {self.user_agent}")
+        logger.info(f"UUID: {self.uuid}")
+
+        self._get_notification()
 
     def __get_container(self):
         if "FLATPAK_ID" in os.environ:
@@ -249,7 +249,9 @@ class CmbNotificationCenter(GObject.GObject):
 
         now = int(time.time())
         self.next_request = now + self.REQUEST_INTERVAL
-        self.__get_notification()
+        self._get_notification()
+
+        return GLib.SOURCE_REMOVE
 
     def __get_notification_thread(self):
         headers = {"User-Agent": self.user_agent}
@@ -258,6 +260,8 @@ class CmbNotificationCenter(GObject.GObject):
             headers["x-cambalache-uuid"] = self.uuid
 
         try:
+            logger.info(f"GET /notification {headers=}")
+
             self.connection.request("GET", "/notification", headers=headers)
             response = self.connection.getresponse()
             assert response.status == 200
@@ -266,6 +270,9 @@ class CmbNotificationCenter(GObject.GObject):
             self.retry_interval = 1
 
             data = response.read().decode()
+
+            logger.info(f"response={data}")
+
             if data:
                 GLib.idle_add(self.__get_notification_idle, json.loads(data))
         except Exception as e:
@@ -273,8 +280,8 @@ class CmbNotificationCenter(GObject.GObject):
             self.retry_interval *= 2
             self.retry_interval = min(self.retry_interval, 256)
 
-            logger.warning(f"Error on notification request {e}, retrying in {self.retry_interval}s")
-            GLib.timeout_add_seconds(self.retry_interval, self.__get_notification)
+            logger.warning(f"Request error {e}, retrying in {self.retry_interval}s")
+            GLib.timeout_add_seconds(self.retry_interval, self._get_notification)
 
         self.connection.close()
 
@@ -283,17 +290,20 @@ class CmbNotificationCenter(GObject.GObject):
             logger.warning("No connection defined")
             return
 
-        thread = threading.Thread(target=function, args=args, kwargs=kwargs)
-        thread.daemon = True
+        if not self.enabled:
+            logger.info("Notifications disabled")
+            return
+
+        thread = threading.Thread(target=function, args=args, kwargs=kwargs, daemon=True)
         thread.start()
 
-    def __get_notification(self):
+    def _get_notification(self):
         now = int(time.time())
 
         if now >= self.next_request:
             self.__run_in_thread(self.__get_notification_thread)
         else:
-            GLib.timeout_add_seconds(self.next_request - now, self.__get_notification)
+            GLib.timeout_add_seconds(self.next_request - now, self._get_notification)
 
     def __poll_vote_idle(self, data):
         logger.debug(f"Got vote response {data}")
@@ -306,18 +316,21 @@ class CmbNotificationCenter(GObject.GObject):
                 notification.results = CmbPollResult(**results)
                 self.__save_notifications()
                 break
+        return GLib.SOURCE_REMOVE
 
     def __poll_vote_exception_idle(self, uuid):
         for notification in self.store:
             if isinstance(notification, CmbPollNotification) and notification.poll.id == uuid:
                 notification.my_votes = []
                 break
+        return GLib.SOURCE_REMOVE
 
     def __poll_vote_thread(self, method, poll_uuid, votes=None):
         headers = {"User-Agent": self.user_agent, "x-cambalache-uuid": self.uuid, "Content-type": "application/json"}
 
         try:
-            self.connection.request(method, f"/poll/{poll_uuid}", json.dumps({"votes": votes}), headers)
+            payload = json.dumps({"votes": votes}) if method == "POST" else None
+            self.connection.request(method, f"/poll/{poll_uuid}", payload, headers)
             response = self.connection.getresponse()
             assert response.status == 200
 
@@ -343,7 +356,7 @@ class CmbNotificationCenter(GObject.GObject):
 
         self.__run_in_thread(self.__poll_vote_thread, "GET", notification.poll.id)
 
-    def remove(self, notification: CmbPollNotification):
+    def remove(self, notification: CmbNotification):
         valid, position = self.store.find(notification)
         if valid:
             self.store.remove(position)

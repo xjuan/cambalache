@@ -91,7 +91,7 @@ from .cmb_project import CmbProject
 from .cmb_db_inspector import CmbDBInspector
 from .cmb_view import CmbView
 from .cmb_list_view import CmbListView
-from .cmb_notification import notification_center, CmbNotification
+from .cmb_notification import notification_center, CmbNotification, CmbNotificationCenter
 from .cmb_notification_list_view import CmbNotificationListView
 from .cmb_object_editor import CmbObjectEditor
 from .cmb_signal_editor import CmbSignalEditor

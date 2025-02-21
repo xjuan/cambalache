@@ -30,6 +30,9 @@
   </schema>
 
   <schema id="ar.xjuan.Cambalache.notification" path="/ar/xjuan/Cambalache/notification/">
+    <key name="enabled" type="b">
+      <default>true</default>
+    </key>
     <key name="uuid" type="s">
       <default>""</default>
     </key>
