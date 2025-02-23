@@ -215,7 +215,7 @@
     <GtkComboBoxText>
       <data>
         <items>
-          <item id="gchararray">gchararray</item>
+          <item id="gchararray" Cmb:translatable="True">gchararray</item>
         </items>
       </data>
     </GtkComboBoxText>

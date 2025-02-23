@@ -1371,7 +1371,7 @@
   </type_flags>
   <type_data>
 	("GtkComboBoxText",1,None,"items",None,None),
-	("GtkComboBoxText",2,1,"item","gchararray",None),
+	("GtkComboBoxText",2,1,"item","gchararray",1),
 	("GtkDialog",1,None,"action-widgets",None,None),
 	("GtkDialog",2,1,"action-widget","GtkWidget",None),
 	("GtkFileFilter",1,None,"mime-types",None,None),
