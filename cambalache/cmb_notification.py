@@ -186,15 +186,20 @@ class CmbNotificationCenter(GObject.GObject):
         lang = HarfBuzz.language_to_string(HarfBuzz.language_get_default())
         extra = []
 
+        # Container type
         container = self.__get_container()
         if container:
             extra.append(f"container {container}")
+
+        # GSettings backend
+        settings_backend = Gio.SettingsBackend.get_default()
+        gsettings_backend = GObject.type_name(settings_backend).removesuffix("SettingsBackend")
 
         for name, lib in [("GLib", GLib), ("Gtk", Gtk), ("Adw", Adw)]:
             extra.append(f"{name} {lib.MAJOR_VERSION}.{lib.MINOR_VERSION}.{lib.MICRO_VERSION}")
 
         # Ignore node name as that is private and irrelevant information
-        for string in [system, u.release, u.version, u.machine, backend]:
+        for string in [system, u.release, u.version, u.machine, backend, gsettings_backend]:
             if not string:
                 continue
             platform_strings.append(string.translate(table))
