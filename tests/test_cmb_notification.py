@@ -43,10 +43,8 @@ def wait_for_all_threads():
         t.join()
 
 
-def test_cmb_notification_enabled():
+def test_cmb_notification_disabled():
     assert not notification_center.uuid
-    assert notification_center.enabled is True
-    notification_center.enabled = False
     assert notification_center.enabled is False
     assert len(notification_center.store) == 0
     notification_center.enabled = True
