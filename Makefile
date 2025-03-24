@@ -1,7 +1,7 @@
 repo: ar.xjuan.Cambalache.json .git/objects
 	flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-	flatpak install --noninteractive --user flathub org.gnome.Sdk//47
-	flatpak install --noninteractive --user flathub org.gnome.Platform//47
+	flatpak install --noninteractive --user flathub org.gnome.Sdk//48
+	flatpak install --noninteractive --user flathub org.gnome.Platform//48
 	flatpak-builder --force-clean --repo=repo build ar.xjuan.Cambalache.json
 
 cambalache.flatpak: repo

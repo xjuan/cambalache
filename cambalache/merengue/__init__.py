@@ -26,14 +26,18 @@ import os
 import gi
 import logging
 
-gi.require_version('GIRepository', '2.0')
+gi.require_version('GIRepository', '3.0')
 from . import config
-from gi.repository import GIRepository, Gio
+from gi.repository import Gio, Gtk
 
 resource = Gio.Resource.load(os.path.join(config.pkgdatadir, "merengue.gresource"))
 resource._register()
 
-GIRepository.Repository.prepend_library_path(config.privatecambalachedir)
+repository = gi.Repository.get_default()
+repository.prepend_search_path(config.privatecambalachedir)
+repository.prepend_library_path(config.privatecambalachedir)
+
+gi.require_version("CambalachePrivate", "4.0" if Gtk.MAJOR_VERSION == 4 else "3.0")
 
 
 def getLogger(name):
@@ -53,3 +57,4 @@ from .mrg_application import MrgApplication
 from .mrg_controller import MrgController
 from .mrg_placeholder import MrgPlaceholder
 from . import utils
+

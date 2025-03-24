@@ -30,6 +30,7 @@ import builtins
 
 from . import config
 
+gi.require_version("GIRepository", "3.0")
 gi.require_version("Gdk", "4.0")
 gi.require_version("Gtk", "4.0")
 gi.require_version("GtkSource", "5")

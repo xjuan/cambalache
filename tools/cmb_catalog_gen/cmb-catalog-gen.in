@@ -27,18 +27,18 @@ import argparse
 import json
 import signal
 
-gi.require_version('GIRepository', '2.0')
+gi.require_version("GIRepository", "3.0")
 from gi.repository import GIRepository, Gio
 
-GIRepository.Repository.prepend_library_path('@privatecmb_catalog_gendir@')
-resource = Gio.Resource.load(os.path.join('@pkgdatadir@', "cambalache.gresource"))
+GIRepository.Repository().prepend_library_path("@privatecmb_catalog_gendir@")
+resource = Gio.Resource.load(os.path.join("@pkgdatadir@", "cambalache.gresource"))
 resource._register()
 
 from cmb_catalog_gen import CmbCatalogDB
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate Cambalache catalogs from Gir library data")
 
     parser.add_argument("--gir", type=str, required=True, help="library Gir file")
@@ -141,7 +141,7 @@ if __name__ == '__main__':
         overrides = db.get_property_overrides()
         if overrides:
             print(
-                'Properties Overrides',
+                "Properties Overrides",
                 json.dumps(overrides, indent=2, sort_keys=True),
             )
 

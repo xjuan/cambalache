@@ -1,0 +1,4 @@
+option('with-gtk-3', type: 'feature', value: 'auto')
+option('with-handy', type: 'feature', value: 'auto')
+option('with-webkit2gtk-4_1', type: 'feature', value: 'auto')
+option('with-webkitgtk-6', type: 'feature', value: 'auto')

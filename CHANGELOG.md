@@ -9,6 +9,14 @@ Cambalache used even/odd minor numbers to differentiate between stable and
 development releases.
 
 
+## Unreleased
+
+### Packaging changes
+
+ - libcambalacheprivate-[3|4] and its typelib are now installed under libdir/cambalache
+ - libcmbcatalogutils-[3|4] and its typelib are now installed under libdir/cmb_catalog_gen
+ - Gtk 3, Handy, webkit2gtk and webkitgtk are now optional dependencies
+
 ## 0.94.0
 
 2024-11-25 - Accessibility release

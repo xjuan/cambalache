@@ -15,7 +15,7 @@ foreach d : [['3', gtk3_dep], ['4', gtk4_dep]]
     sources,
     dependencies: dep,
     install: true,
-    install_dir : privatecambalachedir,
+    install_dir: privatecambalachedir,
   )
 
   gnome.generate_gir(
@@ -28,5 +28,6 @@ foreach d : [['3', gtk3_dep], ['4', gtk4_dep]]
     symbol_prefix: 'cmb_private',
     header: 'cmb_private.h',
     install: true,
+    install_dir_typelib: privatecambalachedir,
   )
 endforeach

@@ -29,7 +29,7 @@ import gi
 import sys
 import signal
 
-merenguedir = '@merenguedir@'
+merenguedir = "@merenguedir@"
 
 sys.path.insert(1, merenguedir)
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -43,9 +43,9 @@ if __name__ == "__main__":
 
     version = sys.argv[1]
     command_socket = sys.argv[2]
-    gi.require_version('Gdk', version)
-    gi.require_version('Gtk', version)
-    gi.require_version('CambalachePrivate', version)
+
+    gi.require_version("Gdk", version)
+    gi.require_version("Gtk", version)
 
     from merengue import MrgApplication
     app = MrgApplication(command_socket=command_socket)

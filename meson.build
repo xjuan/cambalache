@@ -1,7 +1,7 @@
 project(
     'cambalache', 'c',
     version: '0.95.0',
-    meson_version: '>= 0.64.0',
+    meson_version: '>= 1.1.0',
     default_options: [
         'c_std=c11',
         'warning_level=2',
@@ -25,19 +25,32 @@ i18n = import('i18n')
 privatecambalachedir = join_paths(get_option('prefix'), get_option('libdir'), 'cambalache')
 privatecmb_catalog_gendir = join_paths(get_option('prefix'), get_option('libdir'), 'cmb_catalog_gen')
 
+# Hard dependencies
+libxml2_dep = dependency('libxml-2.0', version: '>= 2.9.0')
+pygobject_dep = dependency('pygobject-3.0', version: '>= 3.52.0')
+gtk4_dep = dependency('gtk4', version: '>= 4.18.0')
+casilda_dep = dependency('casilda-0.1', version: '>= 0.2.0', fallback: ['casilda', 'casilda_dep'])
+adw_dep = dependency('libadwaita-1', version: '>= 1.7.0')
+gtksource_dep = dependency('gtksourceview-5', version: '>= 5.16.0')
+
+gtk3_dep = dependency('gtk+-3.0', version: '>= 3.24.0', required: get_option('with-gtk-3'))
+handy_dep = dependency('libhandy-1', version: '>= 1.8.0', required: get_option('with-handy'))
+webkit_dep = dependency('webkitgtk-6.0', version: '>= 2.48.0', required: get_option('with-webkitgtk-6'))
+webkit2_dep = dependency('webkit2gtk-4.1', version: '>= 2.48.0', required: get_option('with-webkit2gtk-4_1'))
 
 # Python requirements ['module', 'version', 'gi required version]
 modules = [
-    ['lxml', '>= 4.5.0'],
-    ['gi', '>= 3.48.0'],
-    ['gi.repository.GLib', '>= 2.80.0'],
-    ['gi.repository.Gtk', '>= 3.24.0', '3.0'],
-    ['gi.repository.Gtk', '>= 4.16.0', '4.0'],
-    ['gi.repository.WebKit2', '>= 2.44.0', '4.1'],
-    ['gi.repository.WebKit', '>= 2.44.0', '6.0'],
-    ['gi.repository.GtkSource', '', '5'],
-    ['gi.repository.Handy'],
-    ['gi.repository.Adw'],
+    ['lxml', ''],
+    ['gi', ''],
+    ['gi.repository.GLib', '2.0'],
+    ['gi.repository.Gtk', '4.0'],
+    ['gi.repository.GtkSource', '5'],
+    ['gi.repository.Adw', '1'],
+
+    ['gi.repository.Gtk', '3.0', gtk3_dep.found()],
+    ['gi.repository.Handy', '1', handy_dep.found()],
+    ['gi.repository.WebKit', '6.0', webkit_dep.found()],
+    ['gi.repository.WebKit2', '4.1', webkit2_dep.found()],
 ]
 
 # Python script to check for gi repository module
@@ -54,8 +67,12 @@ all_required = true
 
 foreach mod_ver: modules
     mod = mod_ver[0]
-    version = (mod_ver.length() > 1) ? mod_ver[1] : ''
-    gi_req = (mod_ver.length() > 2) ? mod_ver[2] : 'None'
+    gi_req = (mod_ver.length() > 1) ? mod_ver[1] : 'None'
+    is_required = (mod_ver.length() > 2) ? mod_ver[2] : true
+
+    if not is_required
+        continue
+    endif
 
     if mod.startswith('gi.repository.')
         mod = mod.split('.')[2]
@@ -65,16 +82,10 @@ foreach mod_ver: modules
     endif
 
     ver = m.stdout().strip()
-
-    if version != ''
-        found = m.returncode() == 0 and ver.version_compare(version)
-    else
-        found = m.returncode() == 0
-    endif
-
+    found = m.returncode() == 0
     found_msg = found ? '\u001b[32mYES\u001b[0m' : '\u001b[31mNO\u001b[0m'
 
-    message('Python module \u001b[1m@0@\u001b[0m @1@ found: @2@ @3@ @4@'.format(mod, version, found_msg, ver, gi_req))
+    message('Python module \u001b[1m@0@ @1@\u001b[0m found: @2@ @3@'.format(mod, gi_req, found_msg, ver))
 
     if all_required
         all_required = found
@@ -82,13 +93,6 @@ foreach mod_ver: modules
 endforeach
 
 assert(all_required, 'One or more required modules where not found')
-
-gtk3_dep = dependency('pygobject-3.0', version: '>= 3.48.0')
-gtk3_dep = dependency('gtk+-3.0', version: '>= 3.24.0')
-gtk4_dep = dependency('gtk4', version: '>= 4.16.0')
-casilda_dep = dependency('casilda-0.1', version: '>= 0.2.0', fallback: ['casilda', 'casilda_dep'])
-handy_dep = dependency('libhandy-1', version: '>= 1.8.0')
-adw_dep = dependency('libadwaita-1', version: '>= 1.6.0')
 
 subdir('data')
 subdir('cambalache')
