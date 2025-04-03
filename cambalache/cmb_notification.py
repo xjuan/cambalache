@@ -130,19 +130,18 @@ class CmbNotificationCenter(GObject.GObject):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        backend = Gio.SettingsBackend.get_default()
-        if GObject.type_name(backend) == "GMemorySettingsBackend":
-            config_file = os.path.join(GLib.get_user_config_dir(), "ar.xjuan.Cambalache.conf")
-            backend = Gio.keyfile_settings_backend_new(config_file, "/", None)
-            logger.info(f"Using {config_file} as GSettings store")
-
         self.retry_interval = 1
         self.user_agent = self.__get_user_agent()
         self.store = Gio.ListStore(item_type=CmbNotification)
-        self.settings = Gio.Settings(schema_id="ar.xjuan.Cambalache.notification", backend=backend)
+        self.settings = Gio.Settings(schema_id="ar.xjuan.Cambalache.notification")
 
         for prop in ["enabled", "uuid", "next-request", "notifications"]:
             self.settings.bind(prop, self, prop.replace("-", "_"), Gio.SettingsBindFlags.DEFAULT)
+
+        # Disable notifications if settings backend is ephemeral
+        if GObject.type_name(Gio.SettingsBackend.get_default()) == "GMemorySettingsBackend":
+            logger.info("Disabling notifications")
+            self.enabled = False
 
         self.__load_notifications()
 
