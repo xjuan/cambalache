@@ -48,6 +48,13 @@ class CmbNotificationListView(Gtk.Box):
 
     def __on_notification_center_notify(self, obj, pspec):
         self.list_box.bind_model(self.notification_center.store, self.__create_widget_func)
+        GObject.Object.bind_property(
+            self.notification_center.store,
+            "n-items",
+            self.list_box,
+            "visible",
+            GObject.BindingFlags.SYNC_CREATE,
+        )
 
     def __create_widget_func(self, item):
         if isinstance(item, CmbVersionNotification):
