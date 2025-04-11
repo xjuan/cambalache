@@ -172,27 +172,32 @@ def xml_node_set(node, attr, val):
 
 
 class FileHash():
-    def __init__(self, fd):
+    def __init__(self, fd=None):
         self.__fd = fd
         self.__hash = hashlib.sha256()
 
     def close(self):
-        self.__fd.close()
+        if self.__fd:
+            self.__fd.close()
 
     def peek(self, size):
-        return self.__fd.peek(size)
+        return self.__fd.peek(size) if self.__fd else None
 
     def read(self, size):
-        data = self.__fd.read(size)
-        self.__hash.update(data)
-        return data
+        if self.__fd:
+            data = self.__fd.read(size)
+            self.__hash.update(data)
+            return data
+        return None
 
     def flush(self):
-        self.__fd.flush()
+        if self.__fd:
+            self.__fd.flush()
 
     def write(self, data):
         self.__hash.update(data)
-        self.__fd.write(data)
+        if self.__fd:
+            self.__fd.write(data)
 
     def hexdigest(self):
         return self.__hash.hexdigest()

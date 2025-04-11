@@ -2746,7 +2746,7 @@ class CmbDB(GObject.GObject):
             for child in root:
                 node.append(child)
 
-    def export_ui(self, ui_id, merengue=False):
+    def export_ui(self, ui_id, merengue=False, skip_version_comment=False):
         c = self.conn.cursor()
 
         c.execute("SELECT translation_domain, comment, template_id, custom_fragment FROM ui WHERE ui_id=?;", (ui_id,))
@@ -2758,7 +2758,10 @@ class CmbDB(GObject.GObject):
         translation_domain, comment, template_id, custom_fragment = row
 
         node = E.interface()
-        node.addprevious(etree.Comment(f" Created with Cambalache {config.VERSION} "))
+
+        if not skip_version_comment:
+            node.addprevious(etree.Comment(f" Created with Cambalache {config.VERSION} "))
+
         utils.xml_node_set(node, "domain", translation_domain)
 
         self.__node_add_comment(node, comment)
@@ -2853,7 +2856,7 @@ class CmbDB(GObject.GObject):
 
         return etree.tostring(ui, pretty_print=True, xml_declaration=True, encoding="UTF-8").decode("UTF-8")
 
-    def export_gresource(self, gresources_id):
+    def export_gresource(self, gresources_id, skip_version_comment=False):
         c = self.conn.cursor()
 
         c.execute(
@@ -2867,7 +2870,9 @@ class CmbDB(GObject.GObject):
             return None
 
         root = E.gresources()
-        root.addprevious(etree.Comment(f" Created with Cambalache {config.VERSION} "))
+
+        if not skip_version_comment:
+            root.addprevious(etree.Comment(f" Created with Cambalache {config.VERSION} "))
 
         cc = self.conn.cursor()
 

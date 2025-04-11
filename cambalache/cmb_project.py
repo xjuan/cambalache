@@ -123,6 +123,9 @@ class CmbProject(GObject.Object, Gio.ListModel):
         self.__css_id = {}
         self.__gresource_id = {}
 
+        # File state
+        self.__file_state = {}
+
         self.__template_info = {}
 
         self.__filename = None
@@ -275,6 +278,12 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         return None, None
 
+    def __get_version_comment_from_root(self, root):
+        comment = root.getprevious()
+        if comment is not None and comment.tag is etree.Comment:
+            return comment
+        return None
+
     def __load_ui_from_node(self, node):
         filename, sha256 = utils.xml_node_get(node, ["filename", "sha256"])
         if filename:
@@ -284,6 +293,9 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 logger.warning(f"{filename} hash mismatch, file was modified")
 
             ui_id = self.db.import_from_node(root, relpath)
+
+            cmb_version = self.__get_version_comment_from_root(root)
+            self.__file_state[filename] = cmb_version, sha256
         else:
             content = node.find("content")
             if content is not None:
@@ -340,13 +352,19 @@ class CmbProject(GObject.Object, Gio.ListModel):
                     "INSERT INTO signal(owner_id, signal_id, detailed) VALUES (?, ?, ?)", (owner_id, signal_id, detailed)
                 )
 
+        for provider in node.findall("css-provider"):
+            row = self.db.execute("SELECT css_id FROM css WHERE filename=?;", (provider.text,)).fetchone()
+            if row:
+                (css_id,) = row
+                self.db.execute("INSERT INTO css_ui VALUES (?, ?)", (css_id, ui_id))
+
         self.__populate_ui(ui_id)
 
     def __load_css_from_node(self, node):
         css_filename, priority, is_global = utils.xml_node_get(node, ["filename", "priority", "is_global"])
         css_id = self.db.add_css(css_filename, priority, is_global)
 
-        # Load UI relation
+        # FIXME: Load UI relation this is for old format <= 0.95
         for ui in node.getchildren():
             if ui.tag != "ui":
                 continue
@@ -367,6 +385,9 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 logger.warning(f"{filename} hash mismatch, file was modified")
 
             gresource_id = self.db.import_gresource_from_node(root, relpath)
+
+            cmb_version = self.__get_version_comment_from_root(root)
+            self.__file_state[filename] = cmb_version, sha256
         else:
             content = node.find("content")
             if content:
@@ -427,6 +448,12 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 else:
                     raise Exception(f"Unknown tag {child.tag} in project file.")
 
+            for node in css_list:
+                self.__load_css_from_node(node)
+
+            for node in gresourses_list:
+                self.__load_gresource_from_node(node)
+
             # Replace dependencies with nodes
             ui_node_graph = {}
             for node, dependencies in ui_graph.items():
@@ -441,12 +468,6 @@ class CmbProject(GObject.Object, Gio.ListModel):
             # Load UI in topological order
             for node in sorted_ui_nodes:
                 self.__load_ui_from_node(node)
-
-            for node in css_list:
-                self.__load_css_from_node(node)
-
-            for node in gresourses_list:
-                self.__load_gresource_from_node(node)
         else:
             self.db.load_old_format(root, version)
 
@@ -504,15 +525,35 @@ class CmbProject(GObject.Object, Gio.ListModel):
         else:
             fullpath = filename
 
+        dirty = True
+
         # Ensure directory exists
         os.makedirs(os.path.dirname(fullpath), exist_ok=True)
 
-        # Dump xml to file
-        with open(fullpath, "wb") as fd:
-            hash_file = FileHash(fd)
+        original_comment, original_hash = self.__file_state.get(filename, (None, None))
+        if original_comment is not None:
+            interface = root.getroot()
+
+            comment = self.__get_version_comment_from_root(interface)
+            new_comment = comment.text
+            comment.text = original_comment.text
+
+            # Calculate hash
+            hash_file = FileHash()
             root.write(hash_file, pretty_print=True, xml_declaration=True, encoding="UTF-8")
             hexdigest = hash_file.hexdigest()
             hash_file.close()
+
+            comment.text = new_comment
+            dirty = original_hash != hexdigest
+
+        if dirty:
+            # Dump xml to file
+            with open(fullpath, "wb") as fd:
+                hash_file = FileHash(fd)
+                root.write(hash_file, pretty_print=True, xml_declaration=True, encoding="UTF-8")
+                hexdigest = hash_file.hexdigest()
+                hash_file.close()
 
         # Store filename and hash in node
         utils.xml_node_set(node, "filename", filename)
@@ -535,6 +576,14 @@ class CmbProject(GObject.Object, Gio.ListModel):
             (ui_id,)
         ):
             ui.append(E.requires(row[0]))
+
+        # Save CSS UI relation
+        for row in self.db.execute(
+            "SELECT css.filename FROM css_ui, css WHERE css_ui.css_id=css.css_id AND css_ui.ui_id=?;", (ui_id, )
+        ):
+            (css_filename,) = row
+            provider = E("css-provider", css_filename)
+            ui.append(provider)
 
         # Save custom properties and signals
         if template_id:
@@ -577,11 +626,12 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 utils.xml_node_set(ui, "template-class", owner_id)
 
         # Save UI file
-        # TODO: only save if there was a change in the UI
-        root = self.db.export_ui(ui_id)
         if filename:
+            root = self.db.export_ui(ui_id)
             self.__save_xml_and_update_node(ui, root, filename)
         else:
+            # Embed UI content in project as CDATA
+            root = self.db.export_ui(ui_id, skip_version_comment=True)
             self.__save_xml_in_node(ui, root)
 
         return ui
@@ -595,24 +645,17 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         # TODO: save CSS file if it has changes
 
-        # Save CSS UI relation
-        for css_ui in self.db.execute(
-            "SELECT ui.filename FROM css_ui, ui WHERE css_ui.css_id=? AND css_ui.ui_id=ui.ui_id;", (css_id,)
-        ):
-            (ui_filename,) = css_ui
-            ui = E.ui(ui_filename)
-            css.append(ui)
-
         return css
 
     def __save_gresource_and_get_node(self, gresource_id, filename):
         gresources = E.gresources()
 
-        # TODO: only save if there was a change in the file
-        root = self.db.export_gresource(gresource_id)
         if filename:
+            root = self.db.export_gresource(gresource_id)
             self.__save_xml_and_update_node(gresources, root, filename)
         else:
+            # Embed file contents in project as CDATA
+            root = self.db.export_gresource(gresource_id, skip_version_comment=True)
             self.__save_xml_in_node(gresources, root)
 
         return gresources
@@ -627,11 +670,13 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         project = E("cambalache-project", version=config.FILE_FORMAT_VERSION, target_tk=self.target_tk)
 
-        # Save UI files
-        for row in c.execute("SELECT ui_id, template_id, filename FROM ui;"):
-            ui_id, template_id, ui_filename = row
-            ui = self.__save_ui_and_get_node(ui_id, template_id, ui_filename)
-            project.append(ui)
+        project.addprevious(etree.Comment(f" Created with Cambalache {config.VERSION} "))
+
+        # Save GResources
+        for row in c.execute("SELECT gresource_id, gresources_filename FROM gresource WHERE resource_type='gresources';"):
+            gresource_id, gresources_filename = row
+            gresources = self.__save_gresource_and_get_node(gresource_id, gresources_filename)
+            project.append(gresources)
 
         # Save CSS reference
         for row in c.execute("SELECT css_id, filename, priority, is_global FROM css;"):
@@ -639,11 +684,11 @@ class CmbProject(GObject.Object, Gio.ListModel):
             css = self.__save_css_and_get_node(css_id, css_filename, priority, is_global)
             project.append(css)
 
-        # Save GResources
-        for row in c.execute("SELECT gresource_id, gresources_filename FROM gresource WHERE resource_type='gresources';"):
-            gresource_id, gresources_filename = row
-            gresources = self.__save_gresource_and_get_node(gresource_id, gresources_filename)
-            project.append(gresources)
+        # Save UI files
+        for row in c.execute("SELECT ui_id, template_id, filename FROM ui;"):
+            ui_id, template_id, ui_filename = row
+            ui = self.__save_ui_and_get_node(ui_id, template_id, ui_filename)
+            project.append(ui)
 
         # Dump project xml to file
         with open(self.filename, "wb") as fd:
@@ -795,16 +840,16 @@ class CmbProject(GObject.Object, Gio.ListModel):
         self,
         emit,
         ui_id,
-        template_id,
-        name,
-        filename,
-        description,
-        copyright,
-        authors,
-        license_id,
-        translation_domain,
-        comment,
-        custom_fragment,
+        template_id=None,
+        name=None,
+        filename=None,
+        description=None,
+        copyright=None,
+        authors=None,
+        license_id=None,
+        translation_domain=None,
+        comment=None,
+        custom_fragment=None,
     ):
         ui = CmbUI(project=self, ui_id=ui_id)
 
@@ -827,7 +872,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         except Exception:
             return None
         else:
-            return self.__add_ui(True, ui_id, None, basename, relpath, None, None, None, None, None, None, None)
+            return self.__add_ui(True, ui_id, None, basename, relpath)
 
     def __remove_ui(self, ui):
         self._object_id.pop(ui.ui_id, None)
