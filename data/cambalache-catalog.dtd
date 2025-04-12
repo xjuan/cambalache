@@ -17,7 +17,7 @@
 <!-- Required child tags -->
 <!ELEMENT type (#PCDATA)>
 
-<!-- Optinal child tags -->
+<!-- Optional child tags -->
 <!ELEMENT type_iface (#PCDATA)>
 <!ELEMENT type_enum (#PCDATA)>
 <!ELEMENT type_flags (#PCDATA)>
