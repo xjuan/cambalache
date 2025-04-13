@@ -298,7 +298,13 @@ class MrgApplication(Gtk.Application):
         self.set_property(property, value)
 
     def add_css_provider(self, css_id, filename, priority, is_global, provider_for):
-        css = MrgCssProvider(filename=filename, priority=priority, is_global=is_global, ui_id=self.ui_id if self.ui_id else 0)
+        css = MrgCssProvider(
+            filename=filename,
+            priority=priority,
+            is_global=is_global,
+            provider_for=provider_for,
+            ui_id=self.ui_id if self.ui_id else 0
+            )
 
         self.css_providers[css_id] = css
 
