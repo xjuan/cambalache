@@ -28,9 +28,12 @@ import json
 import signal
 
 gi.require_version("GIRepository", "3.0")
-from gi.repository import GIRepository, Gio
+from gi.repository import Gio
 
-GIRepository.Repository().prepend_library_path("@privatecmb_catalog_gendir@")
+repository = gi.Repository.get_default()
+repository.prepend_search_path("@privatecmb_catalog_gendir@")
+repository.prepend_library_path("@privatecmb_catalog_gendir@")
+
 resource = Gio.Resource.load(os.path.join("@pkgdatadir@", "cambalache.gresource"))
 resource._register()
 

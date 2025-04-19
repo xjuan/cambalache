@@ -52,5 +52,6 @@ foreach d : [['3', gtk3_dep], ['4', gtk4_dep]]
     symbol_prefix: 'cmb_catalog_utils',
     header: 'cmb_catalog_utils.h',
     install: true,
+    install_dir_typelib: privatecmb_catalog_gendir,
   )
 endforeach
