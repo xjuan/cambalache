@@ -301,17 +301,19 @@
 	("PangoWeight","PANGO_WEIGHT_ULTRAHEAVY","ultraheavy",1000,"the ultraheavy weight (= 1000) Since: 1.24"),
 	("PangoWeight","PANGO_WEIGHT_ULTRALIGHT","ultralight",200,"the ultralight weight (= 200)"),
 	("PangoWrapMode","PANGO_WRAP_CHAR","char",1,"wrap lines at character boundaries."),
+	("PangoWrapMode","PANGO_WRAP_NONE","none",3,"do not wrap."),
 	("PangoWrapMode","PANGO_WRAP_WORD","word",None,"wrap lines at word boundaries."),
 	("PangoWrapMode","PANGO_WRAP_WORD_CHAR","word-char",2,"wrap lines at word boundaries, but fall back to character boundaries if there is not enough space for a full word.")
   </type_enum>
   <type_flags>
 	("PangoFontMask","PANGO_FONT_MASK_FAMILY","family",1,"the font family is specified."),
-	("PangoFontMask","PANGO_FONT_MASK_GRAVITY","gravity",64,"the font gravity is specified (Since: 1.16.)"),
+	("PangoFontMask","PANGO_FONT_MASK_FEATURES","features",256,"OpenType font features are specified."),
+	("PangoFontMask","PANGO_FONT_MASK_GRAVITY","gravity",64,"The font gravity is specified."),
 	("PangoFontMask","PANGO_FONT_MASK_SIZE","size",32,"the font size is specified."),
 	("PangoFontMask","PANGO_FONT_MASK_STRETCH","stretch",16,"the font stretch is specified."),
 	("PangoFontMask","PANGO_FONT_MASK_STYLE","style",2,"the font style is specified."),
 	("PangoFontMask","PANGO_FONT_MASK_VARIANT","variant",4,"the font variant is specified."),
-	("PangoFontMask","PANGO_FONT_MASK_VARIATIONS","variations",128,"OpenType font variations are specified (Since: 1.42)"),
+	("PangoFontMask","PANGO_FONT_MASK_VARIATIONS","variations",128,"OpenType font variations are specified."),
 	("PangoFontMask","PANGO_FONT_MASK_WEIGHT","weight",8,"the font weight is specified."),
 	("PangoLayoutDeserializeFlags","PANGO_LAYOUT_DESERIALIZE_CONTEXT","context",1,"Apply context information from the serialization to the `PangoContext`"),
 	("PangoLayoutDeserializeFlags","PANGO_LAYOUT_DESERIALIZE_DEFAULT","default",None,"Default behavior"),

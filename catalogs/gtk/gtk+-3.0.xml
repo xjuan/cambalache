@@ -2738,6 +2738,7 @@
 	("GtkEntry","paste-clipboard",None,None,None),
 	("GtkEntry","populate-popup",None,None,None),
 	("GtkEntry","preedit-changed",None,None,None),
+	("GtkEntry","toggle-direction",None,None,None),
 	("GtkEntry","toggle-overwrite",None,None,None),
 	("GtkEntryBuffer","deleted-text",None,None,None),
 	("GtkEntryBuffer","inserted-text",None,None,None),
