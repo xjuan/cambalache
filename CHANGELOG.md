@@ -9,13 +9,41 @@ Cambalache used even/odd minor numbers to differentiate between stable and
 development releases.
 
 
-## Unreleased
+## 0.96.0
+
+ - Add GResource support
+ - Add internal children support
+ - New project format
+ - Save directly to .ui files
+ - Show directory structure in navigation
+ - Unified import dialog for all file types
+ - Add Finnish translation. Erwinjitsu
+ - Use AdwAboutDialog lo-vely
+ - Add action child type to GtkDialog
 
 ### Packaging changes
 
+ - pygobject-3.0 dependency bumped to 3.52 which depends on the new gi repository from GLib
  - libcambalacheprivate-[3|4] and its typelib are now installed under libdir/cambalache
  - libcmbcatalogutils-[3|4] and its typelib are now installed under libdir/cmb_catalog_gen
  - Gtk 3, Handy, webkit2gtk and webkitgtk are now optional dependencies
+
+### Issues
+
+ - #253 "Error updating UI 1: gtk-builder-error-quark: .:8:1 Invalid object type 'AdwApplicationWindow' (6)"
+ - #145 "Consider Cambalache to manage resource description file for building the resource bundle"
+ - #54 "Add support for internal children"
+ - #255 "Unable to open files via the UI in a KDE Plasma session"
+ - #260 "Wrong default for Swap setting in signals"
+ - #259 "Install private shared libraries in sub directories of the main library path"
+ - #263 "Translatable setting resets when label field is empty"
+ - #264 "Error undoing removal of parent GtkGrid"
+ - #266 "Error "Unknown internal child: entry (6)" with particular GTK 3 UI file"
+ - #265 "GtkButtonBox shows too many buttons"
+ - #267 "Make drag'n'drop of top-level more intuitive"
+ - #269 "Failed to display some element of a validated ui file"
+ - #272 "Background of compositor does not change colors, when adwaita colors are changed"
+ - #273 "GtkComboBoxText items gets their translatable property removed"
 
 ## 0.94.0
 

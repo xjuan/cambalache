@@ -14,16 +14,18 @@
     </p>
   </description>
   <releases>
-    <release version="0.95.0">
+    <release date="2025-04-20" version="0.96.0">
       <description>
-        <p>Unreleased</p>
+        <p>GResource Release!</p>
         <ul>
           <li>Add GResource support</li>
           <li>Add internal children support</li>
           <li>New project format</li>
           <li>Save directly to .ui files</li>
           <li>Show directory structure in navigation</li>
+          <li>Add Notification system (version, messages and polls)</li>
           <li>Unified import dialog for all file types</li>
+          <li>Update widget catalogs to SDK 48</li>
         </ul>
       </description>
     </release>

@@ -1288,7 +1288,7 @@ class CmbWindow(Adw.ApplicationWindow):
             "Franco Dodorico",
             "Juan Pablo Ugarte",
         ]
-        about.props.copyright = "© 2020-2024 Juan Pablo Ugarte"
+        about.props.copyright = "© 2020-2025 Juan Pablo Ugarte"
         about.props.license_type = Gtk.License.LGPL_2_1_ONLY
 
         self.__update_translators(about)
