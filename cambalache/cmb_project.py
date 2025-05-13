@@ -999,33 +999,41 @@ class CmbProject(GObject.Object, Gio.ListModel):
             self.db.commit()
             self.history_pop()
         except Exception:
+            logger.warning("Tried to add GResource", exc_info=True)
             return None
-        else:
-            return self.__add_gresource(True, gresource_id, resource_type)
+        finally:
+            gresource = self.__add_gresource(True, gresource_id, resource_type)
+            gresource._update_new_parent()
+            return gresource
 
     def __remove_gresource(self, gresource):
         if gresource is None:
             logger.warning("Tried to remove a None GResource", exc_info=True)
             return
 
-        print("__remove_gresource", gresource, self.__gresource_id.get(gresource.gresource_id, None))
-
-        self.__gresource_id.pop(gresource.gresource_id, None)
-
         self.__selection_remove(gresource)
-        print("SELECTION", self.__selection)
+        self.__gresource_id.pop(gresource.gresource_id, None)
         self.emit("gresource-removed", gresource)
 
     def remove_gresource(self, gresource):
         try:
-            print("remove_gresource", gresource)
+            parent_id = gresource.parent_id
+
+            gresource._save_last_known_parent_and_position()
             self.history_push(_('Remove GResource "{name}"').format(name=gresource.display_name))
             self.db.execute("DELETE FROM gresource WHERE gresource_id=?;", (gresource.gresource_id,))
+
+            # Update position
+            if parent_id:
+                self.db.update_gresource_children_position(parent_id)
+
             self.history_pop()
             self.db.commit()
-            self.__remove_gresource(gresource)
         except Exception as e:
             logger.warning(f"Error removing gresource {e}", exc_info=True)
+        finally:
+            self.__remove_gresource(gresource)
+            gresource._remove_from_old_parent()
 
     def get_css_providers(self):
         return list(self.__css_id.values())
@@ -1117,7 +1125,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         except Exception as e:
             logger.warning(f"Error adding object {obj_name}: {e}")
             return None
-        else:
+        finally:
             obj = self.__add_object(True, ui_id, object_id, obj_type, name, parent_id, position=position)
             obj._update_new_parent()
             return obj
@@ -1283,10 +1291,17 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 obj._property_changed(p)
 
     def __undo_redo_do(self, undo, update_objects=None):
-        def get_object_position(c, row):
-            ui_id, parent_id, position = row[0], row[4], row[8]
-            parent = self.get_object_by_id(ui_id, parent_id)
-            return parent, position
+        def get_object_position(table, row):
+            if table == "object":
+                ui_id, parent_id, position = row[0], row[4], row[8]
+                parent = self.get_object_by_id(ui_id, parent_id)
+                return parent, position
+            elif table == "gresource":
+                parent_id, position = row[2], row[3]
+                parent = self.get_gresource_by_id(parent_id)
+                return parent, position
+
+            return None, None
 
         c = self.db.cursor()
 
@@ -1303,8 +1318,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         # Undo or Redo command
         if command == "INSERT":
-            if table == "object":
-                parent, position = get_object_position(c, new_values)
+            if table in ["object", "gresource"]:
+                parent, position = get_object_position(table, new_values)
 
                 if undo:
                     update_objects.append((parent, position, 1, 0))
@@ -1318,8 +1333,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
             self.__undo_redo_update_insert_delete(c, undo, command, table, columns, table_pk, old_values, new_values)
         elif command == "DELETE":
-            if table == "object":
-                parent, position = get_object_position(c, old_values)
+            if table in ["object", "gresource"]:
+                parent, position = get_object_position(table, old_values)
 
                 if undo:
                     update_objects.append((parent, position, 0, 1))
@@ -1335,8 +1350,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
         elif command == "UPDATE":
             # parent_id and position have to change together because their are part of a unique index
             if update_objects is not None and table == "object" and "position" in columns and "parent_id" in columns:
-                old_parent, old_position = get_object_position(c, old_values)
-                new_parent, new_position = get_object_position(c, new_values)
+                old_parent, old_position = get_object_position(table, old_values)
+                new_parent, new_position = get_object_position(table, new_values)
 
                 if undo:
                     if old_position >= 0:
@@ -1348,6 +1363,9 @@ class CmbProject(GObject.Object, Gio.ListModel):
                         update_objects.append((new_parent, new_position, 0, 1))
                     if old_position >= 0:
                         update_objects.append((old_parent, old_position, 1, 0))
+            elif table == "gresource":
+                # TODO
+                pass
 
             if undo:
                 self.db.history_update(table, columns, table_pk, old_values)
