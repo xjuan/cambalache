@@ -13,7 +13,7 @@ from . import utils as test_utils
 
 DAY = 3600 * 24
 now = utils.utcnow()
-CMB_UUID = str(uuid4())
+CMB_UUID = notification_center.uuid
 POLL_UUID = str(uuid4())
 
 POLL_NOTIFICATION_BASE = {
@@ -44,16 +44,14 @@ def wait_for_all_threads():
 
 
 def test_cmb_notification_disabled():
-    assert not notification_center.uuid
     assert notification_center.enabled is False
     assert len(notification_center.store) == 0
     notification_center.enabled = True
 
 
-@pytest.mark.parametrize("response, headers, n", [
+@pytest.mark.parametrize("response, n", [
     (
         {
-            "uuid": CMB_UUID,
             "notification": {
                 "type": "version",
                 "start_date": now - DAY,
@@ -63,14 +61,10 @@ def test_cmb_notification_disabled():
                 "read_more_url": "http://localhost"
             }
         },
-        {
-            'User-Agent': notification_center.user_agent
-        },
         1
     ),
     (
         {
-            "uuid": CMB_UUID,
             "notification": {
                 "type": "message",
                 "start_date": now - DAY,
@@ -79,26 +73,16 @@ def test_cmb_notification_disabled():
                 "message": "This is a message notification"
             }
         },
-        {
-            'User-Agent': notification_center.user_agent,
-            'x-cambalache-uuid': CMB_UUID
-        },
         2
     ),
     (
         {
-            "uuid": CMB_UUID,
             "notification": POLL_NOTIFICATION_BASE
-        },
-        {
-            'User-Agent': notification_center.user_agent,
-            'x-cambalache-uuid': CMB_UUID
         },
         3
     ),
     (
         {
-            "uuid": CMB_UUID,
             "notification": {
                 **POLL_NOTIFICATION_BASE,
                 "results": {
@@ -107,14 +91,10 @@ def test_cmb_notification_disabled():
                 }
             }
         },
-        {
-            'User-Agent': notification_center.user_agent,
-            'x-cambalache-uuid': CMB_UUID
-        },
         4
     )
 ])
-def test_cmb_notification_get(mocker, response, headers, n):
+def test_cmb_notification_get(mocker, response, n):
     wait_for_all_threads()
 
     mocker.patch(
@@ -137,7 +117,14 @@ def test_cmb_notification_get(mocker, response, headers, n):
 
     test_utils.process_all_pending_gtk_events()
 
-    request_mock.assert_called_with("GET", "/notification", headers=headers)
+    request_mock.assert_called_with(
+        "GET",
+        "/notification",
+        headers={
+            'User-Agent': notification_center.user_agent,
+            'x-cambalache-uuid': CMB_UUID
+        }
+    )
 
     assert notification_center.uuid == CMB_UUID
     on_new_notification.assert_called()

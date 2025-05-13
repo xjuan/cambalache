@@ -30,6 +30,7 @@ import http.client
 import time
 import platform
 
+from uuid import uuid4
 from urllib.parse import urlparse
 from .config import VERSION
 from gi.repository import GObject, GLib, Gio, Gdk, Gtk, Adw, HarfBuzz
@@ -130,7 +131,7 @@ class CmbNotificationCenter(GObject.GObject):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.retry_interval = 1
+        self.retry_interval = 2
         self.user_agent = self.__get_user_agent()
         self.store = Gio.ListStore(item_type=CmbNotification)
         self.settings = Gio.Settings(schema_id="ar.xjuan.Cambalache.notification")
@@ -155,6 +156,10 @@ class CmbNotificationCenter(GObject.GObject):
             self.connection = None
             logger.warning(f"{backend.scheme} is not supported, only HTTPS")
             return
+
+        # Ensure we have a UUID
+        if not self.uuid:
+            self.uuid = str(uuid4())
 
         logger.info(f"User Agent: {self.user_agent}")
         logger.info(f"UUID: {self.uuid}")
@@ -248,9 +253,6 @@ class CmbNotificationCenter(GObject.GObject):
     def __get_notification_idle(self, data):
         logger.debug(f"Got notification response {json.dumps(data, indent=2, sort_keys=True)}")
 
-        if "uuid" in data:
-            self.uuid = data["uuid"]
-
         if "notification" in data:
             notification = self.__notification_from_dict(data["notification"])
             self.store.insert(0, notification)
@@ -264,10 +266,10 @@ class CmbNotificationCenter(GObject.GObject):
         return GLib.SOURCE_REMOVE
 
     def __get_notification_thread(self):
-        headers = {"User-Agent": self.user_agent}
-
-        if self.uuid:
-            headers["x-cambalache-uuid"] = self.uuid
+        headers = {
+            "User-Agent": self.user_agent,
+            "x-cambalache-uuid": self.uuid,
+        }
 
         try:
             logger.info(f"GET /notification {headers=}")
@@ -277,7 +279,7 @@ class CmbNotificationCenter(GObject.GObject):
             assert response.status == 200
 
             # Reset retry interval
-            self.retry_interval = 1
+            self.retry_interval = 2
 
             data = response.read().decode()
 
@@ -318,19 +320,19 @@ class CmbNotificationCenter(GObject.GObject):
     def __poll_vote_idle(self, data):
         logger.debug(f"Got vote response {data}")
 
-        uuid = data["uuid"]
+        poll_uuid = data["uuid"]
         results = data["results"]
 
         for notification in self.store:
-            if isinstance(notification, CmbPollNotification) and notification.poll.id == uuid:
+            if isinstance(notification, CmbPollNotification) and notification.poll.id == poll_uuid:
                 notification.results = CmbPollResult(**results)
                 self.__save_notifications()
                 break
         return GLib.SOURCE_REMOVE
 
-    def __poll_vote_exception_idle(self, uuid):
+    def __poll_vote_exception_idle(self, poll_uuid):
         for notification in self.store:
-            if isinstance(notification, CmbPollNotification) and notification.poll.id == uuid:
+            if isinstance(notification, CmbPollNotification) and notification.poll.id == poll_uuid:
                 notification.my_votes = []
                 break
         return GLib.SOURCE_REMOVE
