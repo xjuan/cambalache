@@ -152,7 +152,7 @@ cambalache under .local directoy and set up all environment variables needed to
 run the app from the source directory. (Follow manual installation to ensure 
 you have everything needed)
 
-`./run-dev.sh`
+`./run-dev.py`
 
 This is meant for Cambalache development only.
 

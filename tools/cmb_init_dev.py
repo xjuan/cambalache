@@ -28,12 +28,29 @@ import signal
 import subprocess
 
 basedir = os.path.join(os.path.split(os.path.dirname(__file__))[0])
-sys.path.insert(1, basedir)
-
-cambalachedir = os.path.join(basedir, "cambalache")
 localdir = os.path.join(basedir, ".local")
+locallibdir = os.path.join(localdir, "lib", sys.implementation._multiarch)
+cambalachedir = os.path.join(basedir, "cambalache")
 localpkgdatadir = os.path.join(localdir, "share", "cambalache")
 catalogsdir = os.path.join(localpkgdatadir, "catalogs")
+localbindir = os.path.join(localdir, "bin")
+
+for var, value in [
+    ("LD_LIBRARY_PATH", f"{locallibdir}:{locallibdir}/cambalache:{locallibdir}/cmb_catalog_gen"),
+    ("GI_TYPELIB_PATH", f"{locallibdir}/girepository-1.0:{locallibdir}/cambalache:{locallibdir}/cmb_catalog_gen"),
+    ("PKG_CONFIG_PATH", os.path.join(locallibdir, "pkgconfig")),
+    ("GSETTINGS_SCHEMA_DIR", os.path.join(localdir, "share", "glib-2.0", "schemas")),
+    ("XDG_DATA_DIRS", os.path.join(localdir, "share")),
+    ("PYTHONPATH", os.path.join(localdir, "lib", "python3", "dist-packages"))
+]:
+    if var in os.environ:
+        old_value = os.environ[var]
+        os.environ[var] = f"{value}:{old_value}"
+    else:
+        os.environ[var] = value
+
+sys.path.insert(1, basedir)
+sys.path.insert(1, localbindir)
 
 from gi.repository import GLib  # noqa: E402
 
