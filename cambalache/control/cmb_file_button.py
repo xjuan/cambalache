@@ -35,6 +35,7 @@ class CmbFileButton(Gtk.Button):
 
     dirname = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
     dialog_title = GObject.Property(type=str, default=_("Select filename"), flags=GObject.ParamFlags.READWRITE)
+    use_open = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
 
     label = Gtk.Template.Child()
 
@@ -59,12 +60,15 @@ class CmbFileButton(Gtk.Button):
 
         def dialog_callback(dialog, res):
             try:
-                file = dialog.save_finish(res)
+                file = dialog.open_finish(res) if self.use_open else dialog.save_finish(res)
                 self.cmb_value = os.path.relpath(file.get_path(), start=self.dirname)
             except Exception:
                 pass
 
-        dialog.save(self.get_root(), None, dialog_callback)
+        if self.use_open:
+            dialog.open(self.get_root(), None, dialog_callback)
+        else:
+            dialog.save(self.get_root(), None, dialog_callback)
 
     @GObject.Property(type=str)
     def cmb_value(self):

@@ -221,7 +221,10 @@
   <ui template-class="CmbContextMenu" filename="cmb_context_menu.ui" sha256="81eba3adf715348a5c03ef4cbc151eebd5d9aa8b5a14c5968232f68a61ae573c"/>
   <ui template-class="CmbDBInspector" filename="cmb_db_inspector.ui" sha256="4451cdb08d24bd4a802ea692c0ebb4ef46af13152984c0b435d29bf4eb7dab55"/>
   <ui filename="app/cmb_shortcuts.ui" sha256="d7ac37fd2430788a9e210ed4bc84dcfeba5609bdcc801afb192bfd900c7a8883"/>
-  <ui template-class="CmbFileButton" filename="control/cmb_file_button.ui" sha256="f859b4f85d7c80c1fef69b68ebb9129423d9c72fdb38d304132784f7361cbbfd"/>
+  <ui template-class="CmbFileButton" filename="control/cmb_file_button.ui" sha256="f859b4f85d7c80c1fef69b68ebb9129423d9c72fdb38d304132784f7361cbbfd">
+    <property id="dialog_title" type-id="gchararray" disable-inline-object="0" required="0" disabled="0"/>
+    <property id="use_open" type-id="gboolean" disable-inline-object="0" required="0" disabled="0"/>
+  </ui>
   <ui template-class="CmbNotificationListView" filename="cmb_notification_list_view.ui" sha256="13622645038ef2aaa154f74cd300f9c0fa0dccf69d45d6c9376f9034e6ee57fb"/>
   <ui template-class="CmbVersionNotificationView" filename="cmb_version_notification_view.ui" sha256="9a3ced46b90eb7e425d1c345853c4e8e908870c61c75475f7e20ce3c9ee8cec6"/>
   <ui template-class="CmbMessageNotificationView" filename="cmb_message_notification_view.ui" sha256="debeffd184e225d82ed29ac590654b8160363e8d5606366dc8acb3ff9840fee3"/>
