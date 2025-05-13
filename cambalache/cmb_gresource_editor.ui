@@ -221,6 +221,7 @@
                 </child>
                 <child>
                   <object class="CmbFileButton" id="file_filename">
+                    <property name="use-open">True</property>
                     <layout>
                       <property name="column">1</property>
                       <property name="column-span">1</property>
