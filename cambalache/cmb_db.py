@@ -2023,7 +2023,7 @@ class CmbDB(GObject.GObject):
                 self.__unknown_tag(child, root, child.tag)
                 continue
 
-            prefix, = self.__node_get(child, "prefix")
+            prefix, = self.__node_get(child, ["prefix"])
 
             resource_id = self.add_gresource("gresource", parent_id=gresource_id, gresource_prefix=prefix)
 
@@ -3032,6 +3032,20 @@ class CmbDB(GObject.GObject):
             WHERE object.ui_id=new.ui_id AND object.object_id=new.object_id;
             """,
             (ui_id, ) if parent_id is None else (ui_id, parent_id)
+        )
+
+    def update_gresource_children_position(self, gresource_id):
+        self.execute(
+            """
+            UPDATE gresource SET position=new.position - 1
+            FROM (
+                SELECT row_number() OVER (PARTITION BY parent_id ORDER BY position) position, parent_id, gresource_id
+                FROM gresource
+                WHERE parent_id=?
+            ) AS new
+            WHERE gresource.parent_id=new.parent_id AND gresource.gresource_id=new.gresource_id;
+            """,
+            (gresource_id, )
         )
 
 
