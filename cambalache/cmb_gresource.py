@@ -36,6 +36,8 @@ class CmbGResource(CmbBaseGResource, Gio.ListModel):
     path_parent = GObject.Property(type=CmbPath, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
+        self._last_known = None
+
         super().__init__(**kwargs)
 
         self.connect("notify", self.__on_notify)
@@ -47,6 +49,13 @@ class CmbGResource(CmbBaseGResource, Gio.ListModel):
         return f"CmbGResource<{self.resource_type}> id={self.gresource_id}"
 
     def __on_notify(self, obj, pspec):
+        resource_type = self.resource_type
+
+        if (resource_type == "gresources" and pspec.name == "gresources-filename") or \
+           (resource_type == "gresource" and pspec.name == "gresource-prefix") or \
+           (resource_type == "file" and pspec.name == "file-filename"):
+            obj.notify("display-name")
+
         self.project._gresource_changed(self, pspec.name)
 
     @GObject.Property(type=CmbBaseGResource)
@@ -83,6 +92,34 @@ class CmbGResource(CmbBaseGResource, Gio.ListModel):
         elif resource_type == "file":
             file_filename = self.file_filename
             return file_filename if file_filename else _("Unnamed file {id}").format(id=self.gresource_id)
+
+    # GListModel helpers
+    def _save_last_known_parent_and_position(self):
+        self._last_known = (self.parent, self.position)
+
+    def _update_new_parent(self):
+        parent = self.parent
+        position = self.position
+
+        # Emit GListModel signal to update model
+        if parent:
+            parent.items_changed(position, 0, 1)
+            parent.notify("n-items")
+
+        self._last_known = None
+
+    def _remove_from_old_parent(self):
+        if self._last_known is None:
+            return
+
+        parent, position = self._last_known
+
+        # Emit GListModel signal to update model
+        if parent:
+            parent.items_changed(position, 1, 0)
+            parent.notify("n-items")
+
+        self._last_known = None
 
     # GListModel iface
     def do_get_item(self, position):
