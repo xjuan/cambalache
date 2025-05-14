@@ -1494,12 +1494,27 @@ class CmbProject(GObject.Object, Gio.ListModel):
                         else:
                             obj._remove_data(data)
                 else:
-                    parent = obj.data_dict.get(f"{row[2]}.{row[6]}", None)
+                    owner_id, data_id, id, parent_id = row[2], row[3], row[4], row[6]
+
+                    parent = obj.data_dict.get(f"{owner_id}.{parent_id}", None)
 
                     if parent:
-                        parent._add_child(row[2], row[3], row[4])
+                        parent._add_child(owner_id, data_id, id)
                     else:
-                        obj._add_data(row[2], row[3], row[4])
+                        info = self.type_info.get(owner_id)
+                        taginfo = None
+
+                        if info:
+                            r = self.db.execute(
+                                "SELECT key FROM type_data WHERE owner_id=? AND data_id=?;",
+                                (owner_id, data_id)
+                            ).fetchone()
+
+                            data_key = r[0] if r else None
+                            if data_key:
+                                taginfo = info.get_data_info(data_key)
+
+                        obj._add_data(owner_id, data_id, id, info=taginfo)
             elif table == "object_data_arg":
                 obj = self.get_object_by_id(pk[0], pk[1])
                 if obj:
