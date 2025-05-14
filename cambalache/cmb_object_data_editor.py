@@ -70,7 +70,10 @@ class CmbObjectDataEditor(Gtk.Box):
         if self.info:
             self.object.remove_data(self.__data)
         else:
-            self.__data.parent.remove_data(self.__data)
+            if self.__data.parent:
+                self.__data.parent.remove_data(self.__data)
+            else:
+                self.__data.object.remove_data(self.__data)
 
     @GObject.Property(type=GObject.Object)
     def object(self):
@@ -133,13 +136,11 @@ class CmbObjectDataEditor(Gtk.Box):
         self.__update_arg(key)
 
     def __on_data_added(self, obj, data):
-        if self.info and self.data is None and self.info == data.info:
-            self.data = data
-            self.__update_view()
+        self.data = data
+        self.__update_view()
 
     def __on_data_removed(self, obj, data):
-        if self.object and self.info:
-            self.__remove_data_editor(data)
+        self.__remove_data_editor(data)
 
     def __ensure_object_data(self, history_message):
         if self.data:
