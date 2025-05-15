@@ -49,4 +49,9 @@ class CmbVersionNotificationView(Gtk.Box):
         notification = self.notification
         self.version_label.props.label = _("<b>Version {version} is available</b>").format(version=notification.version)
         self.release_notes_label.props.label = notification.release_notes
-        self.read_more_button.props.uri = notification.read_more_url
+
+        if notification.read_more_url:
+            self.read_more_button.props.uri = notification.read_more_url
+            self.read_more_button.show()
+        else:
+            self.read_more_button.hide()
