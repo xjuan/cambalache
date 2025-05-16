@@ -9,6 +9,11 @@ Cambalache used even/odd minor numbers to differentiate between stable and
 development releases.
 
 
+## 0.96.1
+
+ - Fix/improve GResource list model update
+ - Fix removing custom class data like styles
+
 ## 0.96.0
 
  - Add GResource support

@@ -14,6 +14,15 @@
     </p>
   </description>
   <releases>
+    <release date="2025-05-16" version="0.96.1">
+      <description>
+        <p>GResource First Bugfix Release!</p>
+        <ul>
+          <li>Fix/improve GResource list model update</li>
+          <li>Fix removing custom class data like styles</li>
+        </ul>
+      </description>
+    </release>
     <release date="2025-04-20" version="0.96.0">
       <description>
         <p>GResource Release!</p>
