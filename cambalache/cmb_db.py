@@ -82,6 +82,9 @@ class CmbDB(GObject.GObject):
         self.__history_commands = {}
         self.__table_column_mapping = {}
 
+        self._output_lowercase_boolean = False
+        self._output_use_enum_value = False
+
         self.clipboard = []
         self.clipboard_ids = []
 
@@ -2372,6 +2375,7 @@ class CmbDB(GObject.GObject):
 
             value = None
             value_node = None
+            pinfo = self.type_info.get(property_type_id, None)
 
             is_inline_object = not disable_inline_object and self.target_tk == "gtk-4.0"
 
@@ -2399,6 +2403,10 @@ class CmbDB(GObject.GObject):
                     value = obj_name
             elif property_type_id == "GBytes":
                 value = etree.CDATA(val)
+            elif self._output_lowercase_boolean and property_type_id == "gboolean":
+                value = "true" if utils.bool_from_string(val) else "false"
+            elif self._output_use_enum_value and pinfo and pinfo.parent_id == "enum":
+                value = str(pinfo.enum_get_value_as_string(val, use_nick=False))
             else:
                 value = val
 
@@ -2445,16 +2453,16 @@ class CmbDB(GObject.GObject):
                 node = E.signal(name=name, handler=handler)
 
                 if data:
-                    utils.xml_node_set(node, "object", data)
-
                     # if object is set, swap defaults to True
                     if not swap:
-                        utils.xml_node_set(node, "swapped", "no")
+                        utils.xml_node_set(node, "swapped", "False")
+
+                    utils.xml_node_set(node, "object", data)
                 elif swap:
-                    utils.xml_node_set(node, "swapped", "yes")
+                    utils.xml_node_set(node, "swapped", "True")
 
                 if after:
-                    utils.xml_node_set(node, "after", "yes")
+                    utils.xml_node_set(node, "after", "True")
                 obj.append(node)
                 self.__node_add_comment(node, comment)
 
@@ -2518,6 +2526,7 @@ class CmbDB(GObject.GObject):
                     owner_id,
                 ) = row
 
+                pinfo = self.type_info.get(property_type_id, None)
                 value = None
 
                 # Ignore properties depending on metadata (Gtk4)
@@ -2537,6 +2546,15 @@ class CmbDB(GObject.GObject):
                     if obj_name is None:
                         continue
                     value = obj_name
+                elif self._output_lowercase_boolean and property_type_id == "gboolean":
+                    value = "true" if utils.bool_from_string(val) else "false"
+                elif self._output_lowercase_boolean and property_type_id == "CmbBooleanUndefined":
+                    if val == "undefined":
+                        value = "undefined"
+                    else:
+                        value = "true" if utils.bool_from_string(val) else "false"
+                elif self._output_use_enum_value and pinfo and pinfo.parent_id == "enum":
+                    value = str(pinfo.enum_get_value_as_string(val, use_nick=False))
                 else:
                     value = val
 
@@ -2746,7 +2764,7 @@ class CmbDB(GObject.GObject):
             for child in root:
                 node.append(child)
 
-    def export_ui(self, ui_id, merengue=False, skip_version_comment=False):
+    def export_ui(self, ui_id, merengue=False):
         c = self.conn.cursor()
 
         c.execute("SELECT translation_domain, comment, template_id, custom_fragment FROM ui WHERE ui_id=?;", (ui_id,))
@@ -2759,8 +2777,7 @@ class CmbDB(GObject.GObject):
 
         node = E.interface()
 
-        if not skip_version_comment:
-            node.addprevious(etree.Comment(f" Created with Cambalache {config.VERSION} "))
+        node.addprevious(etree.Comment(f" Created with Cambalache {config.VERSION} "))
 
         utils.xml_node_set(node, "domain", translation_domain)
 
