@@ -40,7 +40,8 @@ class CmbSourceView(GtkSource.View):
 
     @GObject.Property(type=str)
     def lang(self):
-        return self.buffer.get_language()
+        language = self.buffer.get_language()
+        return language.get_id() if language else ""
 
     @lang.setter
     def _set_lang(self, value):
