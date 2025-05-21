@@ -26,6 +26,7 @@ configure_file(
 install_data([
     'cmb_accessible_editor.py',
     'cmb_base.py',
+    'cmb_blueprint.py',
     'cmb_context_menu.py',
     'cmb_css.py',
     'cmb_css_editor.py',

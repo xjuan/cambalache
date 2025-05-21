@@ -6,9 +6,9 @@
     <signal name="activate-default" handler="on_activate_default"/>
     <signal name="activate-default" handler="on_activate_default2"/>
     <signal name="add" handler="on_add"/>
-    <signal name="focus" handler="on_focus" swapped="yes"/>
-    <signal name="focus-in-event" handler="on_focus_in_event" after="yes"/>
-    <signal name="focus-out-event" handler="on_focus_out_event" swapped="yes" after="yes"/>
+    <signal name="focus" handler="on_focus" swapped="True"/>
+    <signal name="focus-in-event" handler="on_focus_in_event" after="True"/>
+    <signal name="focus-out-event" handler="on_focus_out_event" swapped="True" after="True"/>
   </object>
   <object class="GtkDialog" id="dialog1"/>
 </interface>

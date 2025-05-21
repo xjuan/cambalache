@@ -43,8 +43,11 @@ from cambalache import (
     notification_center,
     config,
     utils,
-    _
+    _,
+    N_
 )
+
+from cambalache.cmb_blueprint import CmbBlueprintError
 
 logger = getLogger(__name__)
 
@@ -64,6 +67,7 @@ class CmbWindow(Adw.ApplicationWindow):
     gtk4_filter = Gtk.Template.Child()
     gtk3_filter = Gtk.Template.Child()
     gtk_builder_filter = Gtk.Template.Child()
+    blueprint_filter = Gtk.Template.Child()
     glade_filter = Gtk.Template.Child()
     css_filter = Gtk.Template.Child()
     gresource_filter = Gtk.Template.Child()
@@ -136,7 +140,13 @@ class CmbWindow(Adw.ApplicationWindow):
 
         self.gtk4_import_filters = Gio.ListStore()
 
-        for filter in [self.gtk4_filter, self.gtk_builder_filter, self.css_filter, self.gresource_filter]:
+        for filter in [
+            self.gtk4_filter,
+            self.gtk_builder_filter,
+            self.blueprint_filter,
+            self.css_filter,
+            self.gresource_filter
+        ]:
             self.gtk4_import_filters.append(filter)
 
         self.gtk3_import_filters = Gio.ListStore()
@@ -1135,7 +1145,7 @@ class CmbWindow(Adw.ApplicationWindow):
 
                     print("IMPORT", path, content_type)
 
-                    if content_type in ["application/x-gtk-builder", "application/x-glade"]:
+                    if content_type in ["application/x-gtk-builder", "application/x-glade", "text/x-blueprint"]:
                         self.import_file(file.get_path())
                     elif content_type == "text/css":
                         self.project.add_css(path)
@@ -1164,10 +1174,25 @@ class CmbWindow(Adw.ApplicationWindow):
         self.project.set_selection([gresource])
 
     def __save(self):
-        if self.project.save():
-            self.__last_saved_index = self.project.history_index
-            self.__update_action_save()
-            self.emit("project-saved", self.project)
+        retval = False
+
+        try :
+            retval = self.project.save()
+        except CmbBlueprintError as e:
+            self.present_message_to_user(
+                _("Error saving project"),
+                secondary_text=N_(
+                    "blueprintcompiler encounter the following error:",
+                    "blueprintcompiler encounter the following errors:",
+                    len(e.errors)
+                ),
+                details=[str(e)]
+            )
+        finally:
+            if retval:
+                self.__last_saved_index = self.project.history_index
+                self.__update_action_save()
+                self.emit("project-saved", self.project)
 
     def save_project(self):
         if self.project is None:

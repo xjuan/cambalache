@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.95.0 -->
+<!-- Created with Cambalache 0.97.1 -->
 <interface>
   <!-- interface-name cmb_ui_editor.ui -->
   <!-- interface-copyright Juan Pablo Ugarte -->
@@ -27,7 +27,7 @@
         <property name="label" translatable="yes">Description:</property>
         <layout>
           <property name="column">0</property>
-          <property name="row">2</property>
+          <property name="row">3</property>
         </layout>
       </object>
     </child>
@@ -37,7 +37,7 @@
         <property name="label" translatable="yes">Copyright:</property>
         <layout>
           <property name="column">0</property>
-          <property name="row">3</property>
+          <property name="row">4</property>
         </layout>
       </object>
     </child>
@@ -47,7 +47,7 @@
         <property name="label" translatable="yes">Authors:</property>
         <layout>
           <property name="column">0</property>
-          <property name="row">4</property>
+          <property name="row">5</property>
         </layout>
       </object>
     </child>
@@ -57,7 +57,7 @@
         <property name="label" translatable="yes">Domain:</property>
         <layout>
           <property name="column">0</property>
-          <property name="row">5</property>
+          <property name="row">6</property>
         </layout>
       </object>
     </child>
@@ -78,7 +78,7 @@
         <property name="visible">True</property>
         <layout>
           <property name="column">1</property>
-          <property name="row">5</property>
+          <property name="row">6</property>
         </layout>
       </object>
     </child>
@@ -95,7 +95,7 @@
         <property name="min-content-height">96</property>
         <layout>
           <property name="column">1</property>
-          <property name="row">2</property>
+          <property name="row">3</property>
         </layout>
       </object>
     </child>
@@ -112,7 +112,7 @@
         <property name="min-content-height">96</property>
         <layout>
           <property name="column">1</property>
-          <property name="row">4</property>
+          <property name="row">5</property>
         </layout>
       </object>
     </child>
@@ -124,7 +124,7 @@
         <property name="visible">True</property>
         <layout>
           <property name="column">1</property>
-          <property name="row">1</property>
+          <property name="row">2</property>
         </layout>
       </object>
     </child>
@@ -134,7 +134,7 @@
         <property name="label" translatable="yes">Template:</property>
         <layout>
           <property name="column">0</property>
-          <property name="row">1</property>
+          <property name="row">2</property>
         </layout>
       </object>
     </child>
@@ -151,7 +151,7 @@
         <property name="min-content-height">96</property>
         <layout>
           <property name="column">1</property>
-          <property name="row">3</property>
+          <property name="row">4</property>
         </layout>
       </object>
     </child>
@@ -161,7 +161,7 @@
         <property name="label" translatable="yes">Comment:</property>
         <layout>
           <property name="column">0</property>
-          <property name="row">6</property>
+          <property name="row">7</property>
         </layout>
       </object>
     </child>
@@ -178,7 +178,34 @@
         <property name="min-content-height">96</property>
         <layout>
           <property name="column">1</property>
-          <property name="row">6</property>
+          <property name="row">7</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="GtkLabel">
+        <property name="halign">start</property>
+        <property name="label" translatable="yes">Format:</property>
+        <layout>
+          <property name="column">0</property>
+          <property name="row">1</property>
+        </layout>
+      </object>
+    </child>
+    <child>
+      <object class="GtkDropDown" id="format">
+        <property name="halign">start</property>
+        <property name="model">
+          <object class="GtkStringList">
+            <property name="strings">Gtk Builder
+Blueprint</property>
+          </object>
+        </property>
+        <layout>
+          <property name="column">1</property>
+          <property name="column-span">1</property>
+          <property name="row">1</property>
+          <property name="row-span">1</property>
         </layout>
       </object>
     </child>

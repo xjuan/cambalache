@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <interface>
   <!-- interface-name string_list.ui -->
-  <requires lib="gtk" version="4.8"/>
+  <requires lib="gtk" version="4.10"/>
   <object class="GtkStringList" id="list1">
     <property name="strings">a
 b

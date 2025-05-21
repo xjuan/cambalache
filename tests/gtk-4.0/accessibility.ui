@@ -26,7 +26,7 @@
     <child>
       <object class="GtkLabel" id="label">
         <accessibility>
-          <property name="help-text">help text</property>
+          <property name="description">help text</property>
           <property name="label">a label</property>
           <relation name="described-by">a11y3</relation>
           <relation name="details">a11y2</relation>

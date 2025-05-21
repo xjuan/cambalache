@@ -58,6 +58,9 @@ class CmbPath(CmbBase, Gio.ListModel):
         return self.__path_items.get(directory, None)
 
     def add_item(self, item):
+        if item in self.__items:
+            return
+
         display_name = item.display_name
         is_path = isinstance(item, CmbPath)
 
@@ -85,9 +88,13 @@ class CmbPath(CmbBase, Gio.ListModel):
             self.notify("display-name")
 
     def remove_item(self, item):
+        if item not in self.__items:
+            return
+
         if isinstance(item, CmbPath) and item.path in self.__path_items:
             del self.__path_items[item.path]
 
+        item.path_parent = None
         i = self.__items.index(item)
         self.__items.pop(i)
         self.items_changed(i, 1, 0)

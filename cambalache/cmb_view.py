@@ -39,8 +39,9 @@ from . import config
 from .cmb_ui import CmbUI
 from .cmb_object import CmbObject
 from .cmb_context_menu import CmbContextMenu
+from cambalache.cmb_blueprint import cmb_blueprint_decompile
 from . import utils
-from cambalache import getLogger, _
+from cambalache import getLogger, _, N_
 
 logger = getLogger(__name__)
 
@@ -279,7 +280,7 @@ class CmbView(Gtk.Box):
 
     def __init__(self, **kwargs):
         self.__project = None
-        self.__ui_id = 0
+        self.__ui = None
         self.__theme = None
 
         self.menu = self.__create_context_menu()
@@ -337,14 +338,34 @@ class CmbView(Gtk.Box):
         return self.__project.db.tostring(ui_id, merengue=merengue)
 
     def __update_view(self):
-        if self.__project and self.__ui_id > 0:
+        if self.__project and self.__ui:
             if self.stack.props.visible_child_name == "ui_xml":
-                ui = self.__get_ui_xml(self.__ui_id)
-                self.text_view.buffer.set_text(ui)
+                ui_source = self.__get_ui_xml(self.__ui.ui_id)
+
+                if self.__ui.filename and self.__ui.filename.endswith(".blp"):
+                    try:
+                        ui_source = cmb_blueprint_decompile(ui_source)
+                        self.text_view.lang = "blueprint"
+                    except Exception as e:
+                        ui_source = _("Error exporting project")
+                        ui_source += "\n"
+                        ui_source += N_(
+                            "blueprintcompiler encounter the following error:",
+                            "blueprintcompiler encounter the following errors:",
+                            len(e.errors)
+                        )
+                        ui_source += "\n"
+                        ui_source += str(e)
+                        self.text_view.lang = ""
+                        # TODO: forward error to parent to show to user
+                else:
+                    self.text_view.lang = "xml"
+
+                self.text_view.buffer.set_text(ui_source)
             return
 
         self.text_view.buffer.set_text("")
-        self.__ui_id = 0
+        self.__ui = None
 
     def __get_ui_dirname(self, ui_id):
         dirname = GLib.get_home_dir()
@@ -448,19 +469,23 @@ class CmbView(Gtk.Box):
         if len(selection) > 0:
             obj = selection[0]
 
-            if type(obj) not in [CmbUI, CmbObject]:
+            if isinstance(obj, CmbUI):
+                ui = obj
+            elif isinstance(obj, CmbObject):
+                ui = obj.ui
+            else:
                 return
 
             ui_id = obj.ui_id
 
-            if self.__ui_id != ui_id:
-                self.__ui_id = ui_id
-                self.__merengue_update_ui(ui_id)
+            if self.__ui != ui:
+                self.__ui = ui
+                self.__merengue_update_ui(ui.ui_id)
 
-            objects = self.__get_selection_objects(selection, ui_id)
+            objects = self.__get_selection_objects(selection, ui.ui_id)
             self.__merengue_command("selection_changed", args={"ui_id": ui_id, "selection": objects})
         else:
-            self.__ui_id = 0
+            self.__ui = None
             self.__merengue_update_ui(0)
 
         self.__update_view()
@@ -632,7 +657,7 @@ class CmbView(Gtk.Box):
                 self.__merengue_last_exit = None
                 return
 
-        self.__ui_id = 0
+        self.__ui = None
         self.__merengue.start()
 
     def __command_selection_changed(self, selection):
@@ -691,7 +716,7 @@ class CmbView(Gtk.Box):
 
             self.__load_css_providers()
 
-            self.__ui_id = 0
+            self.__ui = None
             self.__on_project_selection_changed(self.__project)
         elif command == "placeholder_selected":
             self.emit(

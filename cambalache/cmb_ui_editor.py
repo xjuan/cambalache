@@ -23,8 +23,11 @@
 # SPDX-License-Identifier: LGPL-2.1-only
 #
 
+import os
+
 from gi.repository import GObject, Gtk
 
+from cambalache import _
 from .cmb_ui import CmbUI
 
 
@@ -33,6 +36,7 @@ class CmbUIEditor(Gtk.Grid):
     __gtype_name__ = "CmbUIEditor"
 
     filename = Gtk.Template.Child()
+    format = Gtk.Template.Child()
     template_id = Gtk.Template.Child()
     description = Gtk.Template.Child()
     copyright = Gtk.Template.Child()
@@ -54,9 +58,6 @@ class CmbUIEditor(Gtk.Grid):
 
     @object.setter
     def _set_object(self, obj):
-        if obj == self._object:
-            return
-
         for binding in self._bindings:
             binding.unbind()
 
@@ -79,15 +80,58 @@ class CmbUIEditor(Gtk.Grid):
         self.template_id.object = obj
         self.filename.dirname = obj.project.dirname
 
+        # Set some default name
+        self.filename.unnamed_filename = _("unnamed.ui")
+        if not obj.filename and obj.template_id:
+            template = obj.project.get_object_by_id(obj.ui_id, obj.template_id)
+            if template:
+                self.filename.unnamed_filename = f"{template.name}.ui".lower()
+
         for field in self.fields:
-            binding = GObject.Object.bind_property(
-                obj,
+            binding = obj.bind_property(
                 field,
                 getattr(self, field),
                 "cmb-value",
                 GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
             )
             self._bindings.append(binding)
+
+        if obj.project.target_tk == "gtk-4.0":
+            self.filename.mime_types = "application/x-gtk-builder;text/x-blueprint"
+
+            # filename -> format
+            binding = obj.bind_property(
+                "filename",
+                self.format,
+                "selected",
+                GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
+                transform_to=self.__filename_to_format,
+                transform_from=self.__format_to_filename,
+                user_data=obj
+            )
+            self._bindings.append(binding)
+
+            self.format.show()
+            self.format.set_sensitive(bool(obj.filename))
+        else:
+            self.filename.mime_types = "application/x-gtk-builder;application/x-glade"
+            self.format.hide()
+
+    def __filename_to_format(self, binding, source_value, ui):
+        if not source_value:
+            self.format.props.sensitive = False
+            return 0
+        self.format.props.sensitive = True
+
+        return 1 if source_value.endswith(".blp") else 0
+
+    def __format_to_filename(self, binding, target_value, ui):
+        if not ui.filename:
+            self.format.props.sensitive = False
+            return None
+        self.format.props.sensitive = True
+
+        return os.path.splitext(ui.filename)[0] + (".blp" if target_value == 1 else ".ui")
 
 
 Gtk.WidgetClass.set_css_name(CmbUIEditor, "CmbUIEditor")

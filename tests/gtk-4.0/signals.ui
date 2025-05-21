@@ -9,11 +9,11 @@
         <child>
           <object class="GtkButton">
             <signal name="activate" handler="on_button_activate"/>
-            <signal name="clicked" handler="on_button_clicked" swapped="yes"/>
-            <signal name="clicked" handler="on_button_clicked2" after="yes"/>
-            <signal name="clicked" handler="on_button_clicked3" swapped="yes" after="yes"/>
+            <signal name="clicked" handler="on_button_clicked" swapped="True"/>
+            <signal name="clicked" handler="on_button_clicked2" after="True"/>
+            <signal name="clicked" handler="on_button_clicked3" swapped="True" after="True"/>
             <signal name="clicked" handler="on_button_clicked4" object="win1"/>
-            <signal name="clicked" handler="on_button_clicked5" object="win1" swapped="no"/>
+            <signal name="clicked" handler="on_button_clicked5" swapped="False" object="win1"/>
             <signal name="notify::label" handler="on_notify"/>
           </object>
         </child>

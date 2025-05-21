@@ -27,9 +27,10 @@ import os
 import json
 import time
 import sqlite3
+import hashlib
 
 from pathlib import Path
-from gi.repository import GObject, Gio
+from gi.repository import GObject, Gio, GLib
 from graphlib import TopologicalSorter, CycleError
 
 from lxml import etree
@@ -49,6 +50,7 @@ from .cmb_layout_property import CmbLayoutProperty
 from .cmb_library_info import CmbLibraryInfo
 from .cmb_type_info import CmbTypeInfo
 from .cmb_objects_base import CmbSignal
+from .cmb_blueprint import cmb_blueprint_decompile, cmb_blueprint_compile
 from .utils import FileHash
 from . import constants, utils
 from cambalache import config, getLogger, _, N_
@@ -276,7 +278,23 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
             return root, relpath, hexdigest
 
-        return None, None
+        return None, None, None
+
+    def __parse_blp_file(self, filename):
+        fullpath, relpath = self.__get_abs_path(filename)
+
+        with open(fullpath, "rb") as fd:
+            blueprint_decompiled = fd.read()
+            m = hashlib.sha256()
+            m.update(blueprint_decompiled)
+            hexdigest = m.hexdigest()
+
+            blueprint_compiled = cmb_blueprint_compile(blueprint_decompiled.decode())
+            root = etree.fromstring(blueprint_compiled)
+
+            return root, relpath, hexdigest
+
+        return None, None, None
 
     def __get_version_comment_from_root(self, root):
         comment = root.getprevious()
@@ -287,7 +305,10 @@ class CmbProject(GObject.Object, Gio.ListModel):
     def __load_ui_from_node(self, node):
         filename, sha256 = utils.xml_node_get(node, ["filename", "sha256"])
         if filename:
-            root, relpath, hexdigest = self.__parse_xml_file(filename)
+            if filename.endswith(".blp"):
+                root, relpath, hexdigest = self.__parse_blp_file(filename)
+            else:
+                root, relpath, hexdigest = self.__parse_xml_file(filename)
 
             if sha256 != hexdigest:
                 logger.warning(f"{filename} hash mismatch, file was modified")
@@ -525,35 +546,48 @@ class CmbProject(GObject.Object, Gio.ListModel):
         else:
             fullpath = filename
 
-        dirty = True
+        interface = root.getroot()
+        hexdigest = None
+        blueprint_decompiled = None
+        use_blp = filename.endswith(".blp")
+
+        if use_blp:
+            str_exported = etree.tostring(interface, pretty_print=True, encoding="UTF-8").decode("UTF-8")
+            blueprint_decompiled = cmb_blueprint_decompile(str_exported)
 
         # Ensure directory exists
         os.makedirs(os.path.dirname(fullpath), exist_ok=True)
 
         original_comment, original_hash = self.__file_state.get(filename, (None, None))
         if original_comment is not None:
-            interface = root.getroot()
+            if use_blp:
+                m = hashlib.sha256()
+                m.update(blueprint_decompiled.encode())
+                hexdigest = m.hexdigest()
+            else:
+                comment = self.__get_version_comment_from_root(interface)
+                new_comment = comment.text
+                comment.text = original_comment.text
 
-            comment = self.__get_version_comment_from_root(interface)
-            new_comment = comment.text
-            comment.text = original_comment.text
-
-            # Calculate hash
-            hash_file = FileHash()
-            root.write(hash_file, pretty_print=True, xml_declaration=True, encoding="UTF-8")
-            hexdigest = hash_file.hexdigest()
-            hash_file.close()
-
-            comment.text = new_comment
-            dirty = original_hash != hexdigest
-
-        if dirty:
-            # Dump xml to file
-            with open(fullpath, "wb") as fd:
-                hash_file = FileHash(fd)
+                # Calculate hash
+                hash_file = FileHash()
                 root.write(hash_file, pretty_print=True, xml_declaration=True, encoding="UTF-8")
                 hexdigest = hash_file.hexdigest()
                 hash_file.close()
+
+                comment.text = new_comment
+
+        if original_hash is None or original_hash != hexdigest:
+            if use_blp:
+                with open(fullpath, "wb") as fd:
+                    fd.write(blueprint_decompiled.encode())
+            else:
+                # Dump xml to file
+                with open(fullpath, "wb") as fd:
+                    hash_file = FileHash(fd)
+                    root.write(hash_file, pretty_print=True, xml_declaration=True, encoding="UTF-8")
+                    hexdigest = hash_file.hexdigest()
+                    hash_file.close()
 
         # Store filename and hash in node
         utils.xml_node_set(node, "filename", filename)
@@ -631,8 +665,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
             self.__save_xml_and_update_node(ui, root, filename)
         else:
             # Embed UI content in project as CDATA
-            root = self.db.export_ui(ui_id, skip_version_comment=True)
-            self.__save_xml_in_node(ui, root)
+            root = self.db.export_ui(ui_id)
+            self.__save_xml_in_node(ui, root.getroot())
 
         return ui
 
@@ -655,8 +689,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
             self.__save_xml_and_update_node(gresources, root, filename)
         else:
             # Embed file contents in project as CDATA
-            root = self.db.export_gresource(gresource_id, skip_version_comment=True)
-            self.__save_xml_in_node(gresources, root)
+            root = self.db.export_gresource(gresource_id)
+            self.__save_xml_in_node(gresources, root.getroot())
 
         return gresources
 
@@ -774,7 +808,12 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         # Import file
         self.foreign_keys = False
-        root, relpath, hexdigest = self.__parse_xml_file(filename)
+
+        if filename.endswith(".blp"):
+            root, relpath, hexdigest = self.__parse_blp_file(filename)
+        else:
+            root, relpath, hexdigest = self.__parse_xml_file(filename)
+
         ui_id = self.db.import_from_node(root, relpath)
         self.foreign_keys = True
 
@@ -2241,6 +2280,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
                 i += 1
 
+        item.path_parent = None
         self.__items.insert(i, item)
         self.items_changed(i, 0, 1)
 
@@ -2296,23 +2336,45 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         path_parent = item.path_parent
 
+        # Do not do anything if the path is the same
+        if path_parent and path_parent.path and path_parent.path == os.path.dirname(filename):
+            return
+
         # Remove item
         self.__remove_item(item)
         # add it again
         self.__add_item(item, filename)
 
         if in_selection:
-            self.set_selection([item])
+            GLib.idle_add(self.__set_selection_idle, item)
 
         # Clear unused paths
-        if path_parent.n_items == 0:
-            while path_parent is not None:
-                next_parent = path_parent.path_parent
+        if path_parent and path_parent.n_items == 0:
+            GLib.idle_add(self.__clear_unused_paths_idle, path_parent)
 
-                if path_parent.n_items <= 1:
-                    logger.warning(path_parent)
+    def __set_selection_idle(self, item):
+        self.set_selection([item])
+        return GLib.SOURCE_REMOVE
 
-                path_parent = next_parent
+    def __clear_unused_paths_idle(self, path_parent):
+        if path_parent.n_items:
+            return
+
+        while path_parent is not None:
+            next_parent = path_parent.path_parent
+
+            if path_parent.n_items != 1:
+                break
+
+            path_parent = next_parent
+
+        if path_parent:
+            if path_parent.path_parent:
+                path_parent.path_parent.remove_item(path_parent)
+            else:
+                self.__remove_item(path_parent)
+
+        return GLib.SOURCE_REMOVE
 
     def do_ui_added(self, ui):
         self.__add_item(ui, ui.filename)

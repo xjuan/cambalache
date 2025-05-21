@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.95.0 -->
+<!-- Created with Cambalache 0.97.1 -->
 <interface>
   <!-- interface-name cmb_window.ui -->
   <!-- interface-copyright Juan Pablo Ugarte -->
@@ -836,6 +836,9 @@
   <object class="GtkFileFilter" id="glade_filter">
     <property name="mime-types">application/x-glade</property>
   </object>
+  <object class="GtkFileFilter" id="blueprint_filter">
+    <property name="mime-types">text/x-blueprint</property>
+  </object>
   <object class="GtkFileFilter" id="css_filter">
     <property name="mime-types">text/css</property>
   </object>
@@ -844,6 +847,7 @@
   </object>
   <object class="GtkFileFilter" id="gtk4_filter">
     <property name="mime-types">application/x-gtk-builder
+text/x-blueprint
 text/css</property>
     <property name="name">All supported files</property>
     <property name="suffixes">gresource.xml</property>
