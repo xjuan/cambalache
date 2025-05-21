@@ -65,6 +65,10 @@ class CmbUI(CmbBaseUI, Gio.ListModel):
     def __on_notify(self, obj, pspec):
         self.project._ui_changed(self, pspec.name)
 
+        # Update display name if one of the following properties changed
+        if pspec.name in ["filename", "template-id"]:
+            self.notify("display-name")
+
     def list_libraries(self):
         retval = {}
 
