@@ -35,6 +35,8 @@ class CmbFileButton(Gtk.Button):
 
     dirname = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
     dialog_title = GObject.Property(type=str, default=_("Select filename"), flags=GObject.ParamFlags.READWRITE)
+    accept_label = GObject.Property(type=str, default=_("Select"), flags=GObject.ParamFlags.READWRITE)
+    unnamed_filename = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
     use_open = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
 
     label = Gtk.Template.Child()
@@ -42,21 +44,35 @@ class CmbFileButton(Gtk.Button):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.__filename = None
+        self.__filters = None
 
     @Gtk.Template.Callback("on_button_clicked")
     def __on_button_clicked(self, button):
         dialog = Gtk.FileDialog(
             modal=True,
-            title=self.dialog_title
+            filters=self.__filters,
+            title=self.dialog_title,
+            accept_label=self.accept_label
         )
 
         if self.dirname is not None:
-            if self.__filename is not None:
+            if self.__filename:
                 fullpath = os.path.join(self.dirname, self.__filename)
-                dialog.set_initial_file(Gio.File.new_for_path(fullpath))
+
+                file = Gio.File.new_for_path(fullpath)
+                dialog.set_initial_file(file)
+
+                # See which filter matches the file info and use it as default
+                if file.query_exists(None):
+                    info = file.query_info(Gio.FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE, Gio.FileQueryInfoFlags.NONE, None)
+                    for filter in self.__filters:
+                        if filter.match(info):
+                            dialog.set_default_filter(filter)
+                            break
             else:
                 dialog.set_initial_folder(Gio.File.new_for_path(self.dirname))
-            #     dialog.set_initial_name("unnamed.ui")
+                if self.unnamed_filename:
+                    dialog.set_initial_name(self.unnamed_filename)
 
         def dialog_callback(dialog, res):
             try:
@@ -81,3 +97,18 @@ class CmbFileButton(Gtk.Button):
 
         self.__filename = value if value is not None else ""
         self.label.set_label(self.__filename)
+
+    @GObject.Property(type=str)
+    def mime_types(self):
+        if self.__filters:
+            return ";".join([f.props.mime_types for f in self.__filters])
+        return ""
+
+    @mime_types.setter
+    def _set_mime_types(self, value):
+        if value:
+            self.__filters = Gio.ListStore()
+            for mime in value.split(';'):
+                self.__filters.append(Gtk.FileFilter(mime_types=[mime]))
+        else:
+            self.__filters = None
