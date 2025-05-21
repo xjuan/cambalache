@@ -331,7 +331,7 @@ class CmbTypeInfo(CmbBaseTypeInfo):
 
         return False
 
-    def enum_get_value_as_string(self, value):
+    def enum_get_value_as_string(self, value, use_nick=True):
         if self.parent_id != "enum":
             return None
 
@@ -340,7 +340,7 @@ class CmbTypeInfo(CmbBaseTypeInfo):
 
             # Always use nick as value
             if value == enum_name or value == enum_nick or value == str(enum_value):
-                return enum_nick
+                return enum_nick if use_nick else enum_value
 
         return None
 
