@@ -260,7 +260,7 @@ It has to be exposed by your application with GtkBuilder expose_object method."
                     hexpand=True,
                     object=obj,
                     data=data,
-                    info=None if data else info.data[data_key],
+                    info=info.data[data_key],
                 )
 
                 grid.attach(editor, 0, i, 2, 1)
