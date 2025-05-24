@@ -279,7 +279,7 @@ class CmbNotificationCenter(GObject.GObject):
             assert response.status == 200
 
             # Reset retry interval
-            self.retry_interval = 2
+            self.retry_interval = 8
 
             data = response.read().decode()
 
@@ -292,7 +292,7 @@ class CmbNotificationCenter(GObject.GObject):
             self.retry_interval *= 2
             self.retry_interval = min(self.retry_interval, 256)
 
-            logger.warning(f"Request error {e}, retrying in {self.retry_interval}s")
+            logger.info(f"Request error {e}, retrying in {self.retry_interval}s")
             GLib.timeout_add_seconds(self.retry_interval, self._get_notification)
 
         self.connection.close()
