@@ -27,7 +27,7 @@ from gi.repository import GObject
 
 from .cmb_objects_base import CmbBaseObjectData
 from .cmb_type_info import CmbTypeDataInfo
-from cambalache import getLogger
+from cambalache import getLogger, _
 
 logger = getLogger(__name__)
 
@@ -194,11 +194,17 @@ class CmbObjectData(CmbBaseObjectData):
     def remove_data(self, data):
         try:
             assert data in self.children
+
+            self.project.history_push(
+                _("Remove {key} from {name}").format(key=data.info.key, name=self.object.display_name_type)
+            )
+
             self.project.db.execute(
                 "DELETE FROM object_data WHERE ui_id=? AND object_id=? AND owner_id=? AND data_id=? AND id=?;",
                 (self.ui_id, self.object_id, data.owner_id, data.data_id, data.id),
             )
             self.project.db.commit()
+            self.project.history_pop()
         except Exception as e:
             logger.warning(f"{self} Error removing data {data}: {e}")
             return False
