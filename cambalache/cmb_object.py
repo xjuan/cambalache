@@ -458,11 +458,17 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
     def remove_data(self, data):
         try:
             assert data.get_id_string() in self.data_dict
+
+            self.project.history_push(
+                _("Remove {key} from {name}").format(key=data.info.key, name=self.display_name_type)
+            )
+
             self.project.db.execute(
                 "DELETE FROM object_data WHERE ui_id=? AND object_id=? AND owner_id=? AND data_id=? AND id=?;",
                 (self.ui_id, self.object_id, data.owner_id, data.data_id, data.id),
             )
             self.project.db.commit()
+            self.project.history_pop()
         except Exception as e:
             logger.warning(f"{self} Error removing data {data}: {e}")
             return False
