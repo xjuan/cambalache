@@ -31,6 +31,12 @@ from .control import cmb_create_editor
 from cambalache import _
 
 
+# Everyone knows that debugging is twice as hard as writing a program in the first place.
+# So if you’re as clever as you can be when you write it, how will you ever debug it?
+# -- Brian Kernighan, 1974
+#
+# TODO: rewrite this!
+
 @Gtk.Template(resource_path="/ar/xjuan/Cambalache/cmb_object_data_editor.ui")
 class CmbObjectDataEditor(Gtk.Box):
     __gtype_name__ = "CmbObjectDataEditor"
@@ -69,11 +75,8 @@ class CmbObjectDataEditor(Gtk.Box):
     def __on_remove_clicked(self, button):
         if self.info:
             self.object.remove_data(self.__data)
-        else:
-            if self.__data.parent:
-                self.__data.parent.remove_data(self.__data)
-            else:
-                self.__data.object.remove_data(self.__data)
+        elif self.__data:
+            self.__data.parent.remove_data(self.__data)
 
     @GObject.Property(type=GObject.Object)
     def object(self):
@@ -136,8 +139,9 @@ class CmbObjectDataEditor(Gtk.Box):
         self.__update_arg(key)
 
     def __on_data_added(self, obj, data):
-        self.data = data
-        self.__update_view()
+        if self.info and self.data is None and self.info == data.info:
+            self.data = data
+            self.__update_view()
 
     def __on_data_removed(self, obj, data):
         self.__remove_data_editor(data)
