@@ -168,7 +168,6 @@ class CmbMerengueProcess(GObject.Object):
         env = json.loads(os.environ.get("MERENGUE_DEV_ENV", "{}"))
         env = env | {
             "GDK_BACKEND": "wayland",
-            "GSK_RENDERER": "cairo",
             "WAYLAND_DISPLAY": self.wayland_display,
         }
 
