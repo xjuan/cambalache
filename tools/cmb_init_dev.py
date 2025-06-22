@@ -2,7 +2,7 @@
 #
 # Cambalache UI Maker developer mode
 #
-# Copyright (C) 2021-2024  Juan Pablo Ugarte
+# Copyright (C) 2021-2025  Juan Pablo Ugarte
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as
@@ -22,6 +22,7 @@
 #
 
 import os
+import gi
 import sys
 import stat
 import signal
@@ -35,9 +36,19 @@ localpkgdatadir = os.path.join(localdir, "share", "cambalache")
 catalogsdir = os.path.join(localpkgdatadir, "catalogs")
 localbindir = os.path.join(localdir, "bin")
 
+repository = gi.Repository.get_default()
+
+LD_LIBRARY_PATH = [locallibdir, f"{locallibdir}/cambalache", f"{locallibdir}/cmb_catalog_gen"]
+for path in LD_LIBRARY_PATH:
+    repository.prepend_library_path(path)
+
+GI_TYPELIB_PATH = [f"{locallibdir}/girepository-1.0", f"{locallibdir}/cambalache", f"{locallibdir}/cmb_catalog_gen"]
+for path in GI_TYPELIB_PATH:
+    repository.prepend_search_path(path)
+
 for var, value in [
-    ("LD_LIBRARY_PATH", f"{locallibdir}:{locallibdir}/cambalache:{locallibdir}/cmb_catalog_gen"),
-    ("GI_TYPELIB_PATH", f"{locallibdir}/girepository-1.0:{locallibdir}/cambalache:{locallibdir}/cmb_catalog_gen"),
+    ("LD_LIBRARY_PATH", ":".join(LD_LIBRARY_PATH)),
+    ("GI_TYPELIB_PATH", ":".join(GI_TYPELIB_PATH)),
     ("PKG_CONFIG_PATH", os.path.join(locallibdir, "pkgconfig")),
     ("GSETTINGS_SCHEMA_DIR", os.path.join(localdir, "share", "glib-2.0", "schemas")),
     ("XDG_DATA_DIRS", os.path.join(localdir, "share")),
