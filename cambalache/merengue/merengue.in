@@ -48,5 +48,5 @@ if __name__ == "__main__":
     gi.require_version("Gtk", version)
 
     from merengue import MrgApplication
-    app = MrgApplication(command_socket=command_socket)
+    app = MrgApplication(command_socket=int(command_socket))
     app.run([])

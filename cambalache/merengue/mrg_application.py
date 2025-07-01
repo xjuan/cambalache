@@ -41,31 +41,19 @@ logger = getLogger(__name__)
 
 
 class MrgApplication(Gtk.Application):
-    command_socket = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    command_socket = GObject.Property(type=int, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
 
     preview = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
 
     dirname = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
-        self.command_in = None
+        self.connection = None
 
         GLib.set_application_name("Merengue")
         super().__init__(application_id="ar.xjuan.Merengue", flags=Gio.ApplicationFlags.NON_UNIQUE, **kwargs)
 
-        socket_addr = Gio.UnixSocketAddress.new(self.command_socket)
-
-        command_client = Gio.SocketClient()
-        self.connection = command_client.connect(socket_addr, None)
-
-        command_client = None
-        socket_addr = None
-
-        if self.connection is None:
-            self.quit()
-            return
-
-        self.command_in = GLib.IOChannel.unix_new(self.connection.props.input_stream.get_fd())
+        self.connection = GLib.IOChannel.unix_new(self.command_socket)
 
         # List of available controler classes for objects
         self.registry = MrgControllerRegistry()
@@ -93,18 +81,16 @@ class MrgApplication(Gtk.Application):
         if args is not None:
             cmd["args"] = args
 
-        output_stream = self.connection.props.output_stream
-
         # Send command in one line as json
-        output_stream.write(json.dumps(cmd).encode())
-        output_stream.write(b"\n")
+        self.connection.write(json.dumps(cmd).encode())
+        self.connection.write(b"\n")
 
         # Send payload if any
         if payload is not None:
-            output_stream.write(payload.encode())
+            self.connection.write(payload.encode())
 
         # Flush
-        output_stream.flush()
+        self.connection.flush()
 
     def __on_dirname_notify(self, obj, pspec):
         # Change CWD for builder to pick relative paths
@@ -362,13 +348,13 @@ class MrgApplication(Gtk.Application):
         else:
             logger.warning(f"Unknown command {command}")
 
-    def __on_command_in(self, channel, condition):
+    def __on_connection_in(self, channel, condition):
         if condition == GLib.IOCondition.HUP:
             self.quit()
             return GLib.SOURCE_REMOVE
 
         # We receive a command in each line
-        retval = self.command_in.readline()
+        retval = self.connection.readline()
 
         if len(retval) == 0:
             return GLib.SOURCE_CONTINUE
@@ -388,7 +374,7 @@ class MrgApplication(Gtk.Application):
 
             # Read payload
             if payload_length:
-                payload = self.command_in.read(payload_length)
+                payload = self.connection.read(payload_length)
                 logger.debug(f"Payload read {payload_length=}, {len(payload)}")
                 payload = payload.decode()
 
@@ -404,10 +390,10 @@ class MrgApplication(Gtk.Application):
 
         self.registry.load_module("Gtk", mrg_gtk)
 
-        GLib.io_add_watch(self.command_in,
+        GLib.io_add_watch(self.connection,
                           GLib.PRIORITY_DEFAULT_IDLE,
                           GLib.IOCondition.IN | GLib.IOCondition.HUP,
-                          self.__on_command_in)
+                          self.__on_connection_in)
 
         provider = Gtk.CssProvider()
         provider.load_from_resource("/ar/xjuan/Merengue/merengue.css")

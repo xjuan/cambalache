@@ -27,10 +27,8 @@ import gi
 import os
 import json
 import time
-import fcntl
-import stat
 import atexit
-import shutil
+import socket
 
 gi.require_version('Casilda', '0.1')
 from gi.repository import GObject, GLib, Gio, Gdk, Gtk, Casilda
@@ -57,69 +55,16 @@ class CmbMerengueProcess(GObject.Object):
     }
 
     gtk_version = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
-    merengue_started = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
+    compositor = GObject.Property(type=GObject.Object, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
-        self.__command_queue = []
         self.__file = os.path.join(config.merenguedir, "merengue", "merengue")
-        self.__command_in = None
-        self.__on_command_in_source = None
-        self.__connection = None
-        self.__pid = 0
-        self.__wayland_display = None
+        self.__command = None
         self.__command_socket = None
-        self.__service = None
+        self.__on_command_in_source = None
+        self.__pid = 0
 
         super().__init__(**kwargs)
-
-    @GObject.Property(type=str)
-    def wayland_display(self):
-        return self.__wayland_display
-
-    @wayland_display.setter
-    def _set_wayland_display(self, wayland_display):
-        self.cleanup()
-
-        self.__wayland_display = wayland_display
-
-        if wayland_display is None:
-            return
-
-        # Create socket address object
-        dirname = os.path.dirname(wayland_display)
-        self.__command_socket = os.path.join(dirname, "merengue.sock")
-        socket_addr = Gio.UnixSocketAddress.new(self.__command_socket)
-
-        # Lock Socket
-        GLib.mkdir_with_parents(dirname, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
-        lockfd = os.open(f"{self.__command_socket}.lock",
-                         os.O_CREAT | os.O_CLOEXEC | os.O_RDWR,
-                         stat.S_IRUSR | stat.S_IWUSR)
-        if lockfd < 0:
-            logger.warning(f"Can not open lockfile for {self.__command_socket}, check permissions")
-            return
-
-        try:
-            fcntl.flock(lockfd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except Exception as e:
-            logger.warning(f"Can not lock lockfile for {self.__command_socket}, is it used by another compositor? {e}")
-            return
-
-        # Create socket listener and add address
-        self.__service = Gio.SocketService()
-        self.__service.add_address(socket_addr,
-                                   Gio.SocketType.STREAM,
-                                   Gio.SocketProtocol.DEFAULT,
-                                   None)
-        self.__service.connect("incoming", self.__on_service_incoming)
-        self.__service.start()
-
-        try:
-            os.lstat(self.__command_socket)
-        except Exception as e:
-            logger.warning(f"Can not stat file {self.__command_socket} {e}")
-
-        socket_addr = None
 
     @GObject.Property(type=int)
     def pid(self):
@@ -127,78 +72,79 @@ class CmbMerengueProcess(GObject.Object):
 
     def cleanup(self):
         self.stop()
-        if self.__command_socket:
-            os.unlink(self.__command_socket)
-            os.unlink(f"{self.__command_socket}.lock")
-        if self.__service:
-            self.__service.start()
-            self.__service = None
 
     def __on_command_in(self, channel, condition):
-        if condition == GLib.IOCondition.HUP or self.__command_in is None:
+        if condition == GLib.IOCondition.HUP or self.__command is None:
             self.stop()
             return GLib.SOURCE_REMOVE
 
-        payload = self.__command_in.readline()
+        payload = self.__command.readline()
         if payload is not None and payload != "":
             self.emit("handle-command", payload)
 
         return GLib.SOURCE_CONTINUE
 
-    def __on_service_incoming(self, service, connection, source_object):
-        self.__connection = connection
-
-        self.__command_in = GLib.IOChannel.unix_new(self.__connection.props.input_stream.get_fd())
-        id = GLib.io_add_watch(self.__command_in,
-                               GLib.PRIORITY_DEFAULT_IDLE,
-                               GLib.IOCondition.IN | GLib.IOCondition.HUP,
-                               self.__on_command_in)
-        self.__on_command_in_source = id
-
-        # Consume pending command queue
-        for cmd, payload in self.__command_queue:
-            self.__socket_write_command(cmd, payload)
-
-        self.__command_queue = []
-
     def start(self):
         if self.__file is None or self.__pid > 0:
             return
 
-        env = json.loads(os.environ.get("MERENGUE_DEV_ENV", "{}"))
-        env = env | {
-            "GDK_BACKEND": "wayland",
-            "WAYLAND_DISPLAY": self.wayland_display,
-        }
+        # Create socketpair for commands comunication
+        client, server = socket.socketpair(socket.AF_UNIX, socket.SOCK_STREAM)
 
-        envp = [f"{var}={val}" for var, val in os.environ.items() if var not in env]
+        # Keep a reference in python to avoid socket close
+        self.__command_socket = server
 
-        # Append extra vars
-        for var in env:
-            envp.append(f"{var}={env[var]}")
+        # Create IOChannel to integrate into glib loop
+        self.__command = GLib.IOChannel.unix_new(server.fileno())
+        self.__on_command_in_source = GLib.io_add_watch(self.__command,
+                                                        GLib.PRIORITY_DEFAULT_IDLE,
+                                                        GLib.IOCondition.IN | GLib.IOCondition.HUP,
+                                                        self.__on_command_in)
 
-        pid, stdin, stdout, stderr = GLib.spawn_async(
-            [self.__file, self.gtk_version, self.__command_socket],
-            envp=envp,
-            flags=GLib.SpawnFlags.DO_NOT_REAP_CHILD,
+        # Get a socket already connected to the compositor
+        wayland_socket = self.compositor.get_client_socket_fd()
+
+        # Create Merengue environment, dont include variables that interfere with backend choice
+        ignore_vars = {"GDK_BACKEND", "WAYLAND_SOCKET", "WAYLAND_DISPLAY"}
+
+        envp = [f"{var}={val}" for var, val in os.environ.items() if var not in ignore_vars]
+
+        # Force Gdk backend to wayland
+        envp.append("GDK_BACKEND=wayland")
+
+        # Use WAYLAND_SOCKET instead of WAYLAND_DISPLAY
+        envp.append(f"WAYLAND_SOCKET={wayland_socket}")
+
+        # Spawn merengue with wayland_socket and client file descriptors
+        # TODO: send stdout and error to some place useful for the user
+        valid, pid, stdin, stdout, stderr = GLib.spawn_async_with_pipes_and_fds(
+            None,
+            [self.__file, self.gtk_version, str(client.fileno())],
+            envp,
+            GLib.SpawnFlags.DO_NOT_REAP_CHILD |
+            GLib.SpawnFlags.CHILD_INHERITS_STDIN |
+            GLib.SpawnFlags.CHILD_INHERITS_STDERR |
+            GLib.SpawnFlags.CHILD_INHERITS_STDOUT,
+            None, None,
+            -1, -1, -1,
+            [wayland_socket, client.fileno()],
+            [wayland_socket, client.fileno()]
         )
 
-        self.__pid = pid
-        GLib.child_watch_add(GLib.PRIORITY_DEFAULT_IDLE, pid, self.__on_exit, None)
+        if valid:
+            self.__pid = pid
+            GLib.child_watch_add(GLib.PRIORITY_DEFAULT_IDLE, pid, self.__on_exit, None)
 
     def __cleanup(self):
-        self.merengue_started = False
-
         if self.__on_command_in_source:
             GLib.source_remove(self.__on_command_in_source)
             self.__on_command_in_source = None
 
-        if self.__command_in:
-            self.__command_in = None
+        if self.__command:
+            self.__command.shutdown(True)
+            self.__command = None
 
-        if self.__connection:
-            self.__connection.close()
-            self.__connection = None
+        self.__command_socket = None
 
     def stop(self):
         self.__cleanup()
@@ -224,22 +170,16 @@ class CmbMerengueProcess(GObject.Object):
         if args is not None:
             cmd["args"] = args
 
-        # Queue command while we are not connected
-        if self.__connection is None:
-            self.__command_queue.append((cmd, payload))
-            return
-
         self.__socket_write_command(cmd, payload)
 
     def __socket_write_command(self, cmd, payload=None):
         # Send command in one line as json
-        output_stream = self.__connection.props.output_stream
 
         def write_data(data):
             total_bytes = len(data)
             total_sent = 0
             while total_sent < total_bytes:
-                total_sent += output_stream.write(data[total_sent:])
+                total_sent += self.__command.write(data[total_sent:])
 
         write_data(json.dumps(cmd).encode())
         write_data(b"\n")
@@ -248,7 +188,7 @@ class CmbMerengueProcess(GObject.Object):
             write_data(payload)
 
         # Flush
-        output_stream.flush()
+        self.__command.flush()
 
     def __on_exit(self, pid, status, data):
         self.__cleanup()
@@ -286,16 +226,14 @@ class CmbView(Gtk.Box):
 
         super().__init__(**kwargs)
 
-        self.__click_gesture = Gtk.GestureClick(
-            propagation_phase=Gtk.PropagationPhase.CAPTURE,
-            button=3
-        )
+        self.__click_gesture = Gtk.GestureClick(propagation_phase=Gtk.PropagationPhase.CAPTURE, button=3)
         self.__click_gesture.connect("pressed", self.__on_click_gesture_pressed)
         self.compositor_box.add_controller(self.__click_gesture)
 
-        self.__merengue = CmbMerengueProcess(wayland_display=self.compositor.props.socket)
+        self.__merengue = CmbMerengueProcess(compositor=self.compositor)
         self.__merengue.connect("exit", self.__on_process_exit)
         self.__merengue_last_exit = None
+        self.__merengue_started = None
 
         self.connect("notify::preview", self.__on_preview_notify)
 
@@ -307,13 +245,8 @@ class CmbView(Gtk.Box):
         self.restart_workspace()
 
     def __atexit(self):
-        dirname = os.path.dirname(self.compositor.props.socket)
-
         self.__merengue_command("quit")
         self.__merengue.cleanup()
-
-        if os.path.exists(dirname):
-            shutil.rmtree(dirname)
 
     def __set_dark_mode(self, dark):
         valid, bg_color = self.get_style_context().lookup_color('theme_bg_color')
@@ -327,8 +260,10 @@ class CmbView(Gtk.Box):
         GLib.idle_add(self.__set_dark_mode, dark)
 
     def __merengue_command(self, command, payload=None, args=None):
-        if self.__merengue.merengue_started:
-            self.__merengue.write_command(command, payload, args)
+        if not self.__merengue_started:
+            return
+
+        self.__merengue.write_command(command, payload, args)
 
     def __get_ui_xml(self, ui_id, merengue=False):
         if self.show_merengue:
@@ -629,6 +564,7 @@ class CmbView(Gtk.Box):
     def restart_workspace(self):
         # Clear last exit timestamp
         self.__merengue_last_exit = None
+        self.__merengue_started = None
 
         if self.__merengue.pid:
             # Let __on_process_exit() restart Merengue
@@ -647,6 +583,8 @@ class CmbView(Gtk.Box):
         return retval
 
     def __on_process_exit(self, process):
+        self.__merengue_started = None
+
         if self.__merengue_last_exit is None:
             self.__merengue_last_exit = time.monotonic()
         else:
@@ -708,7 +646,7 @@ class CmbView(Gtk.Box):
         if command == "selection_changed":
             self.__command_selection_changed(**args)
         elif command == "started":
-            self.__merengue.merengue_started = True
+            self.__merengue_started = True
             self.__merengue_command("gtk_settings_get", args={"property": "gtk-theme-name"})
 
             self.__load_namespaces()
@@ -759,4 +697,5 @@ class CmbView(Gtk.Box):
 
 
 Gtk.WidgetClass.set_css_name(CmbView, "CmbView")
+
 
