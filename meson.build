@@ -1,6 +1,6 @@
 project(
     'cambalache', 'c',
-    version: '0.97.3',
+    version: '0.97.4',
     meson_version: '>= 1.1.0',
     default_options: [
         'c_std=c11',
@@ -29,7 +29,7 @@ privatecmb_catalog_gendir = join_paths(get_option('prefix'), get_option('libdir'
 libxml2_dep = dependency('libxml-2.0', version: '>= 2.9.0')
 pygobject_dep = dependency('pygobject-3.0', version: '>= 3.52.0')
 gtk4_dep = dependency('gtk4', version: '>= 4.18.0')
-casilda_dep = dependency('casilda-0.1', version: '>= 0.9.0', fallback: ['casilda', 'casilda_dep'])
+casilda_dep = dependency('casilda-0.1', version: '>= 0.9.1', fallback: ['casilda', 'casilda_dep'])
 adw_dep = dependency('libadwaita-1', version: '>= 1.7.0')
 gtksource_dep = dependency('gtksourceview-5', version: '>= 5.16.0')
 
