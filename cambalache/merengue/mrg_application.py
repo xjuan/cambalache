@@ -312,6 +312,11 @@ class MrgApplication(Gtk.Application):
         if css:
             css.set_property(field, value)
 
+    def set_icontheme_search_paths(self, paths):
+        theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default())
+        for path in paths:
+            theme.add_search_path(path)
+
     def run_command(self, command, args, payload):
         logger.debug(f"{command} {args} payload={len(payload) if payload else -1}")
 
@@ -343,6 +348,8 @@ class MrgApplication(Gtk.Application):
             self.remove_css_provider(**args)
         elif command == "update_css_provider":
             self.update_css_provider(**args)
+        elif command == "set_icontheme_search_paths":
+            self.set_icontheme_search_paths(**args)
         elif command == "quit":
             self.quit()
         else:
