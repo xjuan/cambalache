@@ -629,6 +629,17 @@ class CmbView(Gtk.Box):
                 },
             )
 
+    def __set_icontheme_search_paths(self):
+        if self.project is None or self.project.filename is None:
+            return
+
+        dirname = os.path.dirname(self.project.filename)
+
+        self.__merengue_command(
+            "set_icontheme_search_paths",
+            args={"paths": [os.path.join(dirname, path) for path in self.project.icontheme_search_paths]}
+        )
+
     def __on_preview_notify(self, obj, pspec):
         self.__merengue_command("set_app_property", args={"property": "preview", "value": self.preview})
 
@@ -653,6 +664,8 @@ class CmbView(Gtk.Box):
         elif command == "started":
             self.__merengue_started = True
             self.__merengue_command("gtk_settings_get", args={"property": "gtk-theme-name"})
+
+            self.__set_icontheme_search_paths()
 
             self.__load_namespaces()
 
