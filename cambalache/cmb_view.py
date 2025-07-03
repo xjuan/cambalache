@@ -131,6 +131,11 @@ class CmbMerengueProcess(GObject.Object):
             [wayland_socket, client.fileno()]
         )
 
+        # Close file descriptors passed to the client.
+        # If we do not close wayland_socket then the client wont be destroyed if its process is killed.
+        os.close(wayland_socket)
+        client.close()
+
         if valid:
             self.__pid = pid
             GLib.child_watch_add(GLib.PRIORITY_DEFAULT_IDLE, pid, self.__on_exit, None)
