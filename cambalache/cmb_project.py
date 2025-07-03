@@ -132,6 +132,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         self.__filename = None
 
+        self.icontheme_search_paths = []
+
         super().__init__(**kwargs)
 
         self.target_tk = target_tk
@@ -466,6 +468,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
                     css_list.append(child)
                 elif child.tag == "gresources":
                     gresourses_list.append(child)
+                elif child.tag == "icontheme-search-path":
+                    self.icontheme_search_paths.append(child.text)
                 else:
                     raise Exception(f"Unknown tag {child.tag} in project file.")
 
@@ -705,6 +709,9 @@ class CmbProject(GObject.Object, Gio.ListModel):
         project = E("cambalache-project", version=config.FILE_FORMAT_VERSION, target_tk=self.target_tk)
 
         project.addprevious(etree.Comment(f" Created with Cambalache {config.VERSION} "))
+
+        for path in self.icontheme_search_paths:
+            project.append(E("icontheme-search-path", path))
 
         # Save GResources
         for row in c.execute("SELECT gresource_id, gresources_filename FROM gresource WHERE resource_type='gresources';"):
