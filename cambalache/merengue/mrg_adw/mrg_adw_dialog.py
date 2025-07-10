@@ -31,6 +31,7 @@ class MrgAdwDialog(MrgGtkWidget):
     object = GObject.Property(type=Adw.Dialog, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
+        self.__headerbar_height = 0
         super().__init__(**kwargs)
 
     def object_changed(self, old, new):
@@ -52,6 +53,11 @@ class MrgAdwDialog(MrgGtkWidget):
         self.object.present(self.window)
         self.window.present()
 
+        minimun, natural = self.object.get_preferred_size()
+        h_minimun, h_natural = self.__headerbar.get_preferred_size()
+
+        self.window.set_default_size(natural.width + 64, natural.height + h_natural.height * 2)
+
         self.window.set_title(GObject.type_name(self.object.__gtype__))
         CambalachePrivate.widget_set_application_id(self.window, f"Casilda:{self.ui_id}.{self.object_id}")
         self.__update_placeholder()
@@ -59,10 +65,17 @@ class MrgAdwDialog(MrgGtkWidget):
     def __window_new(self):
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         headerbar = Gtk.HeaderBar(valign=Gtk.Align.START, vexpand=False)
+
+        self.__headerbar = headerbar
+
         button = Gtk.Button(label="Open", valign=Gtk.Align.CENTER, halign=Gtk.Align.CENTER, vexpand=True)
         button.connect("clicked", self.__on_open_button_clicked)
+
+        label = Gtk.Label(label="This window is created automatically to be able to present the AdwDialog.", vexpand=True)
+
+        headerbar.pack_end(button)
         box.append(headerbar)
-        box.append(button)
+        box.append(label)
         return Adw.Window(deletable=False, content=box)
 
     def __on_open_button_clicked(self, button):
