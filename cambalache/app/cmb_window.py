@@ -178,6 +178,7 @@ class CmbWindow(Adw.ApplicationWindow):
             "delete",
             "donate",
             "import",
+            "import_directory",
             "inspect",
             "intro",
             "liberapay",
@@ -732,7 +733,7 @@ class CmbWindow(Adw.ApplicationWindow):
 
         return filename.startswith(f"/run/user/{os.getuid()}/doc/")
 
-    def import_file(self, filename, target_tk=None):
+    def import_ui(self, filename, target_tk=None, autoselect=True):
         if self.project is None:
             dirname = os.path.dirname(filename)
             basename = os.path.basename(filename)
@@ -753,7 +754,8 @@ class CmbWindow(Adw.ApplicationWindow):
         ui = self.project.get_ui_by_filename(filename)
 
         if ui:
-            self.project.set_selection([ui])
+            if autoselect:
+                self.project.set_selection([ui])
             return
 
         try:
@@ -762,7 +764,8 @@ class CmbWindow(Adw.ApplicationWindow):
 
             ui, msg, detail = self.project.import_file(filename)
 
-            self.project.set_selection([ui])
+            if autoselect:
+                self.project.set_selection([ui])
 
             if msg:
                 details = "\n".join(detail)
@@ -819,7 +822,7 @@ class CmbWindow(Adw.ApplicationWindow):
 
         def on_ask_gtk_version_response(d, r):
             target_tk = "gtk-4.0" if r == 4 else "gtk+-3.0"
-            self.import_file(filename, target_tk=target_tk)
+            self.import_ui(filename, target_tk=target_tk)
             d.destroy()
 
         dialog.connect("response", on_ask_gtk_version_response)
@@ -852,7 +855,7 @@ class CmbWindow(Adw.ApplicationWindow):
                         self.ask_gtk_version(filename)
                         return
 
-                    self.import_file(filename, target_tk=target_tk)
+                    self.import_ui(filename, target_tk=target_tk)
                 elif content_type != "application/x-cambalache-project":
                     raise Exception(_("Unknown file type {content_type}").format(content_type=content_type))
 
@@ -1133,6 +1136,16 @@ class CmbWindow(Adw.ApplicationWindow):
             details=unsupported_features_list,
         )
 
+    def __import_file(self, path, autoselect=True):
+        content_type = utils.content_type_guess(path)
+
+        if content_type in ["application/x-gtk-builder", "application/x-glade", "text/x-blueprint"]:
+            self.import_ui(path, autoselect=autoselect)
+        elif content_type == "text/css":
+            self.project.add_css(path)
+        elif content_type == "application/xml" and path.endswith("gresource.xml"):
+            self.project.import_gresource(path)
+
     def _on_import_activate(self, action, data):
         if self.project is None:
             return
@@ -1140,17 +1153,7 @@ class CmbWindow(Adw.ApplicationWindow):
         def dialog_callback(dialog, res):
             try:
                 for file in dialog.open_multiple_finish(res):
-                    path = file.get_path()
-                    content_type = utils.content_type_guess(path)
-
-                    print("IMPORT", path, content_type)
-
-                    if content_type in ["application/x-gtk-builder", "application/x-glade", "text/x-blueprint"]:
-                        self.import_file(file.get_path())
-                    elif content_type == "text/css":
-                        self.project.add_css(path)
-                    elif content_type == "application/xml" and path.endswith("gresource.xml"):
-                        self.project.import_gresource(path)
+                    self.__import_file(file.get_path())
             except Exception as e:
                 logger.warning(f"Error {e}")
 
@@ -1165,6 +1168,73 @@ class CmbWindow(Adw.ApplicationWindow):
             accept_label=_("Import")
         )
         dialog.open_multiple(self, None, dialog_callback)
+
+    def _on_import_directory_activate(self, action, data):
+        if self.project is None:
+            return
+
+        def progress_dialog_new():
+            dialog = Gtk.Window(
+                title="Importing directory",
+                transient_for=self,
+                default_width=640,
+                modal=True
+            )
+            progressbar = Gtk.ProgressBar(
+                text=_("Loading directory contents"),
+                ellipsize=Pango.EllipsizeMode.START,
+                show_text=True,
+                vexpand=True,
+                margin_top=32,
+                margin_bottom=32,
+                margin_start=16,
+                margin_end=16,
+            )
+            dialog.set_child(progressbar)
+            dialog.present()
+
+            return dialog, progressbar
+
+        def dialog_callback(dialog, res):
+            main_loop = GLib.MainContext.default()
+
+            progress, progressbar = progress_dialog_new()
+
+            def pulse():
+                progressbar.pulse()
+                while main_loop.pending():
+                    main_loop.iteration(False)
+
+            try:
+                dir = dialog.select_folder_finish(res)
+                dirpath = dir.get_path()
+
+                files = self.project._list_supported_files(dirpath, pulse)
+                n_files = len(files)
+
+                self.project.history_push(_('Import {n} directory "{dirpath}"').format(dirpath=dirpath, n=n_files))
+
+                basedir = self.project.dirname + "/"
+
+                for i, path in enumerate(files):
+                    progressbar.set_text(path.removeprefix(basedir))
+                    progressbar.set_fraction(i/n_files)
+                    self.__import_file(path, autoselect=False)
+
+                    while main_loop.pending():
+                        main_loop.iteration(False)
+
+                self.project.history_pop()
+                self._show_message(_("Imported {n} files").format(n=n_files))
+
+                progress.close()
+
+            except Exception as e:
+                logger.warning(f"Error {e}")
+
+        dialog = self.__file_open_dialog_new(_("Choose directory to import"), accept_label=_("Import directory"))
+        dialog.set_initial_folder(Gio.File.new_for_path(self.project.dirname))
+        dialog.select_folder(self, None, dialog_callback)
 
     def _on_add_gresource_activate(self, action, data):
         if self.project is None:
