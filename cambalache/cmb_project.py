@@ -842,6 +842,73 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         return (ui, msgs, detail_msg)
 
+    def _list_supported_files(self, dirpath, step_cb=None):
+        def read_dir(path):
+            retval = []
+
+            with os.scandir(path) as it:
+                for entry in it:
+                    root, ext = os.path.splitext(entry.name)
+                    if ext in [".ui", ".blp", ".css", ".xml"] and entry.is_file():
+                        retval.append(entry.path)
+                        if step_cb:
+                            step_cb()
+                    elif entry.is_dir():
+                        retval += read_dir(entry.path)
+
+            return retval
+        ui_graph = {}
+        ui_node_template = {}
+
+        for filename in read_dir(dirpath):
+            try:
+                if filename.endswith(".blp"):
+                    root, relpath, hexdigest = self.__parse_blp_file(filename)
+                elif filename.endswith(".ui"):
+                    root, relpath, hexdigest = self.__parse_xml_file(filename)
+                elif filename.endswith(".css") or filename.endswith(".gresource.xml"):
+                    ui_graph[filename] = []
+
+                    if step_cb:
+                        step_cb()
+                    continue
+                else:
+                    continue
+            except Exception as e:
+                print(e)
+                continue
+
+            template = root.find("template")
+            if template is not None:
+                ui_node_template[template.get("class")] = filename
+
+            dependencies = set()
+            for node in root.iterfind(".//object"):
+                klass = node.get("class", None)
+
+                if klass in self.type_info:
+                    continue
+
+                dependencies.add(klass)
+
+            ui_graph[filename] = list(dependencies)
+
+            if step_cb:
+                step_cb()
+
+        # Replace dependencies with nodes
+        ui_node_graph = {}
+        for filename, dependencies in ui_graph.items():
+            ui_node_graph[filename] = [ui_node_template[key] for key in dependencies if key in ui_node_template]
+
+        try:
+            ts = TopologicalSorter(ui_node_graph)
+            sorted_ui_nodes = list(ts.static_order())
+        except CycleError as e:
+            raise Exception(f"Could not load project because of dependency cycle {e}")
+
+        return sorted_ui_nodes
+
     def import_gresource(self, filename):
         self.history_push(_('Import GResource "{filename}"').format(filename=filename))
 
