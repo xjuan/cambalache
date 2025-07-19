@@ -38,7 +38,12 @@ basedir = os.path.dirname(__file__) or "."
 
 class CmbApplication(Adw.Application):
     def __init__(self):
-        super().__init__(application_id="ar.xjuan.Cambalache", flags=Gio.ApplicationFlags.HANDLES_OPEN)
+        flags = Gio.ApplicationFlags.HANDLES_OPEN
+
+        if "CMB_APPLICATION_NON_UNIQUE" in os.environ:
+            flags |= Gio.ApplicationFlags.NON_UNIQUE
+
+        super().__init__(application_id="ar.xjuan.Cambalache", flags=flags)
 
         self.add_main_option("version", b"v", GLib.OptionFlags.NONE, GLib.OptionArg.NONE, _("Print version"), None)
 
