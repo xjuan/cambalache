@@ -139,15 +139,19 @@ class CmbNotificationCenter(GObject.GObject):
         for prop in ["enabled", "uuid", "next-request", "notifications"]:
             self.settings.bind(prop, self, prop.replace("-", "_"), Gio.SettingsBindFlags.DEFAULT)
 
-        # Disable notifications if settings backend is ephemeral
-        if GObject.type_name(Gio.SettingsBackend.get_default()) == "GMemorySettingsBackend":
-            logger.info("Disabling notifications")
-            self.enabled = False
+        backend = urlparse(os.environ.get("CMB_NOTIFICATION_URL", "https://xjuan.ar:1934"))
+        if backend.hostname == "localhost":
+            self.REQUEST_INTERVAL = 4
+            self.enabled = True
+        else:
+            self.REQUEST_INTERVAL = 24 * 60 * 60
+
+            # Disable notifications if settings backend is ephemeral
+            if GObject.type_name(Gio.SettingsBackend.get_default()) == "GMemorySettingsBackend":
+                logger.info("Disabling notifications")
+                self.enabled = False
 
         self.__load_notifications()
-
-        backend = urlparse(os.environ.get("CMB_NOTIFICATION_URL", "https://xjuan.ar:1934"))
-        self.REQUEST_INTERVAL = 4 if backend.hostname == "localhost" else 24 * 60 * 60
 
         if backend.scheme == "https":
             logger.info(f"Backend: {backend.scheme}://{backend.hostname}:{backend.port}")
