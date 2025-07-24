@@ -313,7 +313,11 @@ class MrgApplication(Gtk.Application):
             css.set_property(field, value)
 
     def set_icontheme_search_paths(self, paths):
-        theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default())
+        if Gtk.MAJOR_VERSION == 4:
+            theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default())
+        else:
+            theme = Gtk.IconTheme.get_for_screen(Gdk.Screen.get_default())
+
         for path in paths:
             theme.add_search_path(path)
 
