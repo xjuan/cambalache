@@ -2211,6 +2211,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
             position = obj.position
             list_position = obj.list_position
             child_type = obj.type
+            inline_property_id = obj.inline_property_id
 
             self.db.ignore_check_constraints = True
             self.db.execute("UPDATE object SET position=-1 WHERE ui_id=? AND object_id=?;", (ui_id, object_id))
@@ -2227,6 +2228,13 @@ class CmbProject(GObject.Object, Gio.ListModel):
             self.db.execute("UPDATE object SET parent_id=? WHERE ui_id=? AND object_id=?;", (new_parent_id, ui_id, object_id))
 
             self.db.execute("UPDATE object SET position=0 WHERE ui_id=? AND object_id=?;", (ui_id, object_id))
+
+            if inline_property_id:
+                self.db.execute(
+                    "UPDATE object_property SET inline_object_id=? WHERE ui_id=? AND object_id=? AND property_id=?;",
+                    (new_parent_id, ui_id, grand_parent_id, inline_property_id)
+                )
+
             self.db.ignore_check_constraints = False
 
             # Move all layout properties from obj to parent
