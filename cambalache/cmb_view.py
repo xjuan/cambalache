@@ -253,17 +253,6 @@ class CmbView(Gtk.Box):
         self.__merengue_command("quit")
         self.__merengue.cleanup()
 
-    def __set_dark_mode(self, dark):
-        valid, bg_color = self.get_style_context().lookup_color('theme_bg_color')
-        if valid:
-            self.compositor.props.bg_color = bg_color
-
-        return GLib.SOURCE_REMOVE
-
-    def _set_dark_mode(self, dark):
-        # This needs to be called in an idle because theme_bg_color has not changed at this point
-        GLib.idle_add(self.__set_dark_mode, dark)
-
     def __merengue_command(self, command, payload=None, args=None):
         if not self.__merengue_started:
             return

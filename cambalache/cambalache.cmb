@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
-<!-- Created with Cambalache 0.97.4 -->
+<!-- Created with Cambalache 0.97.5 -->
 <cambalache-project version="0.96.0" target_tk="gtk-4.0">
   <gresources filename="cambalache.gresource.xml" sha256="fdcf4cd517493f548aa4b4fe206ff7762cee9cdda7ec5a85a718b46eb1c4731b"/>
   <gresources filename="app/app.gresource.xml" sha256="3684aa78fce08d8e81d0907317214aeb179c5aea091dd0df405476b43e286941"/>
@@ -145,6 +145,7 @@
   </ui>
   <ui template-class="CmbTranslatableWidget" filename="control/cmb_translatable_widget.ui" sha256="b3178157210f93308b92d99f933cb8d04f2de0278ad75680c7460e2c520b1684"/>
   <ui template-class="CasildaCompositor">
+    <property id="scrollable" type-id="gboolean" disable-inline-object="0" required="0" disabled="0"/>
     <signal id="context-menu"/>
     <content><![CDATA[<interface>
   <!-- interface-name CmbCompositor -->
@@ -249,7 +250,7 @@
     <signal id="chooser-popup"/>
     <signal id="type-selected"/>
   </ui>
-  <ui template-class="CmbView" filename="cmb_view.ui" sha256="6b9251d30d6e4751b8b04b2af923eec9a8f00d590a322d96bf080fb200b58424">
+  <ui template-class="CmbView" filename="cmb_view.ui" sha256="fc4098342eb1f7a4aba9b3df5f20ba5a279f760b7ce94452cdbfd1248fc9bd02">
     <requires>CasildaCompositor</requires>
     <requires>CmbSourceView</requires>
     <requires>CmbDBInspector</requires>
