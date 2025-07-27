@@ -302,9 +302,6 @@ class CmbWindow(Adw.ApplicationWindow):
         self.__load_window_state()
         self.__update_actions()
 
-        app.props.style_manager.connect("notify::dark", lambda o, p: self.__update_dark_mode(app.props.style_manager))
-        self.__update_dark_mode(app.props.style_manager)
-
         # Bind preview
         hide_placeholders_button = Gtk.ToggleButton(tooltip_text=_("Hide placeholders"), icon_name="view-conceal-symbolic")
         self.type_chooser.content.append(hide_placeholders_button)
@@ -474,14 +471,6 @@ class CmbWindow(Adw.ApplicationWindow):
         self.np_location_chooser.set_sensitive(sensitive)
         self.np_ui_entry.set_sensitive(sensitive)
         self.__update_action_new()
-
-    def __update_dark_mode(self, style_manager):
-        if style_manager.props.dark:
-            self.add_css_class("dark")
-            self.view._set_dark_mode(True)
-        else:
-            self.remove_css_class("dark")
-            self.view._set_dark_mode(False)
 
     def __np_name_to_ui(self, binding, value):
         if len(value):
