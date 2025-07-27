@@ -1266,6 +1266,9 @@ class CmbProject(GObject.Object, Gio.ListModel):
             raise Exception("Internal objects can not be removed")
 
         try:
+            was_selected = obj in self.__selection
+            parent = obj.parent
+
             template_ui = None
             template_instances = None
 
@@ -1305,6 +1308,10 @@ class CmbProject(GObject.Object, Gio.ListModel):
         finally:
             self.__remove_object(obj, template_ui, template_instances)
             obj._remove_from_old_parent()
+
+            # Select parent if removed object was selected
+            if was_selected and parent:
+                self.set_selection([parent])
 
     def get_selection(self):
         return self.__selection
