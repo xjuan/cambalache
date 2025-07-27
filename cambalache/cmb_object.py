@@ -77,6 +77,8 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
 
         self.__update_inline_property_id()
         self.__update_version_warning()
+
+        self.connect("notify", self._on_notify)
         self.ui.connect("notify", self._on_ui_notify)
         self.ui.connect("library-changed", self._on_ui_library_changed)
 
@@ -615,6 +617,13 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
     def __update_version_warning(self):
         target = self.ui.get_target(self.info.library_id)
         self.version_warning = utils.get_version_warning(target, self.info.version, self.info.deprecated_version, self.type_id)
+
+    def _on_notify(self, obj, pspec):
+        property_id = pspec.name
+
+        if property_id in ["name", "type-id"]:
+            self.notify("display-name")
+            self.notify("display-name-type")
 
     def _on_ui_notify(self, obj, pspec):
         property_id = pspec.name
