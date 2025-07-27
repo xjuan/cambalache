@@ -62,7 +62,6 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
         self.__signals_dict = None
         self.__data = None
         self.__data_dict = None
-        self.inline_property_id = None
         self.version_warning = None
         self.__is_template = False
 
@@ -75,7 +74,6 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
         if self.project is None:
             return
 
-        self.__update_inline_property_id()
         self.__update_version_warning()
 
         self.connect("notify", self._on_notify)
@@ -129,7 +127,8 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
         self.__populate_data()
         return self.__data_dict
 
-    def __update_inline_property_id(self):
+    @property
+    def inline_property_id(self):
         ui_id = self.ui_id
         object_id = self.object_id
         parent_id = self.parent_id
@@ -137,9 +136,12 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
         if parent_id:
             # Set which parent property makes a reference to this inline object
             row = self.project.db.execute(
-                "SELECT property_id FROM object_property WHERE ui_id=? AND inline_object_id=?;", (ui_id, object_id)
+                "SELECT property_id FROM object_property WHERE ui_id=? AND object_id=? AND inline_object_id=?;",
+                (ui_id, parent_id, object_id)
             ).fetchone()
-            self.inline_property_id = row[0] if row else None
+            return row[0] if row else None
+
+        return None
 
     def __populate_type_properties(self, name):
         property_info = self.project.get_type_properties(name)
