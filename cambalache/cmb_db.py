@@ -1267,9 +1267,9 @@ class CmbDB(GObject.GObject):
                 """
                 INSERT INTO object_signal
                   (ui_id, object_id, owner_id, signal_id, handler, detail, user_data, swap, after, comment)
-                VALUES (?, ?, ?, ?, ?, ?, (SELECT object_id FROM object WHERE ui_id=? AND name=?), ?, ?, ?);
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
                 """,
-                (ui_id, object_id, owner_id, signal_id, handler, detail, ui_id, user_data, swap, after, comment),
+                (ui_id, object_id, owner_id, signal_id, handler, detail, user_data, swap, after, comment),
             )
         except Exception as e:
             raise Exception(f"XML:{signal.sourceline} - Can not import object {object_id} {owner_id}:{signal_id} signal: {e}")
@@ -1715,6 +1715,16 @@ class CmbDB(GObject.GObject):
             WHERE op.ui_id=? AND p.is_object AND op.owner_id = p.owner_id AND
                   op.property_id = p.property_id AND o.ui_id = op.ui_id AND
                   o.name = op.value;
+            """,
+            (ui_id,),
+        )
+
+        # Fix signal user_data that refer to an object
+        self.conn.execute(
+            """
+            UPDATE object_signal AS os SET user_data=o.object_id
+            FROM object AS o
+            WHERE os.ui_id=? AND os.ui_id == o.ui_id AND os.user_data IS NOT NULL AND os.user_data == o.name;
             """,
             (ui_id,),
         )
