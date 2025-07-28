@@ -1125,7 +1125,7 @@ class CmbWindow(Adw.ApplicationWindow):
             details=unsupported_features_list,
         )
 
-    def __import_file(self, path, autoselect=True):
+    def import_file(self, path, autoselect=True):
         content_type = utils.content_type_guess(path)
 
         if content_type in ["application/x-gtk-builder", "application/x-glade", "text/x-blueprint"]:
@@ -1142,7 +1142,7 @@ class CmbWindow(Adw.ApplicationWindow):
         def dialog_callback(dialog, res):
             try:
                 for file in dialog.open_multiple_finish(res):
-                    self.__import_file(file.get_path())
+                    self.import_file(file.get_path())
             except Exception as e:
                 logger.warning(f"Error {e}")
 
@@ -1208,7 +1208,7 @@ class CmbWindow(Adw.ApplicationWindow):
                 for i, path in enumerate(files):
                     progressbar.set_text(path.removeprefix(basedir))
                     progressbar.set_fraction(i/n_files)
-                    self.__import_file(path, autoselect=False)
+                    self.import_file(path, autoselect=False)
 
                     while main_loop.pending():
                         main_loop.iteration(False)
