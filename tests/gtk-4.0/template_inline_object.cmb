@@ -1,19 +1,37 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
-<cambalache-project version="0.12.0" target_tk="gtk-4.0">
+<!-- Created with Cambalache 0.96.1 -->
+<cambalache-project version="0.96.0" target_tk="gtk-4.0">
   <ui>
-	(1,None,"template_inline_object.ui","template_inline_object.ui",None,None,None,None,None,None,None),
-	(2,1,None,"my-window.ui",None,None,None,None,None,None,None)
-  </ui>
-  <object>
-	(1,1,"MyWindow",None,None,None,None,None,None,None),
-	(2,1,"GtkWindow","MyWindow",None,None,None,None,None,None),
-	(2,2,"GtkBox",None,1,None,None,None,None,None),
-	(2,3,"GtkLabel",None,2,None,None,None,1,None)
+    <requires>MyWindow</requires>
+    <content><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.96.1 -->
+<interface>
+  <!-- interface-name template_inline_object.ui -->
+  <requires lib="gtk" version="4.6"/>
+  <object class="MyWindow">
+    <property name="title">This window should have a label inside a inline box as child</property>
   </object>
-  <object_property>
-	(1,1,"GtkWindow","title","This window should have a label inside a inline box as child",None,None,None,None,None,None,None,None,None),
-	(2,1,"GtkWindow","child",None,None,None,None,None,2,None,None,None,None),
-	(2,3,"GtkLabel","label","a label inside an inline object",None,None,None,None,None,None,None,None,None)
-  </object_property>
+</interface>
+]]></content>
+  </ui>
+  <ui template-class="MyWindow">
+    <content><![CDATA[<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.96.1 -->
+<interface>
+  <requires lib="gtk" version="4.6"/>
+  <template class="MyWindow" parent="GtkWindow">
+    <property name="child">
+      <object class="GtkBox">
+        <child>
+          <object class="GtkLabel">
+            <property name="label">a label inside an inline object</property>
+          </object>
+        </child>
+      </object>
+    </property>
+  </template>
+</interface>
+]]></content>
+  </ui>
 </cambalache-project>

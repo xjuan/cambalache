@@ -444,64 +444,59 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 f"File format {version} is not supported by this release,\nplease update to a newer version to open this file."
             )
 
-        if version > (0, 94, 0):
-            ui_graph = {}
-            ui_node_template = {}
+        if version <= (0, 94, 0):
+            raise Exception(
+                f"Project format {version} is not supported, Open/save with Cambalache 0.96.0 to migrate to the new format."
+            )
 
-            css_list = []
-            gresourses_list = []
+        ui_graph = {}
+        ui_node_template = {}
 
-            for child in root.getchildren():
-                if child.tag == "ui":
-                    # Collect template class <-> node relation
-                    template = child.get("template-class", None)
-                    if template:
-                        ui_node_template[template] = child
+        css_list = []
+        gresourses_list = []
 
-                    # Collect node dependencies
-                    dependencies = []
-                    for requires in child.findall("requires"):
-                        dependencies.append(requires.text)
+        for child in root.getchildren():
+            if child.tag == "ui":
+                # Collect template class <-> node relation
+                template = child.get("template-class", None)
+                if template:
+                    ui_node_template[template] = child
 
-                    ui_graph[child] = dependencies
-                elif child.tag == "css":
-                    css_list.append(child)
-                elif child.tag == "gresources":
-                    gresourses_list.append(child)
-                elif child.tag == "icontheme-search-path":
-                    self.icontheme_search_paths.append(child.text)
-                else:
-                    raise Exception(f"Unknown tag {child.tag} in project file.")
+                # Collect node dependencies
+                dependencies = []
+                for requires in child.findall("requires"):
+                    dependencies.append(requires.text)
 
-            for node in css_list:
-                self.__load_css_from_node(node)
+                ui_graph[child] = dependencies
+            elif child.tag == "css":
+                css_list.append(child)
+            elif child.tag == "gresources":
+                gresourses_list.append(child)
+            elif child.tag == "icontheme-search-path":
+                self.icontheme_search_paths.append(child.text)
+            else:
+                raise Exception(f"Unknown tag {child.tag} in project file.")
 
-            for node in gresourses_list:
-                self.__load_gresource_from_node(node)
+        for node in css_list:
+            self.__load_css_from_node(node)
 
-            # Replace dependencies with nodes
-            ui_node_graph = {}
-            for node, dependencies in ui_graph.items():
-                ui_node_graph[node] = [ui_node_template[key] for key in dependencies]
+        for node in gresourses_list:
+            self.__load_gresource_from_node(node)
 
-            try:
-                ts = TopologicalSorter(ui_node_graph)
-                sorted_ui_nodes = tuple(ts.static_order())
-            except CycleError as e:
-                raise Exception(f"Could not load project because of dependency cycle {e}")
+        # Replace dependencies with nodes
+        ui_node_graph = {}
+        for node, dependencies in ui_graph.items():
+            ui_node_graph[node] = [ui_node_template[key] for key in dependencies]
 
-            # Load UI in topological order
-            for node in sorted_ui_nodes:
-                self.__load_ui_from_node(node)
-        else:
-            self.db.load_old_format(root, version)
+        try:
+            ts = TopologicalSorter(ui_node_graph)
+            sorted_ui_nodes = tuple(ts.static_order())
+        except CycleError as e:
+            raise Exception(f"Could not load project because of dependency cycle {e}")
 
-            for row in self.db.execute("SELECT * FROM ui;"):
-                ui = self.__add_ui(True, *row)
-                ui.notify("n-items")
-
-            for row in self.db.execute("SELECT * FROM css;"):
-                self.__add_css(True, *row)
+        # Load UI in topological order
+        for node in sorted_ui_nodes:
+            self.__load_ui_from_node(node)
 
         self.history_enabled = True
 

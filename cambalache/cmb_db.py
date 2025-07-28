@@ -34,7 +34,7 @@ from lxml.builder import E
 from graphlib import TopologicalSorter, CycleError
 from gi.repository import GLib, Gio, GObject
 from cambalache import config, getLogger, _
-from . import cmb_db_migration, utils
+from . import utils
 from .constants import EXTERNAL_TYPE, GMENU_TYPE, GMENU_SECTION_TYPE, GMENU_SUBMENU_TYPE, GMENU_ITEM_TYPE
 from .cmb_db_profile import CmbProfileConnection
 
@@ -609,46 +609,6 @@ class CmbDB(GObject.GObject):
 
         return utils.parse_version(version)
 
-    def __ensure_table_data_columns(self, version, table, data):
-        if version is None:
-            return data
-
-        if version < (0, 7, 5):
-            data = cmb_db_migration.ensure_columns_for_0_7_5(table, data)
-
-        if version < (0, 9, 0):
-            data = cmb_db_migration.ensure_columns_for_0_9_0(table, data)
-
-        if version < (0, 11, 2):
-            data = cmb_db_migration.ensure_columns_for_0_11_2(table, data)
-
-        if version < (0, 11, 4):
-            data = cmb_db_migration.ensure_columns_for_0_11_4(table, data)
-
-        if version < (0, 13, 1):
-            data = cmb_db_migration.ensure_columns_for_0_13_1(table, data)
-
-        if version < (0, 17, 3):
-            data = cmb_db_migration.ensure_columns_for_0_17_3(table, data)
-
-        return data
-
-    def __migrate_table_data(self, c, version, table, data):
-        if version is None:
-            return
-
-        if version < (0, 7, 5):
-            cmb_db_migration.migrate_table_data_to_0_7_5(c, table, data)
-
-        if version < (0, 9, 0):
-            cmb_db_migration.migrate_table_data_to_0_9_0(c, table, data)
-
-        if version < (0, 17, 3):
-            cmb_db_migration.migrate_table_data_to_0_17_3(c, table, data)
-
-        if version < (0, 91, 3):
-            cmb_db_migration.migrate_table_data_to_0_91_3(c, table, data)
-
     def __load_table_from_tuples(self, c, table, tuples, version=None):
         data = ast.literal_eval(f"[{tuples}]") if tuples else []
         if len(data) == 0:
@@ -670,34 +630,11 @@ class CmbDB(GObject.GObject):
         # Load table data
         c.executemany(f"INSERT INTO temp.{table} VALUES ({cols})", data)
 
-        # Migrate data to current format
-        self.__migrate_table_data(c, version, table, data)
-
         # Copy data from temp table
         c.execute(f"INSERT INTO main.{table} SELECT * FROM temp.{table};")
 
         # Drop temp table
         c.execute(f"DROP TABLE temp.{table};")
-
-    def load_old_format(self, root, version):
-        c = self.conn.cursor()
-
-        # Avoid circular dependencies errors
-        self.foreign_keys = False
-        self.ignore_check_constraints = True
-
-        # Support old format
-        all_tables = self.__tables + ["property", "signal"]
-        for child in root.getchildren():
-            if child.tag in all_tables:
-                self.__load_table_from_tuples(c, child.tag, child.text, version)
-            else:
-                raise Exception(f"Unknown tag {child.tag} in project file.")
-
-        self.foreign_keys = True
-        self.ignore_check_constraints = False
-
-        c.close()
 
     def __load_accessibility_metadata(self, node):
         data = json.loads(node.text)
