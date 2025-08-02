@@ -47,7 +47,8 @@ from cambalache import CmbProject, config
     ("gtk-4.0", "menu.ui"),
     ("gtk-4.0", "string_list.ui"),
     ("gtk-4.0", "accessibility.ui"),
-    ("gtk-4.0", "ui_comments.ui")
+    ("gtk-4.0", "ui_comments.ui"),
+    ("gtk-4.0", "expression.ui"),
 ])
 def test_(target_tk, filename):
     """
