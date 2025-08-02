@@ -39,6 +39,7 @@ from .cmb_object_chooser import CmbObjectChooser
 from .cmb_object_list_editor import CmbObjectListEditor
 from .cmb_switch import CmbSwitch
 from .cmb_text_view import CmbTextView
+from .cmb_suggestion_entry import CmbSuggestionEntry
 
 
 def cmb_create_editor(project, type_id, prop=None, data=None, parent=None):
@@ -141,17 +142,18 @@ def cmb_create_editor(project, type_id, prop=None, data=None, parent=None):
             parent=prop.object if prop else parent,
             type_id="GtkAccessible",
         )
+    elif type_id == "gtype":
+        editor = CmbSuggestionEntry()
+        editor.set_suggestions(project._get_types())
     elif info:
-        if info.is_object or info.parent_id == "interface":
+        if info.is_object or info.parent_id == "interface" or type_id == "GtkExpression":
             if prop is None:
                 editor = CmbObjectChooser(
-                    project=project,
                     parent=parent,
                     type_id=type_id,
                 )
             else:
                 editor = CmbObjectChooser(
-                    project=project,
                     parent=prop.object,
                     is_inline=project.target_tk == "gtk-4.0" and not prop.info.disable_inline_object,
                     inline_object_id=prop.inline_object_id,
