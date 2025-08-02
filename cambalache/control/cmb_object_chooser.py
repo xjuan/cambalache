@@ -27,33 +27,30 @@ from cambalache import _
 from gi.repository import GObject, Gdk, Gtk
 
 from ..cmb_object import CmbObject
-from ..cmb_project import CmbProject
 from ..cmb_type_chooser_popover import CmbTypeChooserPopover
 
 
 class CmbObjectChooser(Gtk.Entry):
     __gtype_name__ = "CmbObjectChooser"
 
-    project = GObject.Property(type=CmbProject, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    parent = GObject.Property(type=CmbObject, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    is_inline = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    parent = GObject.Property(type=CmbObject, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
+    is_inline = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
     inline_object_id = GObject.Property(type=str, default=None, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
-    inline_property_id = GObject.Property(type=str, default=None, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    type_id = GObject.Property(type=str, default=None, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    inline_property_id = GObject.Property(type=str, default=None, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
+    type_id = GObject.Property(type=str, default="GObject", flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
 
     def __init__(self, **kwargs):
         self.__object_id = None
         self.__updating = None
         super().__init__(**kwargs)
-        self.connect("notify::text", self.__on_text_notify)
 
-        if self.type_id is None:
-            self.props.placeholder_text = "<GObject>"
-            return
+        self.connect("notify::parent", self.__on_parent_notify)
+        self.connect("notify::text", self.__on_text_notify)
 
         if self.is_inline:
             self.connect("icon-press", self.__on_icon_pressed)
-            self.parent.connect("property-changed", self.__on_parent_property_changed)
+            if self.parent:
+                self.parent.connect("property-changed", self.__on_parent_property_changed)
             self.__update_icons()
         else:
             self.props.placeholder_text = f"<{self.type_id}>"
@@ -66,8 +63,27 @@ class CmbObjectChooser(Gtk.Entry):
         drop_target.connect("drop", self.__on_drop_drop)
         self.add_controller(drop_target)
 
+    def __on_parent_notify(self, obj, pspec):
+        if self.parent:
+            self.parent.connect("property-changed", self.__on_parent_property_changed)
+
+    def __on_text_notify(self, obj, pspec):
+        if self.inline_object_id:
+            return
+
+        if self.__updating:
+            self.__updating = False
+            return
+
+        obj = self.parent.project.get_object_by_name(self.parent.ui_id, self.props.text)
+        value = obj.object_id if obj else None
+
+        if self.__object_id != value:
+            self.__object_id = value
+            self.notify("cmb-value")
+
     def __on_parent_property_changed(self, parent, prop):
-        if prop.property_id != self.inline_property_id:
+        if not self.is_inline or prop.property_id != self.inline_property_id:
             return
 
         self.inline_object_id = prop.inline_object_id
@@ -112,17 +128,6 @@ class CmbObjectChooser(Gtk.Entry):
             # Select dragged object id
             self.cmb_value = origin_item.object_id
 
-    def __on_text_notify(self, obj, pspec):
-        if self.__updating or self.inline_object_id:
-            return
-
-        obj = self.parent.project.get_object_by_name(self.parent.ui_id, self.props.text)
-        value = obj.object_id if obj else None
-
-        if self.__object_id != value:
-            self.__object_id = value
-            self.notify("cmb-value")
-
     @GObject.Property(type=str)
     def cmb_value(self):
         return str(self.__object_id) if self.__object_id else None
@@ -143,7 +148,6 @@ class CmbObjectChooser(Gtk.Entry):
             self.props.text = obj.name if obj else ""
         else:
             self.props.text = ""
-        self.__updating = False
 
     def __update_icons(self):
         if not self.is_inline:
@@ -174,6 +178,9 @@ class CmbObjectChooser(Gtk.Entry):
         self.__update_icons()
 
     def __on_icon_pressed(self, widget, icon_pos):
+        if not self.is_inline:
+            return
+
         parent = self.parent
         project = parent.project
 
