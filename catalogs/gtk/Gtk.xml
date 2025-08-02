@@ -18,6 +18,22 @@
       </properties>
     </GtkWidget>
 
+    <GtkPropertyExpression target='Gtk-4.0'>
+      <children-constraints>
+        <constraint shortcut="True">GtkConstantExpression</constraint>
+        <constraint shortcut="True">GtkPropertyExpression</constraint>
+        <constraint shortcut="True">GtkClosureExpression</constraint>
+      </children-constraints>
+    </GtkPropertyExpression>
+
+    <GtkClosureExpression target='Gtk-4.0'>
+      <children-constraints>
+        <constraint shortcut="True">GtkConstantExpression</constraint>
+        <constraint shortcut="True">GtkPropertyExpression</constraint>
+        <constraint shortcut="True">GtkClosureExpression</constraint>
+      </children-constraints>
+    </GtkClosureExpression>
+
     <GtkAccessible>
       <properties>
         <property id="accessible-role" construct-only="True"/>

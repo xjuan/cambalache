@@ -76,6 +76,7 @@ class CmbGirData:
             "GParamGType": "gtype",
             "GParamBoxed": "boxed",
             "GParamVariant": "variant",
+            "GtkParamSpecExpression": "object",
         }
 
         # GtkBuilder native object types
@@ -585,6 +586,64 @@ class CmbGirData:
             )
         ])
 
+        # Add GtkExpression type properties
+
+        # To create a constant expression, use the <constant> element. If the type attribute is specified, the element content
+        # is interpreted as a value of that type. Otherwise, it is assumed to be an object. For instance:
+        #
+        #   <constant>string_filter</constant>
+        #   <constant type='gchararray'>Hello, world</constant>
+        #
+        self.__add_type("GtkConstantExpression", "GtkExpression", [
+            ("type", "gtype", "GObject"),
+            ("value", "gchararray", None),
+        ])
+
+        # To create a property expression, use the <lookup> element. It can have a type attribute to specify the object type,
+        # and a name attribute to specify the property to look up.
+        # The content of <lookup> can either be a string that specifies the name of the object to use, an element specifying and
+        # expression to provide an object, or empty to use the this object.
+        #
+        #   <lookup name='search'>string_filter</lookup>
+        #
+        self.__add_type("GtkPropertyExpression", "GtkExpression", [
+            ("type", "gtype", None),
+            ("value", "gchararray", None),
+            ("name", "gchararray", None),
+        ])
+
+        # To create a closure expression, use the <closure> element. The function attribute specifies what function to use for
+        # the closure, and the type attribute specifies its return type.
+        # The content of the element contains the expressions for the parameters. For instance:
+        #
+        # <closure type='gchararray' function='combine_args_somehow'>
+        #   <constant type='gchararray'>File size:</constant>
+        #   <lookup type='GFile' name='size'>myfile</lookup>
+        # </closure>
+        #
+        self.__add_type("GtkClosureExpression", "GtkExpression", [
+            ("type", "gtype", None),
+            ("function", "gchararray", None),
+        ])
+
+    def __add_type(self, type_name, parent_type, properties):
+        self.types.update({
+            type_name: {
+                "parent": parent_type,
+                "properties": {
+                    prop: {
+                        "type": type_name,
+                        "default_value": default,
+                        "is_object": False,
+                        "version": None,
+                        "deprecated_version": None,
+                        "construct": None,
+                        "translatable": False,
+                    } for (prop, type_name, default) in properties
+                }
+            }
+        })
+
     def __a11y_add_ifaces_from_enum(self, accessible_ifaces):
         accessible_types = {}
 
@@ -727,10 +786,14 @@ class CmbGirData:
     def _get_type_data(self, element, name, use_instance=True, skip_types=[]):
         parent = element.get("parent")
 
-        if parent and parent.find(".") < 0:
+        if parent == "Expression" and name not in ["GtkConstantExpression", "GtkPropertyExpression", "GtkClosureExpression"]:
+            return None
+        elif parent and parent.find(".") < 0:
             parent = self.prefix + parent
         elif parent is None:
             parent = "object"
+        elif parent == "GObject.ParamSpec":
+            return None
         else:
             parent = self.external_types.get(parent, "GObject")
 

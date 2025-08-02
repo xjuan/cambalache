@@ -610,6 +610,7 @@
 	("AdwClampScrollable","unit","AdwLengthUnit",None,None,None,"sp",None,None,"1.4",None,None,None,None,None,None,None,None),
 	("AdwComboRow","accessible-role","GtkAccessibleRole",None,1,None,"combo-box",None,None,None,None,None,None,None,None,None,"GtkAccessible",None),
 	("AdwComboRow","enable-search","gboolean",None,None,None,"False",None,None,"1.4",None,None,None,None,None,None,None,None),
+	("AdwComboRow","expression","GtkExpression",1,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
 	("AdwComboRow","factory","GtkListItemFactory",1,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
 	("AdwComboRow","header-factory","GtkListItemFactory",1,None,None,None,None,None,"1.6",None,None,None,None,None,None,None,None),
 	("AdwComboRow","list-factory","GtkListItemFactory",1,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
