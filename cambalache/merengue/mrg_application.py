@@ -258,10 +258,10 @@ class MrgApplication(Gtk.Application):
             controller.remove_placeholder(modifier)
 
     def load_namespace(self, namespace, version, object_types):
-        if version:
-            gi.require_version(namespace, version)
-
         try:
+            if version:
+                gi.require_version(namespace, version)
+
             mod = importlib.import_module(f"gi.repository.{namespace}")
         except Exception as e:
             logger.warning(e)
