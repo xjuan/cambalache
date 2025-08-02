@@ -573,6 +573,8 @@ class CmbBaseProperty(CmbBase):
         bind_owner_id,
         bind_property_id,
         bind_flags,
+        binding_expression_id,
+        binding_expression_object_id,
     ):
         return cls(project=project, ui_id=ui_id, object_id=object_id, owner_id=owner_id, property_id=property_id)
 
@@ -817,6 +819,56 @@ class CmbBaseProperty(CmbBase):
     def _set_bind_flags(self, value):
         self.db_set(
             "UPDATE object_property SET bind_flags=? WHERE (ui_id, object_id, owner_id, property_id) IS (?, ?, ?, ?);",
+            (
+                self.ui_id,
+                self.object_id,
+                self.owner_id,
+                self.property_id,
+            ),
+            value,
+        )
+
+    @GObject.Property(type=int)
+    def binding_expression_id(self):
+        return self.db_get(
+            "SELECT binding_expression_id FROM object_property WHERE (ui_id, object_id, owner_id, property_id) IS (?, ?, ?, ?);",
+            (
+                self.ui_id,
+                self.object_id,
+                self.owner_id,
+                self.property_id,
+            ),
+        )
+
+    @binding_expression_id.setter
+    def _set_binding_expression_id(self, value):
+        self.db_set(
+            "UPDATE object_property SET binding_expression_id=? WHERE (ui_id, object_id, owner_id, property_id) IS (?, ?, ?, ?);",
+            (
+                self.ui_id,
+                self.object_id,
+                self.owner_id,
+                self.property_id,
+            ),
+            value,
+        )
+
+    @GObject.Property(type=int)
+    def binding_expression_object_id(self):
+        return self.db_get(
+            "SELECT binding_expression_object_id FROM object_property WHERE (ui_id, object_id, owner_id, property_id) IS (?, ?, ?, ?);",
+            (
+                self.ui_id,
+                self.object_id,
+                self.owner_id,
+                self.property_id,
+            ),
+        )
+
+    @binding_expression_object_id.setter
+    def _set_binding_expression_object_id(self, value):
+        self.db_set(
+            "UPDATE object_property SET binding_expression_object_id=? WHERE (ui_id, object_id, owner_id, property_id) IS (?, ?, ?, ?);",
             (
                 self.ui_id,
                 self.object_id,

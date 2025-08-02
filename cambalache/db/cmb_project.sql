@@ -262,9 +262,13 @@ CREATE TABLE object_property (
   bind_owner_id TEXT REFERENCES type ON UPDATE CASCADE,
   bind_property_id TEXT,
   bind_flags TEXT,
+  binding_expression_id INTEGER,
+  binding_expression_object_id INTEGER,
   PRIMARY KEY(ui_id, object_id, owner_id, property_id),
   FOREIGN KEY(ui_id, object_id) REFERENCES object(ui_id, object_id) ON DELETE CASCADE,
   FOREIGN KEY(ui_id, inline_object_id) REFERENCES object(ui_id, object_id) ON DELETE CASCADE,
+  FOREIGN KEY(ui_id, binding_expression_id) REFERENCES object(ui_id, object_id) ON DELETE CASCADE,
+  FOREIGN KEY(ui_id, binding_expression_object_id) REFERENCES object(ui_id, object_id) ON DELETE CASCADE,
   FOREIGN KEY(owner_id, property_id) REFERENCES property,
   FOREIGN KEY(ui_id, bind_source_id) REFERENCES object(ui_id, object_id),
   FOREIGN KEY(bind_owner_id, bind_property_id) REFERENCES property(owner_id, property_id) ON DELETE SET NULL
