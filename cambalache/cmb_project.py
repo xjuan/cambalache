@@ -229,6 +229,12 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         return {"names": columns, "types": types, "pks": pks}
 
+    def _get_types(self):
+        retval = []
+        for row in self.db.execute("SELECT type_id FROM type ORDER BY type_id;"):
+            retval.append(row[0])
+        return retval
+
     def __init_type_info(self, c):
         for row in c.execute("SELECT * FROM type WHERE parent_id IS NOT NULL ORDER BY type_id;"):
             type_id = row[0]
@@ -1204,6 +1210,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         child_type=None,
         inline_property=None,
         internal=None,
+        inline_binding_expression=False,
     ):
         if parent_id:
             parent = self.get_object_by_id(ui_id, parent_id)
@@ -1227,6 +1234,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 inline_property=inline_property,
                 child_type=child_type,
                 internal=internal,
+                inline_binding_expression=inline_binding_expression,
             )
             self.history_pop()
             self.db.commit()
@@ -1399,11 +1407,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
         p = properties.get(property_id, None)
 
         if p and p.owner_id == owner_id and p.property_id == property_id:
+            print("AAAAAAAAA", p, prop, property_id)
             p.notify(prop)
-            if layout:
-                obj._layout_property_changed(p)
-            else:
-                obj._property_changed(p)
 
     def __undo_redo_do(self, undo, update_objects=None):
         def get_object_position(table, row):
@@ -2207,6 +2212,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
             list_position = obj.list_position
             child_type = obj.type
             inline_property_id = obj.inline_property_id
+            binding_expression_property_id = obj.binding_expression_property_id
 
             self.db.ignore_check_constraints = True
             self.db.execute("UPDATE object SET position=-1 WHERE ui_id=? AND object_id=?;", (ui_id, object_id))
@@ -2228,6 +2234,12 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 self.db.execute(
                     "UPDATE object_property SET inline_object_id=? WHERE ui_id=? AND object_id=? AND property_id=?;",
                     (new_parent_id, ui_id, grand_parent_id, inline_property_id)
+                )
+
+            if binding_expression_property_id:
+                self.db.execute(
+                    "UPDATE object_property SET binding_expression_id=? WHERE ui_id=? AND object_id=? AND property_id=?;",
+                    (new_parent_id, ui_id, grand_parent_id, binding_expression_property_id)
                 )
 
             self.db.ignore_check_constraints = False
