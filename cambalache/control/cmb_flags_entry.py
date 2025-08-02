@@ -30,15 +30,16 @@ from ..cmb_type_info import CmbTypeInfo
 class CmbFlagsEntry(Gtk.Entry):
     __gtype_name__ = "CmbFlagsEntry"
 
-    info = GObject.Property(type=CmbTypeInfo, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    id_column = GObject.Property(type=int, default=1, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    text_column = GObject.Property(type=int, default=1, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    value_column = GObject.Property(type=int, default=2, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    separator = GObject.Property(type=str, default="|", flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
+    info = GObject.Property(type=CmbTypeInfo, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
+    id_column = GObject.Property(type=int, default=1, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
+    text_column = GObject.Property(type=int, default=1, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
+    value_column = GObject.Property(type=int, default=2, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
+    separator = GObject.Property(type=str, default="|", flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
 
     def __init__(self, **kwargs):
         self.flags = {}
         self._checks = {}
+        self._popover = None
 
         super().__init__(**kwargs)
 
@@ -47,9 +48,10 @@ class CmbFlagsEntry(Gtk.Entry):
 
         self.connect("icon-release", self.__on_icon_release)
 
-        self.__init_popover()
-
     def __init_popover(self):
+        if self._popover:
+            return
+
         self._popover = Gtk.Popover()
         self._popover.set_parent(self)
 
@@ -78,6 +80,7 @@ class CmbFlagsEntry(Gtk.Entry):
         self.notify("cmb-value")
 
     def __on_icon_release(self, obj, pos):
+        self.__init_popover()
         self._popover.popup()
 
     def __to_string(self):
