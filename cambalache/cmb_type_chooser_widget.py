@@ -73,6 +73,11 @@ class CmbTypeChooserWidget(Gtk.Box):
     def __type_info_should_append(self, info):
         retval = False
 
+        # Special case GtkExpression they are not instantiable but can be created as part of
+        # a GtkExpression property as an inline object that Cambalache will serialize as a builder expression
+        if self.derived_type_id == "GtkExpression" and info.parent_id == "GtkExpression":
+            return True
+
         if not info.instantiable or info.layout not in [None, "container"]:
             return False
 
