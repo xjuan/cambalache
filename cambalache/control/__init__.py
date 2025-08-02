@@ -29,6 +29,7 @@ from .cmb_file_button import CmbFileButton
 from .cmb_file_entry import CmbFileEntry
 from .cmb_icon_name_entry import CmbIconNameEntry
 from .cmb_pixbuf_entry import CmbPixbufEntry
+from .cmb_property_chooser import CmbPropertyChooser
 from .cmb_spin_button import CmbSpinButton
 from .cmb_text_buffer import CmbTextBuffer
 from .cmb_toplevel_chooser import CmbToplevelChooser
@@ -41,4 +42,5 @@ from .cmb_source_view import CmbSourceView
 from .cmb_switch import CmbSwitch
 from .cmb_text_view import CmbTextView
 from .cmb_translatable_popover import CmbTranslatablePopover
+from .cmb_suggestion_entry import CmbSuggestionEntry
 from .cmb_create_editor import cmb_create_editor

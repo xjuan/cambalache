@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
-<!-- Created with Cambalache 0.97.5 -->
+<!-- Created with Cambalache 0.97.6 -->
 <cambalache-project version="0.96.0" target_tk="gtk-4.0">
-  <gresources filename="cambalache.gresource.xml" sha256="fdcf4cd517493f548aa4b4fe206ff7762cee9cdda7ec5a85a718b46eb1c4731b"/>
+  <gresources filename="cambalache.gresource.xml" sha256="f5e5356b0a796d96885a8bb0b363d18339457ea6bfe26e56b6db3f7e4a618b16"/>
   <gresources filename="app/app.gresource.xml" sha256="3684aa78fce08d8e81d0907317214aeb179c5aea091dd0df405476b43e286941"/>
   <css filename="cambalache.css" priority="400" is_global="1"/>
   <css filename="app/cambalache.css" is_global="0"/>
@@ -232,6 +232,13 @@
   <ui template-class="CmbPollNotificationView" filename="cmb_poll_notification_view.ui" sha256="8f47a1e503b85eb5ac3ac54962a40fc2237588e1216afba859a3016a1dcfc121"/>
   <ui template-class="CmbPollOptionCheck" filename="cmb_poll_option_check.ui" sha256="aa433f201dc1863f3727e1baa2c4cc239192a1ae4c53553de69d529ba2cc6fed"/>
   <ui template-class="CmbNotificationListRow" filename="cmb_notification_list_row.ui" sha256="5ef66fcc24e10d40a91ff0eada84f6aa8a595e368961364d98fde1800755edfc"/>
+  <ui template-class="CmbPropertyChooser">
+    <content><![CDATA[<interface>
+  <requires lib="gtk" version="4.0"/>
+  <template class="CmbPropertyChooser" parent="GtkComboBox"/>
+</interface>
+]]></content>
+  </ui>
   <ui template-class="CmbPixbufEntry">
     <requires>CmbFileEntry</requires>
     <content><![CDATA[<interface>
@@ -257,7 +264,7 @@
     <signal id="placeholder-activated"/>
     <signal id="placeholder-selected"/>
   </ui>
-  <ui template-class="CmbGResourceEditor" filename="cmb_gresource_editor.ui" sha256="6a0563d827973e129cca2c41e90d931c6d63ec23422e459101e0c120c0937f07">
+  <ui template-class="CmbGResourceEditor" filename="cmb_gresource_editor.ui" sha256="982c596dbe038edac9f4f20a72062b9d8b78b08be7e731395dde1c701d92bcb1">
     <requires>CmbFileButton</requires>
     <requires>CmbEntry</requires>
   </ui>
@@ -270,6 +277,11 @@
     <requires>CmbFileButton</requires>
     <requires>CmbEntry</requires>
     <requires>CmbToplevelChooser</requires>
+  </ui>
+  <ui template-class="CmbBindingPopover" filename="cmb_binding_popover.ui" sha256="e3138c75d2c45534c1b41acbc3724a760b3a390effebcf0f54df1e04f3e748cc">
+    <requires>CmbObjectChooser</requires>
+    <requires>CmbPropertyChooser</requires>
+    <requires>CmbFlagsEntry</requires>
   </ui>
   <ui template-class="CmbWindow" filename="app/cmb_window.ui" sha256="784143e77643d8b03c5149768f9def9020c34aafd323a7073d601f2c1d2e5648">
     <requires>CmbNotificationListView</requires>
