@@ -1,0 +1,188 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.97.6 -->
+<interface>
+  <!-- interface-name cmb_property_binding_widget.ui -->
+  <requires lib="gtk" version="4.18"/>
+  <template class="CmbBindingPopover" parent="GtkPopover">
+    <property name="css-classes">cmb-binding-popover</property>
+    <property name="position">left</property>
+    <signal name="show" handler="on_popover_show"/>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <property name="spacing">4</property>
+        <child>
+          <object class="GtkGrid">
+            <property name="column-spacing">4</property>
+            <property name="row-spacing">4</property>
+            <property name="vexpand">True</property>
+            <child>
+              <object class="GtkLabel">
+                <property name="halign">start</property>
+                <property name="label" translatable="yes">Type</property>
+                <property name="margin-start">16</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="column-span">1</property>
+                  <property name="row">5</property>
+                  <property name="row-span">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="halign">start</property>
+                <property name="label" translatable="yes">Object</property>
+                <property name="margin-start">16</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="column-span">1</property>
+                  <property name="row">6</property>
+                  <property name="row-span">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="CmbObjectChooser" id="expression_object_chooser">
+                <property name="placeholder-text" translatable="yes">&lt;expression object&gt;</property>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="column-span">1</property>
+                  <property name="row">6</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkDropDown" id="expression_dropdown">
+                <property name="model">
+                  <object class="GtkStringList">
+                    <items>
+                      <item translatable="yes">None</item>
+                      <item>GtkConstantExpression</item>
+                      <item>GtkPropertyExpression</item>
+                      <item>GtkClosureExpression</item>
+                    </items>
+                  </object>
+                </property>
+                <signal name="notify::selected-item" handler="on_expression_dropdown_notify"/>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="column-span">1</property>
+                  <property name="row">5</property>
+                  <property name="row-span">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="halign">start</property>
+                <property name="label" translatable="yes">Source</property>
+                <property name="margin-start">16</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="halign">start</property>
+                <property name="label" translatable="yes">Property</property>
+                <property name="margin-start">16</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">2</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="halign">start</property>
+                <property name="label" translatable="yes">Flags</property>
+                <property name="margin-start">16</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">3</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="CmbObjectChooser" id="object_chooser">
+                <signal name="notify::cmb-value" handler="on_object_editor_notify"/>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="column-span">1</property>
+                  <property name="row">1</property>
+                  <property name="row-span">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="CmbPropertyChooser" id="property_chooser">
+                <signal name="changed" handler="on_property_editor_changed"/>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">2</property>
+                  <property name="row-span">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="CmbFlagsEntry" id="flags_entry">
+                <layout>
+                  <property name="column">1</property>
+                  <property name="column-span">1</property>
+                  <property name="row">3</property>
+                  <property name="row-span">1</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="halign">start</property>
+                <property name="label" translatable="yes">&lt;b&gt;Gtk Expression&lt;/b&gt;</property>
+                <property name="margin-top">8</property>
+                <property name="use-markup">True</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="column-span">2</property>
+                  <property name="row">4</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="label" translatable="yes">&lt;b&gt;Property Binding&lt;/b&gt;</property>
+                <property name="use-markup">True</property>
+                <layout>
+                  <property name="column">0</property>
+                  <property name="row">0</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="close_button">
+                <property name="css-classes">close</property>
+                <property name="halign">end</property>
+                <property name="hexpand">True</property>
+                <property name="icon-name">window-close-symbolic</property>
+                <signal name="clicked" handler="on_close_clicked"/>
+                <layout>
+                  <property name="column">1</property>
+                  <property name="row">0</property>
+                </layout>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton">
+            <property name="halign">end</property>
+            <property name="label">Clear</property>
+            <signal name="clicked" handler="on_clear_clicked"/>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>
