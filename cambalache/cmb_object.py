@@ -143,6 +143,22 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
 
         return None
 
+    @property
+    def binding_expression_property_id(self):
+        ui_id = self.ui_id
+        object_id = self.object_id
+        parent_id = self.parent_id
+
+        if parent_id:
+            # Set which parent property makes a reference to this binding expression object
+            row = self.project.db.execute(
+                "SELECT property_id FROM object_property WHERE ui_id=? AND object_id=? AND binding_expression_id=?;",
+                (ui_id, parent_id, object_id)
+            ).fetchone()
+            return row[0] if row else None
+
+        return None
+
     def __populate_type_properties(self, name):
         property_info = self.project.get_type_properties(name)
         if property_info is None:
@@ -593,11 +609,19 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
         name = self.name or ""
         type_id = self.type_id
         parent_id = self.parent_id
+        expression_property = self.binding_expression_property_id
 
         if type_id in [GMENU_SECTION_TYPE, GMENU_SUBMENU_TYPE, GMENU_ITEM_TYPE]:
             prop = self.properties_dict["label"]
             label = prop.value or ""
             display_name = f"{type_id} <i>{label}</i>"
+        elif expression_property and type_id in ["GtkPropertyExpression", "GtkConstantExpression", "GtkClosureExpression"]:
+            expression_type = {
+                "GtkPropertyExpression": "lookup",
+                "GtkConstantExpression": "constant",
+                "GtkClosureExpression": "closure"
+            }.get(type_id)
+            display_name = f"<b>{expression_property}</b> ({expression_type} bind)"
         elif not parent_id and self.ui.template_id == self.object_id:
             # Translators: This is used for Template classes in the object tree
             display_name = _("{name} (template)").format(name=name)
