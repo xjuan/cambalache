@@ -318,6 +318,9 @@ class CmbDB(GObject.GObject):
             if column in unique_constraints_flat:
                 continue
 
+            # Get column index
+            column_index = all_columns.index(column)
+
             c.execute(
                 f"""
                 CREATE TRIGGER on_{table}_update_{column} AFTER UPDATE OF {column} ON {table}
@@ -330,8 +333,8 @@ class CmbDB(GObject.GObject):
                       (SELECT command, table_name, columns FROM history WHERE history_id = {history_seq})
                       IS NOT ('UPDATE', '{table}', json_array('{column}'))
                       AND
-                      (SELECT command, table_name, columns FROM history WHERE history_id = {history_seq})
-                      IS NOT ('INSERT', '{table}',  NULL)
+                      (SELECT command, table_name, columns, new_values ->> {column_index} IS NULL FROM history WHERE history_id = {history_seq})
+                      IS NOT ('INSERT', '{table}',  NULL, 0)
                     )
                   )
                 BEGIN
@@ -364,8 +367,8 @@ class CmbDB(GObject.GObject):
                   NEW.{column} IS NOT OLD.{column} AND {history_is_enabled} AND
                   (SELECT table_pk FROM history WHERE history_id = {history_seq}) IS json_array({old_pk_values})
                   AND
-                  (SELECT command, table_name, columns FROM history WHERE history_id = {history_seq})
-                  IS ('INSERT', '{table}', NULL)
+                  (SELECT command, table_name, columns, new_values ->> {column_index} IS NULL FROM history WHERE history_id = {history_seq})
+                  IS ('INSERT', '{table}', NULL, 0)
                 BEGIN
                   UPDATE history SET new_values=json_array({new_values}) WHERE history_id = {history_seq};
                 END;
@@ -884,6 +887,7 @@ class CmbDB(GObject.GObject):
         layout=None,
         position=None,
         inline_property=None,
+        inline_binding_expression=False,
     ):
         c = self.conn.cursor()
 
@@ -954,18 +958,20 @@ class CmbDB(GObject.GObject):
             )
             count = c.fetchone()[0]
 
+            inline_object_property = "binding_expression_id" if inline_binding_expression else "inline_object_id"
+
             if count:
                 c.execute(
-                    """
-                    UPDATE object_property SET inline_object_id=?
+                    f"""
+                    UPDATE object_property SET {inline_object_property}=?
                     WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id;
                     """,
                     (object_id, ui_id, parent_id, pinfo.owner_id, inline_property),
                 )
             else:
                 c.execute(
-                    """
-                    INSERT INTO object_property (ui_id, object_id, owner_id, property_id, inline_object_id)
+                    f"""
+                    INSERT INTO object_property (ui_id, object_id, owner_id, property_id, {inline_object_property})
                     VALUES (?, ?, ?, ?, ?)
                     """,
                     (ui_id, parent_id, pinfo.owner_id, inline_property, object_id),
@@ -1061,15 +1067,15 @@ class CmbDB(GObject.GObject):
         # Initialize to null
         inline_object_id = None
 
-        # GtkBuilder in Gtk4 supports defining an object in a property
-        obj_node = prop.find("object")
-        if self.target_tk == "gtk-4.0" and pinfo.is_object and obj_node is not None:
+        if self.target_tk == "gtk-4.0" and pinfo.is_object and len(prop) >= 1:
             if pinfo.disable_inline_object:
                 self.__collect_error("not-inline-object", prop, f"{info.type_id}:{property_id}")
                 return
 
-            inline_object_id = self.__import_object(ui_id, obj_node, object_id)
-            value = None
+            if prop[0].tag == "object" or \
+               (pinfo.type_id == "GtkExpression" and prop[0].tag in ["lookup", "constant", "closure"]):
+                inline_object_id = self.__import_object(ui_id, prop[0], object_id)
+                value = None
 
         self.__upsert_object_property(
             c,
@@ -1090,6 +1096,33 @@ class CmbDB(GObject.GObject):
             inline_object_id=inline_object_id
         )
 
+    def __import_binding(self, c, info, ui_id, object_id, prop, object_id_map=None):
+        name, object = self.__node_get(prop, "name", ["object"])
+
+        property_id = name.replace("_", "-")
+        pinfo = self.__get_property_info(info, property_id)
+
+        if pinfo is None:
+            self.__collect_error("unknown-property", prop, f"{info.type_id}:{property_id}")
+            return
+
+        # Get expression object
+        binding_expression_id = self.__import_expression(ui_id, prop[0], object_id)
+
+        self.__upsert_object_property(
+            c,
+            info,
+            pinfo,
+            ui_id,
+            object_id,
+            prop,
+            property_id,
+            None,
+            object_id_map=object_id_map,
+            binding_expression_id=binding_expression_id,
+            binding_expression_object_id=object
+        )
+
     def __upsert_object_property(
         self,
         c,
@@ -1107,7 +1140,9 @@ class CmbDB(GObject.GObject):
         bind_source_id=None,
         bind_property_id=None,
         bind_flags=None,
-        inline_object_id=None
+        inline_object_id=None,
+        binding_expression_id=None,
+        binding_expression_object_id=None
     ):
         comment = self.__node_get_comment(prop)
 
@@ -1128,8 +1163,9 @@ class CmbDB(GObject.GObject):
                 """
                 INSERT OR REPLACE INTO object_property
                   (ui_id, object_id, owner_id, property_id, value, translatable, comment, translation_context,
-                   translation_comments, inline_object_id, bind_source_id, bind_property_id, bind_flags)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                   translation_comments, inline_object_id, bind_source_id, bind_property_id, bind_flags,
+                   binding_expression_id, binding_expression_object_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
                 """,
                 (
                     ui_id,
@@ -1145,6 +1181,8 @@ class CmbDB(GObject.GObject):
                     bind_source_id,
                     bind_property_id,
                     bind_flags,
+                    binding_expression_id,
+                    binding_expression_object_id,
                 ),
             )
         except Exception as e:
@@ -1544,6 +1582,71 @@ class CmbDB(GObject.GObject):
             else:
                 self.__collect_error("unknown-tag", node, child.tag)
 
+    def __import_expression(self, ui_id, node, parent_id):
+        comment = self.__node_get_comment(node)
+
+        tag = node.tag
+
+        if tag == "constant":
+            klass = "GtkConstantExpression"
+        elif tag == "lookup":
+            klass = "GtkPropertyExpression"
+        elif tag == "closure":
+            klass = "GtkClosureExpression"
+        else:
+            self.__collect_error("unknown-tag", node, tag)
+            return
+
+        info = self.type_info.get(klass, None)
+
+        if not info:
+            logger.warning(f"Error importing expression: {klass} not found")
+            return None
+
+        # Insert menu
+        try:
+            expression_id = self.add_object(ui_id, klass, None, parent_id, None, None, comment)
+        except Exception:
+            logger.warning(f"XML:{node.sourceline} - Error importing expression")
+            return None
+
+        # Get a list of attributes and their values
+        properties = node.attrib.items()
+
+        # Append text as value attribute
+        if klass != "GtkClosureExpression" and node.text:
+            properties.append(("value", node.text))
+
+        c = self.conn.cursor()
+
+        # Import attributes as properties
+        for property_id, value in properties:
+            if property_id not in info.properties:
+                logger.warning(f"XML:{node.sourceline} - Error importing expression, {property_id} attribute is not valid")
+                continue
+
+            c.execute(
+                """
+                INSERT OR REPLACE INTO object_property
+                  (ui_id, object_id, owner_id, property_id, value)
+                VALUES (?, ?, ?, ?, ?);
+                """,
+                (
+                    ui_id,
+                    expression_id,
+                    klass,
+                    property_id,
+                    value,
+                ),
+            )
+
+        c.close()
+
+        for child in node:
+            self.__import_expression(ui_id, child, expression_id)
+
+        return expression_id
+
     def __import_object(
         self, ui_id, node, parent_id, internal_child=None, child_type=None, is_template=False, object_id_map=None
     ):
@@ -1551,6 +1654,8 @@ class CmbDB(GObject.GObject):
 
         if node.tag == "menu":
             return self.__import_menu(ui_id, node, parent_id, object_id_map=object_id_map)
+        if node.tag in ["lookup", "constant", "closure"]:
+            return self.__import_expression(ui_id, node, parent_id)
 
         is_template = node.tag == "template"
 
@@ -1602,6 +1707,8 @@ class CmbDB(GObject.GObject):
         for child in node.iterchildren():
             if child.tag == "property":
                 self.__import_property(c, info, ui_id, object_id, child, object_id_map=object_id_map)
+            elif child.tag == "binding" and self.target_tk == "gtk-4.0":
+                self.__import_binding(c, info, ui_id, object_id, child, object_id_map=object_id_map)
             elif child.tag == "signal":
                 self.__import_signal(c, info, ui_id, object_id, child, object_id_map=object_id_map)
             elif child.tag == "child":
@@ -1738,6 +1845,52 @@ class CmbDB(GObject.GObject):
             WHERE op.ui_id=? AND bind_source_id IS NOT NULL AND o.ui_id = op.ui_id AND o.name = op.bind_source_id;
             """,
             (ui_id,),
+        )
+
+        # Fix binding expression object references
+        self.conn.execute(
+            """
+            UPDATE object_property AS op
+            SET binding_expression_object_id=o.object_id
+            FROM object AS o
+            WHERE op.ui_id=? AND binding_expression_object_id IS NOT NULL AND
+                o.ui_id = op.ui_id AND o.name = op.binding_expression_object_id;
+            """,
+            (ui_id,),
+        )
+
+        # Fix GtkPropertyExpression and GtkConstantExpression value properties
+        self.conn.execute(
+            """
+            UPDATE object_property AS op
+            SET value=o.object_id
+            FROM object AS o
+            WHERE op.ui_id=? AND
+                op.ui_id=o.ui_id AND
+                op.property_id='value' AND
+                op.owner_id IN ('GtkPropertyExpression', 'GtkConstantExpression') AND
+                op.value=o.name AND
+                (
+                    (op.ui_id, op.object_id) IN (
+                        SELECT op2.ui_id, op2.object_id
+                        FROM object_property AS op2, type AS t
+                        WHERE op2.ui_id=? AND
+                            t.derivable AND
+                            op2.owner_id IN ('GtkPropertyExpression', 'GtkConstantExpression') AND
+                            op2.property_id='type' AND
+                            op2.value = t.type_id
+                    )
+                    OR
+                    (op.ui_id, op.object_id) NOT IN (
+                        SELECT op3.ui_id, op3.object_id
+                        FROM object_property AS op3
+                        WHERE op3.ui_id=? AND
+                            op3.owner_id IN ('GtkPropertyExpression', 'GtkConstantExpression') AND
+                            op3.property_id='type'
+                    )
+                )
+            """,
+            (ui_id, ui_id, ui_id),
         )
 
         # Fix a11y CmbAccessibleList references
@@ -2090,6 +2243,100 @@ class CmbDB(GObject.GObject):
 
         return obj
 
+    def __export_expression(self, ui_id, object_id, merengue=False):
+        c = self.conn.cursor()
+
+        c.execute("SELECT type_id FROM object WHERE ui_id=? AND object_id=?;", (ui_id, object_id))
+        type_id, = c.fetchone()
+
+        # Collect properties
+        props = {}
+        for row in c.execute(
+            """
+            SELECT value, property_id
+            FROM object_property
+            WHERE ui_id=? AND object_id=? AND value IS NOT NULL ORDER BY property_id;
+            """,
+            (ui_id, object_id),
+        ):
+            value, property_id = row
+            props[property_id] = value
+
+        if type_id == "GtkConstantExpression":
+            # Do not export incomplete expressions
+            if "value" not in props:
+                return None
+
+            node = E.constant()
+        elif type_id == "GtkPropertyExpression":
+            node = E.lookup()
+        elif type_id == "GtkClosureExpression":
+            # Dont export closure expressions since the function most likely does not exists
+            if merengue:
+                return None
+
+            # Do not export incomplete expressions
+            if "function" not in props:
+                return None
+
+            node = E.closure()
+        else:
+            logger.warning(f"Ignoring object type {type_id} while exporting expression.")
+            return None
+
+        has_children = False
+
+        # Children
+        for row in c.execute(
+            "SELECT object_id, comment FROM object WHERE ui_id=? AND parent_id=? ORDER BY position;",
+            (ui_id, object_id),
+        ):
+            child_id, comment = row
+            child_node = self.__export_expression(ui_id, child_id, merengue=merengue)
+
+            if child_node is not None:
+                self.__node_add_comment(child_node, comment)
+                node.append(child_node)
+                has_children = True
+
+        # Do not export incomplete expressions
+        if type_id == "GtkPropertyExpression" and ("value" not in props or not has_children):
+            return None
+
+        # Check if type is an object type
+        is_object = type_id in ["GtkPropertyExpression", "GtkConstantExpression"]
+
+        if "type" in props:
+            # Check if type is an object type
+            info = self.type_info.get(props["type"])
+            is_object = info.is_object if info is not None else False
+
+        # Set attributes from properties
+        for property_id, value in props.items():
+            if property_id == "value":
+                if has_children:
+                    continue
+                if is_object:
+                    row = self.conn.execute(
+                        "SELECT object_id FROM object WHERE ui_id=? AND name=?", (ui_id, value.strip())
+                    ).fetchone()
+
+                    if row is None:
+                        continue
+
+                    if merengue:
+                        node.text = f"__cmb__{ui_id}.{row[0]}"
+                    else:
+                        node.text = value
+                else:
+                    node.text = value
+            else:
+                utils.xml_node_set(node, property_id, value)
+
+        c.close()
+
+        return node
+
     def __get_object_name(self, ui_id, object_id, merengue=False):
         if object_id is None:
             return None
@@ -2205,15 +2452,13 @@ class CmbDB(GObject.GObject):
         return n_objs == 0 and n_children == 0 and n_props == 0 and n_layout_props == 0 and n_signals == 0 and n_data == 0
 
     def __export_object(self, ui_id, object_id, merengue=False, template_id=None, ignore_id=False):
+        target_gtk4 = self.target_tk == "gtk-4.0"
+        target_gtk3 = not target_gtk4
+
         c = self.conn.cursor()
 
         c.execute("SELECT type_id, name, custom_fragment FROM object WHERE ui_id=? AND object_id=?;", (ui_id, object_id))
         type_id, name, custom_fragment = c.fetchone()
-
-        # Special case <menu>
-        if type_id == GMENU_TYPE:
-            c.close()
-            return self.__export_menu(ui_id, object_id, merengue=merengue, ignore_id=ignore_id)
 
         info = self.type_info.get(type_id, None)
 
@@ -2221,6 +2466,14 @@ class CmbDB(GObject.GObject):
             logger.warning(f"Type info missing for type {type_id}")
             c.close()
             return None
+
+        # Special case <menu>
+        if type_id == GMENU_TYPE:
+            c.close()
+            return self.__export_menu(ui_id, object_id, merengue=merengue, ignore_id=ignore_id)
+        elif info.is_a("GtkExpression"):
+            c.close()
+            return self.__export_expression(ui_id, object_id, merengue=merengue)
 
         cc = self.conn.cursor()
 
@@ -2283,6 +2536,7 @@ class CmbDB(GObject.GObject):
             SELECT op.value, op.property_id, op.inline_object_id, op.comment, op.translatable, op.translation_context,
                    op.translation_comments, p.is_object, p.disable_inline_object,
                    op.bind_source_id, op.bind_owner_id, op.bind_property_id, op.bind_flags,
+                   op.binding_expression_id, op.binding_expression_object_id,
                    NULL, NULL, p.type_id
             FROM object_property AS op, property AS p, type AS t
             WHERE op.owner_id NOT IN
@@ -2292,7 +2546,7 @@ class CmbDB(GObject.GObject):
                   {template_check}
             UNION
             SELECT p.default_value, p.property_id, NULL, NULL, NULL, NULL, NULL, p.is_object, p.disable_inline_object,
-                   NULL, NULL, NULL, NULL, p.required, p.workspace_default, p.type_id
+                   NULL, NULL, NULL, NULL, NULL, NULL, p.required, p.workspace_default, p.type_id
             FROM property AS p, type AS t
             WHERE p.owner_id == t.type_id AND (required=1 OR save_always=1) AND owner_id IN ({placeholders}) AND
                   property_id NOT IN (SELECT property_id FROM object_property WHERE ui_id=? AND object_id=?)
@@ -2315,6 +2569,8 @@ class CmbDB(GObject.GObject):
                 bind_owner_id,
                 bind_property_id,
                 bind_flags,
+                binding_expression_id,
+                binding_expression_object_id,
                 required,
                 workspace_default,
                 property_type_id,
@@ -2324,13 +2580,15 @@ class CmbDB(GObject.GObject):
             value_node = None
             pinfo = self.type_info.get(property_type_id, None)
 
-            is_inline_object = not disable_inline_object and self.target_tk == "gtk-4.0"
+            is_inline_object = not disable_inline_object and target_gtk4
 
             if required and workspace_default:
                 if is_object and is_inline_object:
                     value_node = etree.fromstring(workspace_default)
                 else:
                     value = workspace_default
+            if binding_expression_id:
+                value_node = self.__export_expression(ui_id, binding_expression_id, merengue=merengue)
             elif is_object:
                 # Ignore object properties with 0/null ID or unknown object references
                 if val is not None and val.isnumeric() and int(val) == 0:
@@ -2357,7 +2615,18 @@ class CmbDB(GObject.GObject):
             else:
                 value = val
 
-            node = E.property(name=property_id)
+            if target_gtk4 and binding_expression_id:
+                if value_node is None:
+                    continue
+
+                node = E.binding(name=property_id)
+
+                if binding_expression_object_id:
+                    object_name = self.__get_object_name(ui_id, binding_expression_object_id, merengue=merengue)
+                    utils.xml_node_set(node, "object", object_name)
+            else:
+                node = E.property(name=property_id)
+
             if value is not None:
                 node.text = value
             elif value_node is not None:
@@ -2423,7 +2692,7 @@ class CmbDB(GObject.GObject):
         accessible_role = None
         a11y_data = {}
 
-        if self.target_tk == "gtk+-3.0":
+        if target_gtk3:
             atk_object = E.object()
             atk_object.set("class", "AtkObject")
         else:
@@ -2607,6 +2876,7 @@ class CmbDB(GObject.GObject):
             SELECT object_id, internal, type, comment, position, custom_child_fragment
             FROM object
             WHERE ui_id=? AND parent_id=? AND
+                  type_id NOT IN ('GtkPropertyExpression', 'GtkConstantExpression', 'GtkClosureExpression') AND
                   object_id NOT IN (SELECT inline_object_id FROM object_property
                                     WHERE inline_object_id IS NOT NULL AND ui_id=? AND object_id=?)
             ORDER BY position;
@@ -2621,7 +2891,7 @@ class CmbDB(GObject.GObject):
 
             if merengue and is_box:
                 # FIXME: On Gtk 3 we get the position from the layout property
-                if self.target_tk == "gtk+-3.0":
+                if target_gtk3:
                     r = cc.execute(
                         """
                         SELECT value
@@ -2653,7 +2923,7 @@ class CmbDB(GObject.GObject):
 
             if linfo is not None:
                 # Packing / Layout
-                layout = E("packing" if self.target_tk == "gtk+-3.0" else "layout")
+                layout = E("packing" if target_gtk3 else "layout")
                 for prop in cc.execute(
                     f"""
                     SELECT value, property_id, comment
@@ -2674,7 +2944,7 @@ class CmbDB(GObject.GObject):
                     self.__node_add_comment(node, comment)
 
                 if len(layout) > 0:
-                    if self.target_tk == "gtk+-3.0":
+                    if target_gtk3:
                         child.append(layout)
                     else:
                         child_obj.append(layout)
