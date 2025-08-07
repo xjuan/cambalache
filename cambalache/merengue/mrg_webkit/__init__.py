@@ -22,10 +22,4 @@
 # SPDX-License-Identifier: LGPL-2.1-only
 #
 
-from gi.repository import GObject
-
 from .mrg_webkit_web_view import MrgWebKitWebView
-from .mrg_webkit_web_view import MrgDummyWebView
-from .mrg_webkit_web_view import MrgDummyWebViewProxy
-
-GObject.type_ensure(MrgDummyWebViewProxy.__gtype__)

@@ -5,10 +5,6 @@
  Copyright (C) 2022  Juan Pablo Ugarte
 -->
 <meta>
-  <types>
-    <WebKitWebView workspace-type="MrgDummyWebViewProxy"/>
-  </types>
-
   <categories>
 
     <category name="hidden">

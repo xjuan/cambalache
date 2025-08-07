@@ -50,7 +50,7 @@
 	("WebKitWebExtensionMatchPatternOptions","flags","webkit2gtk",None,None,None,None,None,None,None),
 	("WebKitWebExtensionMode","enum","webkit2gtk",None,None,None,None,None,None,None),
 	("WebKitWebProcessTerminationReason","enum","webkit2gtk",None,None,None,None,None,None,None),
-	("WebKitWebView","WebKitWebViewBase","webkit2gtk",None,None,None,1,"container",None,"MrgDummyWebViewProxy"),
+	("WebKitWebView","WebKitWebViewBase","webkit2gtk",None,None,None,1,"container",None,None),
 	("WebKitWebViewBase","GtkContainer","webkit2gtk",None,None,None,1,"container","hidden",None),
 	("WebKitWebsiteDataTypes","flags","webkit2gtk",None,None,None,None,None,None,None)
   </type>
