@@ -1,6 +1,6 @@
-# Merengue Adwaita plugin
+# MrgAdwViewStack Controller
 #
-# Copyright (C) 2022  Juan Pablo Ugarte
+# Copyright (C) 2025  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -22,18 +22,12 @@
 # SPDX-License-Identifier: LGPL-2.1-only
 #
 
-import gi
-
-gi.require_version("Adw", "1")
 from gi.repository import GObject, Adw
+from merengue.mrg_gtk import MrgGtkStackPage
 
-Adw.init()
 
-from .mrg_adw_application_window import MrgAdwApplicationWindow
-from .mrg_adw_bin import MrgAdwBin
-from .mrg_adw_carousel import MrgAdwCarousel
-from .mrg_adw_window import MrgAdwWindow
-from .mrg_adw_dialog import MrgAdwDialog
-from .mrg_adw_view_stack import MrgAdwViewStack
-from .mrg_adw_view_stack_page import MrgAdwViewStackPage
+class MrgAdwViewStackPage(MrgGtkStackPage):
+    object = GObject.Property(type=Adw.ViewStackPage, flags=GObject.ParamFlags.READWRITE)
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
