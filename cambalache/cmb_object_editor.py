@@ -165,7 +165,7 @@ class CmbObjectEditor(Gtk.Box):
             # Child Type input
             if parent.info.has_child_types():
                 self.append(self.__create_child_type_editor())
-        else:
+        elif not obj.info.is_a("GtkExpression"):
             # ID
             self.append(self.__create_id_editor())
 
