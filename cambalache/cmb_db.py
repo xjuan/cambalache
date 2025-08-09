@@ -2582,11 +2582,6 @@ class CmbDB(GObject.GObject):
 
             is_inline_object = not disable_inline_object and target_gtk4
 
-            if required and workspace_default:
-                if is_object and is_inline_object:
-                    value_node = etree.fromstring(workspace_default)
-                else:
-                    value = workspace_default
             if binding_expression_id:
                 value_node = self.__export_expression(ui_id, binding_expression_id, merengue=merengue)
             elif is_object:
@@ -2599,7 +2594,7 @@ class CmbDB(GObject.GObject):
                 elif ignore_id:
                     # Ignore references to object in template mode since the object could not exists in this UI
                     continue
-                else:
+                elif val:
                     obj_name = self.__get_object_name(ui_id, val, merengue=merengue)
 
                     # Ignore properties that reference an unknown object
@@ -2614,6 +2609,12 @@ class CmbDB(GObject.GObject):
                 value = str(pinfo.enum_get_value_as_string(val, use_nick=False))
             else:
                 value = val
+
+            if value is None and value_node is None and required and workspace_default:
+                if is_object and is_inline_object:
+                    value_node = etree.fromstring(workspace_default)
+                else:
+                    value = workspace_default
 
             if target_gtk4 and binding_expression_id:
                 if value_node is None:
