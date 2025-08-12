@@ -23,7 +23,7 @@
 # SPDX-License-Identifier: LGPL-2.1-only
 #
 
-from gi.repository import GObject, GtkSource
+from gi.repository import GObject, Gtk, GtkSource
 
 
 class CmbSourceView(GtkSource.View):
@@ -37,6 +37,27 @@ class CmbSourceView(GtkSource.View):
         self.buffer = GtkSource.Buffer()
         self.props.buffer = self.buffer
         self.buffer.connect("changed", self.__on_buffer_changed)
+
+        self.connect("notify::root", self.__on_parent_notify)
+        self.__source_style_binding = None
+
+    def __on_parent_notify(self, obj, pspec):
+        if self.__source_style_binding:
+            self.__source_style_binding.unbind()
+            self.__source_style_binding = None
+
+        root = self.props.root
+        if root is None:
+            return
+
+        if isinstance(root, Gtk.ApplicationWindow) and hasattr(root, "source_style"):
+            self.__source_style_binding = GObject.Object.bind_property(
+                root,
+                "source-style",
+                self.buffer,
+                "style-scheme",
+                GObject.BindingFlags.SYNC_CREATE,
+            )
 
     @GObject.Property(type=str)
     def lang(self):
