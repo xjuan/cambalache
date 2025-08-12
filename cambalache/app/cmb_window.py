@@ -27,7 +27,7 @@ import os
 import locale
 import tempfile
 
-from gi.repository import GLib, GObject, Gio, Gdk, Gtk, Pango, Adw
+from gi.repository import GLib, GObject, Gio, Gdk, Gtk, Pango, Adw, GtkSource
 from .cmb_tutor import CmbTutor, CmbTutorState
 from . import cmb_tutorial
 
@@ -119,6 +119,9 @@ class CmbWindow(Adw.ApplicationWindow):
     # Tutor widgets
     intro_button = Gtk.Template.Child()
     menu_button = Gtk.Template.Child()
+
+    # Properties
+    source_style = GObject.Property(type=GtkSource.StyleScheme, flags=GObject.ParamFlags.READWRITE)
 
     # Settings
     completed_intro = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
@@ -302,6 +305,7 @@ class CmbWindow(Adw.ApplicationWindow):
         self.__load_window_state()
         self.__update_actions()
 
+        self.source_style_manager = GtkSource.StyleSchemeManager.get_default()
         app.props.style_manager.connect("notify::dark", lambda o, p: self.__update_dark_mode(app.props.style_manager))
         self.__update_dark_mode(app.props.style_manager)
 
@@ -477,9 +481,11 @@ class CmbWindow(Adw.ApplicationWindow):
 
     def __update_dark_mode(self, style_manager):
         if style_manager.props.dark:
+            self.source_style = self.source_style_manager.get_scheme("Adwaita-dark")
             self.add_css_class("dark")
         else:
             self.remove_css_class("dark")
+            self.source_style = self.source_style_manager.get_scheme("Adwaita")
 
     def __np_name_to_ui(self, binding, value):
         if len(value):
