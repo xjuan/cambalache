@@ -188,6 +188,7 @@ class CmbWindow(Adw.ApplicationWindow):
             "new",
             "notification",
             "open",
+            "open_inspector",
             "paste",
             "patreon",
             "redo",
@@ -387,7 +388,7 @@ class CmbWindow(Adw.ApplicationWindow):
 
     def __update_window_title(self):
         if self.project is None:
-            self.title.props.title = _("Cambalache")
+            self.title.props.title = "Cambalache"
             self.title.props.subtitle = None
             return
 
@@ -485,7 +486,7 @@ class CmbWindow(Adw.ApplicationWindow):
             self.add_css_class("dark")
         else:
             self.remove_css_class("dark")
-            self.source_style = self.source_style_manager.get_scheme("Adwaita")
+            self.source_style = self.source_style_manager.get_scheme("tango")
 
     def __np_name_to_ui(self, binding, value):
         if len(value):
@@ -1528,6 +1529,9 @@ class CmbWindow(Adw.ApplicationWindow):
 
     def _on_inspect_activate(self, action, data):
         self.view.inspect()
+
+    def _on_open_inspector_activate(self, action, data):
+        self.view.set_interactive_debugging(True)
 
     def _on_open_recent_activate(self, action, data):
         self.__app_activate_open(data.get_string(), "")
