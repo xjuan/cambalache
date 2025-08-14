@@ -113,10 +113,10 @@ class MrgApplication(Gtk.Application):
             controller.object = None
             controller.selected = False
 
-    def update_ui(self, ui_id, dirname=None, toplevels=[], selection=[], payload=None):
+    def update_ui(self, ui_id, dirname=None, toplevels=[], selection=[], xml=None):
         self.clear_all()
 
-        if payload is None:
+        if xml is None:
             return
 
         self.ui_id = ui_id
@@ -128,7 +128,7 @@ class MrgApplication(Gtk.Application):
         builder = Gtk.Builder()
 
         try:
-            builder.add_from_string(payload)
+            builder.add_from_string(xml)
         except Exception as e:
             logger.info(f"Error updating UI {ui_id}: {e}")
             self.write_command("update_ui_error", args={"ui_id": ui_id, "error": str(e)})
@@ -322,13 +322,16 @@ class MrgApplication(Gtk.Application):
         for path in paths:
             theme.add_search_path(path)
 
-    def run_command(self, command, args, payload):
-        logger.debug(f"{command} {args} payload={len(payload) if payload else -1}")
+    def set_interactive_debugging(self, enable):
+        Gtk.Window.set_interactive_debugging(enable)
+
+    def run_command(self, command, args):
+        logger.debug(f"{command} {args.keys()}")
 
         if command == "clear_all":
             self.clear_all()
         elif command == "update_ui":
-            self.update_ui(**args, payload=payload)
+            self.update_ui(**args)
         elif command == "selection_changed":
             self.selection_changed(**args)
         elif command == "object_property_changed":
@@ -355,6 +358,8 @@ class MrgApplication(Gtk.Application):
             self.update_css_provider(**args)
         elif command == "set_icontheme_search_paths":
             self.set_icontheme_search_paths(**args)
+        elif command == "set_interactive_debugging":
+            self.set_interactive_debugging(**args)
         elif command == "quit":
             self.quit()
         else:
@@ -372,26 +377,17 @@ class MrgApplication(Gtk.Application):
             return GLib.SOURCE_CONTINUE
 
         try:
-            # Command is a Json string with a command, args and payload fields
+            # Command is a Json string with a command and args fields
             cmd = json.loads(retval)
         except Exception as e:
-            logger.warning(f"Error parsing command {e}")
-            self.quit()
-            return GLib.SOURCE_REMOVE
+            logger.warning(f"Error parsing command {e} [{retval}]")
+            return GLib.SOURCE_CONTINUE
         else:
             command = cmd.get("command", None)
             args = cmd.get("args", {})
-            payload = None
-            payload_length = cmd.get("payload_length", False)
-
-            # Read payload
-            if payload_length:
-                payload = self.connection.read(payload_length)
-                logger.debug(f"Payload read {payload_length=}, {len(payload)}")
-                payload = payload.decode()
 
             # Run command
-            self.run_command(command, args, payload)
+            self.run_command(command, args)
 
         return GLib.SOURCE_CONTINUE
 
