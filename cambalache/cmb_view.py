@@ -164,21 +164,15 @@ class CmbMerengueProcess(GObject.Object):
             finally:
                 self.__pid = 0
 
-    def write_command(self, command, payload=None, args=None):
+    def write_command(self, command, args=None):
         cmd = {"command": command}
-
-        if payload is not None:
-            # Encode to binary first, before calculating lenght
-            payload = payload.encode()
-            cmd["payload_length"] = len(payload)
-            logger.debug(f"write_command {command} {len(payload)}")
 
         if args is not None:
             cmd["args"] = args
 
-        self.__socket_write_command(cmd, payload)
+        self.__socket_write_command(cmd)
 
-    def __socket_write_command(self, cmd, payload=None):
+    def __socket_write_command(self, cmd):
         # Send command in one line as json
 
         def write_data(data):
@@ -189,11 +183,6 @@ class CmbMerengueProcess(GObject.Object):
 
         write_data(json.dumps(cmd).encode())
         write_data(b"\n")
-
-        if payload is not None:
-            write_data(payload)
-
-        # Flush
         self.__command.flush()
 
     def __on_exit(self, pid, status, data):
@@ -255,11 +244,11 @@ class CmbView(Gtk.Box):
         self.__merengue_command("quit")
         self.__merengue.cleanup()
 
-    def __merengue_command(self, command, payload=None, args=None):
+    def __merengue_command(self, command, args=None):
         if not self.__merengue_started:
             return
 
-        self.__merengue.write_command(command, payload, args)
+        self.__merengue.write_command(command, args)
 
     def __get_ui_xml(self, ui_id, merengue=False):
         if self.show_merengue:
@@ -321,12 +310,12 @@ class CmbView(Gtk.Box):
 
         self.__merengue_command(
             "update_ui",
-            payload=ui,
             args={
                 "ui_id": ui_id,
                 "dirname": self.__get_ui_dirname(ui_id),
                 "toplevels": toplevels,
                 "selection": objects,
+                "xml": ui,
             },
         )
 
@@ -557,6 +546,9 @@ class CmbView(Gtk.Box):
         self.stack.props.visible_child_name = "ui_xml"
         self.__update_view()
 
+    def set_interactive_debugging(self, enable):
+        self.__merengue_command("set_interactive_debugging", args={"enable": enable})
+
     def restart_workspace(self):
         print("AAAAAAAAAAAAAA", self.__merengue.pid)
         # Clear last exit timestamp
@@ -576,6 +568,7 @@ class CmbView(Gtk.Box):
 
         retval.main_section.append(_("Restart workspace"), "win.workspace_restart")
         retval.main_section.append(_("Inspect UI definition"), "win.inspect")
+        retval.main_section.append(_("Gtk Inspector"), "win.open_inspector")
 
         return retval
 
