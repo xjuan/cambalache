@@ -10,8 +10,8 @@ if __name__ == "__main__":
     for filename in filenames:
         if filename.endswith('.ui'):
             root = etree.parse(filename).getroot()
-            translatable_props = root.findall('.//property[@translatable="yes"]')
-            if translatable_props:
+            translatable_attrs = root.findall('.//*[@translatable="yes"]')
+            if translatable_attrs:
                 translatables.append(filename)
         elif filename.endswith('.py'):
             source = open(filename, 'r').read()
