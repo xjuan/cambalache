@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.97.4 -->
+<!-- Created with Cambalache 0.97.7 -->
 <interface>
   <!-- interface-name cmb_window.ui -->
   <!-- interface-copyright Juan Pablo Ugarte -->
@@ -33,7 +33,7 @@
       </item>
       <item>
         <attribute name="action">win.import_directory</attribute>
-        <attribute name="label">Import directory</attribute>
+        <attribute name="label" translatable="yes">Import directory</attribute>
       </item>
     </section>
     <section>
@@ -99,7 +99,7 @@
             <child>
               <object class="AdwSplitButton" id="open_button">
                 <property name="action-name">win.open</property>
-                <property name="dropdown-tooltip">Recent Projects</property>
+                <property name="dropdown-tooltip" translatable="yes">Recent Projects</property>
                 <property name="label" translatable="yes">_Open</property>
                 <property name="menu-model">recent_menu</property>
                 <property name="use-underline">True</property>

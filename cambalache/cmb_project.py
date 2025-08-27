@@ -147,7 +147,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 self.target_tk = target_tk
 
         if self.target_tk is None or self.target_tk == "":
-            raise Exception("Either target_tk or filename are required")
+            raise Exception(_("Either target_tk or filename are required"))
 
         # DataModel is only used internally
         self.db = CmbDB(target_tk=self.target_tk)
@@ -331,7 +331,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 root = etree.fromstring(content.text.encode())
                 ui_id = self.db.import_from_node(root, None)
             else:
-                raise Exception("content tag is missing")
+                raise Exception(_("content tag is missing"))
 
         msgs, detail_msg = self.__get_import_errors()
         self.db.errors = None
@@ -423,7 +423,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 root = etree.fromstring(content.text.encode())
                 gresource_id = self.db.import_gresource_from_node(root, None)
             else:
-                raise Exception("content tag is missing")
+                raise Exception(_("content tag is missing"))
 
         self.__populate_gresource(gresource_id)
 
@@ -439,7 +439,11 @@ class CmbProject(GObject.Object, Gio.ListModel):
         target_tk = root.get("target_tk", None)
 
         if target_tk != self.target_tk:
-            raise Exception(f"Can not load a {target_tk} target in {self.target_tk} project.")
+            raise Exception(
+                _("Can not load a {target} target in {project_target} project.").format(
+                    target=target_tk, project_target=self.target_tk
+                )
+            )
 
         version = root.get("version", None)
         version = (0, 0, 0) if version is None else utils.parse_version(version)
@@ -447,12 +451,14 @@ class CmbProject(GObject.Object, Gio.ListModel):
         if version > self.db.version:
             version = ".".join(map(str, version))
             raise Exception(
-                f"File format {version} is not supported by this release,\nplease update to a newer version to open this file."
+                _("File format {version} is not supported by this release,\n"
+                  "please update to a newer version to open this file.").format(version=version)
             )
 
         if version <= (0, 94, 0):
             raise Exception(
-                f"Project format {version} is not supported, Open/save with Cambalache 0.96.0 to migrate to the new format."
+                _("Project format {version} is not supported, "
+                  "Open/save with Cambalache 0.96.0 to migrate to the new format.").format(version=version)
             )
 
         ui_graph = {}
@@ -481,7 +487,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
             elif child.tag == "icontheme-search-path":
                 self.icontheme_search_paths.append(child.text)
             else:
-                raise Exception(f"Unknown tag {child.tag} in project file.")
+                raise Exception(_("Unknown tag {tag} in project file.").format(tag=child.tag))
 
         for node in css_list:
             self.__load_css_from_node(node)
@@ -498,7 +504,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
             ts = TopologicalSorter(ui_node_graph)
             sorted_ui_nodes = tuple(ts.static_order())
         except CycleError as e:
-            raise Exception(f"Could not load project because of dependency cycle {e}")
+            logger.warning(f"Dependency cycle detected: {e}")
+            raise Exception(_("Could not load project because of dependency cycle"))
 
         # Load UI in topological order
         for node in sorted_ui_nodes:
@@ -876,7 +883,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 else:
                     continue
             except Exception as e:
-                print(e)
+                logger.warning(e)
                 continue
 
             template = root.find("template")
@@ -906,7 +913,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
             ts = TopologicalSorter(ui_node_graph)
             sorted_ui_nodes = list(ts.static_order())
         except CycleError as e:
-            raise Exception(f"Could not load project because of dependency cycle {e}")
+            logger.warning(f"Dependency cycle detected: {e}")
+            raise Exception(_("Could not load project because of dependency cycle"))
 
         return sorted_ui_nodes
 
@@ -1057,7 +1065,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
             self.db.commit()
             self.__remove_css(css)
         except Exception as e:
-            print(e)
+            logger.warning(e)
 
     def __add_gresource(
         self,
@@ -1266,7 +1274,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
     def remove_object(self, obj, allow_internal_removal=False):
         if not allow_internal_removal and obj.internal:
-            raise Exception("Internal objects can not be removed")
+            raise Exception(_("Internal objects can not be removed"))
 
         try:
             was_selected = obj in self.__selection
@@ -2324,7 +2332,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
             self.history_pop()
             self.db.commit()
         except Exception as e:
-            print(f"Error removing parent of object {obj} {e}")
+            logger.warning(f"Error removing parent of object {obj} {e}")
         finally:
             self.__remove_object(parent)
             if grand_parent is None:
