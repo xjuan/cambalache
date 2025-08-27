@@ -156,6 +156,7 @@ class CmbMerengueProcess(GObject.Object):
 
         if self.__pid:
             try:
+                print("CLOSE", self.__pid)
                 GLib.spawn_close_pid(self.__pid)
                 os.kill(self.__pid, 9)
             except Exception as e:
@@ -196,6 +197,7 @@ class CmbMerengueProcess(GObject.Object):
         self.__command.flush()
 
     def __on_exit(self, pid, status, data):
+        print("ON EXIT", pid, status)
         self.__cleanup()
         self.__pid = 0
         self.emit("exit")
@@ -556,6 +558,7 @@ class CmbView(Gtk.Box):
         self.__update_view()
 
     def restart_workspace(self):
+        print("AAAAAAAAAAAAAA", self.__merengue.pid)
         # Clear last exit timestamp
         self.__merengue_last_exit = None
         self.__merengue_started = None
@@ -588,7 +591,9 @@ class CmbView(Gtk.Box):
                 self.__merengue_last_exit = None
                 return
 
+        print("__on_process_exit")
         self.__ui = None
+        self.__set_error_message(None)
         self.__merengue.start()
 
     def __command_selection_changed(self, selection):
@@ -684,6 +689,8 @@ class CmbView(Gtk.Box):
             if args["property"] == "gtk-theme-name":
                 self.__theme = args["value"]
                 self.notify("gtk_theme")
+        elif command == "update_ui_error":
+            self.__set_error_message(args["error"])
 
     def __add_remove_placeholder(self, command, modifier):
         if self.project is None:

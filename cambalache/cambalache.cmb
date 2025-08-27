@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
-<!-- Created with Cambalache 0.97.6 -->
+<!-- Created with Cambalache 0.97.7 -->
 <cambalache-project version="0.96.0" target_tk="gtk-4.0">
   <gresources filename="cambalache.gresource.xml" sha256="f5e5356b0a796d96885a8bb0b363d18339457ea6bfe26e56b6db3f7e4a618b16"/>
   <gresources filename="app/app.gresource.xml" sha256="3684aa78fce08d8e81d0907317214aeb179c5aea091dd0df405476b43e286941"/>
@@ -257,7 +257,7 @@
     <signal id="chooser-popup"/>
     <signal id="type-selected"/>
   </ui>
-  <ui template-class="CmbView" filename="cmb_view.ui" sha256="fc4098342eb1f7a4aba9b3df5f20ba5a279f760b7ce94452cdbfd1248fc9bd02">
+  <ui template-class="CmbView" filename="cmb_view.ui" sha256="6ff46b859064c3e8df7e7b15e335cd7fbe8b28e3e2d4bef3bc7615d202a5b4c5">
     <requires>CasildaCompositor</requires>
     <requires>CmbSourceView</requires>
     <requires>CmbDBInspector</requires>
