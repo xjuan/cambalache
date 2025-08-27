@@ -14,11 +14,16 @@
     </p>
   </description>
   <releases>
-    <release date="2025-06-22" version="0.98.0">
+    <release date="" version="1.0.0">
       <description>
-        <p>Blueprint Release!</p>
+        <p>Release 1.0!</p>
         <ul>
+          <li>Add GtkExpression support</li>
           <li>Add Blueprint support</li>
+          <li>Workspace rendering optimization</li>
+          <li>Make workspace scrollable</li>
+          <li>Deprecate project format 0.94 and older</li>
+          <li>Add Brazilian Portuguese translation. John Peter Sa</li>
           <li>Fix GResource list model update</li>
           <li>Fix object data editor</li>
         </ul>

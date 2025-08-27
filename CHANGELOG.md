@@ -8,8 +8,32 @@ packaging changes like new dependencies or build system changes.
 Cambalache used even/odd minor numbers to differentiate between stable and
 development releases.
 
+## Unreleased
+
+ - Add GtkExpression support
+ - Add Blueprint support
+ - Make workspace scrollable
+ - Deprecate project format 0.94 and older
+ - Add Brazilian Portuguese translation. John Peter Sa
+ - Fix GResource list model update
+ - Fix object data editor
+
+### Packaging changes
+
+ - Bump Casilda dependency to 1.0.
+   This new version has a small API break (removed bg-color property) so the
+   soname version was bumped from 0.1 to 1.0
+
+### Issues
+
+ - #80 "Support for blueprint file format"
+ - #276 "Signal loses reference to object if defined later in the XML"
+ - #257 "Add GtkExpression support"
+ - #281 "new add language" John Peter Sa
 
 ## 0.96.0
+
+2025-04-20 - GResource Release!
 
  - Add GResource support
  - Add internal children support
