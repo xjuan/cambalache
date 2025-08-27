@@ -2,6 +2,7 @@
 <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
   <mime-type type="application/x-cambalache-project">
     <comment>Cambalache Project File</comment>
+    <comment xml:lang="es">Proyecto de Cambalache</comment>
     <sub-class-of type="application/xml"/>
     <magic priority="60">
       <match type="string" value="&lt;!DOCTYPE cambalache-project SYSTEM &quot;cambalache-project.dtd&quot;&gt;" offset="0:256"/>
