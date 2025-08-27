@@ -130,7 +130,8 @@ class MrgApplication(Gtk.Application):
         try:
             builder.add_from_string(payload)
         except Exception as e:
-            logger.warning(f"Error updating UI {ui_id}: {e}")
+            logger.info(f"Error updating UI {ui_id}: {e}")
+            self.write_command("update_ui_error", args={"ui_id": ui_id, "error": str(e)})
 
         objects = builder.get_objects()
         placeholders = []
