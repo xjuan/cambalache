@@ -53,7 +53,7 @@
                     <child>
                       <object class="GtkButton" id="restart_button">
                         <property name="halign">center</property>
-                        <property name="label">Restart worspace</property>
+                        <property name="label" translatable="yes">Restart workspace</property>
                         <property name="valign">start</property>
                         <property name="vexpand">True</property>
                         <signal name="clicked" handler="on_restart_button_clicked"/>

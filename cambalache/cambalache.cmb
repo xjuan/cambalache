@@ -257,7 +257,7 @@
     <signal id="chooser-popup"/>
     <signal id="type-selected"/>
   </ui>
-  <ui template-class="CmbView" filename="cmb_view.ui" sha256="6ff46b859064c3e8df7e7b15e335cd7fbe8b28e3e2d4bef3bc7615d202a5b4c5">
+  <ui template-class="CmbView" filename="cmb_view.ui" sha256="3d7e064ef8e5e6425fd4058ddc083a7948b0a7dd83aab74e2def5bebde3a3864">
     <requires>CasildaCompositor</requires>
     <requires>CmbSourceView</requires>
     <requires>CmbDBInspector</requires>
