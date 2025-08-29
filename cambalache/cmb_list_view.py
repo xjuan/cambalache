@@ -196,8 +196,10 @@ class CmbListView(Gtk.ListView):
             self.__project.set_selection([])
             return
 
+        if not list_item.get_expanded():
+            list_item.set_expanded(True)
+
         item = list_item.get_item()
-        self.activate_action("list.activate-item", GLib.Variant("u", position))
 
         if item and not isinstance(item, CmbPath):
             item = list_item.get_item()
