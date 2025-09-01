@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cambalache\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-27 12:37-0400\n"
+"POT-Creation-Date: 2025-09-01 17:58-0400\n"
 "PO-Revision-Date: 2024-02-13 00:06+0100\n"
 "Last-Translator: Daniel Rusek <mail@asciiwolf.com>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
@@ -393,7 +393,7 @@ msgstr "Importovat soubor \"{filename}\""
 msgid "Error saving project"
 msgstr "Uložit projekt"
 
-#: cambalache/app/cmb_window.py:1260 cambalache/cmb_view.py:270
+#: cambalache/app/cmb_window.py:1260 cambalache/cmb_view.py:272
 #, fuzzy
 msgid "blueprintcompiler encounter the following error:"
 msgstr "Cambalache narazil na následující problémy:"
@@ -1515,24 +1515,24 @@ msgstr ""
 msgid "Get it on Flathub"
 msgstr ""
 
-#: cambalache/cmb_view.py:267
+#: cambalache/cmb_view.py:269
 #, fuzzy
 msgid "Error exporting project"
 msgstr "Chyba při importování {filename}"
 
-#: cambalache/cmb_view.py:566
+#: cambalache/cmb_view.py:569
 msgid "Restart workspace"
 msgstr "Restartovat prostředí"
 
-#: cambalache/cmb_view.py:567
+#: cambalache/cmb_view.py:570
 msgid "Inspect UI definition"
 msgstr "Prozkoumat definici UI"
 
-#: cambalache/cmb_view.py:568
+#: cambalache/cmb_view.py:571
 msgid "Gtk Inspector"
 msgstr ""
 
-#: cambalache/cmb_view.py:580
+#: cambalache/cmb_view.py:583
 msgid ""
 "Workspace process error\n"
 "Stopping auto restart"
@@ -1540,15 +1540,15 @@ msgstr ""
 "Chyba procesu pracovního prostoru\n"
 "Zrušen automatický restart"
 
-#: cambalache/cmb_view.ui:63
+#: cambalache/cmb_view.ui:66
 msgid "Project View"
 msgstr "Zobrazení projektu"
 
-#: cambalache/cmb_view.ui:96
+#: cambalache/cmb_view.ui:99
 msgid "UI Definition"
 msgstr "Definice UI"
 
-#: cambalache/cmb_view.ui:120
+#: cambalache/cmb_view.ui:123
 #, fuzzy
 msgid "Data Model"
 msgstr "Modely"

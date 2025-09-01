@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cambalache\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-27 12:37-0400\n"
+"POT-Creation-Date: 2025-09-01 17:58-0400\n"
 "PO-Revision-Date: 2025-01-07 12:26-0500\n"
 "Last-Translator: Erwinjitsu <erwinjitsu@proton.me>\n"
 "Language-Team: Suomi\n"
@@ -385,7 +385,7 @@ msgstr "Tuo tiedosto"
 msgid "Error saving project"
 msgstr "Tallenna projekti"
 
-#: cambalache/app/cmb_window.py:1260 cambalache/cmb_view.py:270
+#: cambalache/app/cmb_window.py:1260 cambalache/cmb_view.py:272
 #, fuzzy
 msgid "blueprintcompiler encounter the following error:"
 msgstr "Cambalache kohtasi seuraavia ongelmia:"
@@ -1497,25 +1497,25 @@ msgstr ""
 msgid "Get it on Flathub"
 msgstr ""
 
-#: cambalache/cmb_view.py:267
+#: cambalache/cmb_view.py:269
 #, fuzzy
 msgid "Error exporting project"
 msgstr "Virhe tuodessa tiedostoa {filename}"
 
-#: cambalache/cmb_view.py:566
+#: cambalache/cmb_view.py:569
 msgid "Restart workspace"
 msgstr "Käynnistä työtila uudelleen"
 
-#: cambalache/cmb_view.py:567
+#: cambalache/cmb_view.py:570
 msgid "Inspect UI definition"
 msgstr "Tarkastele .ui-tiedoston määritelmää"
 
-#: cambalache/cmb_view.py:568
+#: cambalache/cmb_view.py:571
 #, fuzzy
 msgid "Gtk Inspector"
 msgstr "GTK 4 portti"
 
-#: cambalache/cmb_view.py:580
+#: cambalache/cmb_view.py:583
 msgid ""
 "Workspace process error\n"
 "Stopping auto restart"
@@ -1523,15 +1523,15 @@ msgstr ""
 "Työtilan prosessointi virhe\n"
 "Lakkautetaan automaattinen käynnistys"
 
-#: cambalache/cmb_view.ui:63
+#: cambalache/cmb_view.ui:66
 msgid "Project View"
 msgstr "Projektinäkymä"
 
-#: cambalache/cmb_view.ui:96
+#: cambalache/cmb_view.ui:99
 msgid "UI Definition"
 msgstr "Määritelmä .ui-tiedostolle"
 
-#: cambalache/cmb_view.ui:120
+#: cambalache/cmb_view.ui:123
 msgid "Data Model"
 msgstr "Data Malli"
 

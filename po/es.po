@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cambalache\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-27 10:36-0400\n"
+"POT-Creation-Date: 2025-09-01 17:58-0400\n"
 "PO-Revision-Date: 2025-08-27 10:16-0400\n"
 "Last-Translator: Juan Pablo Ugarte <juanpablougarte@gmail.com>\n"
 "Language-Team: Spanish; Castilian\n"
@@ -381,7 +381,7 @@ msgstr "Importar directorio"
 msgid "Error saving project"
 msgstr "Error guardando proyecto"
 
-#: cambalache/app/cmb_window.py:1260 cambalache/cmb_view.py:270
+#: cambalache/app/cmb_window.py:1260 cambalache/cmb_view.py:272
 msgid "blueprintcompiler encounter the following error:"
 msgstr "blueprintcompiler encontró el siguiente error:"
 
@@ -1484,23 +1484,23 @@ msgstr "Leer mas..."
 msgid "Get it on Flathub"
 msgstr "Bájalo de Flathub"
 
-#: cambalache/cmb_view.py:267
+#: cambalache/cmb_view.py:269
 msgid "Error exporting project"
 msgstr "Error exportando proyecto"
 
-#: cambalache/cmb_view.py:566
+#: cambalache/cmb_view.py:569
 msgid "Restart workspace"
 msgstr "Reiniciar área de trabajo"
 
-#: cambalache/cmb_view.py:567
+#: cambalache/cmb_view.py:570
 msgid "Inspect UI definition"
 msgstr "Inspeccionar UI"
 
-#: cambalache/cmb_view.py:568
+#: cambalache/cmb_view.py:571
 msgid "Gtk Inspector"
 msgstr "Inspector de Gtk"
 
-#: cambalache/cmb_view.py:580
+#: cambalache/cmb_view.py:583
 msgid ""
 "Workspace process error\n"
 "Stopping auto restart"
@@ -1508,15 +1508,15 @@ msgstr ""
 "Error en el proceso del área de trabajo\n"
 "Reinicio automático detenido"
 
-#: cambalache/cmb_view.ui:63
+#: cambalache/cmb_view.ui:66
 msgid "Project View"
 msgstr "Vista del Proyecto"
 
-#: cambalache/cmb_view.ui:96
+#: cambalache/cmb_view.ui:99
 msgid "UI Definition"
 msgstr "Definición del UI"
 
-#: cambalache/cmb_view.ui:120
+#: cambalache/cmb_view.ui:123
 msgid "Data Model"
 msgstr "Modelo de datos"
 
