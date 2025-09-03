@@ -2440,6 +2440,10 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         path_parent = item.path_parent
 
+        # Do not do anything if item has no parent
+        if not path_parent and not os.path.dirname(filename):
+            return
+
         # Do not do anything if the path is the same
         if path_parent and path_parent.path and path_parent.path == os.path.dirname(filename):
             return
