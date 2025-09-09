@@ -9,14 +9,14 @@ msgstr ""
 "Project-Id-Version: cambalache\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-09-01 17:58-0400\n"
-"PO-Revision-Date: 2025-08-12 22:40-0300\n"
+"PO-Revision-Date: 2025-09-03 21:19-0300\n"
 "Last-Translator: John peter sa <johnppetersa@gmail.com>\n"
 "Language-Team: \n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.6\n"
+"X-Generator: Poedit 3.7\n"
 
 #: cambalache/app/cmb_application.py:48
 msgid "Print version"
@@ -356,37 +356,33 @@ msgstr "Escolha o arquivo para importar"
 
 #: cambalache/app/cmb_window.py:1189
 msgid "Loading directory contents"
-msgstr ""
+msgstr "Conteúdo do diretório de carregamento"
 
 #: cambalache/app/cmb_window.py:1220
 #, python-brace-format
 msgid "Import {n} directory \"{dirpath}\""
-msgstr ""
+msgstr "Importar {n} diretório \"{dirpath}\""
 
 #: cambalache/app/cmb_window.py:1233
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Imported {n} files"
-msgstr "Importar arquivos de IU"
+msgstr "Arquivos {n} importados"
 
 #: cambalache/app/cmb_window.py:1240
-#, fuzzy
 msgid "Choose directory to import"
-msgstr "Escolha o arquivo para importar"
+msgstr "Escolha o diretório para importar"
 
 #: cambalache/app/cmb_window.py:1240 cambalache/app/cmb_window.ui:36
-#, fuzzy
 msgid "Import directory"
-msgstr "Arquivo de importação"
+msgstr "Diretório de importação"
 
 #: cambalache/app/cmb_window.py:1258
-#, fuzzy
 msgid "Error saving project"
-msgstr "Salvar projeto"
+msgstr "Erro ao salvar projeto"
 
 #: cambalache/app/cmb_window.py:1260 cambalache/cmb_view.py:272
-#, fuzzy
 msgid "blueprintcompiler encounter the following error:"
-msgstr "Bagunça enfrenta os seguintes problemas:"
+msgstr "O compilador do blueprint encontrou o seguinte erro:"
 
 #: cambalache/app/cmb_window.py:1277
 msgid "Choose a file to save the project"
@@ -457,18 +453,16 @@ msgid "Interactive intro"
 msgstr "Introdução interativa"
 
 #: cambalache/app/cmb_window.ui:60 cambalache/app/cmb_window.ui:879
-#, fuzzy
 msgid "Notifications"
-msgstr "Localização"
+msgstr "Notificações"
 
 #: cambalache/app/cmb_window.ui:78
 msgid "About"
 msgstr "Sobre"
 
 #: cambalache/app/cmb_window.ui:102
-#, fuzzy
 msgid "Recent Projects"
-msgstr "Novo Projeto"
+msgstr "Projetos recentes"
 
 #: cambalache/app/cmb_window.ui:103
 msgid "_Open"
@@ -618,19 +612,16 @@ msgid "Actions"
 msgstr "Ações"
 
 #: cambalache/cmb_binding_popover.ui:22
-#, fuzzy
 msgid "Type"
-msgstr "Nome do tipo"
+msgstr "Tipo"
 
 #: cambalache/cmb_binding_popover.ui:35
-#, fuzzy
 msgid "Object"
-msgstr "ID do objeto"
+msgstr "Objeto"
 
 #: cambalache/cmb_binding_popover.ui:47
-#, fuzzy
 msgid "<expression object>"
-msgstr "<b>johnpetersa</b>"
+msgstr "<expression object>"
 
 #: cambalache/cmb_binding_popover.ui:60 cambalache/cmb_css_editor.py:174
 msgid "None"
@@ -638,25 +629,23 @@ msgstr "Nenhum"
 
 #: cambalache/cmb_binding_popover.ui:79
 msgid "Source"
-msgstr ""
+msgstr "Fonte"
 
 #: cambalache/cmb_binding_popover.ui:90
-#, fuzzy
 msgid "Property"
-msgstr "propriedade"
+msgstr "Propriedade"
 
 #: cambalache/cmb_binding_popover.ui:101
 msgid "Flags"
-msgstr ""
+msgstr "Flags"
 
 #: cambalache/cmb_binding_popover.ui:143
-#, fuzzy
 msgid "<b>Gtk Expression</b>"
-msgstr "<b>johnpetersa</b>"
+msgstr "<b>Expressão Gtk</b>"
 
 #: cambalache/cmb_binding_popover.ui:155
 msgid "<b>Property Binding</b>"
-msgstr ""
+msgstr "<b> Ligação da propriedade </b>"
 
 #: cambalache/cmb_context_menu.py:102
 msgid "CSS theme"
@@ -664,48 +653,43 @@ msgstr "Tema CSS"
 
 #: cambalache/cmb_context_menu.ui:12
 msgid "Cut"
-msgstr ""
+msgstr "Corte"
 
 #: cambalache/cmb_context_menu.ui:16
 msgid "Copy"
-msgstr ""
+msgstr "Cópia"
 
 #: cambalache/cmb_context_menu.ui:20
 msgid "Paste"
-msgstr ""
+msgstr "Colar"
 
 #: cambalache/cmb_context_menu.ui:24
-#, fuzzy
 msgid "Delete"
-msgstr "Excluir objeto"
+msgstr "Excluir"
 
 #: cambalache/cmb_context_menu.ui:30
-#, fuzzy
 msgid "Add object here"
-msgstr "Adicionar objeto {name}"
+msgstr "Adicionar objeto aqui"
 
 #: cambalache/cmb_context_menu.ui:34
-#, fuzzy
 msgid "Add object as toplevel"
-msgstr "Adicionar objeto {name}"
+msgstr "Adicionar objeto como nível superior"
 
 #: cambalache/cmb_context_menu.ui:38
-#, fuzzy
 msgid "Remove parent"
-msgstr "Remover pai de {name}"
+msgstr "Remover pai"
 
 #: cambalache/cmb_context_menu.ui:41
 msgid "Add parent"
-msgstr ""
+msgstr "Adicionar pai"
 
 #: cambalache/cmb_context_menu.ui:45
-#, fuzzy
 msgid "Clear Properties"
-msgstr "Propriedade limpa"
+msgstr "Propriedades claras"
 
 #: cambalache/cmb_context_menu.ui:49
 msgid "Read Documentation"
-msgstr ""
+msgstr "Leia a documentação"
 
 #: cambalache/cmb_css.py:62
 #, python-brace-format
@@ -851,9 +835,9 @@ msgid "Alias"
 msgstr "Pseudônimo"
 
 #: cambalache/cmb_object.py:483 cambalache/cmb_object_data.py:199
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Remove {key} from {name}"
-msgstr "Remover pai de {name}"
+msgstr "Remover {key} de {name}"
 
 #: cambalache/cmb_object.py:515
 #, python-brace-format
@@ -937,30 +921,30 @@ msgstr "{n} arquivos não salvos"
 #: cambalache/cmb_poll_notification_view.py:65
 #, python-brace-format
 msgid "<small>• Closes on {date}</small>"
-msgstr ""
+msgstr "<small>• Encerra em {date}</small>"
 
 #: cambalache/cmb_poll_notification_view.py:65
 #, python-brace-format
 msgid "<small>• Closed on {date}</small>"
-msgstr ""
+msgstr "<small>• Fechado em {date}</small>"
 
 #: cambalache/cmb_poll_notification_view.py:135
 #, python-brace-format
 msgid "<small>• {total} vote</small>"
-msgstr ""
+msgstr "<small>• {total} votos</small>"
 
 #: cambalache/cmb_project.py:150
 msgid "Either target_tk or filename are required"
-msgstr ""
+msgstr "São necessários target_tk ou filename"
 
 #: cambalache/cmb_project.py:334 cambalache/cmb_project.py:426
 msgid "content tag is missing"
-msgstr ""
+msgstr "a tag de conteúdo está faltando"
 
 #: cambalache/cmb_project.py:443
 #, python-brace-format
 msgid "Can not load a {target} target in {project_target} project."
-msgstr ""
+msgstr "Não é possível carregar um alvo {target} no projeto {project_target}."
 
 #: cambalache/cmb_project.py:454
 #, python-brace-format
@@ -968,6 +952,8 @@ msgid ""
 "File format {version} is not supported by this release,\n"
 "please update to a newer version to open this file."
 msgstr ""
+"O formato de arquivo {version} não é suportado por esta versão.\n"
+"Atualize para uma versão mais recente para abrir este arquivo."
 
 #: cambalache/cmb_project.py:460
 #, python-brace-format
@@ -975,15 +961,17 @@ msgid ""
 "Project format {version} is not supported, Open/save with Cambalache 0.96.0 "
 "to migrate to the new format."
 msgstr ""
+"O formato do projeto {version} não é suportado. Abra/salve com o Cambalache "
+"0.96.0 para migrar para o novo formato."
 
 #: cambalache/cmb_project.py:490
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Unknown tag {tag} in project file."
-msgstr "Tag raiz desconhecida {tag}"
+msgstr "Tag desconhecida {tag} no arquivo de projeto."
 
 #: cambalache/cmb_project.py:508 cambalache/cmb_project.py:917
 msgid "Could not load project because of dependency cycle"
-msgstr ""
+msgstr "Não foi possível carregar o projeto devido ao ciclo de dependência"
 
 #: cambalache/cmb_project.py:770
 #, python-brace-format
@@ -1147,7 +1135,7 @@ msgstr "Adicionar objeto {name}"
 
 #: cambalache/cmb_project.py:1277
 msgid "Internal objects can not be removed"
-msgstr ""
+msgstr "Objetos internos não podem ser removidos"
 
 #: cambalache/cmb_project.py:1305
 #, python-brace-format
@@ -1347,36 +1335,36 @@ msgstr "Remover pai de {name}"
 #: cambalache/cmb_property.py:217
 #, python-brace-format
 msgid "Bind {object}::{property} to {bind_object}::{bind_property}"
-msgstr ""
+msgstr "Vincular {object}::{property} a {bind_object}::{bind_property}"
 
 #: cambalache/cmb_property.py:229 cambalache/cmb_property.py:341
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Clear {object}::{property} binding"
-msgstr "Limpar propriedades do objeto {name}"
+msgstr "Limpar {object}::{property} a ligação "
 
 #: cambalache/cmb_property.py:257 cambalache/cmb_property.py:290
 #, python-brace-format
 msgid "Bind {object}::{property} to {expression_object}"
-msgstr ""
+msgstr "Vincular {object}::{property} a {expression_object}"
 
 #: cambalache/cmb_property.py:268
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Clear {object}::{property} binding expression"
-msgstr "Limpar propriedades do objeto {name}"
+msgstr "Limpar {object}::{property} expressão de vinculação "
 
 #: cambalache/cmb_property.py:301
 #, python-brace-format
 msgid "Clear {object}::{property} binding expression object"
-msgstr ""
+msgstr "Limpar objeto de expressão de vinculação {object}::{property}"
 
 #: cambalache/cmb_property.py:324
 msgid "Warning: GFile uri needs to be absolute for Gtk < 4.16"
 msgstr "Aviso: o URI do GFile precisa ser absoluto para Gtk < 4.16"
 
 #: cambalache/cmb_property.py:387
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Bind {object}::{property} to {expression_type}"
-msgstr "Desativar {obj} {prop} {prop_type}"
+msgstr "Vincular {object}::{property} a {expression_type}"
 
 #: cambalache/cmb_signal_editor.ui:44
 msgid "Signal"
@@ -1449,9 +1437,8 @@ msgstr "Sem nome {ui_id}"
 
 #. Set some default name
 #: cambalache/cmb_ui_editor.py:84
-#, fuzzy
 msgid "unnamed.ui"
-msgstr "Sem nome {ui_id}"
+msgstr "sem nome.ui"
 
 #: cambalache/cmb_ui_editor.ui:27
 msgid "Description:"
@@ -1483,25 +1470,24 @@ msgstr "Comentário:"
 
 #: cambalache/cmb_ui_editor.ui:188
 msgid "Format:"
-msgstr ""
+msgstr "Formatar:"
 
 #: cambalache/cmb_version_notification_view.py:50
 #, python-brace-format
 msgid "<b>Version {version} is available</b>"
-msgstr ""
+msgstr "<b>A versão {version} está disponível</b>"
 
 #: cambalache/cmb_version_notification_view.ui:31
 msgid "Read more..."
-msgstr ""
+msgstr "Leia mais..."
 
 #: cambalache/cmb_version_notification_view.ui:40
 msgid "Get it on Flathub"
-msgstr ""
+msgstr "Obtenha no Flathub"
 
 #: cambalache/cmb_view.py:269
-#, fuzzy
 msgid "Error exporting project"
-msgstr "Erro ao importar {filename}"
+msgstr "Erro ao exportar projeto"
 
 #: cambalache/cmb_view.py:569
 msgid "Restart workspace"
@@ -1512,9 +1498,8 @@ msgid "Inspect UI definition"
 msgstr "Inspecionar definição de IU"
 
 #: cambalache/cmb_view.py:571
-#, fuzzy
 msgid "Gtk Inspector"
-msgstr "Porta Gtk 4"
+msgstr "Inspetor Gtk"
 
 #: cambalache/cmb_view.py:583
 msgid ""
@@ -1553,9 +1538,8 @@ msgid "Select filename"
 msgstr "Selecione o nome do arquivo"
 
 #: cambalache/control/cmb_file_button.py:38
-#, fuzzy
 msgid "Select"
-msgstr "Selecionar arquivo"
+msgstr "Selecionar"
 
 #: cambalache/control/cmb_file_entry.py:40
 msgid "Select File"
@@ -1668,57 +1652,52 @@ msgstr "Criar interfaces de usuário GTK 4"
 
 #. To translators: AppData description first paragraph
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:11
-#, fuzzy
 msgid ""
 "Cambalache is a RAD tool that enables the creation of user interfaces for "
 "Gtk 4/3 applications."
 msgstr ""
 "Bagunça é uma ferramenta RAD que permite a criação de interfaces de usuário "
-"para aplicações Gtk 4/3."
+"para aplicativos Gtk 4/3."
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:19
 msgid "Release 1.0!"
-msgstr ""
+msgstr "Lançamento 1.0!"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:21
-#, fuzzy
 msgid "Add GtkExpression support"
-msgstr "Adicionar suporte ao GMenu"
+msgstr "Adicionar suporte a GtkExpression"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:22
-#, fuzzy
 msgid "Add Blueprint support"
-msgstr "Adicionar suporte ao GMenu"
+msgstr "Adicionar suporte ao Blueprint"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:23
 msgid "Workspace rendering optimization"
-msgstr ""
+msgstr "Otimização da renderização do espaço de trabalho"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:24
 msgid "Make workspace scrollable"
-msgstr ""
+msgstr "Tornar o espaço de trabalho rolável"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:25
 msgid "Deprecate project format 0.94 and older"
-msgstr ""
+msgstr "Descontinuar o formato de projeto 0.94 e anteriores"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:26
 msgid "Add Brazilian Portuguese translation. John Peter Sa"
-msgstr ""
+msgstr "Adicione tradução para o português brasileiro. John Peter Sa"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:27
 msgid "Fix GResource list model update"
-msgstr ""
+msgstr "Corrigir atualização do modelo de lista do GResource"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:28
-#, fuzzy
 msgid "Fix object data editor"
-msgstr "E o editor de objetos"
+msgstr "Corrigir editor de dados de objeto"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:34
-#, fuzzy
 msgid "GResource Release!"
-msgstr "Lançamento do GMenu!"
+msgstr "Lançamento do GResource!"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:36
 msgid "Add GResource support"
@@ -1742,7 +1721,7 @@ msgstr "Mostrar estrutura de diretório na navegação"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:41
 msgid "Add Notification system (version, messages and polls)"
-msgstr ""
+msgstr "Adicionar sistema de notificação (versão, mensagens e enquetes)"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:42
 msgid "Unified import dialog for all file types"
@@ -1750,9 +1729,8 @@ msgstr ""
 "Caixa de diálogo de importação unificada para todos os tipos de arquivo"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:43
-#, fuzzy
 msgid "Update widget catalogs to SDK 48"
-msgstr "Atualizar catálogos de widgets para o SDK 47"
+msgstr "Atualizar catálogos de widgets para o SDK 48"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:49
 msgid "Accessibility Release!"
