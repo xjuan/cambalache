@@ -1,5 +1,5 @@
 [wrap-git]
 directory = casilda
 url = https://gitlab.gnome.org/jpu/casilda.git
-revision = 0.9.2
+revision = 1.0.0
 depth = 1

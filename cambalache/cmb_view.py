@@ -30,7 +30,7 @@ import time
 import atexit
 import socket
 
-gi.require_version('Casilda', '0.2')
+gi.require_version('Casilda', '1.0')
 from gi.repository import GObject, GLib, Gio, Gdk, Gtk, Casilda
 
 from . import config

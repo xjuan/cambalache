@@ -21,7 +21,6 @@
                         <child>
                           <object class="CasildaCompositor" id="compositor">
                             <property name="hexpand">True</property>
-                            <property name="scrollable">True</property>
                             <property name="vexpand">True</property>
                           </object>
                         </child>
