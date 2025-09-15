@@ -995,11 +995,11 @@ class CmbDB(GObject.GObject):
         # Add unknown tag occurrence
         errors[name].append(node.sourceline)
 
-    def __unknown_tag(self, node, owner, name):
+    def __unknown_tag(self, node, owner_id=None):
         if node.tag is etree.Comment:
             return
 
-        self.__collect_error("unknown-tag", node, f"{owner}:{name}" if owner is not None and name else name)
+        self.__collect_error("unknown-tag", node, f"{owner}:{node.tag}" if owner_id else node.tag)
 
     def __node_get(self, node, *args, collect_errors=True):
         errors = [] if collect_errors else None
@@ -1366,7 +1366,7 @@ class CmbDB(GObject.GObject):
 
         for prop in layout.iterchildren():
             if prop.tag != "property":
-                self.__unknown_tag(prop, parent_id, prop.tag)
+                self.__unknown_tag(prop, parent_id)
                 continue
 
             name, translatable, context, comments = self.__node_get(prop, "name", ["translatable:bool", "context", "comments"])
@@ -1476,7 +1476,7 @@ class CmbDB(GObject.GObject):
             if child.tag in taginfo.children:
                 self.__import_object_data(ui_id, object_id, owner_id, taginfo.children[child.tag], child, id)
             else:
-                self.__unknown_tag(child, owner_id, child.tag)
+                self.__unknown_tag(child, owner_id)
 
         c.close()
 
@@ -1495,7 +1495,7 @@ class CmbDB(GObject.GObject):
         elif tag == "item":
             klass = GMENU_ITEM_TYPE
         else:
-            self.__collect_error("unknown-tag", node, tag)
+            self.__unknown_tag(node)
             return
 
         info = self.type_info.get(klass, None)
@@ -1527,7 +1527,7 @@ class CmbDB(GObject.GObject):
                 self.__import_menu(ui_id, child, menu_id, object_id_map=object_id_map)
             elif child.tag == "attribute":
                 if klass == GMENU_TYPE:
-                    logger.warning(f"XML:{node.sourceline} - Ignoring attribute")
+                    logger.warning(f"XML:{child.sourceline} - Ignoring attribute")
                     continue
 
                 property_id = child.get("name")
@@ -1550,7 +1550,7 @@ class CmbDB(GObject.GObject):
                 taginfo = attributes_info.children["links"]
                 self.__import_object_data(ui_id, menu_id, taginfo.owner_id, taginfo, child, links_id)
             else:
-                self.__collect_error("unknown-tag", node, child.tag)
+                self.__unknown_tag(child)
 
         c.close()
 
@@ -1580,7 +1580,7 @@ class CmbDB(GObject.GObject):
                 info = self.__accessible_info.get(child.tag, None)
                 self.__import_a11y_property(c, info, ui_id, object_id, child, object_id_map=object_id_map)
             else:
-                self.__collect_error("unknown-tag", node, child.tag)
+                self.__unknown_tag(child)
 
     def __import_expression(self, ui_id, node, parent_id):
         comment = self.__node_get_comment(node)
@@ -1594,7 +1594,7 @@ class CmbDB(GObject.GObject):
         elif tag == "closure":
             klass = "GtkClosureExpression"
         else:
-            self.__collect_error("unknown-tag", node, tag)
+            self.__unknown_tag(node)
             return
 
         info = self.type_info.get(klass, None)
@@ -1720,7 +1720,7 @@ class CmbDB(GObject.GObject):
                 if info.is_a("GtkWidget"):
                     self.__import_accessibility(c, ui_id, object_id, child, object_id_map=object_id_map)
                 else:
-                    self.__collect_error("unknown-tag", node, child.tag)
+                    self.__unknown_tag(child)
             elif child.tag is etree.Comment:
                 pass
             else:
@@ -2123,7 +2123,7 @@ class CmbDB(GObject.GObject):
 
         for child in root.iterchildren():
             if child.tag != "gresource":
-                self.__unknown_tag(child, root, child.tag)
+                self.__unknown_tag(child)
                 continue
 
             prefix, = self.__node_get(child, ["prefix"])
@@ -2132,7 +2132,7 @@ class CmbDB(GObject.GObject):
 
             for file in child.iterchildren():
                 if file.tag != "file":
-                    self.__unknown_tag(file, child, file.tag)
+                    self.__unknown_tag(file)
                     continue
 
                 compressed, preprocess, alias = self.__node_get(
@@ -2204,6 +2204,7 @@ class CmbDB(GObject.GObject):
                 utils.xml_node_set(node, "comments", translation_comments)
 
             obj.append(node)
+            self.__node_add_comment(node, comment)
 
         # Dump extra attributes
         info = self.type_info.get(type_id, None)
@@ -2233,8 +2234,8 @@ class CmbDB(GObject.GObject):
             child_obj = self.__export_menu(ui_id, child_id, merengue=merengue, ignore_id=ignore_id)
 
             if child_obj is not None:
-                self.__node_add_comment(child_obj, comment)
                 obj.append(child_obj)
+                self.__node_add_comment(child_obj, comment)
 
         # Dump custom fragments
         self.__export_custom_fragment(obj, custom_fragment)
@@ -2295,8 +2296,8 @@ class CmbDB(GObject.GObject):
             child_node = self.__export_expression(ui_id, child_id, merengue=merengue)
 
             if child_node is not None:
-                self.__node_add_comment(child_node, comment)
                 node.append(child_node)
+                self.__node_add_comment(child_node, comment)
                 has_children = True
 
         # Do not export incomplete expressions
@@ -2918,9 +2919,8 @@ class CmbDB(GObject.GObject):
             child = E.child(child_obj)
             utils.xml_node_set(child, "internal-child", internal)
             utils.xml_node_set(child, "type", ctype)
-            self.__node_add_comment(child_obj, comment)
-
             obj.append(child)
+            self.__node_add_comment(child_obj, comment)
 
             if linfo is not None:
                 # Packing / Layout
