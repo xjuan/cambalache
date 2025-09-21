@@ -1,7 +1,7 @@
 {
     "app-id" : "ar.xjuan.Cambalache",
     "runtime" : "org.gnome.Platform",
-    "runtime-version" : "48",
+    "runtime-version" : "49",
     "sdk" : "org.gnome.Sdk",
     "separate-locales" : false,
     "command" : "cambalache",
@@ -34,8 +34,8 @@
             "sources" : [
                 {
                     "type" : "file",
-                    "url" : "https://files.pythonhosted.org/packages/80/61/d3dc048cd6c7be6fe45b80cedcbdd4326ba4d550375f266d9f4246d0f4bc/lxml-5.3.2.tar.gz",
-                    "sha256" : "773947d0ed809ddad824b7b14467e1a481b8976e87278ac4a730c2f7c7fcddc1"
+                    "url" : "https://files.pythonhosted.org/packages/8f/bd/f9d01fd4132d81c6f43ab01983caea69ec9614b913c290a26738431a015d/lxml-6.0.1.tar.gz",
+                    "sha256" : "2b3a882ebf27dd026df3801a87cf49ff791336e0f94b0fad195db77e01240690"
                 }
             ]
         },
@@ -49,8 +49,8 @@
             "sources" : [
                 {
                     "type" : "archive",
-                    "url" : "https://git.sr.ht/~kennylevinsen/seatd/archive/0.8.0.tar.gz",
-                    "sha256" : "a562a44ee33ccb20954a1c1ec9a90ecb2db7a07ad6b18d0ac904328efbcf65a0",
+                    "url" : "https://git.sr.ht/~kennylevinsen/seatd/archive/0.9.1.tar.gz",
+                    "sha256" : "819979c922a0be258aed133d93920bce6a3d3565a60588d6d372ce9db2712cd3",
                     "x-checker-data" : {
                         "type" : "anitya",
                         "project-id" : 234932,

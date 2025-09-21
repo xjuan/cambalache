@@ -3,8 +3,8 @@ cambalache.flatpak: repo
 
 repo: ar.xjuan.Cambalache.json .git/objects
 	flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-	flatpak install --noninteractive --user flathub org.gnome.Sdk//48
-	flatpak install --noninteractive --user flathub org.gnome.Platform//48
+	flatpak install --noninteractive --user flathub org.gnome.Sdk//49
+	flatpak install --noninteractive --user flathub org.gnome.Platform//49
 	flatpak-builder --force-clean --repo=repo build ar.xjuan.Cambalache.json
 
 
@@ -13,8 +13,8 @@ cambalache_arm.flatpak: repo_arm
 
 repo_arm: ar.xjuan.Cambalache.json .git/objects
 	flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-	flatpak install --noninteractive --user flathub org.gnome.Sdk/aarch64/48
-	flatpak install --noninteractive --user flathub org.gnome.Platform/aarch64/48
+	flatpak install --noninteractive --user flathub org.gnome.Sdk/aarch64/49
+	flatpak install --noninteractive --user flathub org.gnome.Platform/aarch64/49
 	flatpak-builder --arch=aarch64 --force-clean --repo=repo build ar.xjuan.Cambalache.json
 
 
