@@ -595,7 +595,11 @@ class CmbCatalogDB:
         c = self.conn.cursor()
 
         for row in c.execute(
-            "SELECT owner_id, property_id FROM property WHERE type_id='gchararray' AND property_id LIKE '%icon-name%';"
+            """
+            SELECT owner_id, property_id
+            FROM property
+            WHERE type_id='gchararray' AND original_owner_id IS NULL AND property_id LIKE '%icon-name%';
+            """
         ):
             owner_id, property_id = row
 
@@ -620,7 +624,7 @@ class CmbCatalogDB:
             """
             SELECT owner_id, property_id
             FROM property
-            WHERE type_id='gchararray' AND property_id LIKE '%title%' AND translatable IS NULL;
+            WHERE type_id='gchararray' AND original_owner_id IS NULL AND property_id LIKE '%title%' AND translatable IS NULL;
             """
         ):
             owner_id, property_id = row

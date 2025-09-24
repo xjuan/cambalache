@@ -145,7 +145,7 @@ gnome/libadwaita-1.xml: gtk/gtk-4.0.xml
 		--gir /usr/share/gir-1.0/Adw-1.gir \
 		--external-catalogs ${GTK4_DEPS} gtk/gtk-4.0.xml \
 		--extra-data gnome/Adwaita.xml \
-		--skip-types AdwAnimation AdwSwipeTracker AdwPropertyAnimationTarget \
+		--skip-types AdwAnimation \
 		--output $@
 
 gnome/webkitgtk-6.0.xml: gtk/gtk-4.0.xml

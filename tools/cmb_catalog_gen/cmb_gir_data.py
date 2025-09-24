@@ -192,6 +192,27 @@ class CmbGirData:
         else:
             InstanceClass = getattr(self.mod, name, None)
 
+        required_params = {}
+
+        # TODO: add this to the catalog directly
+        if name == "AdwLayoutSlot":
+            required_params = {
+                "id": "an slot id"
+            }
+        elif name == "AdwSwipeTracker":
+            from gi.repository import Adw
+            required_params = {
+                "swipeable": Adw.Flap(),
+            }
+        elif name == "AdwPropertyAnimationTarget":
+            class FooBar(GObject.GObject):
+                foobar = GObject.Property(type=int, flags=GObject.ParamFlags.READWRITE)
+
+            required_params = {
+                "object": FooBar(),
+                "pspec": FooBar.find_property("foobar")
+            }
+
         gtype = GObject.type_from_name(name)
         if InstanceClass is not None and GObject.type_is_a(gtype, GObject.GObject):
             if GObject.type_test_flags(gtype, GObject.TypeFlags.ABSTRACT):
@@ -200,9 +221,9 @@ class CmbGirData:
                     pass
 
                 if ChildClass is not None:
-                    retval = ChildClass()
+                    retval = ChildClass(**required_params)
             else:
-                retval = InstanceClass()
+                retval = InstanceClass(**required_params)
 
         # keep the instance for later
         if retval is not None:
@@ -721,7 +742,6 @@ class CmbGirData:
             type_name = self.pspec_map.get(pspec_type_name, None)
             if type_name is None:
                 self.ignored_pspecs.add(pspec_type_name)
-                self.ignored_types.add(type_name)
                 continue
 
             is_object = type_name == "object"
@@ -748,6 +768,7 @@ class CmbGirData:
             retval[name] = {
                 "type": type_name,
                 "is_object": is_object,
+                "disable_inline_object": is_object and type_name in ["GMenuModel"],
                 "version": child.get("version"),
                 "deprecated_version": child.get("deprecated-version"),
                 "construct": child.get("construct-only"),
