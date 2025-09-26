@@ -61,6 +61,25 @@
       </properties>
     </AdwAvatar>
 
+    <AdwToggle>
+      <properties>
+        <property id="icon-name" type="CmbIconName"/>
+      </properties>
+    </AdwToggle>
+
+    <AdwShortcutsItem>
+      <properties>
+        <property id="title" translatable="True"/>
+        <property id="subtitle" translatable="True"/>
+      </properties>
+    </AdwShortcutsItem>
+
+    <AdwShortcutsSection>
+      <properties>
+        <property id="title" translatable="True"/>
+      </properties>
+    </AdwShortcutsSection>
+
     <AdwButtonContent>
       <properties>
         <property id="icon-name" type="CmbIconName"/>

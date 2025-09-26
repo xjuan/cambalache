@@ -275,7 +275,7 @@
 	("HdyTabPage","parent","HdyTabPage",1,1,None,None,None,None,"1.2",None,None,None,None,None,None,None,None),
 	("HdyTabPage","title","gchararray",None,None,None,None,None,None,"1.2",None,1,None,None,None,None,None,None),
 	("HdyTabPage","tooltip","gchararray",None,None,None,None,None,None,"1.2",None,1,None,None,None,None,None,None),
-	("HdyTabView","menu-model","GMenuModel",1,None,None,None,None,None,"1.2",None,None,None,None,None,None,None,None),
+	("HdyTabView","menu-model","GMenuModel",1,None,None,None,None,None,"1.2",None,None,1,None,None,None,None,None),
 	("HdyTabView","selected-page","HdyTabPage",1,None,None,None,None,None,"1.2",None,None,None,None,None,None,None,None),
 	("HdyTabView","shortcut-widget","GtkWidget",1,None,None,None,None,None,"1.2",None,None,None,None,None,None,None,None),
 	("HdyTitleBar","selection-mode","gboolean",None,None,None,"False",None,None,"1.0","1.4",None,None,None,None,None,None,None),

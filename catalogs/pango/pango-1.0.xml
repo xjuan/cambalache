@@ -9,6 +9,7 @@
 	("PangoCoverageLevel","enum","pango",None,None,None,None,None,None,None),
 	("PangoDirection","enum","pango",None,None,None,None,None,None,None),
 	("PangoEllipsizeMode","enum","pango",None,None,None,None,None,None,None),
+	("PangoFontColor","enum","pango",None,None,None,None,None,None,None),
 	("PangoFontMask","flags","pango",None,None,None,None,None,None,None),
 	("PangoFontScale","enum","pango",None,None,None,None,None,None,None),
 	("PangoGravity","enum","pango",None,None,None,None,None,None,None),
@@ -113,6 +114,9 @@
 	("PangoEllipsizeMode","PANGO_ELLIPSIZE_MIDDLE","middle",2,"Omit characters in the middle of the text"),
 	("PangoEllipsizeMode","PANGO_ELLIPSIZE_NONE","none",None,"No ellipsization"),
 	("PangoEllipsizeMode","PANGO_ELLIPSIZE_START","start",1,"Omit characters at the start of the text"),
+	("PangoFontColor","PANGO_FONT_COLOR_DONT_CARE","dont-care",2,"The font may or may not use color"),
+	("PangoFontColor","PANGO_FONT_COLOR_FORBIDDEN","forbidden",None,"The font should not have color glyphs"),
+	("PangoFontColor","PANGO_FONT_COLOR_REQUIRED","required",1,"The font should have color glyphs"),
 	("PangoFontScale","PANGO_FONT_SCALE_NONE","none",None,"Leave the font size unchanged"),
 	("PangoFontScale","PANGO_FONT_SCALE_SMALL_CAPS","small-caps",3,"Change the font to a size suitable for Small Caps"),
 	("PangoFontScale","PANGO_FONT_SCALE_SUBSCRIPT","subscript",2,"Change the font to a size suitable for subscripts"),
@@ -306,6 +310,7 @@
 	("PangoWrapMode","PANGO_WRAP_WORD_CHAR","word-char",2,"wrap lines at word boundaries, but fall back to character boundaries if there is not enough space for a full word.")
   </type_enum>
   <type_flags>
+	("PangoFontMask","PANGO_FONT_MASK_COLOR","color",512,"Font color is specified."),
 	("PangoFontMask","PANGO_FONT_MASK_FAMILY","family",1,"the font family is specified."),
 	("PangoFontMask","PANGO_FONT_MASK_FEATURES","features",256,"OpenType font features are specified."),
 	("PangoFontMask","PANGO_FONT_MASK_GRAVITY","gravity",64,"The font gravity is specified."),

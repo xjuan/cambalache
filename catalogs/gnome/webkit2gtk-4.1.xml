@@ -314,7 +314,7 @@
 	("WebKitSettings","enable-javascript","gboolean",None,None,None,"True",None,None,None,None,None,None,None,None,None,None,None),
 	("WebKitSettings","enable-javascript-markup","gboolean",None,None,None,"True",None,None,None,None,None,None,None,None,None,None,None),
 	("WebKitSettings","enable-media","gboolean",None,None,None,"True",None,None,None,None,None,None,None,None,None,None,None),
-	("WebKitSettings","enable-media-capabilities","gboolean",None,None,None,"False",None,None,None,None,None,None,None,None,None,None,None),
+	("WebKitSettings","enable-media-capabilities","gboolean",None,None,None,"True",None,None,None,None,None,None,None,None,None,None,None),
 	("WebKitSettings","enable-media-stream","gboolean",None,None,None,"True",None,None,None,None,None,None,None,None,None,None,None),
 	("WebKitSettings","enable-mediasource","gboolean",None,None,None,"True",None,None,None,None,None,None,None,None,None,None,None),
 	("WebKitSettings","enable-mock-capture-devices","gboolean",None,None,None,"False",None,None,None,None,None,None,None,None,None,None,None),

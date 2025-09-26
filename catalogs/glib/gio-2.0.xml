@@ -398,7 +398,7 @@
 	("GAskPasswordFlags","G_ASK_PASSWORD_SAVING_SUPPORTED","saving-supported",8,"operation supports saving settings."),
 	("GAskPasswordFlags","G_ASK_PASSWORD_TCRYPT","tcrypt",32,"operation takes TCRYPT parameters (Since: 2.58)"),
 	("GBusNameOwnerFlags","G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT","allow-replacement",1,"Allow another message bus connection to claim the name."),
-	("GBusNameOwnerFlags","G_BUS_NAME_OWNER_FLAGS_DO_NOT_QUEUE","do-not-queue",4,"If another message bus connection owns the name, immediately return an error from g_bus_own_name() rather than entering the waiting queue for that name. (Since 2.54)"),
+	("GBusNameOwnerFlags","G_BUS_NAME_OWNER_FLAGS_DO_NOT_QUEUE","do-not-queue",4,"If another message bus connection owns the name, immediately return an error from [func@Gio.bus_own_name] rather than entering the waiting queue for that name."),
 	("GBusNameOwnerFlags","G_BUS_NAME_OWNER_FLAGS_NONE","none",None,"No flags set."),
 	("GBusNameOwnerFlags","G_BUS_NAME_OWNER_FLAGS_REPLACE","replace",2,"If another message bus connection owns the name and have specified %G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT, then take the name from the other connection."),
 	("GBusNameWatcherFlags","G_BUS_NAME_WATCHER_FLAGS_AUTO_START","auto-start",1,"If no-one owns the name when beginning to watch the name, ask the bus to launch an owner for the name."),
