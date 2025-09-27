@@ -2,6 +2,9 @@ CMB_CATALOG_GEN=flatpak run --devel \
 	--command=cmb-catalog-gen \
 	ar.xjuan.Cambalache
 
+# Uncomment to run with local copy
+# CMB_CATALOG_GEN=PYTHONPATH=../tools/ ../.local/bin/cmb-catalog-gen
+
 BASE_CATALOG_FILES = \
 	glib/gobject-2.0.xml \
 	glib/gio-2.0.xml \

@@ -22,6 +22,7 @@
 
 import gi
 import importlib
+import logging
 
 # We need to use lxml to get access to nsmap
 from lxml import etree
@@ -89,13 +90,16 @@ class CmbGirData:
         global nsmap
         nsmap = root.nsmap
 
+        self.lib = libname
+
         # Get <namespace/>
         namespace = root.find("namespace", nsmap)
 
         # Get module/name space data
         self.name = namespace.get("name")
-        self.prefix = namespace.get(ns("c", "identifier-prefixes"))
-        self.lib = libname
+
+        # Use first prefix by default, add new option if needed.
+        self.prefix = namespace.get(ns("c", "identifier-prefixes")).split(",")[0]
         self.version = namespace.get("version")
         self.shared_library = namespace.get("shared-library")
         self.target_tk = "Gtk-4.0" if target_gtk4 else "Gtk+-3.0"
@@ -113,7 +117,7 @@ class CmbGirData:
 
         # Load Module described by gir
         try:
-            print(f"Loading {self.name} {self.version}")
+            print(f"Loading {self.name} {self.version} with prefix {self.prefix}")
             gi.require_version(self.name, self.version)
             self.mod = importlib.import_module(f"gi.repository.{self.name}")
 
@@ -123,7 +127,7 @@ class CmbGirData:
                     init_function()
 
         except ValueError as e:
-            print(f"Oops! Could not load {self.name} {self.version} module: {e}")
+            logging.error(f"Could not load {self.name} {self.version} module: {e}")
 
         gi.require_version("CmbCatalogUtils", "4.0" if target_gtk4 else "3.0")
 
@@ -677,7 +681,7 @@ class CmbGirData:
 
                     if nick not in attr:
                         doc = member["doc"]
-                        print(f"Missing type value for {enumeration}:{nick} {doc}")
+                        logging.warning(f"Missing type value for {enumeration}:{nick} {doc}")
                         continue
 
             # Generate a list of properties for each enumeration member
@@ -1073,7 +1077,7 @@ class CmbGirData:
                         break
 
                 if row is None:
-                    print(f"Error trying to find {parent_owner}::{property_id} property definition")
+                    logging.error(f"Error trying to find {parent_owner}::{property_id} property definition")
                     break
 
                 (type_id, is_object, construct_only, minimum, maximum, version, deprecated_version,
