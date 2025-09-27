@@ -31,6 +31,8 @@ import subprocess
 basedir = os.path.join(os.path.split(os.path.dirname(__file__))[0])
 localdir = os.path.join(basedir, ".local")
 locallibdir = os.path.join(localdir, "lib", sys.implementation._multiarch)
+# Again, just in case some system does not install it in the multi arch directory
+locallibdir = os.path.join(localdir, "lib")
 cambalachedir = os.path.join(basedir, "cambalache")
 localpkgdatadir = os.path.join(localdir, "share", "cambalache")
 catalogsdir = os.path.join(localpkgdatadir, "catalogs")
