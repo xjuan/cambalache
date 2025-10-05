@@ -30,9 +30,7 @@ import subprocess
 
 basedir = os.path.join(os.path.split(os.path.dirname(__file__))[0])
 localdir = os.path.join(basedir, ".local")
-locallibdir = os.path.join(localdir, "lib", sys.implementation._multiarch)
-# Again, just in case some system does not install it in the multi arch directory
-locallibdir = os.path.join(localdir, "lib")
+
 cambalachedir = os.path.join(basedir, "cambalache")
 localpkgdatadir = os.path.join(localdir, "share", "cambalache")
 catalogsdir = os.path.join(localpkgdatadir, "catalogs")
@@ -40,27 +38,32 @@ localbindir = os.path.join(localdir, "bin")
 
 repository = gi.Repository.get_default()
 
-LD_LIBRARY_PATH = [locallibdir, f"{locallibdir}/cambalache", f"{locallibdir}/cmb_catalog_gen"]
-for path in LD_LIBRARY_PATH:
-    repository.prepend_library_path(path)
-
-GI_TYPELIB_PATH = [f"{locallibdir}/girepository-1.0", f"{locallibdir}/cambalache", f"{locallibdir}/cmb_catalog_gen"]
-for path in GI_TYPELIB_PATH:
-    repository.prepend_search_path(path)
-
-for var, value in [
-    ("LD_LIBRARY_PATH", ":".join(LD_LIBRARY_PATH)),
-    ("GI_TYPELIB_PATH", ":".join(GI_TYPELIB_PATH)),
-    ("PKG_CONFIG_PATH", os.path.join(locallibdir, "pkgconfig")),
-    ("GSETTINGS_SCHEMA_DIR", os.path.join(localdir, "share", "glib-2.0", "schemas")),
-    ("XDG_DATA_DIRS", os.path.join(localdir, "share")),
-    ("PYTHONPATH", os.path.join(localdir, "lib", "python3", "dist-packages"))
+# Workaround for distros that say are multiarch but install things in lib/
+for locallibdir in [
+    os.path.join(localdir, "lib", sys.implementation._multiarch),
+    os.path.join(localdir, "lib")
 ]:
-    if var in os.environ:
-        old_value = os.environ[var]
-        os.environ[var] = f"{value}:{old_value}"
-    else:
-        os.environ[var] = value
+    LD_LIBRARY_PATH = [locallibdir, f"{locallibdir}/cambalache", f"{locallibdir}/cmb_catalog_gen"]
+    for path in LD_LIBRARY_PATH:
+        repository.prepend_library_path(path)
+
+    GI_TYPELIB_PATH = [f"{locallibdir}/girepository-1.0", f"{locallibdir}/cambalache", f"{locallibdir}/cmb_catalog_gen"]
+    for path in GI_TYPELIB_PATH:
+        repository.prepend_search_path(path)
+
+    for var, value in [
+        ("LD_LIBRARY_PATH", ":".join(LD_LIBRARY_PATH)),
+        ("GI_TYPELIB_PATH", ":".join(GI_TYPELIB_PATH)),
+        ("PKG_CONFIG_PATH", os.path.join(locallibdir, "pkgconfig")),
+        ("GSETTINGS_SCHEMA_DIR", os.path.join(localdir, "share", "glib-2.0", "schemas")),
+        ("XDG_DATA_DIRS", os.path.join(localdir, "share")),
+        ("PYTHONPATH", os.path.join(localdir, "lib", "python3", "dist-packages"))
+    ]:
+        if var in os.environ:
+            old_value = os.environ[var]
+            os.environ[var] = f"{value}:{old_value}"
+        else:
+            os.environ[var] = value
 
 sys.path.insert(1, basedir)
 sys.path.insert(1, localbindir)
