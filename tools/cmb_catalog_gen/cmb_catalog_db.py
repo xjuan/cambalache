@@ -43,9 +43,23 @@ def ns(namespace, name):
 
 
 class CmbCatalogDB:
-    def __init__(self, dependencies=None, external_catalogs=[]):
+    def __init__(self, gtk_version, dependencies=None, external_catalogs=[]):
         self.lib = None
-        self.dependencies = dependencies if dependencies else []
+        self.dependencies = dependencies or []
+        self.gtk_version = gtk_version
+
+        if gtk_version == 4:
+            if "gtk+-3.0" in dependencies:
+                print("Catalog can not target both Gtk versions, ignoring gtk+-3.0 dependency")
+                self.dependencies.remove("gtk+-3.0")
+
+            self.target_tk = "Gtk-4.0"
+        elif gtk_version == 3:
+            if "gtk-4.0" in dependencies:
+                print("Catalog can not target both Gtk versions, ignoring gtk-4.0 dependency")
+                self.dependencies.remove("gtk-4.0")
+
+            self.target_tk = "Gtk+-3.0"
 
         # Create DB
         self.conn = sqlite3.connect(":memory:")
@@ -327,7 +341,7 @@ class CmbCatalogDB:
                         self.external_types[f"{namespace}.{nstype}"] = type_id
 
     def populate_from_gir(self, girfile, **kwargs):
-        self.lib = CmbGirData(girfile, external_types=self.external_types, **kwargs)
+        self.lib = CmbGirData(girfile, external_types=self.external_types, **kwargs, gtk_version=self.gtk_version)
         self.lib.populate_db(self.conn)
         self.conn.commit()
 
@@ -399,7 +413,7 @@ class CmbCatalogDB:
 
         if CmbCatalogUtils is None:
             import gi
-            gi.require_version("CmbCatalogUtils", "4.0" if self.lib.target_tk == "Gtk-4.0" else "3.0")
+            gi.require_version("CmbCatalogUtils", "4.0" if self.gtk_version == 4 else "3.0")
             from gi.repository import CmbCatalogUtils
 
         if internal_type is None:
@@ -433,7 +447,7 @@ class CmbCatalogDB:
         def check_target(node):
             target = node.get("target", None)
 
-            return target is not None and target != self.lib.target_tk
+            return target is not None and target != self.target_tk
 
         for klass in types:
             owner_id = klass.tag
@@ -466,7 +480,7 @@ class CmbCatalogDB:
                     save_always = self.get_bool(prop, "save-always")
                     type_id = prop.get("type", None)
 
-                    if self.lib.target_tk == "Gtk-4.0":
+                    if self.gtk_version == 4:
                         disable_inline_object = self.get_bool(prop, "disable-inline-object")
                     else:
                         disable_inline_object = None

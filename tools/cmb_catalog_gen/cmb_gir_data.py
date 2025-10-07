@@ -44,13 +44,13 @@ class CmbGirData:
     def __init__(
         self,
         gir_file,
+        gtk_version=None,
         libname=None,
         types=None,
         flag_types=None,
         enum_types=None,
         boxed_types=[],
         skip_types=[],
-        target_gtk4=False,
         exclude_objects=False,
         external_types=None,
     ):
@@ -102,7 +102,6 @@ class CmbGirData:
         self.prefix = namespace.get(ns("c", "identifier-prefixes")).split(",")[0]
         self.version = namespace.get("version")
         self.shared_library = namespace.get("shared-library")
-        self.target_tk = "Gtk-4.0" if target_gtk4 else "Gtk+-3.0"
         self.accessibility_metadata = {}
 
         self.external_types = external_types if external_types else {}
@@ -129,7 +128,7 @@ class CmbGirData:
         except ValueError as e:
             logging.error(f"Could not load {self.name} {self.version} module: {e}")
 
-        gi.require_version("CmbCatalogUtils", "4.0" if target_gtk4 else "3.0")
+        gi.require_version("CmbCatalogUtils", "4.0" if gtk_version == 4 else "3.0")
 
         global CmbCatalogUtils
         from gi.repository import CmbCatalogUtils
@@ -152,9 +151,9 @@ class CmbGirData:
 
         self._cmb_types_init()
 
-        if target_gtk4:
+        if gtk_version == 4:
             self._gtk4_init()
-        else:
+        elif gtk_version == 3:
             self._gtk3_init()
 
         # Types dependency graph
@@ -329,9 +328,16 @@ class CmbGirData:
         if pspec.value_type == GObject.TYPE_BOOLEAN:
             return "True" if default_value != 0 else "False"
         elif GObject.type_is_a(pspec.value_type, GObject.TYPE_ENUM):
-            return CmbCatalogUtils.pspec_enum_get_default_nick(pspec.value_type, default_value)
+            return pspec.value_type.pytype(default_value).value_nick
         elif GObject.type_is_a(pspec.value_type, GObject.TYPE_FLAGS):
-            return CmbCatalogUtils.pspec_flags_get_default_nick(pspec.value_type, default_value)
+            none = pspec.value_type.pytype(0).first_value_nick
+            value_nicks = pspec.value_type.pytype(default_value).value_nicks
+
+            # Cleanup none value
+            if none in value_nicks:
+                value_nicks.remove(none)
+
+            return " | ".join(value_nicks) if value_nicks else None
         elif GObject.type_is_a(pspec.value_type, GObject.TYPE_GTYPE):
             return GObject.type_name(default_value) if default_value is not None else None
         elif GObject.type_is_a(pspec.value_type, GLib.strv_get_type()):
@@ -808,6 +814,16 @@ class CmbGirData:
 
         return retval
 
+    def _list_properties(self, type_name):
+        nons_name = type_name.removeprefix(self.prefix)
+        klass = getattr(self.mod, nons_name)
+        gtype = klass.__gtype__
+
+        if gtype.is_a(GObject.Object) or gtype.is_interface():
+            return GObject.list_properties(klass)
+        else:
+            return []
+
     def _get_type_data(self, element, name, use_instance=True, skip_types=[]):
         parent = element.get("parent")
 
@@ -830,16 +846,14 @@ class CmbGirData:
         is_container = False
         overrides = []
 
-        nons_name = name.removeprefix(self.prefix)
-        GObject.type_ensure(getattr(self.mod, nons_name).__gtype__)
-        props = CmbCatalogUtils.get_class_properties(name)
-
         if use_instance:
             instance = self._get_instance_from_type(name)
             if instance is not None:
                 is_container = CmbCatalogUtils.implements_buildable_add_child(instance)
                 if parent not in skip_types:
                     overrides = self._type_get_properties_overrides(name)
+
+        props = self._list_properties(name)
 
         return {
             "parent": parent,
@@ -930,9 +944,7 @@ class CmbGirData:
                 continue
 
             if types is None or name in types:
-                # NOTE: this method is needed because
-                # g_object_interface_list_properties bindings do not work
-                props = CmbCatalogUtils.get_iface_properties(name)
+                props = self._list_properties(name)
 
                 retval[name] = {
                     "parent": "interface",

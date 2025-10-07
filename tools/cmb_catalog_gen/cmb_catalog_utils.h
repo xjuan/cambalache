@@ -26,16 +26,9 @@
 
 G_BEGIN_DECLS
 
-GParamSpec **cmb_catalog_utils_get_class_properties(const gchar *name);
-GParamSpec **cmb_catalog_utils_get_iface_properties(const gchar *name);
-
 gboolean cmb_catalog_utils_implements_buildable_add_child(GObject *buildable);
 
 GObject *cmb_catalog_utils_buildable_get_internal_child(GtkBuildable *buildable, const char *childname);
-
-const gchar *cmb_catalog_utils_pspec_enum_get_default_nick (GType gtype, gint default_value);
-
-gchar *cmb_catalog_utils_pspec_flags_get_default_nick (GType gtype, guint default_value);
 
 #if GTK_MAJOR_VERSION == 3
 gchar *cmb_catalog_utils_a11y_action_get_name (AtkObject *accessible);
