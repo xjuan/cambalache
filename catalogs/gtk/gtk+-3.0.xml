@@ -2017,7 +2017,7 @@
 	("GtkMenu","accel-group","GtkAccelGroup",1,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
 	("GtkMenu","accel-path","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
 	("GtkMenu","active","gint",None,None,None,"-1","-1","2147483647",None,None,None,None,None,None,None,None,None),
-	("GtkMenu","anchor-hints","GdkAnchorHints",None,None,None,"flip-x | flip-y | slide-x | slide-y | resize-x | resize-y",None,None,"3.22",None,None,None,None,None,None,None,None),
+	("GtkMenu","anchor-hints","GdkAnchorHints",None,None,None,"flip-x | flip-y | slide-x | slide-y | resize-x | resize-y | flip | slide | resize",None,None,"3.22",None,None,None,None,None,None,None,None),
 	("GtkMenu","attach-widget","GtkWidget",1,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
 	("GtkMenu","menu-type-hint","GdkWindowTypeHint",None,None,None,"popup-menu",None,None,"3.22",None,None,None,None,None,None,None,None),
 	("GtkMenu","monitor","gint",None,None,None,"-1","-1","2147483647",None,None,None,None,None,None,None,None,None),

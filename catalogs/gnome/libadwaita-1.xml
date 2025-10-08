@@ -858,7 +858,7 @@
 	("AdwTabPage","tooltip","gchararray",None,None,None,"",None,None,None,None,1,None,None,None,None,None,None),
 	("AdwTabView","menu-model","GMenuModel",1,None,None,None,None,None,None,None,None,1,None,None,None,None,None),
 	("AdwTabView","selected-page","AdwTabPage",1,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
-	("AdwTabView","shortcuts","AdwTabViewShortcuts",None,None,None,"control-tab | control-shift-tab | control-page-up | control-page-down | control-home | control-end | control-shift-page-up | control-shift-page-down | control-shift-home | control-shift-end | alt-digits | alt-zero",None,None,"1.2",None,None,None,None,None,None,None,None),
+	("AdwTabView","shortcuts","AdwTabViewShortcuts",None,None,None,"control-tab | control-shift-tab | control-page-up | control-page-down | control-home | control-end | control-shift-page-up | control-shift-page-down | control-shift-home | control-shift-end | alt-digits | alt-zero | all-shortcuts",None,None,"1.2",None,None,None,None,None,None,None,None),
 	("AdwTimedAnimation","alternate","gboolean",None,None,None,"False",None,None,None,None,None,None,None,None,None,None,None),
 	("AdwTimedAnimation","duration","guint",None,None,None,"0","0","4294967295",None,None,None,None,None,None,None,None,None),
 	("AdwTimedAnimation","easing","AdwEasing",None,None,None,"ease-out-cubic",None,None,None,None,None,None,None,None,None,None,None),
