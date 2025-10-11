@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.95.0 -->
+<!-- Created with Cambalache 0.97.9 -->
 <interface>
   <!-- interface-name cmb_css_editor.ui -->
   <!-- interface-copyright Juan Pablo Ugarte -->
@@ -142,56 +142,21 @@
     </child>
     <child>
       <object class="GtkFrame">
-        <property name="child">
-          <object class="GtkBox">
-            <property name="orientation">vertical</property>
+        <property name="vexpand">True</property>
+        <property name="vexpand-set">True</property>
+        <child>
+          <object class="GtkScrolledWindow">
+            <property name="focusable">1</property>
+            <property name="vexpand">1</property>
             <child>
-              <object class="GtkInfoBar" id="infobar">
-                <property name="message-type">warning</property>
-                <property name="revealed">0</property>
-                <property name="show-close-button">1</property>
-                <signal name="response" handler="on_infobar_response"/>
-                <child type="action">
-                  <object class="GtkButton" id="reload_button">
-                    <property name="focusable">1</property>
-                    <property name="halign">start</property>
-                    <property name="label" translatable="yes">Reload</property>
-                    <property name="receives-default">1</property>
-                    <property name="valign">end</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkBox">
-                    <property name="hexpand">1</property>
-                    <property name="spacing">16</property>
-                    <child>
-                      <object class="GtkLabel">
-                        <property name="halign">start</property>
-                        <property name="hexpand">1</property>
-                        <property name="label" translatable="yes">The file changed on disk.</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkScrolledWindow">
-                <property name="focusable">1</property>
-                <property name="vexpand">1</property>
-                <child>
-                  <object class="CmbSourceView" id="view">
-                    <property name="can-focus">True</property>
-                    <property name="lang">css</property>
-                    <property name="visible">True</property>
-                  </object>
-                </child>
+              <object class="CmbSourceView" id="view">
+                <property name="can-focus">True</property>
+                <property name="lang">css</property>
+                <property name="visible">True</property>
               </object>
             </child>
           </object>
-        </property>
-        <property name="vexpand">True</property>
-        <property name="vexpand-set">True</property>
+        </child>
         <layout>
           <property name="column">0</property>
           <property name="column-span">2</property>

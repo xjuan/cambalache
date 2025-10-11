@@ -38,7 +38,6 @@ class CmbCSSEditor(Gtk.Grid):
 
     ui_menu_button = Gtk.Template.Child()
     ui_box = Gtk.Template.Child()
-    infobar = Gtk.Template.Child()
     save_button = Gtk.Template.Child()
     view = Gtk.Template.Child()
 
@@ -71,7 +70,6 @@ class CmbCSSEditor(Gtk.Grid):
             self._object.project.disconnect_by_func(self.__on_ui_added_removed)
             self._object.disconnect_by_func(self.__on_provider_for_notify)
             self._object.disconnect_by_func(self.__on_css_notify)
-            self._object.disconnect_by_func(self.__on_file_changed)
 
         self._bindings = []
 
@@ -103,7 +101,6 @@ class CmbCSSEditor(Gtk.Grid):
         obj.project.connect("ui-removed", self.__on_ui_added_removed)
         obj.connect("notify::provider-for", self.__on_provider_for_notify)
         obj.connect("notify::css", self.__on_css_notify)
-        obj.connect("file-changed", self.__on_file_changed)
 
         self.__update_provider_for()
         self.__update_ui_button_label()
@@ -111,15 +108,7 @@ class CmbCSSEditor(Gtk.Grid):
     @Gtk.Template.Callback("on_save_button_clicked")
     def __on_save_button_clicked(self, button):
         self._object.save_css()
-        self.infobar.set_revealed(False)
         self.save_button.set_sensitive(False)
-
-    @Gtk.Template.Callback("on_infobar_response")
-    def __on_infobar_response(self, infobar, response_id):
-        if response_id == Gtk.ResponseType.OK:
-            self.__load_filename()
-
-        self.infobar.set_revealed(False)
 
     def __update_provider_for(self):
         # Remove all css_ui check buttons
@@ -139,14 +128,6 @@ class CmbCSSEditor(Gtk.Grid):
             )
             check.connect("toggled", self.__on_check_button_toggled, ui)
             self.ui_box.append(check)
-
-    def __on_file_changed(self, obj):
-        self.infobar.set_revealed(True)
-        self.save_button.set_sensitive(True)
-
-    def __load_filename(self):
-        if not self.object or not self.object.load_css():
-            self.save_button.set_sensitive(False)
 
     def __on_check_button_toggled(self, button, ui):
         if button.props.active:
