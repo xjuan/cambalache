@@ -1415,7 +1415,6 @@ class CmbProject(GObject.Object, Gio.ListModel):
         p = properties.get(property_id, None)
 
         if p and p.owner_id == owner_id and p.property_id == property_id:
-            print("AAAAAAAAA", p, prop, property_id)
             p.notify(prop)
 
     def __undo_redo_do(self, undo, update_objects=None):
