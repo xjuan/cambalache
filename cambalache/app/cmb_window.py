@@ -106,13 +106,7 @@ class CmbWindow(Adw.ApplicationWindow):
     type_chooser = Gtk.Template.Child()
     editor_stack = Gtk.Template.Child()
     ui_editor = Gtk.Template.Child()
-    ui_requires_editor = Gtk.Template.Child()
-    ui_fragment_editor = Gtk.Template.Child()
-    fragment_editor = Gtk.Template.Child()
     object_editor = Gtk.Template.Child()
-    object_layout_editor = Gtk.Template.Child()
-    accessible_editor = Gtk.Template.Child()
-    signal_editor = Gtk.Template.Child()
     css_editor = Gtk.Template.Child()
     gresource_editor = Gtk.Template.Child()
 
@@ -365,13 +359,7 @@ class CmbWindow(Adw.ApplicationWindow):
 
         # Clear Editors
         self.ui_editor.object = None
-        self.ui_requires_editor.object = None
-        self.ui_fragment_editor.object = None
         self.object_editor.object = None
-        self.object_layout_editor.object = None
-        self.accessible_editor.object = None
-        self.signal_editor.object = None
-        self.fragment_editor.object = None
 
         if project:
             self.__project.connect("notify::filename", self.__on_project_filename_notify)
@@ -578,8 +566,6 @@ class CmbWindow(Adw.ApplicationWindow):
 
         if isinstance(obj, CmbUI):
             self.ui_editor.object = obj
-            self.ui_requires_editor.object = obj
-            self.ui_fragment_editor.object = obj
             self.workspace_stack.set_visible_child_name("ui")
             self.editor_stack.set_visible_child_name("ui")
             obj = None
@@ -600,11 +586,6 @@ class CmbWindow(Adw.ApplicationWindow):
             obj = None
 
         self.object_editor.object = obj
-
-        is_not_builtin = not obj.info.is_builtin if obj else True
-        for editor in [self.object_layout_editor, self.signal_editor, self.fragment_editor, self.accessible_editor]:
-            editor.object = obj
-            editor.props.visible = is_not_builtin
 
         self.__update_action_add_object()
         self.__update_action_remove_parent()

@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.97.7 -->
+<!-- Created with Cambalache 0.97.9 -->
 <interface>
   <!-- interface-name cmb_window.ui -->
   <!-- interface-copyright Juan Pablo Ugarte -->
@@ -442,85 +442,9 @@
                             <child>
                               <object class="GtkStackPage">
                                 <property name="child">
-                                  <object class="GtkBox">
-                                    <property name="orientation">vertical</property>
-                                    <child>
-                                      <object class="GtkStackSwitcher">
-                                        <property name="halign">center</property>
-                                        <property name="stack">object_stack</property>
-                                        <style>
-                                          <class name="compact"/>
-                                          <class name="property-pane"/>
-                                        </style>
-                                      </object>
-                                    </child>
-                                    <child>
-                                      <object class="GtkStack" id="object_stack">
-                                        <property name="transition-type">crossfade</property>
-                                        <property name="vexpand">1</property>
-                                        <child>
-                                          <object class="GtkStackPage">
-                                            <property name="child">
-                                              <object class="CmbScrolledWindow">
-                                                <property name="child">
-                                                  <object class="CmbObjectEditor" id="object_editor">
-                                                    <property name="vexpand">True</property>
-                                                  </object>
-                                                </property>
-                                              </object>
-                                            </property>
-                                            <property name="name">properties</property>
-                                            <property name="title" translatable="yes">Properties</property>
-                                          </object>
-                                        </child>
-                                        <child>
-                                          <object class="GtkStackPage">
-                                            <property name="child">
-                                              <object class="CmbScrolledWindow">
-                                                <property name="child">
-                                                  <object class="CmbObjectEditor" id="object_layout_editor">
-                                                    <property name="layout">True</property>
-                                                  </object>
-                                                </property>
-                                              </object>
-                                            </property>
-                                            <property name="name">layout</property>
-                                            <property name="title" translatable="yes">Layout</property>
-                                          </object>
-                                        </child>
-                                        <child>
-                                          <object class="GtkStackPage">
-                                            <property name="child">
-                                              <object class="CmbSignalEditor" id="signal_editor"/>
-                                            </property>
-                                            <property name="name">signals</property>
-                                            <property name="title" translatable="yes">Signals</property>
-                                          </object>
-                                        </child>
-                                        <child>
-                                          <object class="GtkStackPage">
-                                            <property name="child">
-                                              <object class="GtkScrolledWindow">
-                                                <property name="child">
-                                                  <object class="CmbAccessibleEditor" id="accessible_editor"/>
-                                                </property>
-                                              </object>
-                                            </property>
-                                            <property name="name">accessible</property>
-                                            <property name="title">a11y</property>
-                                          </object>
-                                        </child>
-                                        <child>
-                                          <object class="GtkStackPage">
-                                            <property name="child">
-                                              <object class="CmbFragmentEditor" id="fragment_editor"/>
-                                            </property>
-                                            <property name="name">fragment</property>
-                                            <property name="title">&lt;/&gt;</property>
-                                          </object>
-                                        </child>
-                                      </object>
-                                    </child>
+                                  <object class="CmbObjectEditor" id="object_editor">
+                                    <property name="hexpand">True</property>
+                                    <property name="vexpand">True</property>
                                   </object>
                                 </property>
                                 <property name="name">object</property>
@@ -530,58 +454,9 @@
                             <child>
                               <object class="GtkStackPage">
                                 <property name="child">
-                                  <object class="GtkBox">
-                                    <property name="orientation">vertical</property>
-                                    <property name="spacing">4</property>
-                                    <child>
-                                      <object class="GtkStackSwitcher">
-                                        <property name="halign">center</property>
-                                        <property name="stack">ui_stack</property>
-                                        <style>
-                                          <class name="compact"/>
-                                          <class name="property-pane"/>
-                                        </style>
-                                      </object>
-                                    </child>
-                                    <child>
-                                      <object class="GtkStack" id="ui_stack">
-                                        <property name="vexpand">1</property>
-                                        <child>
-                                          <object class="GtkStackPage">
-                                            <property name="child">
-                                              <object class="CmbUIEditor" id="ui_editor">
-                                                <property name="hexpand">True</property>
-                                                <property name="vexpand">True</property>
-                                              </object>
-                                            </property>
-                                            <property name="name">properties</property>
-                                            <property name="title" translatable="yes">Properties</property>
-                                          </object>
-                                        </child>
-                                        <child>
-                                          <object class="GtkStackPage">
-                                            <property name="child">
-                                              <object class="CmbUIRequiresEditor" id="ui_requires_editor">
-                                                <property name="orientation">vertical</property>
-                                              </object>
-                                            </property>
-                                            <property name="name">requires</property>
-                                            <property name="title" translatable="yes">Requires</property>
-                                          </object>
-                                        </child>
-                                        <child>
-                                          <object class="GtkStackPage">
-                                            <property name="child">
-                                              <object class="CmbFragmentEditor" id="ui_fragment_editor">
-                                                <property name="orientation">vertical</property>
-                                              </object>
-                                            </property>
-                                            <property name="name">fragment</property>
-                                            <property name="title">&lt;/&gt;</property>
-                                          </object>
-                                        </child>
-                                      </object>
-                                    </child>
+                                  <object class="CmbUIEditor" id="ui_editor">
+                                    <property name="hexpand">True</property>
+                                    <property name="vexpand">True</property>
                                   </object>
                                 </property>
                                 <property name="name">ui</property>
