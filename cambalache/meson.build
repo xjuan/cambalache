@@ -24,6 +24,7 @@ configure_file(
 )
 
 install_data([
+    '__init__.py',
     'cmb_accessible_editor.py',
     'cmb_base.py',
     'cmb_binding_popover.py',
@@ -34,6 +35,7 @@ install_data([
     'cmb_db.py',
     'cmb_db_inspector.py',
     'cmb_db_profile.py',
+    'cmb_file_monitor.py',
     'cmb_fragment_editor.py',
     'cmb_gresource.py',
     'cmb_gresource_editor.py',
@@ -49,6 +51,7 @@ install_data([
     'cmb_object_data.py',
     'cmb_object_data_editor.py',
     'cmb_object_editor.py',
+    'cmb_object_property_editor.py',
     'cmb_objects_base.py',
     'cmb_path.py',
     'cmb_poll_notification_view.py',
@@ -65,12 +68,12 @@ install_data([
     'cmb_type_info.py',
     'cmb_ui.py',
     'cmb_ui_editor.py',
+    'cmb_ui_property_editor.py',
     'cmb_ui_requires_editor.py',
     'cmb_version_notification_view.py',
     'cmb_view.py',
     'constants.py',
     'utils.py',
-    '__init__.py'
     ],
     install_dir: moduledir)
 

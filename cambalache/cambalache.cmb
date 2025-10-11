@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
-<!-- Created with Cambalache 0.97.7 -->
+<!-- Created with Cambalache 0.97.9 -->
 <cambalache-project version="0.96.0" target_tk="gtk-4.0">
-  <gresources filename="cambalache.gresource.xml" sha256="f5e5356b0a796d96885a8bb0b363d18339457ea6bfe26e56b6db3f7e4a618b16"/>
+  <gresources filename="cambalache.gresource.xml" sha256="8b25fd94882e3e03822034ba3bcd9427c751f66e1cb022490cb33fde60bbbbfc"/>
   <gresources filename="app/app.gresource.xml" sha256="3684aa78fce08d8e81d0907317214aeb179c5aea091dd0df405476b43e286941"/>
   <css filename="cambalache.css" priority="400" is_global="1"/>
   <css filename="app/cambalache.css" is_global="0"/>
@@ -196,14 +196,14 @@
 </interface>
 ]]></content>
   </ui>
-  <ui template-class="CmbObjectEditor">
+  <ui template-class="CmbObjectPropertyEditor">
     <property id="lang" type-id="gchararray" disable-inline-object="0" required="0" disabled="0"/>
     <property id="layout" type-id="gboolean" disable-inline-object="0" required="0" disabled="0"/>
     <content><![CDATA[<interface>
-  <!-- interface-name CmbObjectEditor -->
+  <!-- interface-name CmbObjectPropertyEditor -->
   <!-- interface-copyright Juan Pablo Ugarte -->
   <requires lib="gtk" version="4.0"/>
-  <template class="CmbObjectEditor" parent="GtkBox"/>
+  <template class="CmbObjectPropertyEditor" parent="GtkBox"/>
 </interface>
 ]]></content>
   </ui>
@@ -264,39 +264,47 @@
     <signal id="placeholder-activated"/>
     <signal id="placeholder-selected"/>
   </ui>
-  <ui template-class="CmbGResourceEditor" filename="cmb_gresource_editor.ui" sha256="982c596dbe038edac9f4f20a72062b9d8b78b08be7e731395dde1c701d92bcb1">
-    <requires>CmbFileButton</requires>
-    <requires>CmbEntry</requires>
-  </ui>
-  <ui template-class="CmbCSSEditor" filename="cmb_css_editor.ui" sha256="6f39c9cb2f112dac9da415322792a717b8c0a80845dcbb2edacd7695388cba63">
-    <requires>CmbFileButton</requires>
-    <requires>CmbSourceView</requires>
-  </ui>
-  <ui template-class="CmbUIEditor" filename="cmb_ui_editor.ui" sha256="70e272e2c6c499a5424c6019154cd8338d9edde1fa111ad592a1c104019bb7ee">
+  <ui template-class="CmbUIPropertyEditor" filename="cmb_ui_property_editor.ui" sha256="a0cb1276ad6f5f0cf944101b5b9f3522cd8966483eacc383dd3da380a79efae6">
     <requires>CmbTextBuffer</requires>
     <requires>CmbFileButton</requires>
     <requires>CmbEntry</requires>
     <requires>CmbToplevelChooser</requires>
+  </ui>
+  <ui template-class="CmbGResourceEditor" filename="cmb_gresource_editor.ui" sha256="982c596dbe038edac9f4f20a72062b9d8b78b08be7e731395dde1c701d92bcb1">
+    <requires>CmbFileButton</requires>
+    <requires>CmbEntry</requires>
+  </ui>
+  <ui template-class="CmbCSSEditor" filename="cmb_css_editor.ui" sha256="3b9ae2cac8c618671ef8edb270d8f20d3df879ed641e8e7766cd99ba1f63a759">
+    <requires>CmbFileButton</requires>
+    <requires>CmbSourceView</requires>
   </ui>
   <ui template-class="CmbBindingPopover" filename="cmb_binding_popover.ui" sha256="e3138c75d2c45534c1b41acbc3724a760b3a390effebcf0f54df1e04f3e748cc">
     <requires>CmbObjectChooser</requires>
     <requires>CmbPropertyChooser</requires>
     <requires>CmbFlagsEntry</requires>
   </ui>
-  <ui template-class="CmbWindow" filename="app/cmb_window.ui" sha256="8a3d39541a0a68fae6adcf6a0a6b5a3ad02a68fb799b71d0d56ead191be63d5d">
-    <requires>CmbNotificationListView</requires>
+  <ui template-class="CmbObjectEditor" filename="cmb_object_editor.ui" sha256="2cd365a676aaf9d4aa9657ca55bf3d6a6f97ca4ab9b8b912280b8fb346ab9b98">
     <requires>CmbScrolledWindow</requires>
-    <requires>CmbObjectEditor</requires>
+    <requires>CmbObjectPropertyEditor</requires>
     <requires>CmbSignalEditor</requires>
     <requires>CmbAccessibleEditor</requires>
     <requires>CmbFragmentEditor</requires>
-    <requires>CmbUIEditor</requires>
+  </ui>
+  <ui template-class="CmbUIEditor" filename="cmb_ui_editor.ui" sha256="638b415f85b63bff7c0b9a23c2a4b5c6c3b8132f874fd309cd1bedf18f97fb67">
+    <requires>CmbUIPropertyEditor</requires>
     <requires>CmbUIRequiresEditor</requires>
+    <requires>CmbFragmentEditor</requires>
+  </ui>
+  <ui template-class="CmbWindow" filename="app/cmb_window.ui" sha256="2575bd509c3bd02c5f88dfed92237e6300b0966bd913e607ab09fc769a3dae73">
+    <requires>CmbNotificationListView</requires>
+    <requires>CmbObjectEditor</requires>
+    <requires>CmbUIEditor</requires>
     <requires>CmbCSSEditor</requires>
     <requires>CmbGResourceEditor</requires>
     <requires>CmbTypeChooser</requires>
     <requires>CmbView</requires>
     <requires>CmbSourceView</requires>
+    <requires>CmbScrolledWindow</requires>
     <requires>CmbListView</requires>
     <css-provider>app/cambalache.css</css-provider>
   </ui>
