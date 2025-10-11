@@ -28,10 +28,11 @@ from gi.repository import GObject, Gio
 from .cmb_path import CmbPath
 from .cmb_objects_base import CmbBaseGResource
 from .cmb_list_error import CmbListError
+from .cmb_file_monitor import CmbFileMonitor
 from cambalache import _
 
 
-class CmbGResource(CmbBaseGResource, Gio.ListModel):
+class CmbGResource(CmbBaseGResource, Gio.ListModel, CmbFileMonitor):
 
     path_parent = GObject.Property(type=CmbPath, flags=GObject.ParamFlags.READWRITE)
 
@@ -39,6 +40,9 @@ class CmbGResource(CmbBaseGResource, Gio.ListModel):
         self._last_known = None
 
         super().__init__(**kwargs)
+
+        if self.resource_type == "gresources":
+            self.init_monitor(self.gresources_filename)
 
         self.connect("notify", self.__on_notify)
 
@@ -50,6 +54,9 @@ class CmbGResource(CmbBaseGResource, Gio.ListModel):
 
     def __on_notify(self, obj, pspec):
         resource_type = self.resource_type
+
+        if resource_type == "gresources" and pspec.name == "gresources-filename":
+            self.update_file_monitor(self.gresources_filename)
 
         if (resource_type == "gresources" and pspec.name == "gresources-filename") or \
            (resource_type == "gresource" and pspec.name == "gresource-prefix") or \

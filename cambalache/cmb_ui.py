@@ -29,12 +29,13 @@ from gi.repository import GObject, Gio
 from .cmb_path import CmbPath
 from .cmb_list_error import CmbListError
 from .cmb_objects_base import CmbBaseUI, CmbBaseObject
+from .cmb_file_monitor import CmbFileMonitor
 from cambalache import getLogger, _
 
 logger = getLogger(__name__)
 
 
-class CmbUI(CmbBaseUI, Gio.ListModel):
+class CmbUI(CmbBaseUI, Gio.ListModel, CmbFileMonitor):
     __gsignals__ = {
         "library-changed": (GObject.SignalFlags.RUN_FIRST, None, (str,)),
     }
@@ -43,6 +44,7 @@ class CmbUI(CmbBaseUI, Gio.ListModel):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.init_monitor(self.filename)
 
         self.connect("notify", self.__on_notify)
 
@@ -68,6 +70,9 @@ class CmbUI(CmbBaseUI, Gio.ListModel):
         # Update display name if one of the following properties changed
         if pspec.name in ["filename", "template-id"]:
             self.notify("display-name")
+
+        if pspec.name == "filename":
+            self.update_file_monitor(self.filename)
 
     def list_libraries(self):
         retval = {}

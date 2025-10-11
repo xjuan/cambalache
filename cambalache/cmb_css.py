@@ -25,27 +25,24 @@
 
 import os
 
-from gi.repository import GObject, Gio
+from gi.repository import GObject
 
 from .cmb_path import CmbPath
 from .cmb_objects_base import CmbBaseCSS
+from .cmb_file_monitor import CmbFileMonitor
+
 from cambalache import _
 
 
-class CmbCSS(CmbBaseCSS):
-    __gsignals__ = {
-        "file-changed": (GObject.SignalFlags.RUN_FIRST, None, ()),
-    }
-
+class CmbCSS(CmbBaseCSS, CmbFileMonitor):
     path_parent = GObject.Property(type=CmbPath, flags=GObject.ParamFlags.READWRITE)
     css = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         self._path = None
-        self._monitor = None
-        self.__saving = False
 
         super().__init__(**kwargs)
+        self.init_monitor(self.filename)
 
         self.connect("notify", self.__on_notify)
         self.load_css()
@@ -56,6 +53,7 @@ class CmbCSS(CmbBaseCSS):
 
         if pspec.name == "filename":
             self.load_css()
+            self.update_file_monitor(self.filename)
 
     @classmethod
     def get_display_name(cls, css_id, filename):
@@ -85,16 +83,6 @@ class CmbCSS(CmbBaseCSS):
         c.close()
         return retval
 
-    def __on_css_file_changed(self, file_monitor, file, other_file, event_type):
-        if event_type != Gio.FileMonitorEvent.CHANGES_DONE_HINT:
-            return
-
-        if self.__saving:
-            self.__saving = False
-            return
-        else:
-            self.emit("file-changed")
-
     def load_css(self):
         if not self.project or not self.filename:
             return False
@@ -107,13 +95,6 @@ class CmbCSS(CmbBaseCSS):
             with open(path) as fd:
                 self.css = fd.read()
                 fd.close()
-
-                if self._monitor:
-                    self._monitor.cancel()
-
-                gfile = Gio.File.new_for_path(path)
-                self._monitor = gfile.monitor(Gio.FileMonitorFlags.NONE, None)
-                self._monitor.connect("changed", self.__on_css_file_changed)
 
                 return True
         else:
@@ -132,7 +113,6 @@ class CmbCSS(CmbBaseCSS):
             self._path = os.path.join(dirname, self.filename)
             needs_load = True
 
-        self.__saving = True
         with open(self._path, "w") as fd:
             fd.write(self.css)
 
