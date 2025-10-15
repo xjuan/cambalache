@@ -8,6 +8,13 @@
     <property name="orientation">vertical</property>
     <property name="spacing">4</property>
     <child>
+      <object class="CmbFileChangedBar">
+        <binding name="object">
+          <lookup name="object" type="CmbUIEditor">CmbUIEditor</lookup>
+        </binding>
+      </object>
+    </child>
+    <child>
       <object class="GtkStackSwitcher">
         <property name="halign">center</property>
         <property name="stack">stack</property>
