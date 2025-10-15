@@ -76,7 +76,7 @@ def getLogger(name):
     return logger
 
 
-from .cmb_objects_base import CmbBaseObject
+from .cmb_base_objects import CmbBaseObject
 from .cmb_css import CmbCSS
 from .cmb_ui import CmbUI
 from .cmb_object import CmbObject
@@ -90,6 +90,7 @@ from .cmb_type_info import CmbTypeInfo
 from .cmb_project import CmbProject
 
 from .cmb_db_inspector import CmbDBInspector
+from .cmb_file_changed_bar import CmbFileChangedBar
 from .cmb_view import CmbView
 from .cmb_list_view import CmbListView
 from .cmb_notification import notification_center, CmbNotification, CmbNotificationCenter

@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.97.9 -->
+<interface>
+  <!-- interface-name cmb_file_changed_bar.ui -->
+  <requires lib="gtk" version="4.18"/>
+  <template class="CmbFileChangedBar" parent="GtkBox">
+    <property name="orientation">vertical</property>
+    <child>
+      <object class="GtkRevealer" id="revealer">
+        <property name="reveal-child">False</property>
+        <child>
+          <object class="GtkBox">
+            <property name="css-classes">cmb-file-changed-bar</property>
+            <property name="spacing">6</property>
+            <child>
+              <object class="GtkLabel">
+                <property name="halign">start</property>
+                <property name="hexpand">True</property>
+                <property name="label" translatable="yes">&lt;b&gt;File Has Changed on Disk&lt;/b&gt;
+&lt;small&gt;The file has been modified by another application.&lt;/small&gt;</property>
+                <property name="use-markup">True</property>
+                <property name="wrap">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton">
+                <property name="label" translatable="yes">Discard Changes and Reload</property>
+                <property name="valign">center</property>
+                <signal name="clicked" handler="on_reload_clicked"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton">
+                <property name="css-classes">close</property>
+                <property name="css-name">button</property>
+                <property name="halign">center</property>
+                <property name="icon-name">window-close-symbolic</property>
+                <property name="valign">center</property>
+                <signal name="clicked" handler="on_close_clicked"/>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>
