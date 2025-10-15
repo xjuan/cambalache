@@ -7,6 +7,15 @@
   <template class="CmbObjectEditor" parent="GtkBox">
     <property name="orientation">vertical</property>
     <child>
+      <object class="CmbFileChangedBar">
+        <binding name="object">
+          <lookup name="ui" type="CmbObject">
+            <lookup name="object" type="CmbObjectEditor">CmbObjectEditor</lookup>
+          </lookup>
+        </binding>
+      </object>
+    </child>
+    <child>
       <object class="GtkStackSwitcher">
         <property name="halign">center</property>
         <property name="stack">stack</property>
