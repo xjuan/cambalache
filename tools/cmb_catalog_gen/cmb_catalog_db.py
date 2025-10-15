@@ -638,7 +638,9 @@ class CmbCatalogDB:
             """
             SELECT owner_id, property_id
             FROM property
-            WHERE type_id='gchararray' AND original_owner_id IS NULL AND property_id LIKE '%title%' AND translatable IS NULL;
+            WHERE type_id='gchararray' AND original_owner_id IS NULL AND translatable IS NULL AND
+                (property_id LIKE '%title%' OR
+                 property_id LIKE '%label%');
             """
         ):
             owner_id, property_id = row
