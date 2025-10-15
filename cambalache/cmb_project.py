@@ -49,7 +49,7 @@ from .cmb_property_info import CmbPropertyInfo
 from .cmb_layout_property import CmbLayoutProperty
 from .cmb_library_info import CmbLibraryInfo
 from .cmb_type_info import CmbTypeInfo
-from .cmb_objects_base import CmbSignal
+from .cmb_base_objects import CmbSignal
 from .cmb_blueprint import cmb_blueprint_decompile, cmb_blueprint_compile
 from .utils import FileHash
 from . import constants, utils
@@ -100,6 +100,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
     }
 
     target_tk = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
+    saving = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
 
     undo_msg = GObject.Property(type=str)
     redo_msg = GObject.Property(type=str)
@@ -350,10 +351,15 @@ class CmbProject(GObject.Object, Gio.ListModel):
         if owner_id:
             for property in node.findall("property"):
                 property_id, type_id = utils.xml_node_get(property, "id", "type-id")
-                self.db.execute(
-                    "INSERT INTO property(owner_id, property_id, type_id) VALUES (?, ?, ?);",
-                    (owner_id, property_id, type_id)
-                )
+
+                try :
+                    self.db.execute(
+                        "INSERT INTO property(owner_id, property_id, type_id) VALUES (?, ?, ?);",
+                        (owner_id, property_id, type_id)
+                    )
+                except sqlite3.IntegrityError as e:
+                    logger.warning(f"Error inserting property {owner_id}::{property_id} of type {type_id}: {e}")
+                    continue
 
                 for key in [
                     "is_object",
@@ -390,18 +396,29 @@ class CmbProject(GObject.Object, Gio.ListModel):
         self.__populate_ui(ui_id)
 
     def __load_css_from_node(self, node):
-        css_filename, priority, is_global = utils.xml_node_get(node, ["filename", "priority", "is_global"])
-        css_id = self.db.add_css(css_filename, priority, is_global)
+        filename, sha256, priority, is_global = utils.xml_node_get(node, ["filename", "sha256", "priority", "is_global"])
 
-        # FIXME: Load UI relation this is for old format <= 0.95
-        for ui in node.getchildren():
-            if ui.tag != "ui":
-                continue
-            row = self.db.execute("SELECT ui_id FROM ui WHERE filename=?;", (ui.text,)).fetchone()
-            if row:
-                (ui_id,) = row
-                self.db.execute("INSERT INTO css_ui VALUES (?, ?)", (css_id, ui_id))
+        if filename:
+            fullpath, relpath = self.__get_abs_path(filename)
+            with open(fullpath) as fd:
+                css = fd.read()
 
+                m = hashlib.sha256()
+                m.update(css.encode())
+                hexdigest = m.hexdigest()
+
+                if sha256 != hexdigest:
+                    logger.warning(f"{filename} hash mismatch, file was modified")
+
+                fd.close()
+        else:
+            content = node.find("content")
+            if content:
+                css = content.text.encode()
+            else:
+                raise Exception(_("content tag is missing"))
+
+        css_id = self.db.add_css(filename, priority, is_global, css=css)
         self.__populate_css(css_id)
 
     def __load_gresource_from_node(self, node):
@@ -682,14 +699,33 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         return ui
 
-    def __save_css_and_get_node(self, css_id, filename, priority, is_global):
+    def __save_css_and_get_node(self, css_id, filename, css_text, priority, is_global):
         css = E.css()
 
-        utils.xml_node_set(css, "filename", filename)
         utils.xml_node_set(css, "priority", priority)
         utils.xml_node_set(css, "is_global", is_global)
 
-        # TODO: save CSS file if it has changes
+        if filename:
+            # Load from file
+            utils.xml_node_set(css, "filename", filename)
+
+            if os.path.isabs(filename):
+                fullpath = filename
+            elif self.filename:
+                dirname = os.path.dirname(self.filename)
+                fullpath = os.path.join(dirname, filename)
+
+            with open(fullpath, "w") as fd:
+                fd.write(css_text)
+
+                m = hashlib.sha256()
+                m.update(css_text.encode())
+
+                utils.xml_node_set(css, "sha256", m.hexdigest())
+        else:
+            # Load from project
+            content = E.content(css_text)
+            css.append(content)
 
         return css
 
@@ -710,6 +746,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
         if self.filename is None:
             return False
 
+        self.saving = True
+
         self.db.commit()
 
         c = self.db.cursor()
@@ -728,9 +766,9 @@ class CmbProject(GObject.Object, Gio.ListModel):
             project.append(gresources)
 
         # Save CSS reference
-        for row in c.execute("SELECT css_id, filename, priority, is_global FROM css;"):
-            css_id, css_filename, priority, is_global = row
-            css = self.__save_css_and_get_node(css_id, css_filename, priority, is_global)
+        for row in c.execute("SELECT css_id, filename, css, priority, is_global FROM css;"):
+            css_id, css_filename, css, priority, is_global = row
+            css = self.__save_css_and_get_node(css_id, css_filename, css, priority, is_global)
             project.append(css)
 
         # Save UI files
@@ -754,6 +792,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
             fd.close()
 
         c.close()
+
+        self.saving = False
 
         return True
 
@@ -1031,7 +1071,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         c.close()
         return retval
 
-    def __add_css(self, emit, css_id, filename=None, priority=None, is_global=None):
+    def __add_css(self, emit, css_id, filename=None, priority=None, is_global=None, css=None):
         css = CmbCSS(project=self, css_id=css_id)
         self.__css_id[css_id] = css
         if emit:
