@@ -29,7 +29,7 @@ from .cmb_css import CmbCSS
 
 
 @Gtk.Template(resource_path="/ar/xjuan/Cambalache/cmb_css_editor.ui")
-class CmbCSSEditor(Gtk.Grid):
+class CmbCSSEditor(Gtk.Box):
     __gtype_name__ = "CmbCSSEditor"
 
     filename = Gtk.Template.Child()
@@ -38,7 +38,6 @@ class CmbCSSEditor(Gtk.Grid):
 
     ui_menu_button = Gtk.Template.Child()
     ui_box = Gtk.Template.Child()
-    save_button = Gtk.Template.Child()
     view = Gtk.Template.Child()
 
     fields = [("filename", "cmb-value"), ("priority", "value"), ("is_global", "active")]
@@ -48,8 +47,6 @@ class CmbCSSEditor(Gtk.Grid):
         self._bindings = []
 
         super().__init__(**kwargs)
-
-        self.save_button.set_sensitive(False)
 
         self.priority.set_range(0, 10000)
         self.priority.set_increments(10, 100)
@@ -100,15 +97,9 @@ class CmbCSSEditor(Gtk.Grid):
         obj.project.connect("ui-added", self.__on_ui_added_removed)
         obj.project.connect("ui-removed", self.__on_ui_added_removed)
         obj.connect("notify::provider-for", self.__on_provider_for_notify)
-        obj.connect("notify::css", self.__on_css_notify)
 
         self.__update_provider_for()
         self.__update_ui_button_label()
-
-    @Gtk.Template.Callback("on_save_button_clicked")
-    def __on_save_button_clicked(self, button):
-        self._object.save_css()
-        self.save_button.set_sensitive(False)
 
     def __update_provider_for(self):
         # Remove all css_ui check buttons
@@ -161,9 +152,6 @@ class CmbCSSEditor(Gtk.Grid):
 
     def __on_provider_for_notify(self, obj, pspec):
         self.__update_provider_for()
-
-    def __on_css_notify(self, obj, pspec):
-        self.save_button.set_sensitive(True)
 
     @GObject.Signal(
         flags=GObject.SignalFlags.RUN_LAST,
