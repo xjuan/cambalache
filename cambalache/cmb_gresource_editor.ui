@@ -1,10 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.97.6 -->
+<!-- Created with Cambalache 0.97.9 -->
 <interface>
   <!-- interface-name cmb_gresource_editor.ui -->
   <!-- interface-copyright Juan Pablo Ugarte -->
   <requires lib="gtk" version="4.12"/>
   <template class="CmbGResourceEditor" parent="GtkBox">
+    <property name="orientation">vertical</property>
+    <property name="spacing">4</property>
+    <child>
+      <object class="CmbFileChangedBar"/>
+    </child>
     <child>
       <object class="GtkStack" id="stack">
         <property name="transition-type">crossfade</property>
