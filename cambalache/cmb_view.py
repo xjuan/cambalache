@@ -429,6 +429,9 @@ class CmbView(Gtk.Box):
         self.__merengue_command("remove_css_provider", args={"css_id": obj.css_id})
 
     def __on_css_changed(self, project, obj, field):
+        if field == "css":
+            return
+
         value = obj.get_property(field)
 
         if field == "filename" and value:

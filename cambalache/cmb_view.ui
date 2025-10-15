@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.97.7 -->
+<!-- Created with Cambalache 0.97.9 -->
 <interface>
   <!-- interface-name cmb_view.ui -->
   <!-- interface-copyright Juan Pablo Ugarte -->
@@ -42,6 +42,7 @@
                       <object class="GtkLabel" id="error_message">
                         <property name="hexpand">True</property>
                         <property name="justify">center</property>
+                        <property name="lines">-1</property>
                         <property name="selectable">True</property>
                         <property name="valign">end</property>
                         <property name="vexpand">True</property>
