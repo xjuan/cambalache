@@ -25,7 +25,7 @@
 
 from gi.repository import GObject
 
-from .cmb_objects_base import CmbBaseProperty, CmbBaseObject
+from .cmb_base_objects import CmbBaseProperty, CmbBaseObject
 from .cmb_property_info import CmbPropertyInfo
 from . import utils
 from cambalache import _, getLogger

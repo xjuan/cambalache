@@ -24,7 +24,7 @@
 #
 
 from gi.repository import GObject
-from .cmb_objects_base import CmbBaseLibraryInfo
+from .cmb_base_objects import CmbBaseLibraryInfo
 
 
 class CmbLibraryInfo(CmbBaseLibraryInfo):

@@ -28,14 +28,16 @@ from gi.repository import GObject, Gio
 
 from .cmb_path import CmbPath
 from .cmb_list_error import CmbListError
-from .cmb_objects_base import CmbBaseUI, CmbBaseObject
-from .cmb_file_monitor import CmbFileMonitor
+from .cmb_base_objects import CmbBaseUI, CmbBaseObject
+
 from cambalache import getLogger, _
 
 logger = getLogger(__name__)
 
 
-class CmbUI(CmbBaseUI, Gio.ListModel, CmbFileMonitor):
+class CmbUI(CmbBaseUI, Gio.ListModel):
+    __gtype_name__ = "CmbUI"
+
     __gsignals__ = {
         "library-changed": (GObject.SignalFlags.RUN_FIRST, None, (str,)),
     }
@@ -44,7 +46,7 @@ class CmbUI(CmbBaseUI, Gio.ListModel, CmbFileMonitor):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.init_monitor(self.filename)
+        self.update_file_monitor(self.filename)
 
         self.connect("notify", self.__on_notify)
 
@@ -65,7 +67,8 @@ class CmbUI(CmbBaseUI, Gio.ListModel, CmbFileMonitor):
         self.db_set("UPDATE ui SET template_id=? WHERE (ui_id) IS (?);", (self.ui_id,), value if value != 0 else None)
 
     def __on_notify(self, obj, pspec):
-        self.project._ui_changed(self, pspec.name)
+        if pspec.name not in ["changed-on-disk", "path-parent"]:
+            self.project._ui_changed(self, pspec.name)
 
         # Update display name if one of the following properties changed
         if pspec.name in ["filename", "template-id"]:

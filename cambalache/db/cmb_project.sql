@@ -98,6 +98,7 @@ CREATE TABLE ui_library (
 CREATE TABLE css (
   css_id INTEGER PRIMARY KEY AUTOINCREMENT,
   filename TEXT UNIQUE,
+  css TEXT,
   priority INTEGER,
   is_global BOOLEAN
 );

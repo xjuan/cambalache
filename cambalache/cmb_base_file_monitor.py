@@ -1,5 +1,5 @@
 #
-# Cambalache File Monitor Interface
+# Cambalache Base File Monitor
 #
 # Copyright (C) 2025  Juan Pablo Ugarte
 #
@@ -26,15 +26,22 @@
 import os
 from gi.repository import GObject, Gio
 
+from .cmb_base import CmbBase
+from cambalache import getLogger
 
-# FIXME: this should inherit from a GInterface
-class CmbFileMonitor():
+logger = getLogger(__name__)
 
-    def init_monitor(self, filename):
-        self.changed_on_disk = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
+
+# FIXME: this should be a GInterface
+class CmbBaseFileMonitor(CmbBase):
+    __gtype_name__ = "CmbBaseFileMonitor"
+
+    changed_on_disk = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.gfile = None
         self.monitor = None
-        self.update_file_monitor(filename)
 
     def update_file_monitor(self, filename):
         if self.monitor:
@@ -57,9 +64,16 @@ class CmbFileMonitor():
 
         if os.path.exists(fullpath):
             def on_file_changed(file_monitor, file, other_file, event_type):
+                if self.project.saving:
+                    return
+
                 if event_type == Gio.FileMonitorEvent.CHANGES_DONE_HINT:
                     self.changed_on_disk = True
 
             self.gfile = Gio.File.new_for_path(fullpath)
             self.monitor = self.gfile.monitor(Gio.FileMonitorFlags.NONE, None)
             self.monitor.connect("changed", on_file_changed)
+
+    def reload(self):
+        logger.warning("Missing implementation")
+        self.changed_on_disk = False

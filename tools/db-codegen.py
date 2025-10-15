@@ -67,11 +67,11 @@ class CambalacheDb:
 
         return columns
 
-    def dump_table(self, fd, table, klass, mutable=False, construct_only=[]):
+    def dump_table_as_class(self, fd, table, klass, parent="CmbBase", mutable=False, construct_only=[]):
         c = self.conn.cursor()
         columns = self._get_table_data(table)
 
-        fd.write(f"\n\nclass {klass}(CmbBase):\n")
+        fd.write(f"\n\nclass {klass}({parent}):\n")
         fd.write(f'    __gtype_name__ = "{klass}"\n\n')
 
         # PKs
@@ -173,28 +173,29 @@ class CambalacheDb:
 
 from gi.repository import GObject
 from .cmb_base import CmbBase
+from .cmb_base_file_monitor import CmbBaseFileMonitor
 """
             )
 
             # Base Objects
-            self.dump_table(fd, "library", "CmbBaseLibraryInfo")
-            self.dump_table(fd, "property", "CmbBasePropertyInfo")
-            self.dump_table(fd, "signal", "CmbSignalInfo")
-            self.dump_table(fd, "type", "CmbBaseTypeInfo")
-            self.dump_table(fd, "type_data", "CmbBaseTypeDataInfo")
-            self.dump_table(fd, "type_data_arg", "CmbBaseTypeDataArgInfo")
-            self.dump_table(fd, "type_child_type", "CmbTypeChildInfo")
-            self.dump_table(fd, "type_internal_child", "CmbBaseTypeInternalChildInfo")
+            self.dump_table_as_class(fd, "library", "CmbBaseLibraryInfo")
+            self.dump_table_as_class(fd, "property", "CmbBasePropertyInfo")
+            self.dump_table_as_class(fd, "signal", "CmbSignalInfo")
+            self.dump_table_as_class(fd, "type", "CmbBaseTypeInfo")
+            self.dump_table_as_class(fd, "type_data", "CmbBaseTypeDataInfo")
+            self.dump_table_as_class(fd, "type_data_arg", "CmbBaseTypeDataArgInfo")
+            self.dump_table_as_class(fd, "type_child_type", "CmbTypeChildInfo")
+            self.dump_table_as_class(fd, "type_internal_child", "CmbBaseTypeInternalChildInfo")
 
             # Project Objects
-            self.dump_table(fd, "ui", "CmbBaseUI", mutable=True)
-            self.dump_table(fd, "css", "CmbBaseCSS", mutable=True)
-            self.dump_table(fd, "gresource", "CmbBaseGResource", mutable=True, construct_only=["resource_type"])
-            self.dump_table(fd, "object_property", "CmbBaseProperty", mutable=True)
-            self.dump_table(fd, "object_layout_property", "CmbBaseLayoutProperty", mutable=True)
-            self.dump_table(fd, "object_signal", "CmbSignal", mutable=True)
-            self.dump_table(fd, "object", "CmbBaseObject", mutable=True)
-            self.dump_table(fd, "object_data", "CmbBaseObjectData", mutable=True)
+            self.dump_table_as_class(fd, "ui", "CmbBaseUI", mutable=True, parent="CmbBaseFileMonitor")
+            self.dump_table_as_class(fd, "css", "CmbBaseCSS", mutable=True, parent="CmbBaseFileMonitor")
+            self.dump_table_as_class(fd, "gresource", "CmbBaseGResource", mutable=True, parent="CmbBaseFileMonitor", construct_only=["resource_type"])
+            self.dump_table_as_class(fd, "object_property", "CmbBaseProperty", mutable=True)
+            self.dump_table_as_class(fd, "object_layout_property", "CmbBaseLayoutProperty", mutable=True)
+            self.dump_table_as_class(fd, "object_signal", "CmbSignal", mutable=True)
+            self.dump_table_as_class(fd, "object", "CmbBaseObject", mutable=True)
+            self.dump_table_as_class(fd, "object_data", "CmbBaseObjectData", mutable=True)
             fd.close()
 
         os.system(f"black {filename}")

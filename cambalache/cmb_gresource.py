@@ -26,13 +26,14 @@
 from gi.repository import GObject, Gio
 
 from .cmb_path import CmbPath
-from .cmb_objects_base import CmbBaseGResource
+from .cmb_base_objects import CmbBaseGResource
 from .cmb_list_error import CmbListError
-from .cmb_file_monitor import CmbFileMonitor
+
 from cambalache import _
 
 
-class CmbGResource(CmbBaseGResource, Gio.ListModel, CmbFileMonitor):
+class CmbGResource(CmbBaseGResource, Gio.ListModel):
+    __gtype_name__ = "CmbGResource"
 
     path_parent = GObject.Property(type=CmbPath, flags=GObject.ParamFlags.READWRITE)
 
@@ -42,7 +43,7 @@ class CmbGResource(CmbBaseGResource, Gio.ListModel, CmbFileMonitor):
         super().__init__(**kwargs)
 
         if self.resource_type == "gresources":
-            self.init_monitor(self.gresources_filename)
+            self.update_file_monitor(self.gresources_filename)
 
         self.connect("notify", self.__on_notify)
 
@@ -63,7 +64,8 @@ class CmbGResource(CmbBaseGResource, Gio.ListModel, CmbFileMonitor):
            (resource_type == "file" and pspec.name == "file-filename"):
             obj.notify("display-name")
 
-        self.project._gresource_changed(self, pspec.name)
+        if pspec.name not in ["changed-on-disk", "path-parent"]:
+            self.project._gresource_changed(self, pspec.name)
 
     @GObject.Property(type=CmbBaseGResource)
     def parent(self):

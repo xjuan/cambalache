@@ -28,31 +28,29 @@ import os
 from gi.repository import GObject
 
 from .cmb_path import CmbPath
-from .cmb_objects_base import CmbBaseCSS
-from .cmb_file_monitor import CmbFileMonitor
+from .cmb_base_objects import CmbBaseCSS
 
 from cambalache import _
 
 
-class CmbCSS(CmbBaseCSS, CmbFileMonitor):
+class CmbCSS(CmbBaseCSS):
+    __gtype_name__ = "CmbCSS"
+
     path_parent = GObject.Property(type=CmbPath, flags=GObject.ParamFlags.READWRITE)
-    css = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         self._path = None
 
         super().__init__(**kwargs)
-        self.init_monitor(self.filename)
+        self.update_file_monitor(self.filename)
 
         self.connect("notify", self.__on_notify)
-        self.load_css()
 
     def __on_notify(self, obj, pspec):
-        if pspec.name not in ["css"]:
+        if pspec.name not in ["changed-on-disk", "path-parent"]:
             self.project._css_changed(self, pspec.name)
 
         if pspec.name == "filename":
-            self.load_css()
             self.update_file_monitor(self.filename)
 
     @classmethod
@@ -83,7 +81,7 @@ class CmbCSS(CmbBaseCSS, CmbFileMonitor):
         c.close()
         return retval
 
-    def load_css(self):
+    def reload(self):
         if not self.project or not self.filename:
             return False
 
@@ -101,23 +99,6 @@ class CmbCSS(CmbBaseCSS, CmbFileMonitor):
             self._path = None
 
         return False
-
-    def save_css(self):
-        if not self.project or not self.filename:
-            return
-
-        needs_load = False
-
-        if self._path is None:
-            dirname = os.path.dirname(self.project.filename)
-            self._path = os.path.join(dirname, self.filename)
-            needs_load = True
-
-        with open(self._path, "w") as fd:
-            fd.write(self.css)
-
-        if needs_load:
-            self.notify("filename")
 
     def add_ui(self, ui):
         c = self.project.db.cursor()

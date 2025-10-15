@@ -26,7 +26,7 @@
 from gi.repository import GObject, Gio
 
 from .cmb_list_error import CmbListError
-from .cmb_objects_base import CmbBaseObject, CmbSignal
+from .cmb_base_objects import CmbBaseObject, CmbSignal
 from .cmb_property import CmbProperty
 from .cmb_layout_property import CmbLayoutProperty
 from .cmb_object_data import CmbObjectData
@@ -40,6 +40,8 @@ logger = getLogger(__name__)
 
 
 class CmbObject(CmbBaseObject, Gio.ListModel):
+    __gtype_name__ = "CmbObject"
+
     info = GObject.Property(type=CmbTypeInfo, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
 
     __gsignals__ = {

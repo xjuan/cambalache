@@ -25,7 +25,7 @@
 
 from gi.repository import GObject, Gtk
 
-from .cmb_objects_base import (
+from .cmb_base_objects import (
     CmbBaseTypeInfo,
     CmbBaseTypeDataInfo,
     CmbBaseTypeDataArgInfo,

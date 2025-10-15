@@ -27,6 +27,7 @@
 
 from gi.repository import GObject
 from .cmb_base import CmbBase
+from .cmb_base_file_monitor import CmbBaseFileMonitor
 
 
 class CmbBaseLibraryInfo(CmbBase):
@@ -309,7 +310,7 @@ class CmbBaseTypeInternalChildInfo(CmbBase):
         )
 
 
-class CmbBaseUI(CmbBase):
+class CmbBaseUI(CmbBaseFileMonitor):
     __gtype_name__ = "CmbBaseUI"
 
     ui_id = GObject.Property(type=int, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
@@ -416,7 +417,7 @@ class CmbBaseUI(CmbBase):
         self.db_set("UPDATE ui SET custom_fragment=? WHERE (ui_id) IS (?);", (self.ui_id,), value)
 
 
-class CmbBaseCSS(CmbBase):
+class CmbBaseCSS(CmbBaseFileMonitor):
     __gtype_name__ = "CmbBaseCSS"
 
     css_id = GObject.Property(type=int, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
@@ -425,7 +426,7 @@ class CmbBaseCSS(CmbBase):
         super().__init__(**kwargs)
 
     @classmethod
-    def from_row(cls, project, css_id, filename, priority, is_global):
+    def from_row(cls, project, css_id, filename, css, priority, is_global):
         return cls(project=project, css_id=css_id)
 
     @GObject.Property(type=str)
@@ -435,6 +436,14 @@ class CmbBaseCSS(CmbBase):
     @filename.setter
     def _set_filename(self, value):
         self.db_set("UPDATE css SET filename=? WHERE (css_id) IS (?);", (self.css_id,), value)
+
+    @GObject.Property(type=str)
+    def css(self):
+        return self.db_get("SELECT css FROM css WHERE (css_id) IS (?);", (self.css_id,))
+
+    @css.setter
+    def _set_css(self, value):
+        self.db_set("UPDATE css SET css=? WHERE (css_id) IS (?);", (self.css_id,), value)
 
     @GObject.Property(type=int)
     def priority(self):
@@ -453,7 +462,7 @@ class CmbBaseCSS(CmbBase):
         self.db_set("UPDATE css SET is_global=? WHERE (css_id) IS (?);", (self.css_id,), value)
 
 
-class CmbBaseGResource(CmbBase):
+class CmbBaseGResource(CmbBaseFileMonitor):
     __gtype_name__ = "CmbBaseGResource"
 
     gresource_id = GObject.Property(type=int, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
