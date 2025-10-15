@@ -780,10 +780,13 @@ class CmbDB(GObject.GObject):
 
         return ui_id
 
-    def add_css(self, filename=None, priority=None, is_global=None):
+    def add_css(self, filename=None, priority=None, is_global=None, css=None):
         c = self.conn.cursor()
 
-        c.execute("INSERT INTO css (filename, priority, is_global) VALUES (?, ?, ?);", (filename, priority, is_global))
+        c.execute(
+            "INSERT INTO css (filename, priority, is_global, css) VALUES (?, ?, ?, ?);",
+            (filename, priority, is_global, css)
+        )
         ui_id = c.lastrowid
         c.close()
 
@@ -964,7 +967,7 @@ class CmbDB(GObject.GObject):
                 c.execute(
                     f"""
                     UPDATE object_property SET {inline_object_property}=?
-                    WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id;
+                    WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id=?;
                     """,
                     (object_id, ui_id, parent_id, pinfo.owner_id, inline_property),
                 )
@@ -2245,6 +2248,9 @@ class CmbDB(GObject.GObject):
         return obj
 
     def __export_expression(self, ui_id, object_id, merengue=False):
+        if merengue:
+            return None
+
         c = self.conn.cursor()
 
         c.execute("SELECT type_id FROM object WHERE ui_id=? AND object_id=?;", (ui_id, object_id))
@@ -2264,22 +2270,10 @@ class CmbDB(GObject.GObject):
             props[property_id] = value
 
         if type_id == "GtkConstantExpression":
-            # Do not export incomplete expressions
-            if "value" not in props:
-                return None
-
             node = E.constant()
         elif type_id == "GtkPropertyExpression":
             node = E.lookup()
         elif type_id == "GtkClosureExpression":
-            # Dont export closure expressions since the function most likely does not exists
-            if merengue:
-                return None
-
-            # Do not export incomplete expressions
-            if "function" not in props:
-                return None
-
             node = E.closure()
         else:
             logger.warning(f"Ignoring object type {type_id} while exporting expression.")
@@ -2299,10 +2293,6 @@ class CmbDB(GObject.GObject):
                 node.append(child_node)
                 self.__node_add_comment(child_node, comment)
                 has_children = True
-
-        # Do not export incomplete expressions
-        if type_id == "GtkPropertyExpression" and ("value" not in props or not has_children):
-            return None
 
         # Check if type is an object type
         is_object = type_id in ["GtkPropertyExpression", "GtkConstantExpression"]
