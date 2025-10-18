@@ -2629,7 +2629,8 @@ class CmbDB(GObject.GObject):
                 utils.xml_node_set(node, "context", translation_context)
                 utils.xml_node_set(node, "comments", translation_comments)
 
-            if bind_source_id and bind_owner_id and bind_property_id:
+            # We do not output binding for templates in merenge
+            if not ignore_id and bind_source_id and bind_owner_id and bind_property_id:
                 bind_source = self.__get_object_name(ui_id, bind_source_id, merengue=merengue)
 
                 if bind_source:
