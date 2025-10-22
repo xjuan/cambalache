@@ -90,9 +90,17 @@ class CmbCSS(CmbBaseCSS):
 
         if os.path.exists(path):
             self._path = path
+
             with open(path) as fd:
+                # Disable history
+                self.project.history_enabled = False
+
                 self.css = fd.read()
                 fd.close()
+
+                self.changed_on_disk = False
+                self.project.history_enabled = True
+                self.project.clear_history()
 
                 return True
         else:
