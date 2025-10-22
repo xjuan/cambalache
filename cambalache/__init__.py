@@ -77,6 +77,7 @@ def getLogger(name):
 
 
 from .cmb_base_objects import CmbBaseObject
+from .cmb_base_file_monitor import CmbBaseFileMonitor
 from .cmb_css import CmbCSS
 from .cmb_ui import CmbUI
 from .cmb_object import CmbObject

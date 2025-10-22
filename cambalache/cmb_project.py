@@ -100,7 +100,6 @@ class CmbProject(GObject.Object, Gio.ListModel):
     }
 
     target_tk = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
-    saving = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
 
     undo_msg = GObject.Property(type=str)
     redo_msg = GObject.Property(type=str)
@@ -198,6 +197,11 @@ class CmbProject(GObject.Object, Gio.ListModel):
             value = -1
 
         self.db.set_data("history_index", value)
+
+    @GObject.Property(type=int)
+    def history_index_version(self):
+        row = self.db.execute("SELECT version FROM history WHERE history_id=?;", (self.history_index, )).fetchone()
+        return row[0] if row else 0
 
     def _get_table_data(self, table):
         c = self.db.cursor()
@@ -562,7 +566,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
     def dirname(self):
         return os.path.dirname(self.__filename) if self.__filename else "."
 
-    def __save_xml_and_update_node(self, node, root, filename):
+    def __save_xml_and_update_node(self, node, root, filename, file_object):
         if root is None or filename is None:
             return
 
@@ -611,6 +615,9 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 with open(fullpath, "wb") as fd:
                     fd.write(blueprint_decompiled.encode())
             else:
+                if file_object:
+                    file_object.saving = True
+
                 # Dump xml to file
                 with open(fullpath, "wb") as fd:
                     hash_file = FileHash(fd)
@@ -628,6 +635,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
         node.append(content)
 
     def __save_ui_and_get_node(self, ui_id, template_id, filename):
+        file_object = self.get_object_by_id(ui_id)
+
         ui = E.ui()
 
         # Get a list of types declared in the project used by this UI
@@ -691,7 +700,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         # Save UI file
         if filename:
             root = self.db.export_ui(ui_id)
-            self.__save_xml_and_update_node(ui, root, filename)
+            self.__save_xml_and_update_node(ui, root, filename, file_object)
         else:
             # Embed UI content in project as CDATA
             root = self.db.export_ui(ui_id)
@@ -700,6 +709,10 @@ class CmbProject(GObject.Object, Gio.ListModel):
         return ui
 
     def __save_css_and_get_node(self, css_id, filename, css_text, priority, is_global):
+        file_object = self.get_css_by_id(css_id)
+        if file_object:
+            file_object.saving = True
+
         css = E.css()
 
         utils.xml_node_set(css, "priority", priority)
@@ -730,11 +743,12 @@ class CmbProject(GObject.Object, Gio.ListModel):
         return css
 
     def __save_gresource_and_get_node(self, gresource_id, filename):
+        file_object = self.get_gresource_by_id(gresource_id)
         gresources = E.gresources()
 
         if filename:
             root = self.db.export_gresource(gresource_id)
-            self.__save_xml_and_update_node(gresources, root, filename)
+            self.__save_xml_and_update_node(gresources, root, filename, file_object)
         else:
             # Embed file contents in project as CDATA
             root = self.db.export_gresource(gresource_id)
@@ -745,8 +759,6 @@ class CmbProject(GObject.Object, Gio.ListModel):
     def save(self):
         if self.filename is None:
             return False
-
-        self.saving = True
 
         self.db.commit()
 
@@ -765,7 +777,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
             gresources = self.__save_gresource_and_get_node(gresource_id, gresources_filename)
             project.append(gresources)
 
-        # Save CSS reference
+        # Save CSS files
         for row in c.execute("SELECT css_id, filename, css, priority, is_global FROM css;"):
             css_id, css_filename, css, priority, is_global = row
             css = self.__save_css_and_get_node(css_id, css_filename, css, priority, is_global)
@@ -792,8 +804,6 @@ class CmbProject(GObject.Object, Gio.ListModel):
             fd.close()
 
         c.close()
-
-        self.saving = False
 
         return True
 
@@ -857,13 +867,17 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         self.history_push(_('Import file "{filename}"').format(filename=filename))
 
-        # Remove old UI
-        if overwrite:
-            self.db.execute("DELETE FROM ui WHERE filename=?;", (filename,))
-
-        # Import file
         self.foreign_keys = False
 
+        # Remove old UI
+        old_ui = None
+        if overwrite:
+            row = self.db.execute("DELETE FROM ui WHERE filename=? RETURNING ui_id;", (filename,)).fetchone()
+            ui_id, = row if row else (None, )
+            old_ui = self.get_object_by_id(ui_id)
+            self.__file_state.pop(filename)
+
+        # Import file
         if filename.endswith(".blp"):
             root, relpath, hexdigest = self.__parse_blp_file(filename)
         else:
@@ -875,6 +889,9 @@ class CmbProject(GObject.Object, Gio.ListModel):
         import_end = time.monotonic()
 
         # Populate UI
+        if old_ui:
+            self.__remove_ui(old_ui)
+
         self.__populate_ui(ui_id)
 
         self.history_pop()
@@ -958,17 +975,30 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         return sorted_ui_nodes
 
-    def import_gresource(self, filename):
+    def import_gresource(self, filename, overwrite=False):
         self.history_push(_('Import GResource "{filename}"').format(filename=filename))
+
+        # Remove old UI
+        old_gresource = None
+        if overwrite:
+            row = self.db.execute(
+                "DELETE FROM gresource WHERE resource_type='gresources' AND gresources_filename=? RETURNING gresource_id;",
+                (filename, )
+            ).fetchone()
+            gresource_id, = row if row else (None, )
+            old_gresource = self.get_gresource_by_id(gresource_id)
+            self.__file_state.pop(filename)
 
         root, relpath, hexdigest = self.__parse_xml_file(filename)
         gresource_id = self.db.import_gresource_from_node(root, relpath)
 
         # Populate UI
+        if old_gresource:
+            self.__remove_gresource(old_gresource)
         self.__populate_gresource(gresource_id)
 
         self.history_pop()
-        return gresource_id
+        return self.get_gresource_by_id(gresource_id)
 
     def __selection_remove(self, obj):
         if obj not in self.__selection:
@@ -1066,7 +1096,9 @@ class CmbProject(GObject.Object, Gio.ListModel):
         retval = []
         for row in c.execute("SELECT ui_id FROM ui ORDER BY ui_id;"):
             ui = self.get_object_by_id(row[0])
-            retval.append(ui)
+
+            if ui:
+                retval.append(ui)
 
         c.close()
         return retval
@@ -1697,6 +1729,21 @@ class CmbProject(GObject.Object, Gio.ListModel):
             if ui:
                 ui._library_changed(pk[1])
 
+    def __db_freeze(self):
+        self.history_enabled = False
+        self.db.foreign_keys = False
+        self.db.ignore_check_constraints = True
+
+    def __db_thaw(self):
+        self.db.foreign_keys = True
+        self.db.ignore_check_constraints = False
+        self.history_enabled = True
+
+    def clear_history(self):
+        self.history_index = 0
+        self.db.clear_history()
+        self.emit("changed")
+
     def __undo_redo(self, undo):
         selection = self.get_selection()
 
@@ -1707,9 +1754,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         update_parents = []
 
         try:
-            self.history_enabled = False
-            self.db.foreign_keys = False
-            self.db.ignore_check_constraints = True
+            self.__db_freeze()
 
             if command == "POP":
                 if undo:
@@ -1730,16 +1775,10 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 # Undo / Redo in DB
                 self.__undo_redo_do(undo, update_parents)
 
-            self.db.foreign_keys = True
-            self.db.ignore_check_constraints = False
-            self.history_enabled = True
+            self.__db_thaw()
         except sqlite3.Error as e:
-            self.history_enabled = True
-            self.db.foreign_keys = True
-            self.db.ignore_check_constraints = False
-
-            self.history_index = 0
-            self.db.clear_history()
+            self.__db_thaw()
+            self.clear_history()
             raise e
 
         # Compress update commands
