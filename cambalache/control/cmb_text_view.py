@@ -48,3 +48,6 @@ class CmbTextView(Gtk.ScrolledWindow):
         )
 
         self.set_child(self.view)
+
+
+Gtk.WidgetClass.set_css_name(CmbTextView, "CmbTextView")
