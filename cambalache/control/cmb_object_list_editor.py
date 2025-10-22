@@ -44,7 +44,7 @@ class CmbObjectListEditor(Gtk.ScrolledWindow):
         self.view = Gtk.TextView(visible=True, buffer=self.buffer)
         self.set_child(self.view)
 
-        self.buffer .connect("notify::text", self.__on_text_notify)
+        self.buffer.connect("notify::text", self.__on_text_notify)
 
     def __on_text_notify(self, obj, pspec):
         if self.__updating:
@@ -91,3 +91,6 @@ class CmbObjectListEditor(Gtk.ScrolledWindow):
         else:
             self.buffer.props.text = ""
         self.__updating = False
+
+
+Gtk.WidgetClass.set_css_name(CmbObjectListEditor, "CmbObjectListEditor")
