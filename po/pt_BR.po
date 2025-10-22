@@ -2108,7 +2108,7 @@ msgstr "Juan Pablo Ugarte"
 
 #, fuzzy
 #~ msgid "Blueprint Release!"
-#~ msgstr "Lançamento do GMenu!"
+#~ msgstr "Lançamento do Blueprint!"
 
 #~ msgid "Clear"
 #~ msgstr "Claro"
