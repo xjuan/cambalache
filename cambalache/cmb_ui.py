@@ -195,6 +195,25 @@ class CmbUI(CmbBaseUI, Gio.ListModel):
 
         return target
 
+    def reload(self):
+        if not self.project or not self.filename:
+            return False
+
+        # Disable history
+        self.project.history_enabled = False
+
+        # Import file and overwrite
+        ui, msgs, detail_msg = self.project.import_file(self.filename, overwrite=True)
+
+        self.changed_on_disk = False
+
+        # Clear history
+        self.project.history_enabled = True
+        self.project.clear_history()
+
+        # Select currently reloaded file
+        self.project.set_selection([ui])
+
     # GListModel iface
     def do_get_item(self, position):
         ui_id = self.ui_id
@@ -228,3 +247,4 @@ class CmbUI(CmbBaseUI, Gio.ListModel):
 
     def do_get_n_items(self):
         return self.n_items
+
