@@ -355,7 +355,7 @@ class CmbDB(GObject.GObject):
                   (SELECT command, table_name, columns FROM history WHERE history_id = {history_seq})
                   IS ('UPDATE', '{table}', json_array('{column}'))
                 BEGIN
-                  UPDATE history SET new_values=json_array({new_values}) WHERE history_id = {history_seq};
+                  UPDATE history SET version=version+1, new_values=json_array({new_values}) WHERE history_id = {history_seq};
                 END;
                 """
             )
@@ -370,7 +370,7 @@ class CmbDB(GObject.GObject):
                   (SELECT command, table_name, columns, new_values ->> {column_index} IS NULL FROM history WHERE history_id = {history_seq})
                   IS ('INSERT', '{table}', NULL, 0)
                 BEGIN
-                  UPDATE history SET new_values=json_array({new_values}) WHERE history_id = {history_seq};
+                  UPDATE history SET version=version+1, new_values=json_array({new_values}) WHERE history_id = {history_seq};
                 END;
                 """
             )

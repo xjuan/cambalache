@@ -38,6 +38,7 @@ INSERT INTO global VALUES('history_index', -1);
 
 CREATE TABLE history (
   history_id INTEGER PRIMARY KEY,
+  version INTEGER DEFAULT 0,
   command TEXT NOT NULL,
   range_id INTEGER REFERENCES history,
   table_name TEXT,
