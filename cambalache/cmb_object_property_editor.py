@@ -299,7 +299,8 @@ It has to be exposed by your application with GtkBuilder expose_object method."
 
         if self.__object:
             self.__object.disconnect_by_func(self.__on_object_notify)
-            self.__object.ui.disconnect_by_func(self.__on_object_ui_notify)
+            if self.__object.ui:
+                self.__object.ui.disconnect_by_func(self.__on_object_ui_notify)
 
         for binding in self.__bindings:
             binding.unbind()
@@ -310,7 +311,8 @@ It has to be exposed by your application with GtkBuilder expose_object method."
 
         if obj:
             obj.connect("notify", self.__on_object_notify)
-            obj.ui.connect("notify", self.__on_object_ui_notify)
+            if obj.ui:
+                obj.ui.connect("notify", self.__on_object_ui_notify)
 
         self.__update_view()
 
