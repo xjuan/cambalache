@@ -66,7 +66,6 @@ class CmbCSSEditor(Gtk.Box):
         if self._object:
             self._object.project.disconnect_by_func(self.__on_ui_added_removed)
             self._object.disconnect_by_func(self.__on_provider_for_notify)
-            self._object.disconnect_by_func(self.__on_css_notify)
 
         self._bindings = []
 
