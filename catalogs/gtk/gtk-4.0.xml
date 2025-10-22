@@ -974,7 +974,7 @@
 	("GtkAccessibleProperty","GTK_ACCESSIBLE_PROPERTY_VALUE_MAX","value-max",15,"Defines the maximum allowed value for a range widget. Value type: double"),
 	("GtkAccessibleProperty","GTK_ACCESSIBLE_PROPERTY_VALUE_MIN","value-min",16,"Defines the minimum allowed value for a range widget. Value type: double"),
 	("GtkAccessibleProperty","GTK_ACCESSIBLE_PROPERTY_VALUE_NOW","value-now",17,"Defines the current value for a range widget. Value type: double"),
-	("GtkAccessibleProperty","GTK_ACCESSIBLE_PROPERTY_VALUE_TEXT","value-text",18,"Defines the human readable text alternative of aria-valuenow for a range widget. Value type: string"),
+	("GtkAccessibleProperty","GTK_ACCESSIBLE_PROPERTY_VALUE_TEXT","value-text",18,"Defines the human readable text alternative of [enum@Gtk.AccessibleProperty.VALUE_NOW] for a range widget. Value type: string"),
 	("GtkAccessibleRelation","GTK_ACCESSIBLE_RELATION_ACTIVE_DESCENDANT","active-descendant",None,"Identifies the currently active element when focus is on a composite widget, combobox, textbox, group, or application. Value type: reference"),
 	("GtkAccessibleRelation","GTK_ACCESSIBLE_RELATION_COL_COUNT","col-count",1,"Defines the total number of columns in a table, grid, or treegrid. Value type: integer"),
 	("GtkAccessibleRelation","GTK_ACCESSIBLE_RELATION_COL_INDEX","col-index",2,"Defines an element's column index or position with respect to the total number of columns within a table, grid, or treegrid. Value type: integer"),
@@ -996,7 +996,7 @@
 	("GtkAccessibleRelation","GTK_ACCESSIBLE_RELATION_POS_IN_SET","pos-in-set",12,"Defines an element's number or position in the current set of listitems or treeitems. Value type: integer"),
 	("GtkAccessibleRelation","GTK_ACCESSIBLE_RELATION_ROW_COUNT","row-count",13,"Defines the total number of rows in a table, grid, or treegrid. Value type: integer"),
 	("GtkAccessibleRelation","GTK_ACCESSIBLE_RELATION_ROW_INDEX","row-index",14,"Defines an element's row index or position with respect to the total number of rows within a table, grid, or treegrid. Value type: integer"),
-	("GtkAccessibleRelation","GTK_ACCESSIBLE_RELATION_ROW_INDEX_TEXT","row-index-text",15,"Defines a human readable text alternative of aria-rowindex. Value type: string"),
+	("GtkAccessibleRelation","GTK_ACCESSIBLE_RELATION_ROW_INDEX_TEXT","row-index-text",15,"Defines a human readable text alternative of [enum@Gtk.AccessibleRelation.ROW_INDEX]. Value type: string"),
 	("GtkAccessibleRelation","GTK_ACCESSIBLE_RELATION_ROW_SPAN","row-span",16,"Defines the number of rows spanned by a cell or gridcell within a table, grid, or treegrid. Value type: integer"),
 	("GtkAccessibleRelation","GTK_ACCESSIBLE_RELATION_SET_SIZE","set-size",17,"Defines the number of items in the current set of listitems or treeitems. Value type: integer"),
 	("GtkAccessibleRole","GTK_ACCESSIBLE_ROLE_ALERT","alert",None,"An element with important, and usually time-sensitive, information"),
@@ -1796,8 +1796,11 @@
 	("GtkAssistant","action_area",None,"GtkBox",None),
 	("GtkComboBox","entry",None,"GtkEntry","has-entry"),
 	("GtkDialog","action_area",None,"GtkBox",None),
+	("GtkDialog","content_area",None,"GtkBox",None),
+	("GtkMessageDialog","message_area",None,"GtkBox",None),
 	("GtkScaleButton","minus_button",None,"GtkButton",None),
 	("GtkScaleButton","plus_button",None,"GtkButton",None),
+	("GtkStatusbar","message_area",None,"GtkBox",None),
 	("GtkTreeView","selection",None,"GtkTreeSelection",None)
   </type_internal_child>
   <property>

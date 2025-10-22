@@ -123,6 +123,7 @@
         <type>action</type>
       </children-types>
       <internal-children target="Gtk-4.0">
+        <child name="content_area"/>
         <child name="action_area"/>
       </internal-children>
       <internal-children target="Gtk+-3.0">
@@ -309,6 +310,20 @@
       <internal-children>
         <child name="entry" type="GtkEntry" creation-property-id="has-entry"/>
       </internal-children>
+      <!--
+      Do not expose these internal children as I think they where exposed by mistake in Gtk
+      since the documentation does not mention them.
+      <internal-children target="Gtk-4.0">
+        <child name="box">
+          <child name="button">
+            <child name="arrow" type="GtkWidget"/>
+          </child>
+        </child>
+        <child name="popup_widget" type="GtkPopover">
+          <child name="area"/>
+        </child>
+      </internal-children>
+      -->
     </GtkComboBox>
 
     <GtkAppChooserButton>
@@ -355,6 +370,9 @@
         <property id="secondary-text" translatable="True"/>
         <property id="text" translatable="True"/>
       </properties>
+      <internal-children target="Gtk-4.0">
+        <child name="message_area"/>
+      </internal-children>
     </GtkMessageDialog>
 
     <GtkModelButton>
@@ -599,6 +617,13 @@
         </child>
       </internal-children>
     </GtkFontSelectionDialog>
+
+    <GtkStatusbar>
+      <internal-children target="Gtk-4.0">
+        <child name="message_area"/>
+      </internal-children>
+    </GtkStatusbar>
+
   </types>
 
   <categories>
