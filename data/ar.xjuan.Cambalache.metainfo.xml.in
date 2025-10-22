@@ -14,7 +14,7 @@
     </p>
   </description>
   <releases>
-    <release date="2025-10-04" version="0.97.9">
+    <release date="2025-10-04" version="0.99.1">
       <description>
         <p>Getting ready for release 1.0!</p>
         <ul>
@@ -22,6 +22,7 @@
           <li>Add Blueprint support</li>
           <li>Improved workspace rendering</li>
           <li>Scrollable workspace</li>
+          <li>Monitor files for external changes</li>
           <li>Deprecate project format 0.94 and older</li>
           <li>Add Brazilian Portuguese translation. John Peter Sa</li>
           <li>Fix GResource list model update</li>

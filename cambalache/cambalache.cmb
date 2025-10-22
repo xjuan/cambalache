@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
-<!-- Created with Cambalache 0.99.0 -->
+<!-- Created with Cambalache 0.99.1 -->
 <cambalache-project version="0.96.0" target_tk="gtk-4.0">
   <gresources filename="cambalache.gresource.xml" sha256="9953ae41b8df3849d78315e56f891acdd8fd4dd89c90d0813f13d016b6d52ecf"/>
   <gresources filename="app/app.gresource.xml" sha256="70df12691402898fa0bc80fc7cd3b825dd32c532fedb4fea878ac2beff773600"/>
   <css priority="400" is_global="1" filename="cambalache.css" sha256="39175a0d928ac6f9b3c4686ff0a67029b7a4087ad71e1398a91a1f840cf0c349"/>
-  <css is_global="0" filename="app/cambalache.css" sha256="95ebef8472f0058ff0d661bec4bbf5c36338a62df495b6ce6073a1b75d9ba795"/>
+  <css is_global="0" filename="app/cambalache.css" sha256="616fdd35c0cc0477b79101b8ce209b5415915fdc8b927909a9108f208c204e71"/>
   <ui template-class="CmbChildTypeComboBox">
     <content><![CDATA[<interface>
   <!-- interface-name CmbChildTypeComboBox -->
@@ -298,7 +298,7 @@
     <requires>CmbUIRequiresEditor</requires>
     <requires>CmbFragmentEditor</requires>
   </ui>
-  <ui template-class="CmbWindow" filename="app/cmb_window.ui" sha256="655ecd21a3308e9f83216bf76f12bea314c6a71282c8619476ccedf086f246a8">
+  <ui template-class="CmbWindow" filename="app/cmb_window.ui" sha256="931059e0484db277d55539fa414912546a280dcc6672b400d380f3dbe0f1b0f0">
     <requires>CmbNotificationListView</requires>
     <requires>CmbObjectEditor</requires>
     <requires>CmbUIEditor</requires>
