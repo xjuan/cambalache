@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
-<!-- Created with Cambalache 0.97.9 -->
+<!-- Created with Cambalache 0.99.0 -->
 <cambalache-project version="0.96.0" target_tk="gtk-4.0">
   <gresources filename="cambalache.gresource.xml" sha256="9953ae41b8df3849d78315e56f891acdd8fd4dd89c90d0813f13d016b6d52ecf"/>
-  <gresources filename="app/app.gresource.xml" sha256="3684aa78fce08d8e81d0907317214aeb179c5aea091dd0df405476b43e286941"/>
+  <gresources filename="app/app.gresource.xml" sha256="70df12691402898fa0bc80fc7cd3b825dd32c532fedb4fea878ac2beff773600"/>
   <css priority="400" is_global="1" filename="cambalache.css" sha256="39175a0d928ac6f9b3c4686ff0a67029b7a4087ad71e1398a91a1f840cf0c349"/>
-  <css is_global="0" filename="app/cambalache.css" sha256="c60278f76060233be0903d7f1ac887cf44d434150c962a8d9e0d2ec085c33f39"/>
+  <css is_global="0" filename="app/cambalache.css" sha256="95ebef8472f0058ff0d661bec4bbf5c36338a62df495b6ce6073a1b75d9ba795"/>
   <ui template-class="CmbChildTypeComboBox">
     <content><![CDATA[<interface>
   <!-- interface-name CmbChildTypeComboBox -->
@@ -272,46 +272,43 @@
     <requires>CmbEntry</requires>
     <requires>CmbToplevelChooser</requires>
   </ui>
+  <ui template-class="CmbGResourceEditor" filename="cmb_gresource_editor.ui" sha256="2b93cb05b05bcbb929b829b893ee462f8b5be68d06cc7990ba4072c485e44f0b">
+    <requires>CmbFileButton</requires>
+    <requires>CmbEntry</requires>
+  </ui>
   <ui template-class="CmbBindingPopover" filename="cmb_binding_popover.ui" sha256="e3138c75d2c45534c1b41acbc3724a760b3a390effebcf0f54df1e04f3e748cc">
     <requires>CmbObjectChooser</requires>
     <requires>CmbPropertyChooser</requires>
     <requires>CmbFlagsEntry</requires>
   </ui>
-  <ui template-class="CmbCSSEditor" filename="cmb_css_editor.ui" sha256="0e6e9d6a6bdfef724f8985f90d4aa863781a91cca678b3590e22e5fd6bb59ad9">
+  <ui template-class="CmbCSSEditor" filename="cmb_css_editor.ui" sha256="610637168363490d884e028f30e190473ec5db18b584e461fe9a7595b5c300f1">
     <requires>CmbFileChangedBar</requires>
     <requires>CmbFileButton</requires>
     <requires>CmbSourceView</requires>
   </ui>
-  <ui template-class="CmbGResourceEditor" filename="cmb_gresource_editor.ui" sha256="f74ea1415b55ff8026a7acd6dee073da641e7e08143529ead7dbe7030201a148">
-    <requires>CmbFileChangedBar</requires>
-    <requires>CmbFileButton</requires>
-    <requires>CmbEntry</requires>
-  </ui>
-  <ui template-class="CmbObjectEditor" filename="cmb_object_editor.ui" sha256="5fc2f42a02868f99cb381ffca6d19d49f0ac8eeb548fd1c35ea1bd9bb6643589">
-    <requires>CmbFileChangedBar</requires>
+  <ui template-class="CmbObjectEditor" filename="cmb_object_editor.ui" sha256="3f45b033ef7c7c09096c81667b809adb1a625ea90d44e5ce888af5ef53dce845">
     <requires>CmbScrolledWindow</requires>
     <requires>CmbObjectPropertyEditor</requires>
     <requires>CmbSignalEditor</requires>
     <requires>CmbAccessibleEditor</requires>
     <requires>CmbFragmentEditor</requires>
   </ui>
-  <ui template-class="CmbUIEditor" filename="cmb_ui_editor.ui" sha256="bf1a5859a93861bc560ed507b2ffe7d296865b20bb603a885f1fbace487f15c4">
-    <requires>CmbFileChangedBar</requires>
+  <ui template-class="CmbUIEditor" filename="cmb_ui_editor.ui" sha256="1f18225476273d1aeb81e66399e5953a22ae4516ecf2327dcf57f63a9ac5714e">
     <requires>CmbUIPropertyEditor</requires>
     <requires>CmbUIRequiresEditor</requires>
     <requires>CmbFragmentEditor</requires>
   </ui>
-  <ui template-class="CmbWindow" filename="app/cmb_window.ui" sha256="bd90840cae8980b5fb095f111369ba9cc9c075a2fad3dcb5105d27cb00197082">
+  <ui template-class="CmbWindow" filename="app/cmb_window.ui" sha256="655ecd21a3308e9f83216bf76f12bea314c6a71282c8619476ccedf086f246a8">
     <requires>CmbNotificationListView</requires>
     <requires>CmbObjectEditor</requires>
     <requires>CmbUIEditor</requires>
     <requires>CmbCSSEditor</requires>
     <requires>CmbGResourceEditor</requires>
     <requires>CmbTypeChooser</requires>
+    <requires>CmbFileChangedBar</requires>
     <requires>CmbView</requires>
     <requires>CmbSourceView</requires>
     <requires>CmbScrolledWindow</requires>
     <requires>CmbListView</requires>
-    <css-provider>app/cambalache.css</css-provider>
   </ui>
 </cambalache-project>

@@ -119,7 +119,8 @@ stackswitcher.property-pane {
   padding: 4px;
 }
 
-textview {
+CmbTextView > textview,
+CmbObjectListEditor > textview {
   border: solid @borders 1px;
 }
 
