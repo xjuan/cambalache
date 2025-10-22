@@ -40,8 +40,9 @@ class CmbBaseFileMonitor(CmbBase):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.gfile = None
+        self.saving = False
         self.monitor = None
+        self.gfile = None
 
     def update_file_monitor(self, filename):
         if self.monitor:
@@ -64,10 +65,11 @@ class CmbBaseFileMonitor(CmbBase):
 
         if os.path.exists(fullpath):
             def on_file_changed(file_monitor, file, other_file, event_type):
-                if self.project.saving:
-                    return
-
                 if event_type == Gio.FileMonitorEvent.CHANGES_DONE_HINT:
+                    if self.saving:
+                        self.saving = False
+                        return
+
                     self.changed_on_disk = True
 
             self.gfile = Gio.File.new_for_path(fullpath)
