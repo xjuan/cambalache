@@ -102,6 +102,25 @@ class CmbGResource(CmbBaseGResource, Gio.ListModel):
             file_filename = self.file_filename
             return file_filename if file_filename else _("Unnamed file {id}").format(id=self.gresource_id)
 
+    def reload(self):
+        if not self.project or not self.gresources_filename:
+            return False
+
+        # Disable history
+        self.project.history_enabled = False
+
+        # Import file and overwrite
+        gresource = self.project.import_gresource(self.gresources_filename, overwrite=True)
+
+        self.changed_on_disk = False
+
+        # Clear history
+        self.project.history_enabled = True
+        self.project.clear_history()
+
+        # Select currently reloaded file
+        self.project.set_selection([gresource])
+
     # GListModel helpers
     def _save_last_known_parent_and_position(self):
         self._last_known = (self.parent, self.position)
