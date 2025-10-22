@@ -1,20 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.97.9 -->
+<!-- Created with Cambalache 0.99.0 -->
 <interface>
   <!-- interface-name cmb_object_editor.ui -->
   <!-- interface-copyright Juan Pablo Ugarte -->
   <requires lib="gtk" version="4.0"/>
   <template class="CmbObjectEditor" parent="GtkBox">
     <property name="orientation">vertical</property>
-    <child>
-      <object class="CmbFileChangedBar">
-        <binding name="object">
-          <lookup name="ui" type="CmbObject">
-            <lookup name="object" type="CmbObjectEditor">CmbObjectEditor</lookup>
-          </lookup>
-        </binding>
-      </object>
-    </child>
     <child>
       <object class="GtkStackSwitcher">
         <property name="halign">center</property>
