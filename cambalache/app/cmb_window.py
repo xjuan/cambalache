@@ -33,6 +33,7 @@ from . import cmb_tutorial
 
 from cambalache import (
     CmbProject,
+    CmbBaseFileMonitor,
     CmbUI,
     CmbCSS,
     CmbObject,
@@ -115,6 +116,7 @@ class CmbWindow(Adw.ApplicationWindow):
     menu_button = Gtk.Template.Child()
 
     # Properties
+    current_file_object = GObject.Property(type=CmbBaseFileMonitor, flags=GObject.ParamFlags.READWRITE)
     source_style = GObject.Property(type=GtkSource.StyleScheme, flags=GObject.ParamFlags.READWRITE)
 
     # Settings
@@ -131,6 +133,7 @@ class CmbWindow(Adw.ApplicationWindow):
     def __init__(self, **kwargs):
         self.__project = None
         self.__last_saved_index = None
+        self.__last_saved_index_version = None
         self.__np_location = None
 
         super().__init__(**kwargs)
@@ -566,19 +569,23 @@ class CmbWindow(Adw.ApplicationWindow):
 
         if isinstance(obj, CmbUI):
             self.ui_editor.object = obj
+            self.current_file_object = obj
             self.workspace_stack.set_visible_child_name("ui")
             self.editor_stack.set_visible_child_name("ui")
             obj = None
         elif isinstance(obj, CmbObject):
+            self.current_file_object = obj.ui
             self.workspace_stack.set_visible_child_name("ui")
             self.editor_stack.set_visible_child_name("object")
             if obj:
                 self.__user_message_by_type(obj.info)
         elif isinstance(obj, CmbCSS):
+            self.current_file_object = None
             self.css_editor.object = obj
             self.editor_stack.set_visible_child_name("css")
             obj = None
         elif isinstance(obj, CmbGResource):
+            self.current_file_object = obj
             self.gresource_editor.object = obj
             self.workspace_stack.set_visible_child_name("gresource")
             self.editor_stack.set_visible_child_name("gresource")
@@ -626,10 +633,13 @@ class CmbWindow(Adw.ApplicationWindow):
         self.actions["remove_parent"].set_enabled(False)
 
     def __needs_saving(self):
-        has_project = self.__is_project_visible()
-        changed = has_project and self.project.history_index != self.__last_saved_index
+        if self.project is None:
+            return False
 
-        return has_project and changed
+        return self.__is_project_visible() and (
+            self.project.history_index != self.__last_saved_index or
+            self.project.history_index_version != self.__last_saved_index_version
+        )
 
     def __update_action_save(self):
         changed = self.__needs_saving()
@@ -820,6 +830,7 @@ class CmbWindow(Adw.ApplicationWindow):
 
         self.project = CmbProject(filename=filename, target_tk=target_tk)
         self.__last_saved_index = self.project.history_index
+        self.__last_saved_index_version = self.project.history_index_version
 
         # Create UI and select it
         ui = self.project.add_ui(uipath)
@@ -849,6 +860,7 @@ class CmbWindow(Adw.ApplicationWindow):
                 self.project = CmbProject(filename=filename, target_tk=target_tk)
 
             self.__last_saved_index = self.project.history_index
+            self.__last_saved_index_version = self.project.history_index_version
             self.__set_page("workspace")
             self.__update_actions()
         except Exception as e:
@@ -1247,6 +1259,7 @@ class CmbWindow(Adw.ApplicationWindow):
         finally:
             if retval:
                 self.__last_saved_index = self.project.history_index
+                self.__last_saved_index_version = self.project.history_index_version
                 self.__update_action_save()
                 self.emit("project-saved", self.project)
 
