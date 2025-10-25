@@ -93,6 +93,7 @@ gtk/gdk-4.0.xml:
 		--dependencies pango-1.0 gdkpixbuf-2.0 \
 		--gir /usr/share/gir-1.0/Gdk-4.0.gir \
 		--boxed-types GdkRGBA GdkContentFormats\
+		--types GdkPaintable \
 		--exclude-objects \
 		--output $@
 

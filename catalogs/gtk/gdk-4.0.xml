@@ -24,6 +24,7 @@
 	("GdkMemoryFormat","enum","gdk",None,None,None,None,None,None,None),
 	("GdkModifierType","flags","gdk",None,None,None,None,None,None,None),
 	("GdkNotifyType","enum","gdk",None,None,None,None,None,None,None),
+	("GdkPaintable","interface","gdk",None,None,None,None,None,None,None),
 	("GdkPaintableFlags","flags","gdk",None,None,None,None,None,None,None),
 	("GdkRGBA","boxed","gdk",None,None,None,None,None,None,None),
 	("GdkScrollDirection","enum","gdk",None,None,None,None,None,None,None),
@@ -334,4 +335,8 @@
 	("GdkToplevelState","GDK_TOPLEVEL_STATE_TOP_RESIZABLE","top-resizable",512,"whether the top edge is resizable"),
 	("GdkToplevelState","GDK_TOPLEVEL_STATE_TOP_TILED","top-tiled",256,"whether the top edge is tiled")
   </type_flags>
+  <signal>
+	("GdkPaintable","invalidate-contents",None,None,None),
+	("GdkPaintable","invalidate-size",None,None,None)
+  </signal>
 </cambalache-catalog>
