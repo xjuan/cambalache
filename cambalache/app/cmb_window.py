@@ -665,6 +665,7 @@ class CmbWindow(Adw.ApplicationWindow):
             "add_gresource",
             "delete",
             "import",
+            "import_directory",
             "close",
             "debug"
         ]:
@@ -694,33 +695,50 @@ class CmbWindow(Adw.ApplicationWindow):
         return dialog
 
     def present_message_to_user(self, message, secondary_text=None, details=None):
+        # TODO: replace with custom widget
+
         dialog = Gtk.MessageDialog(
             transient_for=self,
-            message_type=Gtk.MessageType.INFO,
-            buttons=Gtk.ButtonsType.OK,
             text=message,
             secondary_text=secondary_text,
             modal=True,
         )
 
+        dialog.add_button(_("Copy to clipboard"), 1)
+        dialog.add_button(_("Close"), Gtk.ResponseType.CLOSE)
+
         if details:
+            sw = Gtk.ScrolledWindow(
+                vexpand=True,
+                propagate_natural_width=True,
+                propagate_natural_height=True,
+                max_content_width=800,
+                max_content_height=480,
+            )
             box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+            sw.set_child(box)
 
             for detail in details:
                 box.append(
                     Gtk.Label(
                         label=detail,
+                        use_markup=True,
                         halign=Gtk.Align.START,
                         xalign=0.0,
-                        lines=2,
-                        max_width_chars=80,
-                        wrap_mode=Pango.WrapMode.CHAR,
-                        ellipsize=Pango.EllipsizeMode.END,
+                        max_width_chars=120,
+                        wrap_mode=Pango.WrapMode.WORD,
                     )
                 )
-            dialog.props.message_area.append(box)
+            dialog.props.message_area.append(sw)
 
-        dialog.connect("response", lambda d, r: dialog.destroy())
+        def on_response(dialog, response):
+            if response == 1:
+                clip = self.get_clipboard()
+                clip.set(f"{message}\n{secondary_text}\n{'\n'.join(details or [])}")
+            else:
+                dialog.destroy()
+
+        dialog.connect("response", on_response)
         dialog.present()
 
     def __check_if_filename_is_in_portal(self, filename):
@@ -729,7 +747,7 @@ class CmbWindow(Adw.ApplicationWindow):
 
         return filename.startswith(f"/run/user/{os.getuid()}/doc/")
 
-    def import_ui(self, filename, target_tk=None, autoselect=True):
+    def import_ui(self, filename, target_tk=None, autoselect=True, present_errors=True):
         if self.project is None:
             dirname = os.path.dirname(filename)
             basename = os.path.basename(filename)
@@ -740,7 +758,7 @@ class CmbWindow(Adw.ApplicationWindow):
 
             if not target_tk:
                 self.ask_gtk_version(filename)
-                return
+                return (None, None)
 
             self.project = CmbProject(filename=os.path.join(dirname, f"{name}.cmb"), target_tk=target_tk)
             self.__set_page("workspace")
@@ -752,7 +770,7 @@ class CmbWindow(Adw.ApplicationWindow):
         if ui:
             if autoselect:
                 self.project.set_selection([ui])
-            return
+            return (None, None)
 
         try:
             if self.__check_if_filename_is_in_portal(filename):
@@ -769,8 +787,7 @@ class CmbWindow(Adw.ApplicationWindow):
 
                 filename = os.path.basename(filename)
                 name, ext = os.path.splitext(filename)
-                unsupported_features_list = None
-                text = None
+                title = _("Error importing {filename}").format(filename=os.path.basename(filename))
 
                 if len(msg) > 1:
                     # Translators: This is used to create a unordered list of unsupported features to show the user
@@ -783,6 +800,10 @@ class CmbWindow(Adw.ApplicationWindow):
                     last_msg = _("Your file will be saved as '{name}.cmb.ui' to avoid data loss.").format(name=name)
 
                     unsupported_features_list = [first_msg] + list + [last_msg]
+                    if present_errors:
+                        self.present_message_to_user(title, details=unsupported_features_list)
+
+                    return (title, "\n".join(unsupported_features_list))
                 else:
                     unsupported_feature = msg[0]
                     text = _(
@@ -790,17 +811,24 @@ class CmbWindow(Adw.ApplicationWindow):
                         "Your file will be saved as '{name}.cmb.ui' to avoid data loss."
                     ).format(unsupported_feature=unsupported_feature, name=name)
 
-                self.present_message_to_user(
-                    _("Error importing {filename}").format(filename=os.path.basename(filename)),
-                    secondary_text=text,
-                    details=unsupported_features_list,
-                )
+                    if present_errors:
+                        self.present_message_to_user(title, secondary_text=text)
+
+                    return (title, text)
+
+            # All good!
+            return (None, None)
         except Exception as e:
             filename = os.path.basename(filename)
             logger.warning(f"Error loading {filename}", exc_info=True)
-            self.present_message_to_user(
-                _("Error importing {filename}").format(filename=filename), secondary_text=str(e)
-            )
+
+            title = _("Exception importing {filename}").format(filename=filename)
+            msg = str(e)
+
+            if present_errors:
+                self.present_message_to_user(title, secondary_text=msg)
+
+            return (title, msg)
 
     def ask_gtk_version(self, filename):
         basename = os.path.basename(filename)
@@ -1134,15 +1162,17 @@ class CmbWindow(Adw.ApplicationWindow):
             details=unsupported_features_list,
         )
 
-    def import_file(self, path, autoselect=True):
+    def import_file(self, path, autoselect=True, present_errors=True):
         content_type = utils.content_type_guess(path)
 
         if content_type in ["application/x-gtk-builder", "application/x-glade", "text/x-blueprint"]:
-            self.import_ui(path, autoselect=autoselect)
+            return self.import_ui(path, autoselect=autoselect, present_errors=present_errors)
         elif content_type == "text/css":
             self.project.add_css(path)
         elif content_type == "application/xml" and path.endswith("gresource.xml"):
             self.project.import_gresource(path)
+
+        return (None, None)
 
     def _on_import_activate(self, action, data):
         if self.project is None:
@@ -1214,16 +1244,30 @@ class CmbWindow(Adw.ApplicationWindow):
 
                 basedir = self.project.dirname + "/"
 
+                errors = []
+
                 for i, path in enumerate(files):
                     progressbar.set_text(path.removeprefix(basedir))
                     progressbar.set_fraction(i/n_files)
-                    self.import_file(path, autoselect=False)
+                    error, error_details = self.import_file(path, autoselect=False, present_errors=False)
+
+                    if error:
+                        errors.append(f"\n<b>{error}</b>\n{error_details}")
 
                     while main_loop.pending():
                         main_loop.iteration(False)
 
                 self.project.history_pop()
-                self._show_message(_("Imported {n} files").format(n=n_files))
+
+                if errors:
+                    text = _("{errors} files out of {n} had errors while loading").format(errors=len(errors), n=n_files)
+                    self.present_message_to_user(
+                        _("Error importing directory {basename}").format(basename=os.path.basename(dirpath)),
+                        secondary_text=text,
+                        details=errors
+                    )
+                else:
+                    self._show_message(_("Imported {n} files").format(n=n_files))
 
                 progress.close()
 
