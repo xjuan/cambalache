@@ -24,6 +24,9 @@
 #
 
 from gi.repository import GObject
+from cambalache import getLogger
+
+logger = getLogger(__name__)
 
 
 class CmbBase(GObject.GObject):
@@ -34,10 +37,16 @@ class CmbBase(GObject.GObject):
         super().__init__(**kwargs)
 
     def db_get(self, query, pk):
-        c = self.project.db.execute(query, pk)
-        row = c.fetchone()
-        c.close()
+        try:
+            row = self.project.db.execute(query, pk).fetchone()
+        except Exception as e:
+            logger.warning(e)
+            return None
+
         return row[0] if row is not None else None
 
     def db_set(self, query, pk, value):
-        self.project.db.execute(query, (value,) + pk)
+        try:
+            self.project.db.execute(query, (value,) + pk)
+        except Exception as e:
+            logger.warning(e)
