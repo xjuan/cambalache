@@ -414,7 +414,6 @@ class CmbDB(GObject.GObject):
         for values in [
             (GMENU_SECTION_TYPE, "label", "gchararray", True),
             (GMENU_SUBMENU_TYPE, "label", "gchararray", True),
-            (GMENU_ITEM_TYPE, "target", "gchararray", False),
             (GMENU_ITEM_TYPE, "label", "gchararray", True),
             (GMENU_ITEM_TYPE, "action", "gchararray", False),
             (GMENU_ITEM_TYPE, "action-namespace", "gchararray", False),
@@ -1002,7 +1001,13 @@ class CmbDB(GObject.GObject):
         if node.tag is etree.Comment:
             return
 
-        self.__collect_error("unknown-tag", node, f"{owner}:{node.tag}" if owner_id else node.tag)
+        self.__collect_error("unknown-tag", node, f"{owner_id}:{node.tag}" if owner_id else node.tag)
+
+    def __unknown_property(self, node, owner_id, property_id):
+        if node.tag is etree.Comment:
+            return
+
+        self.__collect_error("unknown-property", node, f"{owner_id}:{property_id}")
 
     def __node_get(self, node, *args, collect_errors=True):
         errors = [] if collect_errors else None
@@ -1058,7 +1063,7 @@ class CmbDB(GObject.GObject):
         pinfo = self.__get_property_info(info, property_id)
 
         if pinfo is None:
-            self.__collect_error("unknown-property", prop, f"{info.type_id}:{property_id}")
+            self.__unknown_property(prop, info.type_id, property_id)
             return
 
         # Property value
@@ -1106,7 +1111,7 @@ class CmbDB(GObject.GObject):
         pinfo = self.__get_property_info(info, property_id)
 
         if pinfo is None:
-            self.__collect_error("unknown-property", prop, f"{info.type_id}:{property_id}")
+            self.__unknown_property(prop, info.type_id, property_id)
             return
 
         # Get expression object
@@ -1222,7 +1227,7 @@ class CmbDB(GObject.GObject):
         pinfo = self.__get_property_info(info, property_id)
 
         if not pinfo:
-            self.__collect_error("unknown-property", prop, f"{info.type_id}:{property_id}")
+            self.__unknown_property(prop, info.type_id, property_id)
             return
 
         if pinfo.type_id == "CmbAccessibleList":
@@ -1361,11 +1366,11 @@ class CmbDB(GObject.GObject):
         return None
 
     def __import_layout_properties(self, c, info, ui_id, parent_id, object_id, layout):
-        c.execute("SELECT type_id FROM object WHERE ui_id=? AND object_id=?;", (ui_id, parent_id))
-        parent_type = c.fetchone()
-
-        if parent_type is None:
+        row = c.execute("SELECT type_id FROM object WHERE ui_id=? AND object_id=?;", (ui_id, parent_id)).fetchone()
+        if row is None:
             return
+
+        parent_type, = row
 
         for prop in layout.iterchildren():
             if prop.tag != "property":
@@ -1375,7 +1380,11 @@ class CmbDB(GObject.GObject):
             name, translatable, context, comments = self.__node_get(prop, "name", ["translatable:bool", "context", "comments"])
             property_id = name.replace("_", "-")
             comment = self.__node_get_comment(prop)
-            owner_id = self.__get_layout_property_owner(parent_type[0], property_id)
+            owner_id = self.__get_layout_property_owner(parent_type, property_id)
+
+            if owner_id is None:
+                self.__unknown_property(prop, f"{parent_type}LayoutChild", property_id)
+                continue
 
             try:
                 c.execute(
