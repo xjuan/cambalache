@@ -1116,7 +1116,13 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         try:
             self.history_push(_("Add CSS {basename}").format(basename=basename or ""))
-            css_id = self.db.add_css(relpath)
+            if os.path.exists(filename):
+                with open(filename, "r") as fd:
+                    css = fd.read()
+            else:
+                css = None
+
+            css_id = self.db.add_css(relpath, css=css)
             self.db.commit()
             self.history_pop()
         except Exception:
