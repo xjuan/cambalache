@@ -1104,19 +1104,19 @@ class CmbProject(GObject.Object, Gio.ListModel):
         return retval
 
     def __add_css(self, emit, css_id, filename=None, priority=None, is_global=None, css=None):
-        css = CmbCSS(project=self, css_id=css_id)
-        self.__css_id[css_id] = css
+        css_object = CmbCSS(project=self, css_id=css_id)
+        self.__css_id[css_id] = css_object
         if emit:
-            self.emit("css-added", css)
+            self.emit("css-added", css_object)
 
-        return css
+        return css_object
 
     def add_css(self, filename=None):
         basename, relpath = self._get_basename_relpath(filename)
 
         try:
             self.history_push(_("Add CSS {basename}").format(basename=basename or ""))
-            if os.path.exists(filename):
+            if filename and os.path.exists(filename):
                 with open(filename, "r") as fd:
                     css = fd.read()
             else:
@@ -1126,6 +1126,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
             self.db.commit()
             self.history_pop()
         except Exception:
+            logger.warning("Tried to add CSS", exc_info=True)
             return None
         else:
             return self.__add_css(True, css_id, relpath)
