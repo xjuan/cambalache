@@ -21,41 +21,41 @@
 
 #pragma once
 
-#include "gtksvg.h"
+#include "cmb_private_svg.h"
 
 G_BEGIN_DECLS
 
-void           gtk_svg_set_load_time   (GtkSvg                *self,
+void           cmb_private_svg_set_load_time   (CmbPrivateSvg                *self,
                                         int64_t                load_time);
 
-void           gtk_svg_set_playing     (GtkSvg                *self,
+void           cmb_private_svg_set_playing     (CmbPrivateSvg                *self,
                                         gboolean               playing);
 
-void           gtk_svg_advance         (GtkSvg                *self,
+void           cmb_private_svg_advance         (CmbPrivateSvg                *self,
                                         int64_t                current_time);
 
 typedef enum
 {
-  GTK_SVG_RUN_MODE_STOPPED,
-  GTK_SVG_RUN_MODE_DISCRETE,
-  GTK_SVG_RUN_MODE_CONTINUOUS,
-} GtkSvgRunMode;
+  CMB_PRIVATE_SVG_RUN_MODE_STOPPED,
+  CMB_PRIVATE_SVG_RUN_MODE_DISCRETE,
+  CMB_PRIVATE_SVG_RUN_MODE_CONTINUOUS,
+} CmbPrivateSvgRunMode;
 
-GtkSvgRunMode  gtk_svg_get_run_mode    (GtkSvg *self);
+CmbPrivateSvgRunMode  cmb_private_svg_get_run_mode    (CmbPrivateSvg *self);
 
-int64_t        gtk_svg_get_next_update (GtkSvg *self);
+int64_t        cmb_private_svg_get_next_update (CmbPrivateSvg *self);
 
 typedef enum
 {
-  GTK_SVG_SERIALIZE_DEFAULT           = 0,
-  GTK_SVG_SERIALIZE_AT_CURRENT_TIME   = 1 << 0,
-  GTK_SVG_SERIALIZE_EXCLUDE_ANIMATION = 1 << 1,
-  GTK_SVG_SERIALIZE_INCLUDE_STATE     = 1 << 2,
-} GtkSvgSerializeFlags;
+  CMB_PRIVATE_SVG_SERIALIZE_DEFAULT           = 0,
+  CMB_PRIVATE_SVG_SERIALIZE_AT_CURRENT_TIME   = 1 << 0,
+  CMB_PRIVATE_SVG_SERIALIZE_EXCLUDE_ANIMATION = 1 << 1,
+  CMB_PRIVATE_SVG_SERIALIZE_INCLUDE_STATE     = 1 << 2,
+} CmbPrivateSvgSerializeFlags;
 
-GBytes *       gtk_svg_serialize_full  (GtkSvg                *self,
+GBytes *       cmb_private_svg_serialize_full  (CmbPrivateSvg                *self,
                                         const GdkRGBA         *colors,
                                         size_t                 n_colors,
-                                        GtkSvgSerializeFlags   flags);
+                                        CmbPrivateSvgSerializeFlags   flags);
 
 G_END_DECLS

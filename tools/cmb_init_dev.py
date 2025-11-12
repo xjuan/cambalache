@@ -154,6 +154,7 @@ FILE_FORMAT_VERSION = '{fileformatversion}'
 pkgdatadir = '{localpkgdatadir}'
 merenguedir = '{cambalachedir}'
 catalogsdir = '{catalogsdir}'
+privatecambalachedir = '{localdir}'
 """,
     )
 

@@ -19,36 +19,86 @@
  * Authors: Matthias Clasen <mclasen@redhat.com>
  */
 
-#include "config.h"
+#include "cmb_private.h"
 
-#include "gtksvgprivate.h"
+#if GTK_MAJOR_VERSION == 4
+#define __GTK_H_INSIDE__ 1
 
-#include "gtkenums.h"
-#include "gtksymbolicpaintable.h"
-#include "gtktypebuiltins.h"
-#include "gtk/css/gtkcss.h"
-#include "gtk/css/gtkcssparserprivate.h"
+#include "cmb_private_svg_private.h"
+
+#include <gtk/gtkenums.h>
+#include <gtk/gtksymbolicpaintable.h>
+#include <gtk/gtktypebuiltins.h>
+#include <gtk/css/gtkcss.h>
 #include <glib/gstdio.h>
 
 #include <tgmath.h>
 #include <stdint.h>
 
+#include <math.h>
+
+#ifndef M_SQRT1_2
+#define M_SQRT1_2 0.70710678118654752440
+#endif
+
+#ifndef M_SQRT2
+#define M_SQRT2 1.41421356237309504880
+#endif
+
+
+#define gsk_path_equal __gsk_path_equal
+static gboolean
+__gsk_path_equal (const GskPath *path1, const GskPath *path2)
+{
+  /* This is not used in cambalache animation */
+  return FALSE;
+}
+
+GString *
+gdk_rgba_print (const GdkRGBA *rgba,
+                GString       *string)
+{
+  if (rgba->alpha > 0.999)
+    {
+      g_string_append_printf (string,
+                              "rgb(%d,%d,%d)",
+                              (int)(0.5 + CLAMP (rgba->red, 0., 1.) * 255.),
+                              (int)(0.5 + CLAMP (rgba->green, 0., 1.) * 255.),
+                              (int)(0.5 + CLAMP (rgba->blue, 0., 1.) * 255.));
+    }
+  else
+    {
+      char alpha[G_ASCII_DTOSTR_BUF_SIZE];
+
+      g_ascii_formatd (alpha, G_ASCII_DTOSTR_BUF_SIZE, "%g", CLAMP (rgba->alpha, 0, 1));
+
+      g_string_append_printf (string,
+                              "rgba(%d,%d,%d,%s)",
+                              (int)(0.5 + CLAMP (rgba->red, 0., 1.) * 255.),
+                              (int)(0.5 + CLAMP (rgba->green, 0., 1.) * 255.),
+                              (int)(0.5 + CLAMP (rgba->blue, 0., 1.) * 255.),
+                              alpha);
+    }
+
+  return string;
+}
+
 /**
- * GtkSvg:
+ * CmbPrivateSvg:
  *
  * A paintable implementation that renders (a subset of) SVG,
  * with animations.
  *
- * `GtkSvg` objects are created by parsing a subset of SVG,
+ * `CmbPrivateSvg` objects are created by parsing a subset of SVG,
  * including SVG animations.
  *
- * The `GtkSvg` fills or strokes paths with symbolic or fixed
+ * The `CmbPrivateSvg` fills or strokes paths with symbolic or fixed
  * colors. It can have multiple states, and paths can be included
  * in a subset of the states. The special 'empty' state is always
  * available. States can have animation, and the transition between
  * different states can also be animated.
  *
- * To find out what states a `GtkSvg` has, use [method@Gtk.Svg.get_n_states].
+ * To find out what states a `CmbPrivateSvg` has, use [method@Gtk.Svg.get_n_states].
  * To set the current state, use [method@Gtk.Svg.set_state].
  *
  * To play the animations in an SVG file, use
@@ -58,14 +108,14 @@
  *
  * ## Error handling
  *
- * Loading an SVG into `GtkSvg` will always produce a (possibly empty)
+ * Loading an SVG into `CmbPrivateSvg` will always produce a (possibly empty)
  * paintable. GTK will drop things that it can't handle and try to make
  * sense of the rest.
  *
  * To track errors during parsing or rednering, connect to the
  * [signal@Gtk.Svg::error] signal.
  *
- * For parsing errors in the `GTK_SVG_ERROR` domain, the functions
+ * For parsing errors in the `CMB_PRIVATE_SVG_ERROR` domain, the functions
  * [func@Gtk.SvgError.get_start], [func@Gtk.SvgError.get_end],
  * [func@Gtk.SvgError.get_element] and [func@Gtk.SvgError.get_attribute]
  * can be used to obtain information about where the error occurred.
@@ -271,7 +321,7 @@ typedef struct _Animation Animation;
 typedef struct _Shape Shape;
 typedef struct _Timeline Timeline;
 
-struct _GtkSvg
+struct _CmbPrivateSvg
 {
   GObject parent_instance;
   Shape *content;
@@ -292,7 +342,7 @@ struct _GtkSvg
   int64_t current_time;
 
   gboolean playing;
-  GtkSvgRunMode run_mode;
+  CmbPrivateSvgRunMode run_mode;
   GdkFrameClock *clock;
   unsigned long clock_update_id;
   unsigned int periodic_update_id;
@@ -350,7 +400,7 @@ format_time (int64_t time)
 /* {{{ Errors */
 
 static void
-gtk_svg_location_init (GtkSvgLocation      *location,
+cmb_private_svg_location_init (CmbPrivateSvgLocation      *location,
                        GMarkupParseContext *context)
 {
   int lines, chars;
@@ -368,18 +418,18 @@ typedef struct
 {
   char *element;
   char *attribute;
-  GtkSvgLocation start;
-  GtkSvgLocation end;
-} GtkSvgErrorPrivate;
+  CmbPrivateSvgLocation start;
+  CmbPrivateSvgLocation end;
+} CmbPrivateSvgErrorPrivate;
 
 static void
-gtk_svg_error_private_init (GtkSvgErrorPrivate *priv)
+cmb_private_svg_error_private_init (CmbPrivateSvgErrorPrivate *priv)
 {
 }
 
 static void
-gtk_svg_error_private_copy (const GtkSvgErrorPrivate *src,
-                            GtkSvgErrorPrivate       *dest)
+cmb_private_svg_error_private_copy (const CmbPrivateSvgErrorPrivate *src,
+                            CmbPrivateSvgErrorPrivate       *dest)
 {
   g_assert (dest != NULL);
   g_assert (src != NULL);
@@ -390,40 +440,40 @@ gtk_svg_error_private_copy (const GtkSvgErrorPrivate *src,
 }
 
 static void
-gtk_svg_error_private_clear (GtkSvgErrorPrivate *priv)
+cmb_private_svg_error_private_clear (CmbPrivateSvgErrorPrivate *priv)
 {
   g_assert (priv != NULL);
   g_free (priv->element);
   g_free (priv->attribute);
 }
 
-G_DEFINE_EXTENDED_ERROR (GtkSvgError, gtk_svg_error);
+G_DEFINE_EXTENDED_ERROR (CmbPrivateSvgError, cmb_private_svg_error);
 
 static void
-gtk_svg_error_set_element (GError     *error,
+cmb_private_svg_error_set_element (GError     *error,
                            const char *element)
 {
-  GtkSvgErrorPrivate *priv = gtk_svg_error_get_private (error);
-  g_assert (error->domain == GTK_SVG_ERROR);
+  CmbPrivateSvgErrorPrivate *priv = cmb_private_svg_error_get_private (error);
+  g_assert (error->domain == CMB_PRIVATE_SVG_ERROR);
   priv->element = g_strdup (element);
 }
 
 static void
-gtk_svg_error_set_attribute (GError     *error,
+cmb_private_svg_error_set_attribute (GError     *error,
                              const char *attribute)
 {
-  GtkSvgErrorPrivate *priv = gtk_svg_error_get_private (error);
-  g_assert (error->domain == GTK_SVG_ERROR);
+  CmbPrivateSvgErrorPrivate *priv = cmb_private_svg_error_get_private (error);
+  g_assert (error->domain == CMB_PRIVATE_SVG_ERROR);
   priv->attribute = g_strdup (attribute);
 }
 
 static void
-gtk_svg_error_set_location (GError               *error,
-                            const GtkSvgLocation *start,
-                            const GtkSvgLocation *end)
+cmb_private_svg_error_set_location (GError               *error,
+                            const CmbPrivateSvgLocation *start,
+                            const CmbPrivateSvgLocation *end)
 {
-  GtkSvgErrorPrivate *priv = gtk_svg_error_get_private (error);
-  g_assert (error->domain == GTK_SVG_ERROR);
+  CmbPrivateSvgErrorPrivate *priv = cmb_private_svg_error_get_private (error);
+  g_assert (error->domain == CMB_PRIVATE_SVG_ERROR);
   if (start)
     priv->start = *start;
   if (end)
@@ -433,7 +483,7 @@ gtk_svg_error_set_location (GError               *error,
 static unsigned int error_signal;
 
 static void
-gtk_svg_emit_error (GtkSvg       *svg,
+cmb_private_svg_emit_error (CmbPrivateSvg       *svg,
                     const GError *error)
 {
   g_signal_emit (svg, error_signal, 0, error);
@@ -441,10 +491,10 @@ gtk_svg_emit_error (GtkSvg       *svg,
 
 G_GNUC_PRINTF (5, 6)
 static void
-gtk_svg_invalid_element (GtkSvg               *self,
+cmb_private_svg_invalid_element (CmbPrivateSvg               *self,
                          const char           *parent_element,
-                         const GtkSvgLocation *start,
-                         const GtkSvgLocation *end,
+                         const CmbPrivateSvgLocation *start,
+                         const CmbPrivateSvgLocation *end,
                          const char           *format,
                          ...)
 {
@@ -452,93 +502,93 @@ gtk_svg_invalid_element (GtkSvg               *self,
   va_list args;
 
   va_start (args, format);
-  error = g_error_new_valist (GTK_SVG_ERROR,
-                              GTK_SVG_ERROR_INVALID_ELEMENT,
+  error = g_error_new_valist (CMB_PRIVATE_SVG_ERROR,
+                              CMB_PRIVATE_SVG_ERROR_INVALID_ELEMENT,
                               format, args);
   va_end (args);
 
-  gtk_svg_error_set_element (error, parent_element);
-  gtk_svg_error_set_location (error, start, end);
+  cmb_private_svg_error_set_element (error, parent_element);
+  cmb_private_svg_error_set_location (error, start, end);
 
-  gtk_svg_emit_error (self, error);
+  cmb_private_svg_emit_error (self, error);
   g_clear_error (&error);
 }
 
 G_GNUC_PRINTF (4, 5)
 static void
-gtk_svg_invalid_attribute (GtkSvg               *self,
+cmb_private_svg_invalid_attribute (CmbPrivateSvg               *self,
                            GMarkupParseContext  *context,
                            const char           *attr_name,
                            const char           *format,
                            ...)
 {
   GError *error;
-  GtkSvgLocation location;
+  CmbPrivateSvgLocation location;
 
   if (format)
     {
       va_list args;
       va_start (args, format);
-      error = g_error_new_valist (GTK_SVG_ERROR,
-                                  GTK_SVG_ERROR_INVALID_ATTRIBUTE,
+      error = g_error_new_valist (CMB_PRIVATE_SVG_ERROR,
+                                  CMB_PRIVATE_SVG_ERROR_INVALID_ATTRIBUTE,
                                   format, args);
       va_end (args);
     }
   else
     {
-      error = g_error_new (GTK_SVG_ERROR,
-                           GTK_SVG_ERROR_INVALID_ATTRIBUTE,
+      error = g_error_new (CMB_PRIVATE_SVG_ERROR,
+                           CMB_PRIVATE_SVG_ERROR_INVALID_ATTRIBUTE,
                            "Invalid attribute: %s", attr_name);
     }
 
-  gtk_svg_error_set_element (error, g_markup_parse_context_get_element (context));
-  gtk_svg_error_set_attribute (error, attr_name);
-  gtk_svg_location_init (&location, context);
-  gtk_svg_error_set_location (error, &location, &location);
+  cmb_private_svg_error_set_element (error, g_markup_parse_context_get_element (context));
+  cmb_private_svg_error_set_attribute (error, attr_name);
+  cmb_private_svg_location_init (&location, context);
+  cmb_private_svg_error_set_location (error, &location, &location);
 
-  gtk_svg_emit_error (self, error);
+  cmb_private_svg_emit_error (self, error);
   g_error_free (error);
 }
 
 G_GNUC_PRINTF (4, 5)
 static void
-gtk_svg_missing_attribute (GtkSvg               *self,
+cmb_private_svg_missing_attribute (CmbPrivateSvg               *self,
                            GMarkupParseContext  *context,
                            const char           *attr_name,
                            const char           *format,
                            ...)
 {
   GError *error;
-  GtkSvgLocation location;
+  CmbPrivateSvgLocation location;
 
   if (format)
     {
       va_list args;
       va_start (args, format);
-      error = g_error_new_valist (GTK_SVG_ERROR,
-                                  GTK_SVG_ERROR_MISSING_ATTRIBUTE,
+      error = g_error_new_valist (CMB_PRIVATE_SVG_ERROR,
+                                  CMB_PRIVATE_SVG_ERROR_MISSING_ATTRIBUTE,
                                   format, args);
       va_end (args);
     }
   else
     {
-      error = g_error_new (GTK_SVG_ERROR,
-                           GTK_SVG_ERROR_MISSING_ATTRIBUTE,
+      error = g_error_new (CMB_PRIVATE_SVG_ERROR,
+                           CMB_PRIVATE_SVG_ERROR_MISSING_ATTRIBUTE,
                            "Missing attribute: %s", attr_name);
     }
 
-  gtk_svg_error_set_element (error, g_markup_parse_context_get_element (context));
-  gtk_svg_error_set_attribute (error, attr_name);
-  gtk_svg_location_init (&location, context);
-  gtk_svg_error_set_location (error, &location, &location);
+  cmb_private_svg_error_set_element (error, g_markup_parse_context_get_element (context));
+  cmb_private_svg_error_set_attribute (error, attr_name);
+  cmb_private_svg_location_init (&location, context);
+  cmb_private_svg_error_set_location (error, &location, &location);
 
-  gtk_svg_emit_error (self, error);
+  cmb_private_svg_emit_error (self, error);
   g_error_free (error);
 }
 
 G_GNUC_PRINTF (2, 3)
 static void
-gtk_svg_invalid_reference (GtkSvg     *self,
+cmb_private_svg_invalid_reference (CmbPrivateSvg     *self,
                            const char *format,
                            ...)
 {
@@ -546,17 +596,17 @@ gtk_svg_invalid_reference (GtkSvg     *self,
   GError *error;
 
   va_start (args, format);
-  error = g_error_new_valist (GTK_SVG_ERROR,
-                              GTK_SVG_ERROR_INVALID_REFERENCE,
+  error = g_error_new_valist (CMB_PRIVATE_SVG_ERROR,
+                              CMB_PRIVATE_SVG_ERROR_INVALID_REFERENCE,
                               format, args);
   va_end (args);
 
-  gtk_svg_emit_error (self, error);
+  cmb_private_svg_emit_error (self, error);
   g_error_free (error);
 }
 
 static void
-gtk_svg_check_unhandled_attributes (GtkSvg                *self,
+cmb_private_svg_check_unhandled_attributes (CmbPrivateSvg                *self,
                                     GMarkupParseContext   *context,
                                     const char           **attr_names,
                                     uint64_t               handled)
@@ -566,14 +616,14 @@ gtk_svg_check_unhandled_attributes (GtkSvg                *self,
   for (unsigned int i = 0; i < n; i++)
     {
       if ((handled & BIT (i)) == 0)
-        gtk_svg_invalid_attribute (self, context, attr_names[i],
+        cmb_private_svg_invalid_attribute (self, context, attr_names[i],
                                    "Unhandled attribute: %s", attr_names[i]);
     }
 }
 
 G_GNUC_PRINTF (2, 3)
 static void
-gtk_svg_update_error (GtkSvg     *self,
+cmb_private_svg_update_error (CmbPrivateSvg     *self,
                       const char *format,
                       ...)
 {
@@ -581,18 +631,18 @@ gtk_svg_update_error (GtkSvg     *self,
   GError *error;
 
   va_start (args, format);
-  error = g_error_new_valist (GTK_SVG_ERROR,
-                              GTK_SVG_ERROR_FAILED_UPDATE,
+  error = g_error_new_valist (CMB_PRIVATE_SVG_ERROR,
+                              CMB_PRIVATE_SVG_ERROR_FAILED_UPDATE,
                               format, args);
   va_end (args);
 
-  gtk_svg_emit_error (self, error);
+  cmb_private_svg_emit_error (self, error);
   g_error_free (error);
 }
 
 G_GNUC_PRINTF (2, 3)
 static void
-gtk_svg_rendering_error (GtkSvg     *self,
+cmb_private_svg_rendering_error (CmbPrivateSvg     *self,
                          const char *format,
                          ...)
 {
@@ -600,12 +650,12 @@ gtk_svg_rendering_error (GtkSvg     *self,
   GError *error;
 
   va_start (args, format);
-  error = g_error_new_valist (GTK_SVG_ERROR,
-                              GTK_SVG_ERROR_FAILED_RENDERING,
+  error = g_error_new_valist (CMB_PRIVATE_SVG_ERROR,
+                              CMB_PRIVATE_SVG_ERROR_FAILED_RENDERING,
                               format, args);
   va_end (args);
 
-  gtk_svg_emit_error (self, error);
+  cmb_private_svg_emit_error (self, error);
   g_error_free (error);
 }
 
@@ -1107,7 +1157,7 @@ static gboolean
 state_match (uint64_t     states,
              unsigned int state)
 {
-  if (state == GTK_SVG_STATE_EMPTY)
+  if (state == CMB_PRIVATE_SVG_STATE_EMPTY)
     return FALSE;
 
   if ((states & BIT (state)) != 0)
@@ -2037,213 +2087,11 @@ svg_transform_new_rotate_and_shift (double angle,
   return (SvgValue *) tf;
 }
 
-static guint
-css_parser_parse_number (GtkCssParser *parser,
-                         guint         n,
-                         gpointer      data)
-{
-  double *f = data;
-  double d;
-
-  if (!gtk_css_parser_consume_number (parser, &d))
-    return 0;
-
-  f[n] = d;
-  return 1;
-}
-
-static gboolean
-parse_transform_function (GtkCssParser *self,
-                          guint         min_args,
-                          guint         max_args,
-                          double       *values)
-{
-  const GtkCssToken *token;
-  gboolean result = FALSE;
-  char function_name[64];
-  guint arg;
-
-  token = gtk_css_parser_get_token (self);
-  g_return_val_if_fail (gtk_css_token_is (token, GTK_CSS_TOKEN_FUNCTION), FALSE);
-
-  g_strlcpy (function_name, gtk_css_token_get_string (token), 64);
-  gtk_css_parser_start_block (self);
-
-  arg = 0;
-  while (TRUE)
-    {
-      guint parse_args = css_parser_parse_number (self, arg, values);
-      if (parse_args == 0)
-        break;
-      arg += parse_args;
-      token = gtk_css_parser_get_token (self);
-      if (gtk_css_token_is (token, GTK_CSS_TOKEN_EOF))
-        {
-          if (arg < min_args)
-            {
-              gtk_css_parser_error_syntax (self, "%s() requires at least %u arguments", function_name, min_args);
-              break;
-            }
-          else
-            {
-              result = TRUE;
-              break;
-            }
-        }
-      else if (gtk_css_token_is (token, GTK_CSS_TOKEN_COMMA))
-        {
-          if (arg >= max_args)
-            {
-              gtk_css_parser_error_syntax (self, "Expected ')' at end of %s()", function_name);
-              break;
-            }
-
-          gtk_css_parser_consume_token (self);
-          continue;
-        }
-      else if (!gtk_css_parser_has_number (self))
-        {
-          gtk_css_parser_error_syntax (self, "Unexpected data at end of %s() argument", function_name);
-          break;
-        }
-    }
-
-  gtk_css_parser_end_block (self);
-
-  return result;
-}
-
-static SvgValue *
-transform_parser_parse (GtkCssParser *parser)
-{
-  SvgTransform *tf;
-  GArray *array;
-
-  if (gtk_css_parser_try_ident (parser, "none"))
-    return svg_transform_new_none ();
-
-  array = g_array_new (FALSE, FALSE, sizeof (PrimitiveTransform));
-
-    while (TRUE)
-    {
-      PrimitiveTransform transform;
-
-      memset (&transform, 0, sizeof (PrimitiveTransform));
-
-      if (gtk_css_parser_has_function (parser, "rotate"))
-        {
-           double values[3] = { 0, 0, 0 };
-
-          if (!parse_transform_function (parser, 1, 3, values))
-            goto fail;
-
-          transform.type = TRANSFORM_ROTATE;
-          transform.rotate.angle = values[0];
-          if (values[1])
-            {
-              transform.rotate.x = values[1];
-              transform.rotate.y = values[2];
-            }
-        }
-      else if (gtk_css_parser_has_function (parser, "scale"))
-        {
-          double values[2] = { 0, 0 };
-
-          if (!parse_transform_function (parser, 1, 2, values))
-            goto fail;
-
-          transform.type = TRANSFORM_SCALE;
-          transform.scale.x = values[0];
-          if (values[1])
-            transform.scale.y = values[1];
-          else
-            transform.scale.y = transform.scale.x;
-        }
-      else if (gtk_css_parser_has_function (parser, "translate"))
-        {
-          double values[2] = { 0, 0 };
-
-          if (!parse_transform_function (parser, 1, 2, values))
-            goto fail;
-
-          transform.type = TRANSFORM_TRANSLATE;
-          transform.translate.x = values[0];
-          if (values[1])
-            transform.translate.y = values[1];
-          else
-            transform.translate.y = 0;
-        }
-      else if (gtk_css_parser_has_function (parser, "skewX"))
-        {
-          double values[1];
-
-          if (!parse_transform_function (parser, 1, 1, values))
-            goto fail;
-
-          transform.type = TRANSFORM_SKEW_X;
-          transform.skew_x.angle = values[0];
-        }
-      else if (gtk_css_parser_has_function (parser, "skewY"))
-        {
-          double values[1];
-
-          if (!parse_transform_function (parser, 1, 1, values))
-            goto fail;
-
-          transform.type = TRANSFORM_SKEW_Y;
-          transform.skew_y.angle = values[0];
-        }
-      else if (gtk_css_parser_has_function (parser, "matrix"))
-        {
-          double values[6];
-
-          if (!parse_transform_function (parser, 6, 6, values))
-            goto fail;
-
-          transform.type = TRANSFORM_MATRIX;
-          memcpy (transform.matrix.m, values, sizeof (double) * 6);
-        }
-      else
-        {
-          break;
-        }
-
-      g_array_append_val (array, transform);
-    }
-
-  if (array->len == 0)
-    goto fail;
-
-  tf = svg_transform_alloc (array->len);
-  memcpy (tf->transforms, array->data, sizeof (PrimitiveTransform) * array->len);
-
-  g_array_free (array, TRUE);
-
-  return (SvgValue *) tf;
-
-fail:
-  g_array_free (array, TRUE);
-  return NULL;
-}
-
 static SvgValue *
 svg_transform_parse (const char *value)
 {
-  SvgValue *tf;
-  GtkCssParser *parser;
-  GBytes *bytes;
-
-  bytes = g_bytes_new_static (value, strlen (value));
-  parser = gtk_css_parser_new_for_bytes (bytes, NULL, NULL, NULL, NULL);
-
-  tf = transform_parser_parse (parser);
-
-  if (!gtk_css_parser_has_token (parser, GTK_CSS_TOKEN_EOF))
-    g_clear_pointer (&tf, svg_value_unref);
-  gtk_css_parser_unref (parser);
-  g_bytes_unref (bytes);
-
-  return tf;
+  g_message("%s %s", __func__, value);
+  return NULL;
 }
 
 static SvgValue *
@@ -2795,7 +2643,7 @@ parse_symbolic_color (const char       *value,
                       GtkSymbolicColor *symbolic)
 {
   const char *sym[] = {
-    "foreground", "error", "warning", "success", "accent"
+    "foreground", "error", "warning", "success"
   };
   unsigned int u = 0;
 
@@ -2822,7 +2670,6 @@ svg_paint_new_symbolic (GtkSymbolicColor symbolic)
     { { &SVG_PAINT_CLASS, 1 }, .kind = PAINT_SYMBOLIC, .symbolic = GTK_SYMBOLIC_COLOR_ERROR },
     { { &SVG_PAINT_CLASS, 1 }, .kind = PAINT_SYMBOLIC, .symbolic = GTK_SYMBOLIC_COLOR_WARNING },
     { { &SVG_PAINT_CLASS, 1 }, .kind = PAINT_SYMBOLIC, .symbolic = GTK_SYMBOLIC_COLOR_SUCCESS },
-    { { &SVG_PAINT_CLASS, 1 }, .kind = PAINT_SYMBOLIC, .symbolic = GTK_SYMBOLIC_COLOR_ACCENT },
   };
 
   return svg_value_ref ((SvgValue *) &sym[symbolic]);
@@ -2870,6 +2717,26 @@ svg_paint_new_gradient (Shape      *shape,
   return (SvgValue *) paint;
 }
 
+/*
+ * Input: "url(#clip1)"
+ * Output: "#clip1"
+ */
+static gchar*
+_css_parser_consume_url(gchar *string)
+{
+  if (!string)
+    return NULL;
+
+  if (g_str_has_prefix(string, "url(") && g_str_has_suffix(string, ")"))
+    {
+      gchar *retval = g_strdup(&string[4]);
+      retval[g_utf8_strlen(retval, -1)-1] = '\0';
+      return retval;
+    }
+
+  return string;
+}
+
 static SvgValue *
 svg_paint_parse (const char *value)
 {
@@ -2885,16 +2752,11 @@ svg_paint_parse (const char *value)
     }
   else
     {
-      GtkCssParser *parser;
-      GBytes *bytes;
       char *url;
       GtkSymbolicColor symbolic;
       SvgValue *paint = NULL;
 
-      bytes = g_bytes_new_static (value, strlen (value));
-      parser = gtk_css_parser_new_for_bytes (bytes, NULL, NULL, NULL, NULL);
-
-      url = gtk_css_parser_consume_url (parser);
+      url = _css_parser_consume_url (value);
       if (url)
         {
           if (g_str_has_prefix (url, "#gpa:") &&
@@ -2907,8 +2769,6 @@ svg_paint_parse (const char *value)
         }
 
       g_free (url);
-      gtk_css_parser_unref (parser);
-      g_bytes_unref (bytes);
 
       return paint;
     }
@@ -2943,7 +2803,6 @@ svg_paint_print (const SvgValue *value,
     { "error",      "rgb(204,0,0)", },
     { "warning",    "rgb(245,121,0)", },
     { "success",    "rgb(51,209,122)", },
-    { "accent",     "rgb(0,34,255)", },
   };
 
   switch (paint->kind)
@@ -2977,7 +2836,7 @@ svg_paint_print_gpa (const SvgValue *value,
 {
   const SvgPaint *paint = (const SvgPaint *) value;
   const char *symbolic[] = {
-    "foreground", "error", "warning", "success", "accent",
+    "foreground", "error", "warning", "success",
   };
 
   switch (paint->kind)
@@ -3201,75 +3060,10 @@ svg_filter_new_none (void)
 }
 
 static SvgValue *
-filter_parser_parse (GtkCssParser *parser)
-{
-  SvgFilter *filter;
-  GArray *array;
-
-  if (gtk_css_parser_try_ident (parser, "none"))
-    return svg_filter_new_none ();
-
-  array = g_array_new (FALSE, FALSE, sizeof (FilterFunction));
-
-  while (TRUE)
-    {
-      FilterFunction function;
-      unsigned int i;
-
-      memset (&function, 0, sizeof (FilterFunction));
-
-      for (i = 1; i < G_N_ELEMENTS (filter_desc); i++)
-        {
-          if (gtk_css_parser_has_function (parser, filter_desc[i].name))
-            {
-              if (!gtk_css_parser_consume_function (parser, 1, 1, css_parser_parse_number, &function.value))
-                goto fail;
-              function.kind = filter_desc[i].kind;
-              break;
-            }
-        }
-      if (i == G_N_ELEMENTS (filter_desc))
-        break;
-
-      g_array_append_val (array, function);
-    }
-
-  if (array->len == 0)
-    {
-      gtk_css_parser_error_syntax (parser, "Expected a filter");
-      goto fail;
-    }
-
-  filter = svg_filter_alloc (array->len);
-  memcpy (filter->functions, array->data, sizeof (FilterFunction) * array->len);
-
-  g_array_free (array, TRUE);
-
-  return (SvgValue *) filter;
-
-fail:
-  g_array_free (array, TRUE);
-  return NULL;
-}
-
-static SvgValue *
 svg_filter_parse (const char *value)
 {
-  SvgValue *filter;
-  GtkCssParser *parser;
-  GBytes *bytes;
-
-  bytes = g_bytes_new_static (value, strlen (value));
-  parser = gtk_css_parser_new_for_bytes (bytes, NULL, NULL, NULL, NULL);
-
-  filter = filter_parser_parse (parser);
-
-  if (filter && !gtk_css_parser_has_token (parser, GTK_CSS_TOKEN_EOF))
-    g_clear_pointer (&filter, svg_value_unref);
-  gtk_css_parser_unref (parser);
-  g_bytes_unref (bytes);
-
-  return filter;
+  g_message("%s %s", __func__, value);
+  return NULL;
 }
 
 static void
@@ -4220,29 +4014,6 @@ svg_clip_interpolate (const SvgValue *value0,
     return svg_value_ref ((SvgValue *) value1);
 }
 
-static guint
-parse_clip_path_arg (GtkCssParser *parser,
-                     guint         n,
-                     gpointer      data)
-{
-  char *string;
-
-  string = gtk_css_parser_consume_string (parser);
-  if (string)
-    {
-      GskPath *path = gsk_path_parse (string);
-      if (path)
-        {
-          *((GskPath **) data) = path;
-          g_free (string);
-          return 1;
-        }
-      g_free (string);
-    }
-
-  return 0;
-}
-
 static SvgValue *
 svg_clip_parse (const char *value)
 {
@@ -4252,37 +4023,16 @@ svg_clip_parse (const char *value)
     }
   else
     {
-      GtkCssParser *parser;
-      GBytes *bytes;
       SvgValue *res = NULL;
+      char *url = _css_parser_consume_url (value);
 
-      bytes = g_bytes_new_static (value, strlen (value));
-      parser = gtk_css_parser_new_for_bytes (bytes, NULL, NULL, NULL, NULL);
-
-      if (gtk_css_parser_has_function (parser, "path"))
-        {
-          GskPath *path = NULL;
-
-          if (gtk_css_parser_consume_function (parser, 1, 1, parse_clip_path_arg, &path))
-            {
-              res = svg_clip_new_path (path);
-              gsk_path_unref (path);
-            }
-        }
+      if (!url)
+        res = NULL;
+      else if (url[0] == '#')
+        res = svg_clip_new_ref (url + 1);
       else
-        {
-          char *url = gtk_css_parser_consume_url (parser);
-          if (!url)
-            res = NULL;
-          else if (url[0] == '#')
-            res = svg_clip_new_ref (url + 1);
-          else
-            res = svg_clip_new_ref (url);
-          g_free (url);
-        }
-
-      gtk_css_parser_unref (parser);
-      g_bytes_unref (bytes);
+        res = svg_clip_new_ref (url);
+      g_free (url);
 
       return res;
     }
@@ -4392,50 +4142,12 @@ svg_mask_new_none (void)
   return svg_value_ref ((SvgValue *) &none);
 }
 
-static SvgValue *
-svg_mask_new_ref (const char *ref)
-{
-  SvgMask *result;
-
-  result = (SvgMask *) svg_value_alloc (&SVG_MASK_CLASS, sizeof (SvgMask));
-  result->kind = MASK_REF;
-  result->ref = g_strdup (ref);
-  result->shape = NULL;
-
-  return (SvgValue *) result;
-}
 
 static SvgValue *
 svg_mask_parse (const char *value)
 {
-  if (strcmp (value, "none") == 0)
-    {
-      return svg_mask_new_none ();
-    }
-  else
-    {
-      GtkCssParser *parser;
-      GBytes *bytes;
-      char *url;
-      SvgValue *res = NULL;
-
-      bytes = g_bytes_new_static (value, strlen (value));
-      parser = gtk_css_parser_new_for_bytes (bytes, NULL, NULL, NULL, NULL);
-
-      url = gtk_css_parser_consume_url (parser);
-      if (!url)
-        res = NULL;
-      else if (url[0] == '#')
-        res = svg_mask_new_ref (url + 1);
-      else
-        res = svg_mask_new_ref (url);
-
-      g_free (url);
-      gtk_css_parser_unref (parser);
-      g_bytes_unref (bytes);
-
-      return res;
-    }
+  g_message("%s %s", __func__, value);
+  return NULL;
 }
 
 /* }}} */
@@ -6374,7 +6086,7 @@ struct _Animation
   double repeat_count;
   int64_t repeat_duration;
 
-  GtkSvgRunMode run_mode;
+  CmbPrivateSvgRunMode run_mode;
   int64_t next_invalidate;
   gboolean state_changed;
 
@@ -6802,7 +6514,7 @@ determine_simple_duration (Animation *a)
  */
 static void
 find_current_cycle_and_frame (Animation      *a,
-                              GtkSvg         *svg,
+                              CmbPrivateSvg         *svg,
                               int64_t         time,
                               int            *out_rep,
                               unsigned int   *out_frame,
@@ -6828,7 +6540,7 @@ find_current_cycle_and_frame (Animation      *a,
   if (simple_duration == INDEFINITE || simple_duration == 0)
     {
       if (svg)
-        gtk_svg_update_error (svg, "Not enough data to advance animation %s", a->id);
+        cmb_private_svg_update_error (svg, "Not enough data to advance animation %s", a->id);
       *out_rep = 0;
       *out_frame = 0;
       *out_frame_t = 0;
@@ -6868,7 +6580,7 @@ animation_update_run_mode (Animation *a,
 {
   if (a->status == ANIMATION_STATUS_INACTIVE)
     {
-      a->run_mode = GTK_SVG_RUN_MODE_DISCRETE;
+      a->run_mode = CMB_PRIVATE_SVG_RUN_MODE_DISCRETE;
       a->next_invalidate = a->current.begin;
     }
   else if (a->status == ANIMATION_STATUS_RUNNING)
@@ -6880,7 +6592,7 @@ animation_update_run_mode (Animation *a,
 
       if (a->type == ANIMATION_TYPE_SET)
         {
-          a->run_mode = GTK_SVG_RUN_MODE_DISCRETE;
+          a->run_mode = CMB_PRIVATE_SVG_RUN_MODE_DISCRETE;
           a->next_invalidate = a->current.end;
           return;
         }
@@ -6891,12 +6603,12 @@ animation_update_run_mode (Animation *a,
 
       if (a->calc_mode == CALC_MODE_DISCRETE)
         {
-          a->run_mode = GTK_SVG_RUN_MODE_DISCRETE;
+          a->run_mode = CMB_PRIVATE_SVG_RUN_MODE_DISCRETE;
           a->next_invalidate = frame_end;
         }
       else if (shape_attrs[shape_attr_ref (a->attr)].discrete)
         {
-          a->run_mode = GTK_SVG_RUN_MODE_DISCRETE;
+          a->run_mode = CMB_PRIVATE_SVG_RUN_MODE_DISCRETE;
           if (frame_t < 0.5)
             a->next_invalidate = (frame_start + frame_end) / 2;
           else
@@ -6904,18 +6616,18 @@ animation_update_run_mode (Animation *a,
         }
       else
         {
-          a->run_mode = GTK_SVG_RUN_MODE_CONTINUOUS;
+          a->run_mode = CMB_PRIVATE_SVG_RUN_MODE_CONTINUOUS;
           a->next_invalidate = a->current.end;
         }
     }
   else if (a->current.begin < INDEFINITE && current_time <= a->current.begin)
     {
-      a->run_mode = GTK_SVG_RUN_MODE_DISCRETE;
+      a->run_mode = CMB_PRIVATE_SVG_RUN_MODE_DISCRETE;
       a->next_invalidate = a->current.begin;
     }
   else
     {
-      a->run_mode = GTK_SVG_RUN_MODE_STOPPED;
+      a->run_mode = CMB_PRIVATE_SVG_RUN_MODE_STOPPED;
       a->next_invalidate = INDEFINITE;
     }
 }
@@ -7006,13 +6718,13 @@ animation_update_state (Animation *a,
           g_string_append_printf (s, "%s] ", format_time (a->current.end));
           switch (a->run_mode)
             {
-            case GTK_SVG_RUN_MODE_CONTINUOUS:
+            case CMB_PRIVATE_SVG_RUN_MODE_CONTINUOUS:
               g_string_append_printf (s, "--> %s\n", format_time (a->next_invalidate));
               break;
-            case GTK_SVG_RUN_MODE_DISCRETE:
+            case CMB_PRIVATE_SVG_RUN_MODE_DISCRETE:
               g_string_append_printf (s, "> > %s\n", format_time (a->next_invalidate));
               break;
-            case GTK_SVG_RUN_MODE_STOPPED:
+            case CMB_PRIVATE_SVG_RUN_MODE_STOPPED:
               g_string_append (s, "\n");
               break;
             default:
@@ -7136,35 +6848,35 @@ animation_update_for_spec (Animation *a,
     }
 }
 
-static void frame_clock_connect    (GtkSvg *self);
-static void frame_clock_disconnect (GtkSvg *self);
+static void frame_clock_connect    (CmbPrivateSvg *self);
+static void frame_clock_disconnect (CmbPrivateSvg *self);
 
-static void schedule_next_update (GtkSvg *self);
+static void schedule_next_update (CmbPrivateSvg *self);
 
 static void
 invalidate_later (gpointer data)
 {
-  GtkSvg *self = data;
+  CmbPrivateSvg *self = data;
 
   self->pending_invalidate = 0;
 
-  gtk_svg_advance (self, MAX (self->current_time, g_get_monotonic_time ()));
+  cmb_private_svg_advance (self, MAX (self->current_time, g_get_monotonic_time ()));
   gdk_paintable_invalidate_contents (GDK_PAINTABLE (self));
 }
 
 static void
-schedule_next_update (GtkSvg *self)
+schedule_next_update (CmbPrivateSvg *self)
 {
-  GtkSvgRunMode run_mode = self->run_mode;
+  CmbPrivateSvgRunMode run_mode = self->run_mode;
 
   g_clear_handle_id (&self->pending_invalidate, g_source_remove);
 
 #ifdef DEBUG
   if (strstr (g_getenv ("SVG_DEBUG") ?: "", "continuous"))
-    run_mode = GTK_SVG_RUN_MODE_CONTINUOUS;
+    run_mode = CMB_PRIVATE_SVG_RUN_MODE_CONTINUOUS;
 #endif
 
-  if (run_mode == GTK_SVG_RUN_MODE_CONTINUOUS)
+  if (run_mode == CMB_PRIVATE_SVG_RUN_MODE_CONTINUOUS)
     {
       frame_clock_connect (self);
       return;
@@ -7200,27 +6912,27 @@ schedule_next_update (GtkSvg *self)
 
 static void
 frame_clock_update (GdkFrameClock *clock,
-                    GtkSvg        *self)
+                    CmbPrivateSvg        *self)
 {
   int64_t time = gdk_frame_clock_get_frame_time (self->clock);
   dbg_print ("clock", "clock update, advancing to %s\n", format_time (time));
-  gtk_svg_advance (self, time);
+  cmb_private_svg_advance (self, time);
   gdk_paintable_invalidate_contents (GDK_PAINTABLE (self));
 }
 
 static gboolean
-periodic_update (GtkSvg *self)
+periodic_update (CmbPrivateSvg *self)
 {
   int64_t time = g_get_monotonic_time ();
   dbg_print ("clock", "periodic update, advancing to %s\n", format_time (time));
-  gtk_svg_advance (self, time);
+  cmb_private_svg_advance (self, time);
   gdk_paintable_invalidate_contents (GDK_PAINTABLE (self));
 
   return G_SOURCE_CONTINUE;
 }
 
 static void
-frame_clock_connect (GtkSvg *self)
+frame_clock_connect (CmbPrivateSvg *self)
 {
   if (self->clock && self->clock_update_id == 0)
     {
@@ -7235,7 +6947,7 @@ frame_clock_connect (GtkSvg *self)
 }
 
 static void
-frame_clock_disconnect (GtkSvg *self)
+frame_clock_disconnect (CmbPrivateSvg *self)
 {
   if (self->clock && self->clock_update_id != 0)
     {
@@ -7295,7 +7007,7 @@ get_transform_data_for_motion (GskPathMeasure   *measure,
 }
 
 typedef struct {
-  GtkSvg *svg;
+  CmbPrivateSvg *svg;
   const graphene_size_t *viewport;
   Shape *parent; /* Can be different from the actual parent, for <use> */
   int64_t current_time;
@@ -7424,7 +7136,7 @@ compute_value_at_time (Animation      *a,
         }
       if (ival == NULL)
         {
-          gtk_svg_update_error (context->svg,
+          cmb_private_svg_update_error (context->svg,
                                 "Failed to interpolate %s value (animation %s)",
                                 shape_attr_get_presentation (a->attr, a->shape->type),
                                 a->id);
@@ -7441,7 +7153,7 @@ compute_value_at_time (Animation      *a,
 
           if (aval == NULL)
             {
-              gtk_svg_update_error (context->svg,
+              cmb_private_svg_update_error (context->svg,
                                     "Failed to accumulate %s value (animation %s)",
                                     shape_attr_get_presentation (a->attr, a->shape->type),
                                     a->id);
@@ -8547,7 +8259,7 @@ create_attachment_connection (Animation *a,
 
 typedef struct
 {
-  GtkSvg *svg;
+  CmbPrivateSvg *svg;
   Shape *current_shape;
   GSList *shape_stack;
   GHashTable *shapes;
@@ -8557,7 +8269,7 @@ typedef struct
   GPtrArray *pending_refs;
   struct {
     const GSList *to;
-    GtkSvgLocation start;
+    CmbPrivateSvgLocation start;
     char *reason;
   } skip;
 } ParserData;
@@ -8622,7 +8334,7 @@ parse_base_animation_attrs (Animation            *a,
 
           if (!time_spec_parse (&spec, strv[i]))
             {
-              gtk_svg_invalid_attribute (data->svg, context, "begin", NULL);
+              cmb_private_svg_invalid_attribute (data->svg, context, "begin", NULL);
               g_clear_error (&error);
               continue;
             }
@@ -8656,7 +8368,7 @@ parse_base_animation_attrs (Animation            *a,
 
           if (!time_spec_parse (&spec, strv[i]))
             {
-              gtk_svg_invalid_attribute (data->svg, context, "end", NULL);
+              cmb_private_svg_invalid_attribute (data->svg, context, "end", NULL);
               g_clear_error (&error);
               continue;
             }
@@ -8684,7 +8396,7 @@ parse_base_animation_attrs (Animation            *a,
         a->simple_duration = INDEFINITE;
       else if (!parse_duration (dur_attr, &a->simple_duration))
         {
-          gtk_svg_invalid_attribute (data->svg, context, "dur", NULL);
+          cmb_private_svg_invalid_attribute (data->svg, context, "dur", NULL);
           a->has_simple_duration = 0;
         }
     }
@@ -8697,7 +8409,7 @@ parse_base_animation_attrs (Animation            *a,
         a->repeat_count = DBL_MAX;
       else if (!parse_number (repeat_count_attr, 0, DBL_MAX, &a->repeat_count))
         {
-          gtk_svg_invalid_attribute (data->svg, context, "repeatCount", NULL);
+          cmb_private_svg_invalid_attribute (data->svg, context, "repeatCount", NULL);
           a->has_repeat_count = 0;
         }
     }
@@ -8710,7 +8422,7 @@ parse_base_animation_attrs (Animation            *a,
         a->repeat_duration = INDEFINITE;
       else if (!parse_duration (repeat_dur_attr, &a->repeat_duration))
         {
-          gtk_svg_invalid_attribute (data->svg, context, "repeatDur", NULL);
+          cmb_private_svg_invalid_attribute (data->svg, context, "repeatDur", NULL);
           a->has_repeat_duration = 0;
         }
     }
@@ -8755,7 +8467,7 @@ parse_base_animation_attrs (Animation            *a,
       if (!parse_enum (fill_attr,
                        (const char *[]) { "freeze", "remove" }, 2,
                        &value))
-        gtk_svg_invalid_attribute (data->svg, context, "fill", NULL);
+        cmb_private_svg_invalid_attribute (data->svg, context, "fill", NULL);
       else
         a->fill = (AnimationFill) value;
     }
@@ -8768,7 +8480,7 @@ parse_base_animation_attrs (Animation            *a,
       if (!parse_enum (restart_attr,
                        (const char *[]) { "always", "whenNotActive", "never" }, 3,
                        &value))
-        gtk_svg_invalid_attribute (data->svg, context, "restart", NULL);
+        cmb_private_svg_invalid_attribute (data->svg, context, "restart", NULL);
       else
         a->restart = (AnimationRestart) value;
     }
@@ -8777,7 +8489,7 @@ parse_base_animation_attrs (Animation            *a,
   if (a->type == ANIMATION_TYPE_MOTION)
     {
       if (attr_name_attr)
-        gtk_svg_invalid_attribute (data->svg, context, "attributeName",
+        cmb_private_svg_invalid_attribute (data->svg, context, "attributeName",
                                    "can't have 'attributeName' on <animateMotion>");
     }
   else if (a->type == ANIMATION_TYPE_TRANSFORM)
@@ -8786,18 +8498,18 @@ parse_base_animation_attrs (Animation            *a,
 
       expected = shape_attr_get_presentation (SHAPE_ATTR_TRANSFORM, data->current_shape->type);
       if (attr_name_attr && strcmp (attr_name_attr, expected) != 0)
-        gtk_svg_invalid_attribute (data->svg, context, "attributeName",
+        cmb_private_svg_invalid_attribute (data->svg, context, "attributeName",
                                    "value must be '%s'", expected);
       a->attr = SHAPE_ATTR_TRANSFORM;
     }
   else if (!attr_name_attr)
     {
-      gtk_svg_missing_attribute (data->svg, context, "attributeName", NULL);
+      cmb_private_svg_missing_attribute (data->svg, context, "attributeName", NULL);
       return FALSE;
     }
   else if (!shape_attr_lookup (attr_name_attr, &attr, data->current_shape->type))
     {
-      gtk_svg_missing_attribute (data->svg, context, "attributeName", "can't animate '%s'", attr_name_attr);
+      cmb_private_svg_missing_attribute (data->svg, context, "attributeName", "can't animate '%s'", attr_name_attr);
       return FALSE;
     }
   else
@@ -8858,7 +8570,7 @@ parse_value_animation_attrs (Animation            *a,
                                               "skewX", "skewY" }, 5,
                             &value))
             {
-              gtk_svg_invalid_attribute (data->svg, context, "type", NULL);
+              cmb_private_svg_invalid_attribute (data->svg, context, "type", NULL);
               return FALSE;
             }
           else
@@ -8866,13 +8578,13 @@ parse_value_animation_attrs (Animation            *a,
         }
       else
         {
-          gtk_svg_missing_attribute (data->svg, context, "type", NULL);
+          cmb_private_svg_missing_attribute (data->svg, context, "type", NULL);
           return FALSE;
         }
     }
   else if (type_attr)
     {
-      gtk_svg_invalid_attribute (data->svg, context, "type", NULL);
+      cmb_private_svg_invalid_attribute (data->svg, context, "type", NULL);
     }
 
   if (calc_mode_attr)
@@ -8882,7 +8594,7 @@ parse_value_animation_attrs (Animation            *a,
       if (!parse_enum (calc_mode_attr,
                        (const char *[]) { "discrete", "linear", "spline" }, 3,
                        &value))
-        gtk_svg_invalid_attribute (data->svg, context, "calcMode", NULL);
+        cmb_private_svg_invalid_attribute (data->svg, context, "calcMode", NULL);
       else
         a->calc_mode = (CalcMode) value;
    }
@@ -8894,7 +8606,7 @@ parse_value_animation_attrs (Animation            *a,
       if (!parse_enum (additive_attr,
                        (const char *[]) { "replace", "sum", }, 2,
                        &value))
-        gtk_svg_invalid_attribute (data->svg, context, "additive", NULL);
+        cmb_private_svg_invalid_attribute (data->svg, context, "additive", NULL);
       else
         a->additive = (AnimationAdditive) value;
    }
@@ -8906,7 +8618,7 @@ parse_value_animation_attrs (Animation            *a,
       if (!parse_enum (accumulate_attr,
                        (const char *[]) { "none", "sum", }, 2,
                        &value))
-        gtk_svg_invalid_attribute (data->svg, context, "accumulate", NULL);
+        cmb_private_svg_invalid_attribute (data->svg, context, "accumulate", NULL);
       else
         a->accumulate = (AnimationAccumulate) value;
    }
@@ -8918,7 +8630,7 @@ parse_value_animation_attrs (Animation            *a,
       values = shape_attr_parse_values (a->attr, transform_type, values_attr);
       if (!values || values->len < 2)
         {
-          gtk_svg_invalid_attribute (data->svg, context, "values", "failed to parse %s", values_attr);
+          cmb_private_svg_invalid_attribute (data->svg, context, "values", "failed to parse %s", values_attr);
           g_clear_pointer (&values, g_ptr_array_unref);
           return FALSE;
         }
@@ -8931,7 +8643,7 @@ parse_value_animation_attrs (Animation            *a,
       values = shape_attr_parse_values (a->attr, transform_type, from_and_to);
       if (!values || values->len != 2)
         {
-          gtk_svg_invalid_attribute (data->svg, context, NULL,  "Failed to parse 'from' or 'to'");
+          cmb_private_svg_invalid_attribute (data->svg, context, NULL,  "Failed to parse 'from' or 'to'");
           g_free (from_and_to);
           g_clear_pointer (&values, g_ptr_array_unref);
           return FALSE;
@@ -8948,7 +8660,7 @@ parse_value_animation_attrs (Animation            *a,
       times = parse_numbers2 (key_times_attr, ";", 0, 1);
       if (!times)
         {
-          gtk_svg_invalid_attribute (data->svg, context, "keyTimes", NULL);
+          cmb_private_svg_invalid_attribute (data->svg, context, "keyTimes", NULL);
           g_clear_pointer (&values, g_ptr_array_unref);
           return FALSE;
         }
@@ -8959,7 +8671,7 @@ parse_value_animation_attrs (Animation            *a,
     {
       if (n_times == 0)
         {
-          gtk_svg_missing_attribute (data->svg, context, "keyTimes", NULL);
+          cmb_private_svg_missing_attribute (data->svg, context, "keyTimes", NULL);
           g_clear_pointer (&values, g_ptr_array_unref);
           g_clear_pointer (&times, g_array_unref);
           return FALSE;
@@ -8967,7 +8679,7 @@ parse_value_animation_attrs (Animation            *a,
 
       if (n_values > 0)
         {
-          gtk_svg_missing_attribute (data->svg, context, "values", NULL);
+          cmb_private_svg_missing_attribute (data->svg, context, "values", NULL);
           g_clear_pointer (&values, g_ptr_array_unref);
           g_clear_pointer (&times, g_array_unref);
           return FALSE;
@@ -8978,7 +8690,7 @@ parse_value_animation_attrs (Animation            *a,
 
   if (n_times == 0 && n_values == 0)
     {
-      gtk_svg_invalid_attribute (data->svg, context, NULL,
+      cmb_private_svg_invalid_attribute (data->svg, context, NULL,
                                  "Either values or from and to must be given");
       g_clear_pointer (&values, g_ptr_array_unref);
       g_clear_pointer (&times, g_array_unref);
@@ -9007,7 +8719,7 @@ parse_value_animation_attrs (Animation            *a,
 
   if (n_times != n_values)
     {
-      gtk_svg_invalid_attribute (data->svg, context, NULL,
+      cmb_private_svg_invalid_attribute (data->svg, context, NULL,
                                  "The values and keyTimes attributes must "
                                  "have the same number of items");
       g_clear_pointer (&values, g_ptr_array_unref);
@@ -9017,7 +8729,7 @@ parse_value_animation_attrs (Animation            *a,
 
   if (g_array_index (times, double, 0) != 0)
     {
-      gtk_svg_invalid_attribute (data->svg, context, "keyTimes",
+      cmb_private_svg_invalid_attribute (data->svg, context, "keyTimes",
                                  "The first keyTimes value must be 0");
       g_clear_pointer (&values, g_ptr_array_unref);
       g_clear_pointer (&times, g_array_unref);
@@ -9026,7 +8738,7 @@ parse_value_animation_attrs (Animation            *a,
 
   if (a->calc_mode != CALC_MODE_DISCRETE && g_array_index (times, double, n_times - 1) != 1)
     {
-      gtk_svg_invalid_attribute (data->svg, context, "keyTimes",
+      cmb_private_svg_invalid_attribute (data->svg, context, "keyTimes",
                                  "The last keyTimes value must be 1");
       g_clear_pointer (&values, g_ptr_array_unref);
       g_clear_pointer (&times, g_array_unref);
@@ -9037,7 +8749,7 @@ parse_value_animation_attrs (Animation            *a,
     {
       if (g_array_index (times, double, i) < g_array_index (times, double, i - 1))
         {
-          gtk_svg_invalid_attribute (data->svg, context, "keyTimes",
+          cmb_private_svg_invalid_attribute (data->svg, context, "keyTimes",
                                      "The keyTimes values must be increasing");
           g_clear_pointer (&values, g_ptr_array_unref);
           g_clear_pointer (&times, g_array_unref);
@@ -9070,7 +8782,7 @@ parse_value_animation_attrs (Animation            *a,
           if (!parse_numbers (s, " ", 0, 1, spline, 4, &m) ||
               m != 4)
             {
-              gtk_svg_invalid_attribute (data->svg, context, "keySplines", NULL);
+              cmb_private_svg_invalid_attribute (data->svg, context, "keySplines", NULL);
               g_clear_pointer (&values, g_ptr_array_unref);
               g_clear_pointer (&times, g_array_unref);
               g_clear_pointer (&params, g_array_unref);
@@ -9084,7 +8796,7 @@ parse_value_animation_attrs (Animation            *a,
 
       if (n != n_values - 1)
         {
-          gtk_svg_invalid_attribute (data->svg, context, "keySplines", "wrong number of values");
+          cmb_private_svg_invalid_attribute (data->svg, context, "keySplines", "wrong number of values");
           g_clear_pointer (&values, g_ptr_array_unref);
           g_clear_pointer (&times, g_array_unref);
           g_clear_pointer (&params, g_array_unref);
@@ -9211,7 +8923,7 @@ parse_style_attr (Shape               *shape,
       name = consume_ident (&p);
       if (!name)
         {
-          gtk_svg_invalid_attribute (data->svg, context,
+          cmb_private_svg_invalid_attribute (data->svg, context,
                                      "style", "while parsing 'style': expected identifier");
           skip_past_semicolon (&p);
           continue;
@@ -9219,7 +8931,7 @@ parse_style_attr (Shape               *shape,
 
       if (!shape_attr_lookup (name, &attr, shape->type))
         {
-          gtk_svg_invalid_attribute (data->svg, context,
+          cmb_private_svg_invalid_attribute (data->svg, context,
                                      "style", "while parsing 'style': unsupported property '%s'",
                                      name);
           g_free (name);
@@ -9231,7 +8943,7 @@ parse_style_attr (Shape               *shape,
 
       if (!consume_colon (&p))
         {
-          gtk_svg_invalid_attribute (data->svg, context,
+          cmb_private_svg_invalid_attribute (data->svg, context,
                                      "style", "while parsing 'style': expected ':' after '%s'",
                                      shape_attr_get_presentation (attr, shape->type));
           skip_past_semicolon (&p);
@@ -9240,7 +8952,7 @@ parse_style_attr (Shape               *shape,
 
       if (!*p)
         {
-          gtk_svg_invalid_attribute (data->svg, context,
+          cmb_private_svg_invalid_attribute (data->svg, context,
                                      "style", "while parsing 'style': value expected after ':'");
           break;
         }
@@ -9249,7 +8961,7 @@ parse_style_attr (Shape               *shape,
       value = shape_attr_parse_value (attr, prop_val);
       if (!value)
         {
-          gtk_svg_invalid_attribute (data->svg, context,
+          cmb_private_svg_invalid_attribute (data->svg, context,
                                      "style", "failed to parse '%s' value '%s'",
                                      shape_attr_get_presentation (attr, shape->type),
                                      prop_val);
@@ -9314,14 +9026,14 @@ parse_shape_attrs (Shape                *shape,
         {
           if (!shape_has_attr (shape->type, attr))
             {
-              gtk_svg_invalid_attribute (data->svg, context, attr_names[i], NULL);
+              cmb_private_svg_invalid_attribute (data->svg, context, attr_names[i], NULL);
             }
           else
             {
               SvgValue *value = shape_attr_parse_value (attr, attr_values[i]);
               if (!value)
                 {
-                  gtk_svg_invalid_attribute (data->svg, context, attr_names[i], NULL);
+                  cmb_private_svg_invalid_attribute (data->svg, context, attr_names[i], NULL);
                 }
               else
                 {
@@ -9507,7 +9219,7 @@ parse_shape_gpa_attrs (Shape                *shape,
         }
       else
         {
-          gtk_svg_invalid_attribute (data->svg, context, "gpa:stroke", NULL);
+          cmb_private_svg_invalid_attribute (data->svg, context, "gpa:stroke", NULL);
         }
     }
 
@@ -9516,12 +9228,16 @@ parse_shape_gpa_attrs (Shape                *shape,
       value = svg_paint_parse_gpa (fill_attr);
       if (value)
         {
+          GString *s = g_string_new("");
+
+          svg_value_print(value, s);
+
           shape_set_base_value (shape, SHAPE_ATTR_FILL, value);
           svg_value_unref (value);
         }
       else
         {
-          gtk_svg_invalid_attribute (data->svg, context, "gpa:fill", NULL);
+          cmb_private_svg_invalid_attribute (data->svg, context, "gpa:fill", NULL);
         }
     }
 
@@ -9545,7 +9261,7 @@ parse_shape_gpa_attrs (Shape                *shape,
         }
       else
         {
-          gtk_svg_invalid_attribute (data->svg, context, "gpa:stroke-width", NULL);
+          cmb_private_svg_invalid_attribute (data->svg, context, "gpa:stroke-width", NULL);
         }
     }
 
@@ -9554,7 +9270,7 @@ parse_shape_gpa_attrs (Shape                *shape,
     {
       if (!parse_states (states_attr, &states))
         {
-          gtk_svg_invalid_attribute (data->svg, context, "gpa:states", NULL);
+          cmb_private_svg_invalid_attribute (data->svg, context, "gpa:states", NULL);
           states = ALL_STATES;
         }
       else
@@ -9567,7 +9283,7 @@ parse_shape_gpa_attrs (Shape                *shape,
   if (origin_attr)
     {
       if (!parse_number (origin_attr, 0, 1, &origin))
-        gtk_svg_invalid_attribute (data->svg, context, "gpa:origin", NULL);
+        cmb_private_svg_invalid_attribute (data->svg, context, "gpa:origin", NULL);
     }
 
   transition_type = TRANSITION_TYPE_NONE;
@@ -9576,21 +9292,21 @@ parse_shape_gpa_attrs (Shape                *shape,
       if (!parse_enum (transition_type_attr,
                        (const char *[]) { "none", "animate", "morph", "fade" }, 4,
                         &transition_type))
-        gtk_svg_invalid_attribute (data->svg, context, "gpa:transition-type", NULL);
+        cmb_private_svg_invalid_attribute (data->svg, context, "gpa:transition-type", NULL);
     }
 
   transition_duration = 0;
   if (transition_duration_attr)
     {
       if (!parse_duration (transition_duration_attr, &transition_duration))
-        gtk_svg_invalid_attribute (data->svg, context, "gpa:transition-duration", NULL);
+        cmb_private_svg_invalid_attribute (data->svg, context, "gpa:transition-duration", NULL);
     }
 
   transition_delay = 0;
   if (transition_delay_attr)
     {
       if (!parse_duration (transition_delay_attr, &transition_delay))
-        gtk_svg_invalid_attribute (data->svg, context, "gpa:transition-delay", NULL);
+        cmb_private_svg_invalid_attribute (data->svg, context, "gpa:transition-delay", NULL);
     }
 
   transition_easing = EASING_FUNCTION_LINEAR;
@@ -9601,7 +9317,7 @@ parse_shape_gpa_attrs (Shape                *shape,
                        (const char *[]) { "linear", "ease-in-out", "ease-in",
                                           "ease-out", "ease" }, 5,
                         &transition_easing))
-        gtk_svg_invalid_attribute (data->svg, context, "gpa:transition-easing", NULL);
+        cmb_private_svg_invalid_attribute (data->svg, context, "gpa:transition-easing", NULL);
     }
 
   has_animation = 0;
@@ -9610,7 +9326,7 @@ parse_shape_gpa_attrs (Shape                *shape,
       if (!parse_enum (animation_type_attr,
                        (const char *[]) { "none", "automatic", }, 2,
                         &has_animation))
-        gtk_svg_invalid_attribute (data->svg, context, "gpa:animation-type", NULL);
+        cmb_private_svg_invalid_attribute (data->svg, context, "gpa:animation-type", NULL);
     }
 
   animation_direction = ANIMATION_DIRECTION_NONE;
@@ -9622,14 +9338,14 @@ parse_shape_gpa_attrs (Shape                *shape,
                                           "in-out-alternate", "in-out-reverse",
                                           "segment", "segment-alternate" }, 10,
                         &animation_direction))
-        gtk_svg_invalid_attribute (data->svg, context, "gpa:animation-direction", NULL);
+        cmb_private_svg_invalid_attribute (data->svg, context, "gpa:animation-direction", NULL);
     }
 
   animation_duration = 0;
   if (animation_duration_attr)
     {
       if (!parse_duration (animation_duration_attr, &animation_duration))
-        gtk_svg_invalid_attribute (data->svg, context, "gpa:animation-duration", NULL);
+        cmb_private_svg_invalid_attribute (data->svg, context, "gpa:animation-duration", NULL);
     }
 
   animation_repeat = INFINITY;
@@ -9638,14 +9354,14 @@ parse_shape_gpa_attrs (Shape                *shape,
       if (strcmp (animation_repeat_attr, "indefinite") == 0)
         animation_repeat = INFINITY;
       else if (!parse_number (animation_repeat_attr, 0, DBL_MAX, &animation_repeat))
-        gtk_svg_invalid_attribute (data->svg, context, "gpa:animation-repeat", NULL);
+        cmb_private_svg_invalid_attribute (data->svg, context, "gpa:animation-repeat", NULL);
     }
 
   animation_segment = 0.2;
   if (animation_segment_attr)
     {
       if (!parse_number (animation_segment_attr, 0, 1, &animation_segment))
-        gtk_svg_invalid_attribute (data->svg, context, "gpa:animation-segment", NULL);
+        cmb_private_svg_invalid_attribute (data->svg, context, "gpa:animation-segment", NULL);
     }
 
   animation_easing = EASING_FUNCTION_LINEAR;
@@ -9655,19 +9371,19 @@ parse_shape_gpa_attrs (Shape                *shape,
                        (const char *[]) { "linear", "ease-in-out", "ease-in",
                                           "ease-out", "ease" }, 5,
                         &animation_easing))
-        gtk_svg_invalid_attribute (data->svg, context, "gpa:animation-easing", NULL);
+        cmb_private_svg_invalid_attribute (data->svg, context, "gpa:animation-easing", NULL);
     }
 
   attach_pos = 0;
   if (attach_pos_attr)
     {
       if (!parse_number (attach_pos_attr, 0, 1, &attach_pos))
-        gtk_svg_invalid_attribute (data->svg, context, "gpa:attach-pos", NULL);
+        cmb_private_svg_invalid_attribute (data->svg, context, "gpa:attach-pos", NULL);
     }
 
   /* our dasharray-based animations require unit path length */
   if (shape->attrs & BIT (SHAPE_ATTR_PATH_LENGTH))
-    gtk_svg_invalid_attribute (data->svg, context, NULL, "Can't set pathLength and use gpa features");
+    cmb_private_svg_invalid_attribute (data->svg, context, NULL, "Can't set pathLength and use gpa features");
 
   create_states (shape,
                  data->svg->timeline,
@@ -9720,7 +9436,7 @@ skip_element (ParserData          *data,
 {
   va_list args;
 
-  gtk_svg_location_init (&data->skip.start, context);
+  cmb_private_svg_location_init (&data->skip.start, context);
   data->skip.to = g_markup_parse_context_get_element_stack (context);
 
   va_start (args, format);
@@ -9784,7 +9500,7 @@ start_element_cb (GMarkupParseContext  *context,
               !parse_length (strv[1], -DBL_MAX, DBL_MAX, &y) ||
               !parse_length (strv[2], 0, DBL_MAX, &w) ||
               !parse_length (strv[3], 0, DBL_MAX, &h))
-            gtk_svg_invalid_attribute (data->svg, context, "viewBox", NULL);
+            cmb_private_svg_invalid_attribute (data->svg, context, "viewBox", NULL);
           else
             graphene_rect_init (&data->svg->view_box, x, y, w, h);
           g_strfreev (strv);
@@ -9794,14 +9510,14 @@ start_element_cb (GMarkupParseContext  *context,
       if (width_attr)
         {
           if (!parse_length (width_attr, 0, DBL_MAX, &width))
-            gtk_svg_invalid_attribute (data->svg, context, "width", NULL);
+            cmb_private_svg_invalid_attribute (data->svg, context, "width", NULL);
         }
 
       height = data->svg->view_box.size.height;
       if (height_attr)
         {
           if (!parse_length (height_attr, 0, DBL_MAX, &height))
-            gtk_svg_invalid_attribute (data->svg, context, "height", NULL);
+            cmb_private_svg_invalid_attribute (data->svg, context, "height", NULL);
         }
 
       data->svg->width = width;
@@ -9818,7 +9534,7 @@ start_element_cb (GMarkupParseContext  *context,
             {
               if (!parse_align (strv[0], &align))
                 {
-                  gtk_svg_invalid_attribute (data->svg, context, "preserveAspectRatio", NULL);
+                  cmb_private_svg_invalid_attribute (data->svg, context, "preserveAspectRatio", NULL);
                 }
               else
                 {
@@ -9836,10 +9552,10 @@ start_element_cb (GMarkupParseContext  *context,
                   data->svg->meet_or_slice = meet;
                 }
               else
-                gtk_svg_invalid_attribute (data->svg, context, "preserveAspectRatio", NULL);
+                cmb_private_svg_invalid_attribute (data->svg, context, "preserveAspectRatio", NULL);
             }
           else
-            gtk_svg_invalid_attribute (data->svg, context, "preserveAspectRatio", NULL);
+            cmb_private_svg_invalid_attribute (data->svg, context, "preserveAspectRatio", NULL);
         }
 
       if (state_attr)
@@ -9847,13 +9563,13 @@ start_element_cb (GMarkupParseContext  *context,
           double v;
 
           if (strcmp (state_attr, "empty") == 0)
-            gtk_svg_set_state (data->svg, GTK_SVG_STATE_EMPTY);
+            cmb_private_svg_set_state (data->svg, CMB_PRIVATE_SVG_STATE_EMPTY);
           else if (!parse_number (state_attr, -1, 63, &v))
-            gtk_svg_invalid_attribute (data->svg, context, "gpa:state", NULL);
+            cmb_private_svg_invalid_attribute (data->svg, context, "gpa:state", NULL);
           else if (v < 0)
-            gtk_svg_set_state (data->svg, GTK_SVG_STATE_EMPTY);
+            cmb_private_svg_set_state (data->svg, CMB_PRIVATE_SVG_STATE_EMPTY);
           else
-            gtk_svg_set_state (data->svg, (unsigned int) CLAMP (v, 0, 63));
+            cmb_private_svg_set_state (data->svg, (unsigned int) CLAMP (v, 0, 63));
         }
 
       if (version_attr)
@@ -9863,7 +9579,7 @@ start_element_cb (GMarkupParseContext  *context,
 
           version = (unsigned int) g_ascii_strtoull (version_attr, &end, 10);
           if ((end && *end != '\0') || version != 1)
-            gtk_svg_invalid_attribute (data->svg, context, "gpa:version", "must be 1");
+            cmb_private_svg_invalid_attribute (data->svg, context, "gpa:version", "must be 1");
           else
             data->svg->gpa_version = version;
         }
@@ -9915,11 +9631,11 @@ start_element_cb (GMarkupParseContext  *context,
           return;
         }
 
-      gtk_svg_check_unhandled_attributes (data->svg, context, attr_names, handled);
+      cmb_private_svg_check_unhandled_attributes (data->svg, context, attr_names, handled);
 
       if (!to_attr)
         {
-          gtk_svg_missing_attribute (data->svg, context, "to", NULL);
+          cmb_private_svg_missing_attribute (data->svg, context, "to", NULL);
           animation_drop_and_free (a);
           skip_element (data, context, "Dropping <set> without 'to'");
           return;
@@ -9933,7 +9649,7 @@ start_element_cb (GMarkupParseContext  *context,
       value = shape_attr_parse_value (a->attr, to_attr);
       if (!value)
         {
-          gtk_svg_invalid_attribute (data->svg, context, "to", "Failed to parse: %s", to_attr);
+          cmb_private_svg_invalid_attribute (data->svg, context, "to", "Failed to parse: %s", to_attr);
           animation_drop_and_free (a);
           skip_element (data, context, "Dropping <set> without 'to'");
           return;
@@ -10002,7 +9718,7 @@ start_element_cb (GMarkupParseContext  *context,
           return;
         }
 
-      gtk_svg_check_unhandled_attributes (data->svg, context, attr_names, handled);
+      cmb_private_svg_check_unhandled_attributes (data->svg, context, attr_names, handled);
 
       if (!a->href || g_strcmp0 (a->href, data->current_shape->id) == 0)
         {
@@ -10066,7 +9782,7 @@ start_element_cb (GMarkupParseContext  *context,
                                 "keyPoints", &key_points_attr,
                                 NULL);
 
-      gtk_svg_check_unhandled_attributes (data->svg, context, attr_names, handled);
+      cmb_private_svg_check_unhandled_attributes (data->svg, context, attr_names, handled);
 
       if (path_attr)
         {
@@ -10074,7 +9790,7 @@ start_element_cb (GMarkupParseContext  *context,
 
           if (!a->motion.path)
             {
-              gtk_svg_invalid_attribute (data->svg, context, "path", "failed to parse: %s", path_attr);
+              cmb_private_svg_invalid_attribute (data->svg, context, "path", "failed to parse: %s", path_attr);
               animation_drop_and_free (a);
               skip_element (data, context, "Skipping <%s>: bad 'path' attribute", element_name);
               return;
@@ -10095,7 +9811,7 @@ start_element_cb (GMarkupParseContext  *context,
                                &value))
             a->motion.rotate = (AnimationRotate) value;
           else
-            gtk_svg_invalid_attribute (data->svg, context, "rotate", "failed to parse: %s", rotate_attr);
+            cmb_private_svg_invalid_attribute (data->svg, context, "rotate", "failed to parse: %s", rotate_attr);
         }
 
       if (key_points_attr)
@@ -10103,7 +9819,7 @@ start_element_cb (GMarkupParseContext  *context,
           GArray *points = parse_numbers2 (key_points_attr, ";", 0, 1);
           if (!points)
             {
-              gtk_svg_invalid_attribute (data->svg, context, "keyPoints", "failed to parse: %s", key_points_attr);
+              cmb_private_svg_invalid_attribute (data->svg, context, "keyPoints", "failed to parse: %s", key_points_attr);
               g_array_unref (points);
               animation_drop_and_free (a);
               skip_element (data, context, "Skipping <%s>: bad 'keyPoints' attribute", element_name);
@@ -10112,7 +9828,7 @@ start_element_cb (GMarkupParseContext  *context,
 
           if (points->len != a->n_frames)
             {
-              gtk_svg_invalid_attribute (data->svg, context, "keyPoints", "wrong number of values");
+              cmb_private_svg_invalid_attribute (data->svg, context, "keyPoints", "wrong number of values");
               g_array_unref (points);
               animation_drop_and_free (a);
               skip_element (data, context, "Skipping <%s>: bad 'keyPoints' attribute", element_name);
@@ -10166,10 +9882,10 @@ start_element_cb (GMarkupParseContext  *context,
             }
         }
 
-      gtk_svg_check_unhandled_attributes (data->svg, context, attr_names, handled);
+      cmb_private_svg_check_unhandled_attributes (data->svg, context, attr_names, handled);
 
       if (!data->current_animation->motion.path_ref)
-        gtk_svg_missing_attribute (data->svg, context, "href", NULL);
+        cmb_private_svg_missing_attribute (data->svg, context, "href", NULL);
 
       return;
     }
@@ -10203,7 +9919,7 @@ start_element_cb (GMarkupParseContext  *context,
                   svg_value_unref (value);
                 }
               else
-                gtk_svg_invalid_attribute (data->svg, context, "offset", NULL);
+                cmb_private_svg_invalid_attribute (data->svg, context, "offset", NULL);
             }
           else if (strcmp (attr_names[i], "stop-color") == 0)
             {
@@ -10215,7 +9931,7 @@ start_element_cb (GMarkupParseContext  *context,
                   svg_value_unref (value);
                 }
               else
-                gtk_svg_invalid_attribute (data->svg, context, "stop-color", NULL);
+                cmb_private_svg_invalid_attribute (data->svg, context, "stop-color", NULL);
             }
           else if (strcmp (attr_names[i], "stop-opacity") == 0)
             {
@@ -10227,7 +9943,7 @@ start_element_cb (GMarkupParseContext  *context,
                   svg_value_unref (value);
                 }
               else
-                gtk_svg_invalid_attribute (data->svg, context, "stop-opacity", NULL);
+                cmb_private_svg_invalid_attribute (data->svg, context, "stop-opacity", NULL);
             }
           else if (strcmp (attr_names[i], "style") == 0)
             {
@@ -10239,7 +9955,7 @@ start_element_cb (GMarkupParseContext  *context,
       if (style_attr)
         parse_style_attr (data->current_shape, style_attr, data, context);
 
-      gtk_svg_check_unhandled_attributes (data->svg, context, attr_names, handled);
+      cmb_private_svg_check_unhandled_attributes (data->svg, context, attr_names, handled);
 
       return;
     }
@@ -10265,7 +9981,7 @@ start_element_cb (GMarkupParseContext  *context,
                            element_name, attr_names, attr_values,
                            &handled, data, context);
 
-  gtk_svg_check_unhandled_attributes (data->svg, context, attr_names, handled);
+  cmb_private_svg_check_unhandled_attributes (data->svg, context, attr_names, handled);
 
   g_ptr_array_add (data->current_shape->shapes, shape);
   data->shape_stack = g_slist_prepend (data->shape_stack, data->current_shape);
@@ -10288,7 +10004,7 @@ end_element_cb (GMarkupParseContext *context,
     {
       if (data->skip.to == g_markup_parse_context_get_element_stack (context))
         {
-          GtkSvgLocation end;
+          CmbPrivateSvgLocation end;
           const char *parent;
 
           if (data->skip.to->next)
@@ -10296,9 +10012,9 @@ end_element_cb (GMarkupParseContext *context,
           else
             parent = NULL;
 
-          gtk_svg_location_init (&end, context);
+          cmb_private_svg_location_init (&end, context);
 
-          gtk_svg_invalid_element (data->svg,
+          cmb_private_svg_invalid_element (data->svg,
                                    parent,
                                    &data->skip.start,
                                    &end,
@@ -10415,11 +10131,11 @@ resolve_clip_ref (SvgValue   *value,
     {
       Shape *target = g_hash_table_lookup (data->shapes, clip->ref.ref);
       if (!target)
-        gtk_svg_invalid_reference (data->svg,
+        cmb_private_svg_invalid_reference (data->svg,
                                    "No path with ID %s (resolving clip-path)",
                                    clip->ref.ref);
       else if (target->type != SHAPE_CLIP_PATH)
-        gtk_svg_invalid_reference (data->svg,
+        cmb_private_svg_invalid_reference (data->svg,
                                    "Shape with ID %s not a <clipPath> (resolving clip-path)",
                                    clip->ref.ref);
       else
@@ -10441,11 +10157,11 @@ resolve_mask_ref (SvgValue   *value,
     {
       Shape *target = g_hash_table_lookup (data->shapes, mask->ref);
       if (!target)
-        gtk_svg_invalid_reference (data->svg,
+        cmb_private_svg_invalid_reference (data->svg,
                                    "No shape with ID %s (resolving mask)",
                                    mask->ref);
       else if (target->type != SHAPE_MASK)
-        gtk_svg_invalid_reference (data->svg,
+        cmb_private_svg_invalid_reference (data->svg,
                                    "Shape with ID %s not a <mask> (resolving mask)",
                                    mask->ref);
       else
@@ -10467,7 +10183,7 @@ resolve_href_ref (SvgValue   *value,
     {
       Shape *target = g_hash_table_lookup (data->shapes, href->ref);
       if (!target)
-        gtk_svg_invalid_reference (data->svg, "No shape with ID %s (resolving <use>)", href->ref);
+        cmb_private_svg_invalid_reference (data->svg, "No shape with ID %s (resolving <use>)", href->ref);
       else
         {
           href->shape = target;
@@ -10487,10 +10203,10 @@ resolve_paint_ref (SvgValue   *value,
     {
       Shape *target = g_hash_table_lookup (data->shapes, paint->gradient.ref);
       if (!target)
-        gtk_svg_invalid_reference (data->svg, "No shape with ID %s (resolving fill or stroke)", paint->gradient.ref);
+        cmb_private_svg_invalid_reference (data->svg, "No shape with ID %s (resolving fill or stroke)", paint->gradient.ref);
       else if (target->type != SHAPE_LINEAR_GRADIENT &&
                target->type != SHAPE_RADIAL_GRADIENT)
-        gtk_svg_invalid_reference (data->svg, "Shape with ID %s not a gradient (resolving fill or stroke)", paint->gradient.ref);
+        cmb_private_svg_invalid_reference (data->svg, "Shape with ID %s not a gradient (resolving fill or stroke)", paint->gradient.ref);
       else
         {
           paint->gradient.shape = target;
@@ -10518,7 +10234,7 @@ resolve_animation_refs (Shape      *shape,
                   g_assert (spec->sync.ref);
                   spec->sync.base = g_hash_table_lookup (data->animations, spec->sync.ref);
                   if (!spec->sync.base)
-                    gtk_svg_invalid_reference (data->svg, "No animation with ID %s", spec->sync.ref);
+                    cmb_private_svg_invalid_reference (data->svg, "No animation with ID %s", spec->sync.ref);
                   else
                     animation_add_dep (spec->sync.base, a);
                 }
@@ -10551,7 +10267,7 @@ resolve_animation_refs (Shape      *shape,
         {
           a->motion.path_shape = g_hash_table_lookup (data->shapes, a->motion.path_ref);
           if (a->motion.path_shape == NULL)
-            gtk_svg_invalid_reference (data->svg,
+            cmb_private_svg_invalid_reference (data->svg,
                                        "No path with ID %s (resolving <mpath>",
                                        a->motion.path_ref);
           else
@@ -10589,7 +10305,7 @@ resolve_shape_refs (Shape      *shape,
   resolve_paint_ref (shape->base[SHAPE_ATTR_STROKE], shape, data);
 }
 
-static void gtk_svg_clear_content (GtkSvg *self);
+static void cmb_private_svg_clear_content (CmbPrivateSvg *self);
 
 static gboolean
 can_add (Shape      *shape,
@@ -10610,7 +10326,7 @@ can_add (Shape      *shape,
 
 static void
 compute_update_order (Shape  *shape,
-                      GtkSvg *svg)
+                      CmbPrivateSvg *svg)
 {
   if (shape_types[shape->type].has_shapes)
     {
@@ -10653,7 +10369,7 @@ compute_update_order (Shape  *shape,
 
           if (g_hash_table_size (waiting) == n_waiting)
             {
-              gtk_svg_update_error (svg, "Cyclic dependency detected");
+              cmb_private_svg_update_error (svg, "Cyclic dependency detected");
               has_cycle = TRUE;
             }
 
@@ -10665,7 +10381,7 @@ compute_update_order (Shape  *shape,
 }
 
 static void
-gtk_svg_init_from_bytes (GtkSvg *self,
+cmb_private_svg_init_from_bytes (CmbPrivateSvg *self,
                          GBytes *bytes)
 {
   ParserData data;
@@ -10697,9 +10413,9 @@ gtk_svg_init_from_bytes (GtkSvg *self,
                                      &error) ||
       !g_markup_parse_context_end_parse (context, &error))
     {
-      gtk_svg_emit_error (self, error);
+      cmb_private_svg_emit_error (self, error);
       g_clear_error (&error);
-      gtk_svg_clear_content (self);
+      cmb_private_svg_clear_content (self);
       g_slist_free (data.shape_stack);
       g_clear_pointer (&data.skip.reason, g_free);
 
@@ -10726,7 +10442,7 @@ gtk_svg_init_from_bytes (GtkSvg *self,
 
       a->shape = g_hash_table_lookup (data.shapes, a->href);
       if (!a->shape)
-        gtk_svg_invalid_reference (self,
+        cmb_private_svg_invalid_reference (self,
                                    "No shape with ID %s (resolving begin or end attribute)",
                                    a->href);
 
@@ -10774,10 +10490,10 @@ indent_for_attr (GString *s,
 
 static void
 serialize_shape_attrs (GString              *s,
-                       GtkSvg               *svg,
+                       CmbPrivateSvg               *svg,
                        int                   indent,
                        Shape                *shape,
-                       GtkSvgSerializeFlags  flags)
+                       CmbPrivateSvgSerializeFlags  flags)
 {
   if (shape->id)
     {
@@ -10796,11 +10512,11 @@ serialize_shape_attrs (GString              *s,
       if (!shape_has_attr (shape->type, attr))
         continue;
 
-      if ((shape->attrs & BIT (attr)) || (flags & GTK_SVG_SERIALIZE_AT_CURRENT_TIME))
+      if ((shape->attrs & BIT (attr)) || (flags & CMB_PRIVATE_SVG_SERIALIZE_AT_CURRENT_TIME))
         {
           SvgValue *value;
 
-          if (flags & GTK_SVG_SERIALIZE_AT_CURRENT_TIME)
+          if (flags & CMB_PRIVATE_SVG_SERIALIZE_AT_CURRENT_TIME)
             value = shape_get_current_value (shape, attr);
           else
             value = shape_get_base_value (shape, NULL, attr);
@@ -10820,15 +10536,15 @@ serialize_shape_attrs (GString              *s,
 
 static void
 serialize_gpa_attrs (GString              *s,
-                     GtkSvg               *svg,
+                     CmbPrivateSvg               *svg,
                      int                   indent,
                      Shape                *shape,
-                     GtkSvgSerializeFlags  flags)
+                     CmbPrivateSvgSerializeFlags  flags)
 {
   SvgValue **values;
   SvgPaint *paint;
 
-  if (flags & GTK_SVG_SERIALIZE_AT_CURRENT_TIME)
+  if (flags & CMB_PRIVATE_SVG_SERIALIZE_AT_CURRENT_TIME)
     values = shape->current;
   else
     values = shape->base;
@@ -10867,7 +10583,7 @@ serialize_gpa_attrs (GString              *s,
 
 static void
 serialize_base_animation_attrs (GString   *s,
-                                GtkSvg    *svg,
+                                CmbPrivateSvg    *svg,
                                 int        indent,
                                 Animation *a)
 {
@@ -10962,7 +10678,7 @@ serialize_base_animation_attrs (GString   *s,
 
 static void
 serialize_value_animation_attrs (GString   *s,
-                                 GtkSvg    *svg,
+                                 CmbPrivateSvg    *svg,
                                  int        indent,
                                  Animation *a)
 {
@@ -11070,18 +10786,18 @@ serialize_value_animation_attrs (GString   *s,
 
 static void
 serialize_animation_status (GString              *s,
-                            GtkSvg               *svg,
+                            CmbPrivateSvg               *svg,
                             int                   indent,
                             Animation            *a,
-                            GtkSvgSerializeFlags  flags)
+                            CmbPrivateSvgSerializeFlags  flags)
 {
-  if (flags & GTK_SVG_SERIALIZE_INCLUDE_STATE)
+  if (flags & CMB_PRIVATE_SVG_SERIALIZE_INCLUDE_STATE)
     {
       const char *status[] = { "inactive", "running", "done" };
       indent_for_attr (s, indent);
       g_string_append_printf (s, "gpa:status='%s'", status[a->status]);
       /* Not writing out start/end time, since that will be hard to compare */
- 
+
       if (!a->has_simple_duration)
         {
           int64_t d = determine_simple_duration (a);
@@ -11116,10 +10832,10 @@ serialize_animation_status (GString              *s,
 
 static void
 serialize_animation_set (GString              *s,
-                         GtkSvg               *svg,
+                         CmbPrivateSvg               *svg,
                          int                   indent,
                          Animation            *a,
-                         GtkSvgSerializeFlags  flags)
+                         CmbPrivateSvgSerializeFlags  flags)
 {
   indent_for_elt (s, indent);
   g_string_append (s, "<set");
@@ -11134,10 +10850,10 @@ serialize_animation_set (GString              *s,
 
 static void
 serialize_animation_animate (GString              *s,
-                             GtkSvg               *svg,
+                             CmbPrivateSvg               *svg,
                              int                   indent,
                              Animation            *a,
-                             GtkSvgSerializeFlags  flags)
+                             CmbPrivateSvgSerializeFlags  flags)
 {
   indent_for_elt (s, indent);
   g_string_append (s, "<animate");
@@ -11149,10 +10865,10 @@ serialize_animation_animate (GString              *s,
 
 static void
 serialize_animation_transform (GString              *s,
-                               GtkSvg               *svg,
+                               CmbPrivateSvg               *svg,
                                int                   indent,
                                Animation            *a,
-                               GtkSvgSerializeFlags  flags)
+                               CmbPrivateSvgSerializeFlags  flags)
 {
   const char *types[] = { "none", "translate", "scale", "rotate", "any" };
   SvgTransform *tf = (SvgTransform *) a->frames[0].value;
@@ -11169,10 +10885,10 @@ serialize_animation_transform (GString              *s,
 
 static void
 serialize_animation_motion (GString              *s,
-                            GtkSvg               *svg,
+                            CmbPrivateSvg               *svg,
                             int                   indent,
                             Animation            *a,
-                            GtkSvgSerializeFlags  flags)
+                            CmbPrivateSvgSerializeFlags  flags)
 {
   indent_for_elt (s, indent);
   g_string_append (s, "<animateMotion");
@@ -11217,7 +10933,7 @@ serialize_animation_motion (GString              *s,
     {
       GskPath *path;
 
-      if (flags & GTK_SVG_SERIALIZE_AT_CURRENT_TIME)
+      if (flags & CMB_PRIVATE_SVG_SERIALIZE_AT_CURRENT_TIME)
         path = animation_motion_get_current_path (a, &svg->view_box.size);
       else
         path = animation_motion_get_base_path (a, &svg->view_box.size);
@@ -11235,12 +10951,12 @@ serialize_animation_motion (GString              *s,
 
 static void
 serialize_animation (GString              *s,
-                     GtkSvg               *svg,
+                     CmbPrivateSvg               *svg,
                      int                   indent,
                      Animation            *a,
-                     GtkSvgSerializeFlags  flags)
+                     CmbPrivateSvgSerializeFlags  flags)
 {
-  if ((flags & GTK_SVG_SERIALIZE_EXCLUDE_ANIMATION))
+  if ((flags & CMB_PRIVATE_SVG_SERIALIZE_EXCLUDE_ANIMATION))
     return;
 
   switch (a->type)
@@ -11264,11 +10980,11 @@ serialize_animation (GString              *s,
 
 static void
 serialize_color_stop (GString              *s,
-                      GtkSvg               *svg,
+                      CmbPrivateSvg               *svg,
                       int                   indent,
                       Shape                *shape,
                       unsigned int          idx,
-                      GtkSvgSerializeFlags  flags)
+                      CmbPrivateSvgSerializeFlags  flags)
 {
   ColorStop *stop;
   SvgValue **values;
@@ -11279,7 +10995,7 @@ serialize_color_stop (GString              *s,
   indent_for_elt (s, indent);
   g_string_append (s, "<stop");
 
-  if (flags & GTK_SVG_SERIALIZE_AT_CURRENT_TIME)
+  if (flags & CMB_PRIVATE_SVG_SERIALIZE_AT_CURRENT_TIME)
     values = stop->current;
   else
     values = stop->base;
@@ -11309,10 +11025,10 @@ serialize_color_stop (GString              *s,
 
 static void
 serialize_shape (GString              *s,
-                 GtkSvg               *svg,
+                 CmbPrivateSvg               *svg,
                  int                   indent,
                  Shape                *shape,
-                 GtkSvgSerializeFlags  flags)
+                 CmbPrivateSvgSerializeFlags  flags)
 {
   if (indent > 0) /* Hack: this is for <svg> */
     {
@@ -11364,7 +11080,7 @@ typedef enum
 
 typedef struct
 {
-  GtkSvg *svg;
+  CmbPrivateSvg *svg;
   const graphene_size_t *viewport;
   GtkSnapshot *snapshot;
   graphene_rect_t bounds;
@@ -11613,7 +11329,7 @@ paint_linear_gradient (Shape                 *gradient,
                                            stops, gradient->color_stops->len);
       break;
     case SPREAD_METHOD_REFLECT:
-      gtk_svg_rendering_error (context->svg, "the 'reflect' spreadMethod is not implemented");
+      cmb_private_svg_rendering_error (context->svg, "the 'reflect' spreadMethod is not implemented");
       G_GNUC_FALLTHROUGH;
     case SPREAD_METHOD_REPEAT:
       gtk_snapshot_append_repeating_linear_gradient (context->snapshot,
@@ -11649,7 +11365,7 @@ paint_radial_gradient (Shape                 *gradient,
   end_radius = svg_number_get (gradient->current[SHAPE_ATTR_R], normalized_diagonal (context->viewport));
 
   if (!graphene_point_equal (&start_center, &end_center))
-    gtk_svg_rendering_error (context->svg, "non-concentric radial gradients are not implemented");
+    cmb_private_svg_rendering_error (context->svg, "non-concentric radial gradients are not implemented");
 
   stops = g_newa (GskColorStop, gradient->color_stops->len);
   offset = 0;
@@ -11706,7 +11422,7 @@ paint_radial_gradient (Shape                 *gradient,
                                            stops, gradient->color_stops->len);
       break;
     case SPREAD_METHOD_REFLECT:
-      gtk_svg_rendering_error (context->svg, "the 'reflect' spreadMethod is not implemented");
+      cmb_private_svg_rendering_error (context->svg, "the 'reflect' spreadMethod is not implemented");
       G_GNUC_FALLTHROUGH;
     case SPREAD_METHOD_REPEAT:
       gtk_snapshot_append_repeating_radial_gradient (context->snapshot,
@@ -11962,7 +11678,7 @@ render_shape (Shape        *shape,
   context->depth++;
   if (context->depth > MAX_DEPTH)
     {
-      gtk_svg_rendering_error (context->svg,
+      cmb_private_svg_rendering_error (context->svg,
                                "excessive rendering depth (> %d), aborting",
                                MAX_DEPTH);
       return;
@@ -11979,7 +11695,7 @@ render_shape (Shape        *shape,
 /* {{{ GtkSymbolicPaintable implementation */
 
 static void
-compute_viewport_transform (GtkSvg *self,
+compute_viewport_transform (CmbPrivateSvg *self,
                             const graphene_rect_t *vb,
                             double e_x, double e_y,
                             double e_width, double e_height,
@@ -12016,7 +11732,7 @@ compute_viewport_transform (GtkSvg *self,
 }
 
 static void
-gtk_svg_snapshot_with_weight (GtkSymbolicPaintable  *paintable,
+cmb_private_svg_snapshot_with_weight (GtkSymbolicPaintable  *paintable,
                               GtkSnapshot           *snapshot,
                               double                 width,
                               double                 height,
@@ -12024,7 +11740,7 @@ gtk_svg_snapshot_with_weight (GtkSymbolicPaintable  *paintable,
                               size_t                 n_colors,
                               double                 weight)
 {
-  GtkSvg *self = GTK_SVG (paintable);
+  CmbPrivateSvg *self = CMB_PRIVATE_SVG (paintable);
   ComputeContext compute_context;
   PaintContext paint_context;
   graphene_rect_t view_box;
@@ -12078,14 +11794,14 @@ gtk_svg_snapshot_with_weight (GtkSymbolicPaintable  *paintable,
 }
 
 static void
-gtk_svg_snapshot_symbolic (GtkSymbolicPaintable *paintable,
+cmb_private_svg_snapshot_symbolic (GtkSymbolicPaintable *paintable,
                            GtkSnapshot          *snapshot,
                            double                width,
                            double                height,
                            const GdkRGBA        *colors,
                            size_t                 n_colors)
 {
-  gtk_svg_snapshot_with_weight (paintable,
+  cmb_private_svg_snapshot_with_weight (paintable,
                                 snapshot,
                                 width, height,
                                 colors, n_colors,
@@ -12093,47 +11809,47 @@ gtk_svg_snapshot_symbolic (GtkSymbolicPaintable *paintable,
 }
 
 static void
-gtk_svg_init_symbolic_paintable_interface (GtkSymbolicPaintableInterface *iface)
+cmb_private_svg_init_symbolic_paintable_interface (GtkSymbolicPaintableInterface *iface)
 {
-  iface->snapshot_symbolic = gtk_svg_snapshot_symbolic;
-  iface->snapshot_with_weight = gtk_svg_snapshot_with_weight;
+  iface->snapshot_symbolic = cmb_private_svg_snapshot_symbolic;
+  // iface->snapshot_with_weight = cmb_private_svg_snapshot_with_weight;
 }
 
 /* }}} */
 /* {{{ GdkPaintable implementation */
 
 static void
-gtk_svg_snapshot (GdkPaintable *paintable,
+cmb_private_svg_snapshot (GdkPaintable *paintable,
                   GtkSnapshot  *snapshot,
                   double        width,
                   double        height)
 {
-  gtk_svg_snapshot_symbolic (GTK_SYMBOLIC_PAINTABLE (paintable),
+  cmb_private_svg_snapshot_symbolic (GTK_SYMBOLIC_PAINTABLE (paintable),
                              snapshot,
                              width, height,
                              NULL, 0);
 }
 
 static int
-gtk_svg_get_intrinsic_width (GdkPaintable *paintable)
+cmb_private_svg_get_intrinsic_width (GdkPaintable *paintable)
 {
-  GtkSvg *self = GTK_SVG (paintable);
+  CmbPrivateSvg *self = CMB_PRIVATE_SVG (paintable);
 
   return ceil (self->width);
 }
 
 static int
-gtk_svg_get_intrinsic_height (GdkPaintable *paintable)
+cmb_private_svg_get_intrinsic_height (GdkPaintable *paintable)
 {
-  GtkSvg *self = GTK_SVG (paintable);
+  CmbPrivateSvg *self = CMB_PRIVATE_SVG (paintable);
 
   return ceil (self->height);
 }
 
 static double
-gtk_svg_get_intrinsic_aspect_ratio (GdkPaintable *paintable)
+cmb_private_svg_get_intrinsic_aspect_ratio (GdkPaintable *paintable)
 {
-  GtkSvg *self = GTK_SVG (paintable);
+  CmbPrivateSvg *self = CMB_PRIVATE_SVG (paintable);
 
   if (self->width > 0 && self->height > 0)
     return self->width / self->height;
@@ -12145,18 +11861,18 @@ gtk_svg_get_intrinsic_aspect_ratio (GdkPaintable *paintable)
 }
 
 static void
-gtk_svg_init_paintable_interface (GdkPaintableInterface *iface)
+cmb_private_svg_init_paintable_interface (GdkPaintableInterface *iface)
 {
-  iface->snapshot = gtk_svg_snapshot;
-  iface->get_intrinsic_width = gtk_svg_get_intrinsic_width;
-  iface->get_intrinsic_height = gtk_svg_get_intrinsic_height;
-  iface->get_intrinsic_aspect_ratio = gtk_svg_get_intrinsic_aspect_ratio;
+  iface->snapshot = cmb_private_svg_snapshot;
+  iface->get_intrinsic_width = cmb_private_svg_get_intrinsic_width;
+  iface->get_intrinsic_height = cmb_private_svg_get_intrinsic_height;
+  iface->get_intrinsic_aspect_ratio = cmb_private_svg_get_intrinsic_aspect_ratio;
 }
 
 /* }}} */
 /* {{{ GObject boilerplate */
 
-struct _GtkSvgClass
+struct _CmbPrivateSvgClass
 {
   GObjectClass parent_class;
 };
@@ -12173,31 +11889,31 @@ enum
 static GParamSpec *properties[NUM_PROPERTIES];
 
 
-G_DEFINE_TYPE_WITH_CODE (GtkSvg, gtk_svg, G_TYPE_OBJECT,
+G_DEFINE_TYPE_WITH_CODE (CmbPrivateSvg, cmb_private_svg, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (GDK_TYPE_PAINTABLE,
-                                                gtk_svg_init_paintable_interface)
+                                                cmb_private_svg_init_paintable_interface)
                          G_IMPLEMENT_INTERFACE (GTK_TYPE_SYMBOLIC_PAINTABLE,
-                                                gtk_svg_init_symbolic_paintable_interface))
+                                                cmb_private_svg_init_symbolic_paintable_interface))
 
 static void
-gtk_svg_init (GtkSvg *self)
+cmb_private_svg_init (CmbPrivateSvg *self)
 {
   self->weight = -1;
-  self->state = GTK_SVG_STATE_EMPTY;
+  self->state = CMB_PRIVATE_SVG_STATE_EMPTY;
   self->load_time = INDEFINITE;
   self->state_change_delay = 0;
   self->next_update = INDEFINITE;
   self->playing = FALSE;
-  self->run_mode = GTK_SVG_RUN_MODE_STOPPED;
+  self->run_mode = CMB_PRIVATE_SVG_RUN_MODE_STOPPED;
 
   self->timeline = timeline_new ();
   self->content = shape_new (NULL, SHAPE_GROUP);
 }
 
 static void
-gtk_svg_dispose (GObject *object)
+cmb_private_svg_dispose (GObject *object)
 {
-  GtkSvg *self = GTK_SVG (object);
+  CmbPrivateSvg *self = CMB_PRIVATE_SVG (object);
 
   frame_clock_disconnect (self);
   g_clear_handle_id (&self->pending_invalidate, g_source_remove);
@@ -12207,16 +11923,16 @@ gtk_svg_dispose (GObject *object)
 
   g_clear_object (&self->clock);
 
-  G_OBJECT_CLASS (gtk_svg_parent_class)->dispose (object);
+  G_OBJECT_CLASS (cmb_private_svg_parent_class)->dispose (object);
 }
 
 static void
-gtk_svg_get_property (GObject      *object,
+cmb_private_svg_get_property (GObject      *object,
                       unsigned int  property_id,
                       GValue       *value,
                       GParamSpec   *pspec)
 {
-  GtkSvg *self = GTK_SVG (object);
+  CmbPrivateSvg *self = CMB_PRIVATE_SVG (object);
 
   switch (property_id)
     {
@@ -12239,12 +11955,12 @@ gtk_svg_get_property (GObject      *object,
 }
 
 static void
-gtk_svg_set_property (GObject      *object,
+cmb_private_svg_set_property (GObject      *object,
                       unsigned int  property_id,
                       const GValue *value,
                       GParamSpec   *pspec)
 {
-  GtkSvg *self = GTK_SVG (object);
+  CmbPrivateSvg *self = CMB_PRIVATE_SVG (object);
 
   switch (property_id)
     {
@@ -12254,22 +11970,22 @@ gtk_svg_set_property (GObject      *object,
         if (path)
           {
             GBytes *bytes = g_resources_lookup_data (path, 0, NULL);
-            gtk_svg_init_from_bytes (self, bytes);
+            cmb_private_svg_init_from_bytes (self, bytes);
             g_bytes_unref (bytes);
           }
       }
       break;
 
     case PROP_PLAYING:
-      gtk_svg_set_playing (self, g_value_get_boolean (value));
+      cmb_private_svg_set_playing (self, g_value_get_boolean (value));
       break;
 
     case PROP_STATE:
-      gtk_svg_set_state (self, g_value_get_uint (value));
+      cmb_private_svg_set_state (self, g_value_get_uint (value));
       break;
 
     case PROP_WEIGHT:
-      gtk_svg_set_weight (self, g_value_get_double (value));
+      cmb_private_svg_set_weight (self, g_value_get_double (value));
       break;
 
     default:
@@ -12279,18 +11995,18 @@ gtk_svg_set_property (GObject      *object,
 }
 
 static void
-gtk_svg_class_init (GtkSvgClass *class)
+cmb_private_svg_class_init (CmbPrivateSvgClass *class)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (class);
 
   shape_attr_init_default_values ();
 
-  object_class->dispose = gtk_svg_dispose;
-  object_class->get_property = gtk_svg_get_property;
-  object_class->set_property = gtk_svg_set_property;
+  object_class->dispose = cmb_private_svg_dispose;
+  object_class->get_property = cmb_private_svg_get_property;
+  object_class->set_property = cmb_private_svg_set_property;
 
   /**
-   * GtkSvg:resource:
+   * CmbPrivateSvg:resource:
    *
    * Construct-only property to create a paintable from
    * a resource in ui files.
@@ -12303,7 +12019,7 @@ gtk_svg_class_init (GtkSvgClass *class)
                          G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY);
 
   /**
-   * GtkSvg:playing:
+   * CmbPrivateSvg:playing:
    *
    * Whether the paintable is currently animating its content.
    *
@@ -12318,7 +12034,7 @@ gtk_svg_class_init (GtkSvgClass *class)
                           G_PARAM_READWRITE | G_PARAM_EXPLICIT_NOTIFY);
 
   /**
-   * GtkSvg:weight:
+   * CmbPrivateSvg:weight:
    *
    * If not set to -1, this value overrides the weight used
    * when rendering the paintable.
@@ -12331,7 +12047,7 @@ gtk_svg_class_init (GtkSvgClass *class)
                          G_PARAM_READWRITE | G_PARAM_EXPLICIT_NOTIFY);
 
   /**
-   * GtkSvg:state:
+   * CmbPrivateSvg:state:
    *
    * The current state of the renderer.
    *
@@ -12343,13 +12059,13 @@ gtk_svg_class_init (GtkSvgClass *class)
    */
   properties[PROP_STATE] =
     g_param_spec_uint ("state", NULL, NULL,
-                       0, G_MAXUINT, GTK_SVG_STATE_EMPTY,
+                       0, G_MAXUINT, CMB_PRIVATE_SVG_STATE_EMPTY,
                        G_PARAM_READWRITE | G_PARAM_EXPLICIT_NOTIFY);
 
   g_object_class_install_properties (object_class, NUM_PROPERTIES, properties);
 
   /**
-   * GtkSvg::error:
+   * CmbPrivateSvg::error:
    * @svg: the SVG paintable
    * @error: the error
    *
@@ -12359,7 +12075,7 @@ gtk_svg_class_init (GtkSvgClass *class)
    *
    * The expected error values are in the [error@Gtk.SvgError] enumeration,
    * context information about the location of parsing errors can
-   * be obtained with the various `gtk_svg_error` functions.
+   * be obtained with the various `cmb_private_svg_error` functions.
    *
    * Parsing errors are never fatal, so the parsing will resume after
    * the error. Errors may however cause parts of the given data or
@@ -12416,7 +12132,7 @@ shape_dump_animation_state (Shape *shape, GString *string)
 }
 
 static void
-animation_state_dump (GtkSvg *self)
+animation_state_dump (CmbPrivateSvg *self)
 {
   GString *s = g_string_new ("running");
   shape_dump_animation_state (self->content, s);
@@ -12446,7 +12162,7 @@ timeline_dump (Timeline *timeline)
 static void
 collect_next_update_for_animation (Animation     *a,
                                    int64_t        current_time,
-                                   GtkSvgRunMode *run_mode,
+                                   CmbPrivateSvgRunMode *run_mode,
                                    int64_t       *next_update)
 {
   animation_update_run_mode (a, current_time);
@@ -12476,7 +12192,7 @@ collect_next_update_for_animation (Animation     *a,
 static void
 collect_next_update_for_shape (Shape         *shape,
                                int64_t        current_time,
-                               GtkSvgRunMode *run_mode,
+                               CmbPrivateSvgRunMode *run_mode,
                                int64_t       *next_update)
 {
   for (unsigned int i = 0; i < shape->animations->len; i++)
@@ -12496,9 +12212,9 @@ collect_next_update_for_shape (Shape         *shape,
 }
 
 static void
-collect_next_update (GtkSvg *self)
+collect_next_update (CmbPrivateSvg *self)
 {
-  GtkSvgRunMode run_mode = GTK_SVG_RUN_MODE_STOPPED;
+  CmbPrivateSvgRunMode run_mode = CMB_PRIVATE_SVG_RUN_MODE_STOPPED;
   int64_t next_update = INDEFINITE;
 
   collect_next_update_for_shape (self->content, self->current_time, &run_mode, &next_update);
@@ -12534,13 +12250,13 @@ shape_update_animation_state (Shape   *shape,
 }
 
 static void
-update_animation_state (GtkSvg *self)
+update_animation_state (CmbPrivateSvg *self)
 {
   shape_update_animation_state (self->content, self->current_time);
 }
 
 /*< private>
- * gtk_svg_set_load_time:
+ * cmb_private_svg_set_load_time:
  * @self: an SVG paintable
  * @load_time: the load time
  *
@@ -12554,10 +12270,10 @@ update_animation_state (GtkSvg *self)
  * Since: 4.22
  */
 void
-gtk_svg_set_load_time (GtkSvg  *self,
+cmb_private_svg_set_load_time (CmbPrivateSvg  *self,
                        int64_t  load_time)
 {
-  g_return_if_fail (GTK_IS_SVG (self));
+  g_return_if_fail (CMB_PRIVATE_IS_SVG (self));
   g_return_if_fail (self->load_time == INDEFINITE);
 
   self->load_time = load_time;
@@ -12576,7 +12292,7 @@ gtk_svg_set_load_time (GtkSvg  *self,
 }
 
 /*< private >
- * gtk_svg_advance:
+ * cmb_private_svg_advance:
  * @self: an SVG paintable
  * @current_time: the time to advance to
  *
@@ -12594,10 +12310,10 @@ gtk_svg_set_load_time (GtkSvg  *self,
  * Since: 4.22
  */
 void
-gtk_svg_advance (GtkSvg  *self,
+cmb_private_svg_advance (CmbPrivateSvg  *self,
                  int64_t  current_time)
 {
-  g_return_if_fail (GTK_IS_SVG (self));
+  g_return_if_fail (CMB_PRIVATE_IS_SVG (self));
   g_return_if_fail (self->load_time < INDEFINITE);
   g_return_if_fail (self->current_time <= current_time);
 
@@ -12617,7 +12333,7 @@ gtk_svg_advance (GtkSvg  *self,
 }
 
 /*< private >
- * gtk_svg_get_run_mode:
+ * cmb_private_svg_get_run_mode:
  * @self: an SVG paintable
  *
  * Returns the current 'run mode' of the animation.
@@ -12637,14 +12353,14 @@ gtk_svg_advance (GtkSvg  *self,
  *
  * Since: 4.22
  */
-GtkSvgRunMode
-gtk_svg_get_run_mode (GtkSvg *self)
+CmbPrivateSvgRunMode
+cmb_private_svg_get_run_mode (CmbPrivateSvg *self)
 {
   return self->run_mode;
 }
 
 /*< private >
- * gtk_svg_get_next_update:
+ * cmb_private_svg_get_next_update:
  * @self: an SVG paintable
  *
  * Returns the next time at which animations are
@@ -12656,7 +12372,7 @@ gtk_svg_get_run_mode (GtkSvg *self)
  * Since: 4.22
  */
 int64_t
-gtk_svg_get_next_update (GtkSvg *self)
+cmb_private_svg_get_next_update (CmbPrivateSvg *self)
 {
   return self->next_update;
 }
@@ -12672,7 +12388,6 @@ pad_colors (GdkRGBA        col[5],
     [GTK_SYMBOLIC_COLOR_ERROR] = { 0.797, 0, 0, 1.0 },
     [GTK_SYMBOLIC_COLOR_WARNING] = { 0.957, 0.473, 0.242, 1.0 },
     [GTK_SYMBOLIC_COLOR_SUCCESS] = { 0.305, 0.602, 0.023, 1.0 },
-    [GTK_SYMBOLIC_COLOR_ACCENT] = { 0.208, 0.518, 0.894, 1.0 },
   };
 
   memcpy (col, default_colors, sizeof (GdkRGBA) * 5);
@@ -12684,7 +12399,7 @@ pad_colors (GdkRGBA        col[5],
 }
 
 /*< private >
- * gtk_svg_serialize_full:
+ * cmb_private_svg_serialize_full:
  * @self: an SVG paintable
  * @colors (array length=n_colors): a pointer to an array of colors
  * @n_colors: the number of colors
@@ -12713,14 +12428,14 @@ pad_colors (GdkRGBA        col[5],
  * Since: 4.22
  */
 GBytes *
-gtk_svg_serialize_full (GtkSvg               *self,
+cmb_private_svg_serialize_full (CmbPrivateSvg               *self,
                         const GdkRGBA        *colors,
                         size_t                n_colors,
-                        GtkSvgSerializeFlags  flags)
+                        CmbPrivateSvgSerializeFlags  flags)
 {
   GString *s = g_string_new ("");
 
-  if (flags & GTK_SVG_SERIALIZE_AT_CURRENT_TIME)
+  if (flags & CMB_PRIVATE_SVG_SERIALIZE_AT_CURRENT_TIME)
     {
       GdkRGBA real_colors[5];
       const GdkRGBA *col = colors;
@@ -12772,20 +12487,20 @@ gtk_svg_serialize_full (GtkSvg               *self,
       g_string_append_c (s, '\'');
     }
 
-  if (self->gpa_version > 0 || (flags & GTK_SVG_SERIALIZE_INCLUDE_STATE))
+  if (self->gpa_version > 0 || (flags & CMB_PRIVATE_SVG_SERIALIZE_INCLUDE_STATE))
     {
       indent_for_attr (s, 0);
       g_string_append (s, "xmlns:gpa='https://www.gtk.org/grappa'");
       indent_for_attr (s, 0);
       g_string_append_printf (s, "gpa:version='%u'", MAX (self->gpa_version, 1));
       indent_for_attr (s, 0);
-      if (self->state == GTK_SVG_STATE_EMPTY)
+      if (self->state == CMB_PRIVATE_SVG_STATE_EMPTY)
         g_string_append (s, "gpa:state='empty'");
       else
         g_string_append_printf (s, "gpa:state='%u'", self->state);
     }
 
-  if (flags & GTK_SVG_SERIALIZE_INCLUDE_STATE)
+  if (flags & CMB_PRIVATE_SVG_SERIALIZE_INCLUDE_STATE)
     {
       indent_for_attr (s, 0);
       g_string_append (s, "gpa:state-change-delay='");
@@ -12809,7 +12524,7 @@ gtk_svg_serialize_full (GtkSvg               *self,
 }
 
 /**
- * gtk_svg_set_playing:
+ * cmb_private_svg_set_playing:
  * @self: an SVG paintable
  * @playing: the new state
  *
@@ -12818,7 +12533,7 @@ gtk_svg_serialize_full (GtkSvg               *self,
  * Since: 4.22
  */
 void
-gtk_svg_set_playing (GtkSvg   *self,
+cmb_private_svg_set_playing (CmbPrivateSvg   *self,
                      gboolean  playing)
 {
   if (self->playing == playing)
@@ -12829,7 +12544,7 @@ gtk_svg_set_playing (GtkSvg   *self,
   if (playing)
     {
       if (self->load_time == INDEFINITE)
-        gtk_svg_set_load_time (self, g_get_monotonic_time ());
+        cmb_private_svg_set_load_time (self, g_get_monotonic_time ());
       schedule_next_update (self);
     }
   else
@@ -12842,7 +12557,7 @@ gtk_svg_set_playing (GtkSvg   *self,
 }
 
 /**
- * gtk_svg_clear_content:
+ * cmb_private_svg_clear_content:
  * @self: an SVG paintable
  *
  * Resets the paintable to the initial, empty state.
@@ -12850,7 +12565,7 @@ gtk_svg_set_playing (GtkSvg   *self,
  * Since: 4.22
  */
 static void
-gtk_svg_clear_content (GtkSvg *self)
+cmb_private_svg_clear_content (CmbPrivateSvg *self)
 {
   timeline_free (self->timeline);
   shape_free (self->content);
@@ -12876,7 +12591,7 @@ gtk_svg_clear_content (GtkSvg *self)
 /* {{{ Constructors */
 
 /**
- * gtk_svg_new:
+ * cmb_private_svg_new:
  *
  * Creates a new, empty SVG paintable.
  *
@@ -12884,14 +12599,14 @@ gtk_svg_clear_content (GtkSvg *self)
  *
  * Since: 4.22
  */
-GtkSvg *
-gtk_svg_new (void)
+CmbPrivateSvg *
+cmb_private_svg_new (void)
 {
-  return g_object_new (GTK_TYPE_SVG, NULL);
+  return g_object_new (CMB_PRIVATE_TYPE_SVG, NULL);
 }
 
 /**
- * gtk_svg_new_from_bytes:
+ * cmb_private_svg_new_from_bytes:
  * @bytes: the data
  *
  * Parses the SVG data in @bytes and creates a paintable.
@@ -12900,18 +12615,18 @@ gtk_svg_new (void)
  *
  * Since: 4.22
  */
-GtkSvg *
-gtk_svg_new_from_bytes (GBytes *bytes)
+CmbPrivateSvg *
+cmb_private_svg_new_from_bytes (GBytes *bytes)
 {
-  GtkSvg *self = g_object_new (GTK_TYPE_SVG, NULL);
+  CmbPrivateSvg *self = g_object_new (CMB_PRIVATE_TYPE_SVG, NULL);
 
-  gtk_svg_init_from_bytes (self, bytes);
+  cmb_private_svg_init_from_bytes (self, bytes);
 
   return self;
 }
 
 /**
- * gtk_svg_new_from_resource:
+ * cmb_private_svg_new_from_resource:
  * @path: the resource path
  *
  * Parses the SVG data in the resource and creates a paintable.
@@ -12920,17 +12635,17 @@ gtk_svg_new_from_bytes (GBytes *bytes)
  *
  * Since: 4.22
  */
-GtkSvg *
-gtk_svg_new_from_resource (const char *path)
+CmbPrivateSvg *
+cmb_private_svg_new_from_resource (const char *path)
 {
-  return g_object_new (GTK_TYPE_SVG, "resource", path, NULL);
+  return g_object_new (CMB_PRIVATE_TYPE_SVG, "resource", path, NULL);
 }
 
 /* }}} */
 /* {{{ Loading */
 
 /**
- * gtk_svg_load_from_bytes:
+ * cmb_private_svg_load_from_bytes:
  * @self: an SVG paintable
  * @bytes: the data to load
  *
@@ -12944,22 +12659,22 @@ gtk_svg_new_from_resource (const char *path)
  * Since: 4.22
  */
 void
-gtk_svg_load_from_bytes (GtkSvg *self,
+cmb_private_svg_load_from_bytes (CmbPrivateSvg *self,
                          GBytes *bytes)
 {
-  g_return_if_fail (GTK_IS_SVG (self));
+  g_return_if_fail (CMB_PRIVATE_IS_SVG (self));
 
-  gtk_svg_set_playing (self, FALSE);
-  gtk_svg_clear_content (self);
+  cmb_private_svg_set_playing (self, FALSE);
+  cmb_private_svg_clear_content (self);
 
-  gtk_svg_init_from_bytes (self, bytes);
+  cmb_private_svg_init_from_bytes (self, bytes);
 }
 
 /* }}} */
 /* {{{ Serialization */
 
 /**
- * gtk_svg_serialize:
+ * cmb_private_svg_serialize:
  * @self: an SVG paintable
  *
  * Serializes the content of the renderer as SVG.
@@ -12976,13 +12691,13 @@ gtk_svg_load_from_bytes (GtkSvg *self,
  * Since: 4.22
  */
 GBytes *
-gtk_svg_serialize (GtkSvg *self)
+cmb_private_svg_serialize (CmbPrivateSvg *self)
 {
-  return gtk_svg_serialize_full (self, NULL, 0, GTK_SVG_SERIALIZE_DEFAULT);
+  return cmb_private_svg_serialize_full (self, NULL, 0, CMB_PRIVATE_SVG_SERIALIZE_DEFAULT);
 }
 
 /**
- * gtk_svg_write_to_file:
+ * cmb_private_svg_write_to_file:
  * @self: an SVG paintable
  * @filename: the file to save to
  * @error: return location for an error
@@ -12994,14 +12709,14 @@ gtk_svg_serialize (GtkSvg *self)
  * Since: 4.22
  */
 gboolean
-gtk_svg_write_to_file (GtkSvg      *self,
+cmb_private_svg_write_to_file (CmbPrivateSvg      *self,
                        const char  *filename,
                        GError     **error)
 {
   GBytes *bytes;
   gboolean ret;
 
-  bytes = gtk_svg_serialize (self);
+  bytes = cmb_private_svg_serialize (self);
   ret = g_file_set_contents (filename,
                              g_bytes_get_data (bytes, NULL),
                              g_bytes_get_size (bytes),
@@ -13015,7 +12730,7 @@ gtk_svg_write_to_file (GtkSvg      *self,
 /* {{{ Setters and getters */
 
 /**
- * gtk_svg_set_weight:
+ * cmb_private_svg_set_weight:
  * @self: an SVG paintable
  * @weight: the font weight, as a value between -1 and 1000
  *
@@ -13027,10 +12742,10 @@ gtk_svg_write_to_file (GtkSvg      *self,
  * Since: 4.22
  */
 void
-gtk_svg_set_weight (GtkSvg *self,
+cmb_private_svg_set_weight (CmbPrivateSvg *self,
                     double  weight)
 {
-  g_return_if_fail (GTK_IS_SVG (self));
+  g_return_if_fail (CMB_PRIVATE_IS_SVG (self));
   g_return_if_fail (-1 <= weight && weight <= 1000);
 
   if (self->weight == weight)
@@ -13043,7 +12758,7 @@ gtk_svg_set_weight (GtkSvg *self,
 }
 
 /**
- * gtk_svg_get_weight:
+ * cmb_private_svg_get_weight:
  * @self: an SVG paintable
  *
  * Gets the value of the weight property.
@@ -13053,15 +12768,15 @@ gtk_svg_set_weight (GtkSvg *self,
  * Since: 4.22
  */
 double
-gtk_svg_get_weight (GtkSvg *self)
+cmb_private_svg_get_weight (CmbPrivateSvg *self)
 {
-  g_return_val_if_fail (GTK_IS_SVG (self), -1);
+  g_return_val_if_fail (CMB_PRIVATE_IS_SVG (self), -1);
 
   return self->weight;
 }
 
 /**
- * gtk_svg_set_state:
+ * cmb_private_svg_set_state:
  * @self: an SVG paintable
  * @state: the state to set, as a value between 0 and 63,
  *   or `(unsigned int) -1`
@@ -13077,13 +12792,13 @@ gtk_svg_get_weight (GtkSvg *self)
  * Since: 4.22
  */
 void
-gtk_svg_set_state (GtkSvg       *self,
+cmb_private_svg_set_state (CmbPrivateSvg       *self,
                    unsigned int  state)
 {
   unsigned int previous_state;
 
-  g_return_if_fail (GTK_IS_SVG (self));
-  g_return_if_fail (state == GTK_SVG_STATE_EMPTY || state <= 63);
+  g_return_if_fail (CMB_PRIVATE_IS_SVG (self));
+  g_return_if_fail (state == CMB_PRIVATE_SVG_STATE_EMPTY || state <= 63);
 
   if (self->state == state)
     return;
@@ -13122,7 +12837,7 @@ gtk_svg_set_state (GtkSvg       *self,
 }
 
 /**
- * gtk_svg_get_state:
+ * cmb_private_svg_get_state:
  * @self: an SVG paintable
  *
  * Gets the current state of the paintable.
@@ -13132,15 +12847,15 @@ gtk_svg_set_state (GtkSvg       *self,
  * Since: 4.22
  */
 unsigned int
-gtk_svg_get_state (GtkSvg *self)
+cmb_private_svg_get_state (CmbPrivateSvg *self)
 {
-  g_return_val_if_fail (GTK_IS_SVG (self), -1);
+  g_return_val_if_fail (CMB_PRIVATE_IS_SVG (self), -1);
 
   return self->state;
 }
 
 /**
- * gtk_svg_get_n_states:
+ * cmb_private_svg_get_n_states:
  * @self: an SVG paintable
  *
  * Gets the number of states defined in the SVG.
@@ -13148,16 +12863,16 @@ gtk_svg_get_state (GtkSvg *self)
  * Note that there is always an empty state, which does
  * not count towards this number. If this function returns
  * the value N, the meaningful states of the SVG are
- * 0, 1, ..., N - 1 and `GTK_SVG_STATE_EMPTY`.
+ * 0, 1, ..., N - 1 and `CMB_PRIVATE_SVG_STATE_EMPTY`.
  *
  * Returns: the number of states
  *
  * Since: 4.22
  */
 unsigned int
-gtk_svg_get_n_states (GtkSvg *self)
+cmb_private_svg_get_n_states (CmbPrivateSvg *self)
 {
-  g_return_val_if_fail (GTK_IS_SVG (self), 0);
+  g_return_val_if_fail (CMB_PRIVATE_IS_SVG (self), 0);
 
   return self->max_state + 1;
 }
@@ -13166,7 +12881,7 @@ gtk_svg_get_n_states (GtkSvg *self)
 /* {{{ Animation */
 
 /**
- * gtk_svg_set_frame_clock:
+ * cmb_private_svg_set_frame_clock:
  * @self: an SVG paintable
  * @clock: the frame clock
  *
@@ -13178,10 +12893,10 @@ gtk_svg_get_n_states (GtkSvg *self)
  * Since: 4.22
  */
 void
-gtk_svg_set_frame_clock (GtkSvg        *self,
+cmb_private_svg_set_frame_clock (CmbPrivateSvg        *self,
                          GdkFrameClock *clock)
 {
-  g_return_if_fail (GTK_IS_SVG (self));
+  g_return_if_fail (CMB_PRIVATE_IS_SVG (self));
 
   gboolean was_connected;
 
@@ -13199,7 +12914,7 @@ gtk_svg_set_frame_clock (GtkSvg        *self,
 }
 
 /**
- * gtk_svg_play:
+ * cmb_private_svg_play:
  * @self: an SVG paintable
  *
  * Start playing animations.
@@ -13210,15 +12925,15 @@ gtk_svg_set_frame_clock (GtkSvg        *self,
  * Since: 4.22
  */
 void
-gtk_svg_play (GtkSvg *self)
+cmb_private_svg_play (CmbPrivateSvg *self)
 {
-  g_return_if_fail (GTK_IS_SVG (self));
+  g_return_if_fail (CMB_PRIVATE_IS_SVG (self));
 
-  gtk_svg_set_playing (self, TRUE);
+  cmb_private_svg_set_playing (self, TRUE);
 }
 
 /**
- * gtk_svg_pause:
+ * cmb_private_svg_pause:
  * @self: an SVG paintable
  *
  * Stop any playing animations.
@@ -13228,39 +12943,39 @@ gtk_svg_play (GtkSvg *self)
  * Since: 4.22
  */
 void
-gtk_svg_pause (GtkSvg *self)
+cmb_private_svg_pause (CmbPrivateSvg *self)
 {
-  g_return_if_fail (GTK_IS_SVG (self));
+  g_return_if_fail (CMB_PRIVATE_IS_SVG (self));
 
-  gtk_svg_set_playing (self, FALSE);
+  cmb_private_svg_set_playing (self, FALSE);
 }
 
 /* }}} */
 /* {{{ Errors */
 
 /**
- * GtkSvgError:
- * @GTK_SVG_ERROR_INVALID_ELEMENT: An XML element is invalid
+ * CmbPrivateSvgError:
+ * @CMB_PRIVATE_SVG_ERROR_INVALID_ELEMENT: An XML element is invalid
  *   (either because it is not part of SVG, or because it is
  *   in the wrong place, or because it not implemented in GTK)
- * @GTK_SVG_ERROR_INVALID_ATTRIBUTE: An XML attribute is invalid
+ * @CMB_PRIVATE_SVG_ERROR_INVALID_ATTRIBUTE: An XML attribute is invalid
  *   (either because it is not part of SVG, or because it is
  *   not implemented in GTK, or its value is problematic)
- * @GTK_SVG_ERROR_MISSING_ATTRIBUTE: A required attribute is missing
- * @GTK_SVG_ERROR_INVALID_REFERENCE: A reference does not point to
+ * @CMB_PRIVATE_SVG_ERROR_MISSING_ATTRIBUTE: A required attribute is missing
+ * @CMB_PRIVATE_SVG_ERROR_INVALID_REFERENCE: A reference does not point to
  *   a suitable element
- * @GTK_SVG_ERROR_FAILED_UPDATE: An animation could not be updated
- * @GTK_SVG_ERROR_FAILED_RENDERING: Rendering is not according to
+ * @CMB_PRIVATE_SVG_ERROR_FAILED_UPDATE: An animation could not be updated
+ * @CMB_PRIVATE_SVG_ERROR_FAILED_RENDERING: Rendering is not according to
  *   expecations
  *
- * Error codes in the `GTK_SVG_ERROR` domain for errors
+ * Error codes in the `CMB_PRIVATE_SVG_ERROR` domain for errors
  * that happen during parsing or rendering of SVG.
  *
  * Since: 4.22
  */
 
 /**
- * GtkSvgLocation:
+ * CmbPrivateSvgLocation:
  * @bytes: the byte index in document. If unknown, this will
  *   be zero (which is also a valid value, but only if all
  *   three values are zero)
@@ -13276,7 +12991,7 @@ gtk_svg_pause (GtkSvg *self)
  */
 
 /**
- * gtk_svg_error_get_element:
+ * cmb_private_svg_error_get_element:
  * @error: an error in the [error@Gtk.SvgError] domain
  *
  * Returns context information about what XML element
@@ -13287,9 +13002,9 @@ gtk_svg_pause (GtkSvg *self)
  * Since: 4.22
  */
 const char *
-gtk_svg_error_get_element (const GError *error)
+cmb_private_svg_error_get_element (const GError *error)
 {
-  GtkSvgErrorPrivate *priv = gtk_svg_error_get_private (error);
+  CmbPrivateSvgErrorPrivate *priv = cmb_private_svg_error_get_private (error);
 
   if (priv)
     return priv->element;
@@ -13298,7 +13013,7 @@ gtk_svg_error_get_element (const GError *error)
 }
 
 /**
- * gtk_svg_error_get_attribute:
+ * cmb_private_svg_error_get_attribute:
  * @error: an error in the [error@Gtk.SvgError] domain
  *
  * Returns context information about what XML attribute
@@ -13309,9 +13024,9 @@ gtk_svg_error_get_element (const GError *error)
  * Since: 4.22
  */
 const char *
-gtk_svg_error_get_attribute (const GError *error)
+cmb_private_svg_error_get_attribute (const GError *error)
 {
-  GtkSvgErrorPrivate *priv = gtk_svg_error_get_private (error);
+  CmbPrivateSvgErrorPrivate *priv = cmb_private_svg_error_get_private (error);
 
   if (priv)
     return priv->attribute;
@@ -13320,7 +13035,7 @@ gtk_svg_error_get_attribute (const GError *error)
 }
 
 /**
- * gtk_svg_error_get_start:
+ * cmb_private_svg_error_get_start:
  * @error: an error in the [error@Gtk.SvgError] domain
  *
  * Returns context information about the start position
@@ -13330,10 +13045,10 @@ gtk_svg_error_get_attribute (const GError *error)
  *
  * Since: 4.22
  */
-const GtkSvgLocation *
-gtk_svg_error_get_start (const GError *error)
+const CmbPrivateSvgLocation *
+cmb_private_svg_error_get_start (const GError *error)
 {
-  GtkSvgErrorPrivate *priv = gtk_svg_error_get_private (error);
+  CmbPrivateSvgErrorPrivate *priv = cmb_private_svg_error_get_private (error);
 
   if (priv)
     return &priv->start;
@@ -13342,7 +13057,7 @@ gtk_svg_error_get_start (const GError *error)
 }
 
 /**
- * gtk_svg_error_get_end:
+ * cmb_private_svg_error_get_end:
  * @error: an error in the [error@Gtk.SvgError] domain
  *
  * Returns context information about the end position
@@ -13352,10 +13067,10 @@ gtk_svg_error_get_start (const GError *error)
  *
  * Since: 4.22
  */
-const GtkSvgLocation *
-gtk_svg_error_get_end (const GError *error)
+const CmbPrivateSvgLocation *
+cmb_private_svg_error_get_end (const GError *error)
 {
-  GtkSvgErrorPrivate *priv = gtk_svg_error_get_private (error);
+  CmbPrivateSvgErrorPrivate *priv = cmb_private_svg_error_get_private (error);
 
   if (priv)
     return &priv->end;
@@ -13367,3 +13082,5 @@ gtk_svg_error_get_end (const GError *error)
 /* }}} */
 
 /* vim:set foldmethod=marker: */
+
+#endif

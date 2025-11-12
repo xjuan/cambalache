@@ -23,12 +23,18 @@
 #
 
 import os
+import gi
 
+gi.require_version('GIRepository', '3.0')
 from cambalache import config
 from gi.repository import Gio
 
 resource = Gio.Resource.load(os.path.join(config.pkgdatadir, "app.gresource"))
 resource._register()
+
+repository = gi.Repository.get_default()
+repository.prepend_search_path(config.privatecambalachedir)
+repository.prepend_library_path(config.privatecambalachedir)
 
 from .cmb_application import CmbApplication
 from .cmb_scrolled_window import CmbScrolledWindow

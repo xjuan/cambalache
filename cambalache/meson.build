@@ -14,6 +14,7 @@ conf.set('fileformatversion', fileformatversion)
 conf.set('pkgdatadir', pkgdatadir)
 conf.set('merenguedir', merenguedir)
 conf.set('catalogsdir', catalogsdir)
+conf.set('privatecambalachedir', privatecambalachedir)
 
 configure_file(
   input: 'config.py.in',
