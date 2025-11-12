@@ -179,9 +179,8 @@
                 <child>
                   <object class="GtkStackPage">
                     <property name="child">
-                      <object class="GtkBox">
-                        <property name="orientation">vertical</property>
-                        <child>
+                      <object class="GtkOverlay">
+                        <child type="overlay">
                           <object class="CmbNotificationListView" id="front_notification_list_view">
                             <property name="halign">start</property>
                             <property name="valign">center</property>
@@ -189,19 +188,57 @@
                           </object>
                         </child>
                         <child>
-                          <object class="GtkLabel" id="version_label">
-                            <property name="halign">center</property>
-                            <property name="margin-bottom">4</property>
-                            <property name="name">version</property>
-                            <property name="valign">end</property>
-                            <attributes>
-                              <attribute name="size" value="9000"/>
-                            </attributes>
+                          <object class="GtkGrid">
+                            <property name="column-homogeneous">True</property>
+                            <property name="row-homogeneous">True</property>
+                            <child>
+                              <object class="GtkPicture" id="logo">
+                                <property name="vexpand">True</property>
+                                <layout>
+                                  <property name="column">1</property>
+                                  <property name="column-span">3</property>
+                                  <property name="row">1</property>
+                                  <property name="row-span">4</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <layout>
+                                  <property name="column">4</property>
+                                  <property name="column-span">1</property>
+                                  <property name="row">5</property>
+                                  <property name="row-span">1</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <layout>
+                                  <property name="column">0</property>
+                                  <property name="column-span">1</property>
+                                  <property name="row">0</property>
+                                  <property name="row-span">1</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="version_label">
+                                <property name="halign">center</property>
+                                <property name="margin-bottom">4</property>
+                                <property name="name">version</property>
+                                <property name="valign">end</property>
+                                <attributes>
+                                  <attribute name="size" value="9000"/>
+                                </attributes>
+                                <layout>
+                                  <property name="column">2</property>
+                                  <property name="row">6</property>
+                                </layout>
+                              </object>
+                            </child>
                           </object>
                         </child>
-                        <style>
-                          <class name="logo"/>
-                        </style>
                       </object>
                     </property>
                     <property name="name">cambalache</property>

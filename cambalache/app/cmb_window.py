@@ -23,11 +23,13 @@
 # SPDX-License-Identifier: LGPL-2.1-only
 #
 
+import gi
 import os
 import locale
 import tempfile
 
-from gi.repository import GLib, GObject, Gio, Gdk, Gtk, Pango, Adw, GtkSource
+gi.require_version('CambalachePrivate', '4.0')
+from gi.repository import GLib, GObject, Gio, Gdk, Gtk, Pango, Adw, GtkSource, CambalachePrivate
 from .cmb_tutor import CmbTutor, CmbTutorState
 from . import cmb_tutorial
 
@@ -53,6 +55,7 @@ from cambalache.cmb_blueprint import CmbBlueprintError
 logger = getLogger(__name__)
 
 GObject.type_ensure(CmbGResourceEditor.__gtype__)
+GObject.type_ensure(CambalachePrivate.Svg.__gtype__)
 
 
 @Gtk.Template(resource_path="/ar/xjuan/Cambalache/app/cmb_window.ui")
@@ -82,6 +85,7 @@ class CmbWindow(Adw.ApplicationWindow):
     stack = Gtk.Template.Child()
 
     # Start screen
+    logo = Gtk.Template.Child()
     version_label = Gtk.Template.Child()
     front_notification_list_view = Gtk.Template.Child()
     notification_dialog = Gtk.Template.Child()
@@ -137,6 +141,14 @@ class CmbWindow(Adw.ApplicationWindow):
         self.__np_location = None
 
         super().__init__(**kwargs)
+
+        # Logo animation
+        def toggle_animation(gesture, n_press, x, y):
+            self.logo.props.paintable.props.state = 0 if self.logo.props.paintable.props.state else 2
+
+        click = Gtk.GestureClick()
+        click.connect("released", toggle_animation)
+        self.logo.add_controller(click)
 
         self.gtk4_import_filters = Gio.ListStore()
 
@@ -474,10 +486,16 @@ class CmbWindow(Adw.ApplicationWindow):
     def __update_dark_mode(self, style_manager):
         if style_manager.props.dark:
             self.source_style = self.source_style_manager.get_scheme("Adwaita-dark")
+            paintable = CambalachePrivate.Svg(resource="/ar/xjuan/Cambalache/app/images/logo-dark.gpa")
             self.add_css_class("dark")
         else:
+            paintable = CambalachePrivate.Svg(resource="/ar/xjuan/Cambalache/app/images/logo.gpa")
             self.remove_css_class("dark")
             self.source_style = self.source_style_manager.get_scheme("tango")
+
+        paintable.props.playing = True
+        paintable.props.state = 2
+        self.logo.props.paintable = paintable
 
     def __np_name_to_ui(self, binding, value):
         if len(value):

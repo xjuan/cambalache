@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
-<!-- Created with Cambalache 0.99.1 -->
+<!-- Created with Cambalache 0.99.2 -->
 <cambalache-project version="0.96.0" target_tk="gtk-4.0">
   <gresources filename="cambalache.gresource.xml" sha256="9953ae41b8df3849d78315e56f891acdd8fd4dd89c90d0813f13d016b6d52ecf"/>
-  <gresources filename="app/app.gresource.xml" sha256="70df12691402898fa0bc80fc7cd3b825dd32c532fedb4fea878ac2beff773600"/>
+  <gresources filename="app/app.gresource.xml" sha256="e8a5cb4daa4b53dbc940f2423c8693d2547697a9718106c7929e622e79c10c1f"/>
   <css priority="400" is_global="1" filename="cambalache.css" sha256="39175a0d928ac6f9b3c4686ff0a67029b7a4087ad71e1398a91a1f840cf0c349"/>
-  <css is_global="0" filename="app/cambalache.css" sha256="616fdd35c0cc0477b79101b8ce209b5415915fdc8b927909a9108f208c204e71"/>
+  <css is_global="0" filename="app/cambalache.css" sha256="6714346793aa0c082ac7459ac601c6ddc6914c5649015bab3eba4f17cc5ea50c"/>
   <ui template-class="CmbChildTypeComboBox">
     <content><![CDATA[<interface>
   <!-- interface-name CmbChildTypeComboBox -->
@@ -241,6 +241,16 @@
   <ui template-class="CmbFileChangedBar" filename="cmb_file_changed_bar.ui" sha256="709ad8b126820f636cf0875ce21b53e74e3f97b361f587532c09e858f16a21aa">
     <property id="object" type-id="GObject" disable-inline-object="0" required="0" disabled="0"/>
   </ui>
+  <ui template-class="CmbPrivateSvg">
+    <property id="playing" type-id="gboolean" disable-inline-object="0" required="0" disabled="0"/>
+    <property id="resource" type-id="gchararray" disable-inline-object="0" required="0" disabled="0"/>
+    <property id="state" type-id="gint" disable-inline-object="0" required="0" disabled="0"/>
+    <content><![CDATA[<interface>
+  <requires lib="gtk" version="4.0"/>
+  <template class="CmbPrivateSvg" parent="GtkWidgetPaintable"/>
+</interface>
+]]></content>
+  </ui>
   <ui template-class="CmbPixbufEntry">
     <requires>CmbFileEntry</requires>
     <content><![CDATA[<interface>
@@ -298,7 +308,7 @@
     <requires>CmbUIRequiresEditor</requires>
     <requires>CmbFragmentEditor</requires>
   </ui>
-  <ui template-class="CmbWindow" filename="app/cmb_window.ui" sha256="931059e0484db277d55539fa414912546a280dcc6672b400d380f3dbe0f1b0f0">
+  <ui template-class="CmbWindow" filename="app/cmb_window.ui" sha256="e3569465ebf3cc4a2943ddc56298743854414913d81b1f95edd14f5037e9639a">
     <requires>CmbNotificationListView</requires>
     <requires>CmbObjectEditor</requires>
     <requires>CmbUIEditor</requires>
@@ -310,5 +320,6 @@
     <requires>CmbSourceView</requires>
     <requires>CmbScrolledWindow</requires>
     <requires>CmbListView</requires>
+    <css-provider>app/cambalache.css</css-provider>
   </ui>
 </cambalache-project>
