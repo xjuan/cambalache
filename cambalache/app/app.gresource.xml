@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.99.0 -->
+<!-- Created with Cambalache 0.99.1 -->
 <gresources>
   <gresource prefix="/ar/xjuan/Cambalache/app">
     <file>metainfo.xml</file>
@@ -7,10 +7,11 @@
     <file>cmb_window.ui</file>
     <file>cmb_shortcuts.ui</file>
     <file>cambalache.css</file>
-    <file>images/logo-symbolic.svg</file>
-    <file>images/gtk3.svg</file>
-    <file>images/gtk4.svg</file>
-    <file>images/lp-logo.svg</file>
-    <file>images/patreon-logo.svg</file>
+    <file compressed="true" preprocess="xml-stripblanks">images/logo.gpa</file>
+    <file compressed="true" preprocess="xml-stripblanks">images/logo-dark.gpa</file>
+    <file preprocess="xml-stripblanks">images/gtk3.svg</file>
+    <file preprocess="xml-stripblanks">images/gtk4.svg</file>
+    <file preprocess="xml-stripblanks">images/lp-logo.svg</file>
+    <file preprocess="xml-stripblanks">images/patreon-logo.svg</file>
   </gresource>
 </gresources>
