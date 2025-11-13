@@ -30,6 +30,8 @@ configure_file(
   install_dir: moduledir
 )
 
+subdir('common')
+
 install_data([
   'mrg_application.py',
   'mrg_controller.py',

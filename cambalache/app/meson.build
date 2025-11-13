@@ -12,6 +12,7 @@ conf.set('VERSION', meson.project_version())
 conf.set('PYTHON', python_bin.full_path())
 conf.set('localedir', localedir)
 conf.set('pkgdatadir', pkgdatadir)
+conf.set('merenguedir', merenguedir)
 
 configure_file(
   input: 'cambalache.in',

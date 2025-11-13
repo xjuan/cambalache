@@ -1,8 +1,6 @@
-#!@PYTHON@
+# Merengue-Cambalache common utilities
 #
-# Cambalache UI Maker
-#
-# Copyright (C) 2021  Juan Pablo Ugarte
+# Copyright (C) 2025  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -25,24 +23,20 @@
 #
 
 import os
-import sys
-import signal
-import locale
-import builtins
+import logging
 
-pkgdatadir = '@pkgdatadir@'
-merenguedir = '@merenguedir@'
-localedir = '@localedir@'
 
-sys.path.insert(1, pkgdatadir)
-sys.path.insert(1, merenguedir)
-signal.signal(signal.SIGINT, signal.SIG_DFL)
+def getLogger(name):
+    formatter = logging.Formatter("%(levelname)s:%(name)s %(message)s")
 
-locale.bindtextdomain("cambalache", localedir)
-locale.textdomain("cambalache")
+    ch = logging.StreamHandler()
+    ch.setFormatter(formatter)
 
-from cambalache.app import CmbApplication
+    logger = logging.getLogger(name)
+    logger.setLevel(os.environ.get("MERENGUE_LOGLEVEL", "WARNING").upper())
+    logger.addHandler(ch)
 
-if __name__ == '__main__':
-    app = CmbApplication()
-    app.run(sys.argv)
+    return logger
+
+
+from .mrg_command import MrgCommand

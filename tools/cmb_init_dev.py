@@ -66,6 +66,7 @@ for locallibdir in [
             os.environ[var] = value
 
 sys.path.insert(1, basedir)
+sys.path.insert(1, cambalachedir)
 sys.path.insert(1, localbindir)
 
 from gi.repository import GLib  # noqa: E402
