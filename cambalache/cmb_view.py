@@ -40,6 +40,8 @@ from .cmb_context_menu import CmbContextMenu
 from cambalache.cmb_blueprint import cmb_blueprint_decompile
 from . import utils
 from cambalache import getLogger, _, N_
+from merengue.common import MrgCommand
+
 
 logger = getLogger(__name__)
 
@@ -48,7 +50,7 @@ basedir = os.path.dirname(__file__) or "."
 GObject.type_ensure(Casilda.Compositor.__gtype__)
 
 
-class CmbMerengueProcess(GObject.Object):
+class CmbMerengueProcess(GObject.Object, MrgCommand):
     __gsignals__ = {
         "handle-command": (GObject.SignalFlags.RUN_LAST, None, (str,)),
         "exit": (GObject.SignalFlags.RUN_LAST, None, ()),
@@ -59,10 +61,10 @@ class CmbMerengueProcess(GObject.Object):
 
     def __init__(self, **kwargs):
         self.__file = os.path.join(config.merenguedir, "merengue", "merengue")
-        self.__command = None
-        self.__command_socket = None
-        self.__on_command_in_source = None
+        self.__server_socket = None
         self.__pid = 0
+
+        self.init_command()
 
         super().__init__(**kwargs)
 
@@ -73,16 +75,8 @@ class CmbMerengueProcess(GObject.Object):
     def cleanup(self):
         self.stop()
 
-    def __on_command_in(self, channel, condition):
-        if condition == GLib.IOCondition.HUP or self.__command is None:
-            self.stop()
-            return GLib.SOURCE_REMOVE
-
-        payload = self.__command.readline()
-        if payload is not None and payload != "":
-            self.emit("handle-command", payload)
-
-        return GLib.SOURCE_CONTINUE
+    def handle_command(self, line):
+        self.emit("handle-command", line)
 
     def start(self):
         if self.__file is None or self.__pid > 0:
@@ -92,14 +86,10 @@ class CmbMerengueProcess(GObject.Object):
         client, server = socket.socketpair(socket.AF_UNIX, socket.SOCK_STREAM)
 
         # Keep a reference in python to avoid socket close
-        self.__command_socket = server
+        self.__server_socket = server
 
-        # Create IOChannel to integrate into glib loop
-        self.__command = GLib.IOChannel.unix_new(server.fileno())
-        self.__on_command_in_source = GLib.io_add_watch(self.__command,
-                                                        GLib.PRIORITY_DEFAULT_IDLE,
-                                                        GLib.IOCondition.IN | GLib.IOCondition.HUP,
-                                                        self.__on_command_in)
+        # Init connection
+        self.init_connection(server.fileno())
 
         # Get a socket already connected to the compositor
         wayland_socket = self.compositor.get_client_socket_fd()
@@ -140,19 +130,12 @@ class CmbMerengueProcess(GObject.Object):
             self.__pid = pid
             GLib.child_watch_add(GLib.PRIORITY_DEFAULT_IDLE, pid, self.__on_exit, None)
 
-    def __cleanup(self):
-        if self.__on_command_in_source:
-            GLib.source_remove(self.__on_command_in_source)
-            self.__on_command_in_source = None
-
-        if self.__command:
-            self.__command.shutdown(True)
-            self.__command = None
-
-        self.__command_socket = None
+    def close_connection(self):
+        super().close_connection()
+        self.__server_socket = None
 
     def stop(self):
-        self.__cleanup()
+        self.close_connection()
 
         if self.__pid:
             try:
@@ -163,29 +146,9 @@ class CmbMerengueProcess(GObject.Object):
             finally:
                 self.__pid = 0
 
-    def write_command(self, command, args=None):
-        cmd = {"command": command}
-
-        if args is not None:
-            cmd["args"] = args
-
-        self.__socket_write_command(cmd)
-
-    def __socket_write_command(self, cmd):
-        # Send command in one line as json
-
-        def write_data(data):
-            total_bytes = len(data)
-            total_sent = 0
-            while total_sent < total_bytes:
-                total_sent += self.__command.write(data[total_sent:])
-
-        write_data(json.dumps(cmd).encode())
-        write_data(b"\n")
-        self.__command.flush()
-
     def __on_exit(self, pid, status, data):
-        self.__cleanup()
+        logger.warning("Merengue process exited")
+        self.close_connection()
         self.__pid = 0
         self.emit("exit")
 

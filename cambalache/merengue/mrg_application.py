@@ -33,6 +33,7 @@ from gi.repository import GLib, GObject, Gio, Gdk, Gtk
 from .mrg_controller_registry import MrgControllerRegistry
 from .mrg_css_provider import MrgCssProvider
 from .mrg_placeholder import MrgPlaceholder
+from .common import MrgCommand
 from . import utils
 
 from merengue import getLogger
@@ -40,7 +41,7 @@ from merengue import getLogger
 logger = getLogger(__name__)
 
 
-class MrgApplication(Gtk.Application):
+class MrgApplication(Gtk.Application, MrgCommand):
     command_socket = GObject.Property(type=int, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
 
     preview = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
@@ -48,12 +49,10 @@ class MrgApplication(Gtk.Application):
     dirname = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
-        self.connection = None
-
         GLib.set_application_name("Merengue")
         super().__init__(application_id="ar.xjuan.Merengue", flags=Gio.ApplicationFlags.NON_UNIQUE, **kwargs)
 
-        self.connection = GLib.IOChannel.unix_new(self.command_socket)
+        self.init_command(self.command_socket)
 
         # List of available controler classes for objects
         self.registry = MrgControllerRegistry()
@@ -75,22 +74,19 @@ class MrgApplication(Gtk.Application):
 
         self.connect("notify::dirname", self.__on_dirname_notify)
 
-    def write_command(self, command, payload=None, args=None):
-        cmd = {"command": command, "payload_length": len(payload) if payload is not None else 0}
+    def handle_command(self, line):
+        try:
+            # Command is a Json string with a command and args fields
+            cmd = json.loads(line)
+        except Exception as e:
+            logger.warning(f"Error parsing command {e} [{line}]")
+            return GLib.SOURCE_CONTINUE
+        else:
+            command = cmd.get("command", None)
+            args = cmd.get("args", {})
 
-        if args is not None:
-            cmd["args"] = args
-
-        # Send command in one line as json
-        self.connection.write(json.dumps(cmd).encode())
-        self.connection.write(b"\n")
-
-        # Send payload if any
-        if payload is not None:
-            self.connection.write(payload.encode())
-
-        # Flush
-        self.connection.flush()
+            # Run command
+            self.run_command(command, args)
 
     def __on_dirname_notify(self, obj, pspec):
         # Change CWD for builder to pick relative paths
@@ -365,43 +361,12 @@ class MrgApplication(Gtk.Application):
         else:
             logger.warning(f"Unknown command {command}")
 
-    def __on_connection_in(self, channel, condition):
-        if condition == GLib.IOCondition.HUP:
-            self.quit()
-            return GLib.SOURCE_REMOVE
-
-        # We receive a command in each line
-        retval = self.connection.readline()
-
-        if len(retval) == 0:
-            return GLib.SOURCE_CONTINUE
-
-        try:
-            # Command is a Json string with a command and args fields
-            cmd = json.loads(retval)
-        except Exception as e:
-            logger.warning(f"Error parsing command {e} [{retval}]")
-            return GLib.SOURCE_CONTINUE
-        else:
-            command = cmd.get("command", None)
-            args = cmd.get("args", {})
-
-            # Run command
-            self.run_command(command, args)
-
-        return GLib.SOURCE_CONTINUE
-
     def do_startup(self):
         Gtk.Application.do_startup(self)
 
         from merengue import mrg_gtk
 
         self.registry.load_module("Gtk", mrg_gtk)
-
-        GLib.io_add_watch(self.connection,
-                          GLib.PRIORITY_DEFAULT_IDLE,
-                          GLib.IOCondition.IN | GLib.IOCondition.HUP,
-                          self.__on_connection_in)
 
         provider = Gtk.CssProvider()
         provider.load_from_resource("/ar/xjuan/Merengue/merengue.css")
