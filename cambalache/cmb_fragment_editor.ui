@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.95.0 -->
+<!-- Created with Cambalache 0.99.4 -->
 <interface>
   <!-- interface-name cmb_fragment_editor.ui -->
   <!-- interface-copyright Juan Pablo Ugarte -->
@@ -14,47 +14,33 @@
       </object>
     </child>
     <child>
-      <object class="GtkStack" id="fragment_stack">
-        <property name="vexpand">True</property>
+      <object class="GtkScrolledWindow">
+        <property name="has-frame">True</property>
         <child>
-          <object class="GtkStackPage">
-            <property name="child">
-              <object class="GtkScrolledWindow">
-                <child>
-                  <object class="CmbSourceView" id="view">
-                    <property name="can-focus">True</property>
-                    <property name="lang">xml</property>
-                  </object>
-                </child>
-              </object>
-            </property>
-            <property name="name">fragment</property>
-            <property name="title" translatable="yes">Fragment</property>
-          </object>
-        </child>
-        <child>
-          <object class="GtkStackPage">
-            <property name="child">
-              <object class="GtkScrolledWindow">
-                <child>
-                  <object class="CmbSourceView" id="child_view">
-                    <property name="can-focus">True</property>
-                    <property name="lang">xml</property>
-                  </object>
-                </child>
-              </object>
-            </property>
-            <property name="name">child_fragment</property>
-            <property name="title" translatable="yes">Child Fragment</property>
+          <object class="CmbSourceView" id="view">
+            <property name="can-focus">True</property>
+            <property name="lang">xml</property>
+            <property name="vexpand">True</property>
           </object>
         </child>
       </object>
     </child>
     <child>
-      <object class="GtkStackSwitcher" id="switcher">
-        <property name="halign">center</property>
-        <property name="stack">fragment_stack</property>
-        <property name="visible">False</property>
+      <object class="GtkLabel">
+        <property name="halign">start</property>
+        <property name="label" translatable="yes">Child fragments:</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkScrolledWindow">
+        <property name="has-frame">True</property>
+        <child>
+          <object class="CmbSourceView" id="child_view">
+            <property name="can-focus">True</property>
+            <property name="lang">xml</property>
+            <property name="vexpand">True</property>
+          </object>
+        </child>
       </object>
     </child>
   </template>

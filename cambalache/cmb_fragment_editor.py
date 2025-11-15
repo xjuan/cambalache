@@ -33,7 +33,6 @@ class CmbFragmentEditor(Gtk.Box):
 
     view = Gtk.Template.Child()
     child_view = Gtk.Template.Child()
-    switcher = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         self._object = None
@@ -80,7 +79,9 @@ class CmbFragmentEditor(Gtk.Box):
             )
             self.__bindings.append(binding)
 
-            self.switcher.set_visible(True)
+            self.child_view.set_visible(True)
+        else:
+            self.child_view.set_visible(False)
 
 
 Gtk.WidgetClass.set_css_name(CmbFragmentEditor, "CmbFragmentEditor")
