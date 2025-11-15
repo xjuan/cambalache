@@ -14,7 +14,7 @@
     </p>
   </description>
   <releases>
-    <release date="2025-10-04" version="0.99.1">
+    <release date="2025-11-14" version="0.99.5">
       <description>
         <p>Getting ready for release 1.0!</p>
         <ul>
@@ -23,6 +23,7 @@
           <li>Improved workspace rendering</li>
           <li>Scrollable workspace</li>
           <li>Monitor files for external changes</li>
+          <li>Add support for more types like GIcon, GdkCursor etc</li>
           <li>Deprecate project format 0.94 and older</li>
           <li>Add Brazilian Portuguese translation. John Peter Sa</li>
           <li>Fix GResource list model update</li>
