@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <!DOCTYPE cambalache-catalog SYSTEM "cambalache-catalog.dtd">
-<cambalache-catalog name="gio" namespace="Gio" prefix="G" version="2.0" targets="2.0,2.32,2.44" depends="gobject-2.0">
+<cambalache-catalog name="gio" namespace="Gio" prefix="G" version="2.0" targets="2.0,2.18,2.32,2.38,2.44" depends="gobject-2.0">
   <type>
 	("GAppInfoCreateFlags","flags","gio",None,None,None,None,None,None,None),
 	("GApplicationFlags","flags","gio",None,None,None,None,None,None,None),
@@ -8,6 +8,7 @@
 	("GBusNameOwnerFlags","flags","gio",None,None,None,None,None,None,None),
 	("GBusNameWatcherFlags","flags","gio",None,None,None,None,None,None,None),
 	("GBusType","enum","gio",None,None,None,None,None,None,None),
+	("GBytesIcon","GObject","gio","2.38",None,None,None,None,None,None),
 	("GConverterFlags","flags","gio",None,None,None,None,None,None,None),
 	("GConverterResult","enum","gio",None,None,None,None,None,None,None),
 	("GCredentialsType","enum","gio",None,None,None,None,None,None,None),
@@ -31,13 +32,16 @@
 	("GDataStreamNewlineType","enum","gio",None,None,None,None,None,None,None),
 	("GDriveStartFlags","flags","gio",None,None,None,None,None,None,None),
 	("GDriveStartStopType","enum","gio",None,None,None,None,None,None,None),
+	("GEmblem","GObject","gio","2.18",None,None,1,None,None,None),
 	("GEmblemOrigin","enum","gio",None,None,None,None,None,None,None),
+	("GEmblemedIcon","GObject","gio","2.18",None,None,1,None,None,None),
 	("GFile","interface","gio",None,None,None,None,None,None,None),
 	("GFileAttributeInfoFlags","flags","gio",None,None,None,None,None,None,None),
 	("GFileAttributeStatus","enum","gio",None,None,None,None,None,None,None),
 	("GFileAttributeType","enum","gio",None,None,None,None,None,None,None),
 	("GFileCopyFlags","flags","gio",None,None,None,None,None,None,None),
 	("GFileCreateFlags","flags","gio",None,None,None,None,None,None,None),
+	("GFileIcon","GObject","gio",None,None,None,1,None,None,None),
 	("GFileMeasureFlags","flags","gio",None,None,None,None,None,None,None),
 	("GFileMonitorEvent","enum","gio",None,None,None,None,None,None,None),
 	("GFileMonitorFlags","flags","gio",None,None,None,None,None,None,None),
@@ -47,6 +51,7 @@
 	("GIOErrorEnum","enum","gio",None,None,None,None,None,None,None),
 	("GIOModuleScopeFlags","enum","gio",None,None,None,None,None,None,None),
 	("GIOStreamSpliceFlags","flags","gio",None,None,None,None,None,None,None),
+	("GIcon","interface","gio",None,None,None,None,None,None,None),
 	("GListModel","interface","gio",None,None,None,None,None,None,None),
 	("GListStore","GObject","gio","2.44",None,None,1,None,"model",None),
 	("GMemoryMonitorWarningLevel","enum","gio",None,None,None,None,None,None,None),
@@ -74,6 +79,7 @@
 	("GSocketType","enum","gio",None,None,None,None,None,None,None),
 	("GSubprocessFlags","flags","gio",None,None,None,None,None,None,None),
 	("GTestDBusFlags","flags","gio",None,None,None,None,None,None,None),
+	("GThemedIcon","GObject","gio",None,None,None,1,None,None,None),
 	("GTlsAuthenticationMode","enum","gio",None,None,None,None,None,None,None),
 	("GTlsCertificateFlags","flags","gio",None,None,None,None,None,None,None),
 	("GTlsCertificateRequestFlags","enum","gio",None,None,None,None,None,None,None),
@@ -90,7 +96,14 @@
 	("GZlibCompressorFormat","enum","gio",None,None,None,None,None,None,None)
   </type>
   <type_iface>
-	("GListStore","GListModel")
+	("GBytesIcon","GIcon"),
+	("GBytesIcon","GLoadableIcon"),
+	("GEmblem","GIcon"),
+	("GEmblemedIcon","GIcon"),
+	("GFileIcon","GIcon"),
+	("GFileIcon","GLoadableIcon"),
+	("GListStore","GListModel"),
+	("GThemedIcon","GIcon")
   </type_iface>
   <type_enum>
 	("GBusType","G_BUS_TYPE_NONE","none",None,"Not a message bus."),
@@ -531,7 +544,12 @@
 	("GTlsPasswordFlags","G_TLS_PASSWORD_RETRY","retry",2,"The password was wrong, and the user should retry.")
   </type_flags>
   <property>
-	("GListStore","item-type","gtype",None,1,None,"GObject",None,None,"2.44",None,None,None,None,None,None,None,None)
+	("GEmblem","origin","GEmblemOrigin",None,1,None,"unknown",None,None,"2.18",None,None,None,None,None,None,None,None),
+	("GEmblemedIcon","gicon","GIcon",1,1,None,None,None,None,"2.18",None,None,None,None,None,None,None,None),
+	("GFileIcon","file","GFile",None,1,None,None,None,None,None,None,None,None,None,None,None,None,None),
+	("GListStore","item-type","gtype",None,1,None,"GObject",None,None,"2.44",None,None,None,None,None,None,None,None),
+	("GThemedIcon","name","gchararray",None,1,None,None,None,None,None,None,None,None,None,None,None,None,None),
+	("GThemedIcon","use-default-fallbacks","gboolean",None,1,None,"False",None,None,None,None,None,None,None,None,None,None,None)
   </property>
   <signal>
 	("GListModel","items-changed","2.44",None,None),

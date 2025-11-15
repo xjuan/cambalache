@@ -49,7 +49,8 @@ glib/gio-2.0.xml: glib/Gio.xml
 	${CMB_CATALOG_GEN} \
 		--dependencies gobject-2.0 \
 		--gir /usr/share/gir-1.0/Gio-2.0.gir \
-		--types GFile GListStore GListModel GMenuModel \
+		--types GFile GListStore GListModel GMenuModel GIcon GBytesIcon GEmblem GEmblemedIcon GFileIcon GThemedIcon \
+		--skip-types GFileIcon \
 		--extra-data glib/Gio.xml \
 		--exclude-objects \
 		--output $@
@@ -66,6 +67,7 @@ pango/pango-1.0.xml:
 	${CMB_CATALOG_GEN} \
 		--dependencies gio-2.0 \
 		--gir /usr/share/gir-1.0/Pango-1.0.gir \
+		--boxed-types PangoAttrList \
 		--exclude-objects \
 		--output $@
 
@@ -93,7 +95,8 @@ gtk/gdk-4.0.xml:
 		--dependencies pango-1.0 gdkpixbuf-2.0 \
 		--gir /usr/share/gir-1.0/Gdk-4.0.gir \
 		--boxed-types GdkRGBA GdkContentFormats\
-		--types GdkPaintable \
+		--types GdkTexture GdkPaintable GdkCursor \
+		--skip-types GdkTexture \
 		--exclude-objects \
 		--output $@
 

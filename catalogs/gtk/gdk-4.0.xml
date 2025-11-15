@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <!DOCTYPE cambalache-catalog SYSTEM "cambalache-catalog.dtd">
-<cambalache-catalog name="gdk" namespace="Gdk" prefix="Gdk" version="4.0" targets="4.0" depends="pango-1.0,gdkpixbuf-2.0">
+<cambalache-catalog name="gdk" namespace="Gdk" prefix="Gdk" version="4.0" targets="4.0,4.16" depends="pango-1.0,gdkpixbuf-2.0">
   <type>
 	("GdkAnchorHints","flags","gdk",None,None,None,None,None,None,None),
 	("GdkAxisFlags","flags","gdk",None,None,None,None,None,None,None),
@@ -8,6 +8,7 @@
 	("GdkCicpRange","enum","gdk",None,None,None,None,None,None,None),
 	("GdkContentFormats","boxed","gdk",None,None,None,None,None,None,None),
 	("GdkCrossingMode","enum","gdk",None,None,None,None,None,None,None),
+	("GdkCursor","GObject","gdk","4.16",None,None,None,None,None,None),
 	("GdkDevicePadFeature","enum","gdk",None,None,None,None,None,None,None),
 	("GdkDeviceToolType","enum","gdk",None,None,None,None,None,None,None),
 	("GdkDmabufError","enum","gdk",None,None,None,None,None,None,None),
@@ -33,6 +34,7 @@
 	("GdkSeatCapabilities","flags","gdk",None,None,None,None,None,None,None),
 	("GdkSubpixelLayout","enum","gdk",None,None,None,None,None,None,None),
 	("GdkSurfaceEdge","enum","gdk",None,None,None,None,None,None,None),
+	("GdkTexture","GObject","gdk",None,"4.20",1,1,None,None,None),
 	("GdkTextureError","enum","gdk",None,None,None,None,None,None,None),
 	("GdkTitlebarGesture","enum","gdk",None,None,None,None,None,None,None),
 	("GdkToplevelCapabilities","flags","gdk",None,None,None,None,None,None,None),
@@ -40,6 +42,9 @@
 	("GdkTouchpadGesturePhase","enum","gdk",None,None,None,None,None,None,None),
 	("GdkVulkanError","enum","gdk",None,None,None,None,None,None,None)
   </type>
+  <type_iface>
+	("GdkTexture","GdkPaintable")
+  </type_iface>
   <type_enum>
 	("GdkAxisUse","GDK_AXIS_DELTA_X","delta-x",3,"the axis is used as the scroll x delta"),
 	("GdkAxisUse","GDK_AXIS_DELTA_Y","delta-y",4,"the axis is used as the scroll y delta"),
@@ -335,6 +340,15 @@
 	("GdkToplevelState","GDK_TOPLEVEL_STATE_TOP_RESIZABLE","top-resizable",512,"whether the top edge is resizable"),
 	("GdkToplevelState","GDK_TOPLEVEL_STATE_TOP_TILED","top-tiled",256,"whether the top edge is tiled")
   </type_flags>
+  <property>
+	("GdkCursor","fallback","GdkCursor",1,1,None,None,None,None,None,None,None,None,None,None,None,None,None),
+	("GdkCursor","hotspot-x","gint",None,1,None,"0","0","2147483647",None,None,None,None,None,None,None,None,None),
+	("GdkCursor","hotspot-y","gint",None,1,None,"0","0","2147483647",None,None,None,None,None,None,None,None,None),
+	("GdkCursor","name","gchararray",None,1,None,None,None,None,None,None,None,None,None,None,None,None,None),
+	("GdkCursor","texture","GdkTexture",1,1,None,None,None,None,None,None,None,None,None,None,None,None,None),
+	("GdkTexture","height","gint",None,1,None,"1","1","2147483647",None,None,None,None,None,None,None,None,None),
+	("GdkTexture","width","gint",None,1,None,"1","1","2147483647",None,None,None,None,None,None,None,None,None)
+  </property>
   <signal>
 	("GdkPaintable","invalidate-contents",None,None,None),
 	("GdkPaintable","invalidate-size",None,None,None)

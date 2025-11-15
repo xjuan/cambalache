@@ -3,6 +3,7 @@
 <cambalache-catalog name="pango" namespace="Pango" prefix="Pango" version="1.0" targets="1.0" depends="gio-2.0">
   <type>
 	("PangoAlignment","enum","pango",None,None,None,None,None,None,None),
+	("PangoAttrList","boxed","pango",None,None,None,None,None,None,None),
 	("PangoAttrType","enum","pango",None,None,None,None,None,None,None),
 	("PangoBaselineShift","enum","pango",None,None,None,None,None,None,None),
 	("PangoBidiType","enum","pango",None,None,None,None,None,None,None),
