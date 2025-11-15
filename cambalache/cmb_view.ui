@@ -1,8 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.97.9 -->
+<!-- Created with Cambalache 0.99.4 -->
 <interface>
   <!-- interface-name cmb_view.ui -->
   <!-- interface-copyright Juan Pablo Ugarte -->
+  <requires lib="casilda" version="1.0"/>
   <requires lib="gtk" version="4.14"/>
   <template class="CmbView" parent="GtkBox">
     <child>
