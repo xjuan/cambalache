@@ -125,7 +125,7 @@ CREATE TABLE gresource (
 
   gresources_filename TEXT UNIQUE,
 
-  gresource_prefix TEXT UNIQUE,
+  gresource_prefix TEXT,
 
   file_filename TEXT,
   file_compressed BOOLEAN,
