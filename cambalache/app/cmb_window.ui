@@ -84,6 +84,9 @@
     <mime-types>
       <mime-type>application/x-cambalache-project</mime-type>
     </mime-types>
+    <patterns>
+      <pattern>*.cmb</pattern>
+    </patterns>
   </object>
   <template class="CmbWindow" parent="AdwApplicationWindow">
     <child>
