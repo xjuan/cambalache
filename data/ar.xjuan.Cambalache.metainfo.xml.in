@@ -14,6 +14,14 @@
     </p>
   </description>
   <releases>
+    <release date="2025-11-25" version="0.96.2">
+      <description>
+        <p>Workspace Bugfix Release</p>
+        <ul>
+          <li>Bump platform version to 49 to fix workspace</li>
+        </ul>
+      </description>
+    </release>
     <release date="2025-05-16" version="0.96.1">
       <description>
         <p>GResource First Bugfix Release!</p>
