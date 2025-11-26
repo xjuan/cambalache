@@ -24,6 +24,7 @@
 import os
 import sys
 import locale
+import gettext
 
 from tools.cmb_init_dev import cmb_init_dev
 
@@ -31,8 +32,14 @@ from tools.cmb_init_dev import cmb_init_dev
 cmb_init_dev()
 
 basedir = os.path.join(os.path.split(os.path.dirname(__file__))[0])
+
+# Setup gettext for GtkBuilder
 locale.bindtextdomain("cambalache", os.path.join(basedir, ".local", "share", "locale"))
 locale.textdomain("cambalache")
+
+# Setup for python code
+gettext.bindtextdomain("cambalache", os.path.join(basedir, ".local", "share", "locale"))
+gettext.textdomain("cambalache")
 
 from cambalache.app import CmbApplication  # noqa E402
 

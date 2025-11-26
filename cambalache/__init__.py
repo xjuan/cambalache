@@ -25,7 +25,6 @@
 import os
 import gi
 import logging
-import locale
 import gettext
 import builtins
 
@@ -40,7 +39,7 @@ gi.require_version('Adw', '1')
 
 # Ensure _() builtin
 if "_" not in builtins.__dict__:
-    _ = locale.gettext
+    _ = gettext.gettext
 
 if "ngettext" not in builtins.__dict__:
     ngettext = gettext.ngettext
