@@ -1794,7 +1794,7 @@ msgstr "Päivitetty widgetti katalogit SDK 47"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:66
 msgid "Improved Drag&Drop support"
-msgstr "Paranneltu Raahaa&Pudota tukea"
+msgstr "Paranneltu Raahaa&amp;Pudota tukea"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:67
 msgid "Improve workspace performance"
