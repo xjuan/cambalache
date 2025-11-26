@@ -824,6 +824,10 @@ class CmbProject(GObject.Object, Gio.ListModel):
             "unknown-attr": (_("one unknown attribute '{detail}'"), _("{n} unknown attributes ({detail})")),
             "missing-tag": (_("one missing attribute '{detail}'"), _("{n} missing attributes ({detail})")),
             "not-inline-object": (_("one wrong inline object '{detail}'"), _("{n} wrong inline object ({detail})")),
+            "template-missing-parent": (
+                _("a missing parent attribute for template '{detail}'"),
+                _("{n} missing parent attributes for the following templates ({detail})")
+            ),
         }
 
         detail_strings = {
@@ -834,6 +838,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
             "unknown-attr": _("xml:{line} unknown attribute '{detail}'"),
             "missing-tag": _("xml:{line} missing attribute '{detail}'"),
             "not-inline-object": _("xml:{line} not an inline object '{detail}'"),
+            "template-missing-parent": _("xml:{line} missing template parent attribute '{detail}'"),
         }
 
         detail = []

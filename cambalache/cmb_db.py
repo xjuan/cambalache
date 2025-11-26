@@ -1672,7 +1672,11 @@ class CmbDB(GObject.GObject):
         is_template = node.tag == "template"
 
         if is_template:
-            klass, name = self.__node_get(node, "parent", "class")
+            name, klass = self.__node_get(node, "class", ["parent"])
+
+            if not klass:
+                klass = "GtkWidget"
+                self.__collect_error("template-missing-parent", node, name)
         else:
             klass, name = self.__node_get(node, "class", ["id"])
 
