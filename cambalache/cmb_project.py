@@ -53,7 +53,7 @@ from .cmb_base_objects import CmbSignal
 from .cmb_blueprint import cmb_blueprint_decompile, cmb_blueprint_compile
 from .utils import FileHash
 from . import constants, utils
-from cambalache import config, getLogger, _, N_
+from cambalache import config, getLogger, _, ngettext
 
 logger = getLogger(__name__)
 
@@ -850,7 +850,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
             # Error summary
             n = len(error)
             list = ", ".join(error.keys())
-            msgs.append(N_(*msgs_strings[error_type], n).format(n=n, detail=list))
+            msgs.append(ngettext(*msgs_strings[error_type], n).format(n=n, detail=list))
 
             # Error details
             for key in error:
