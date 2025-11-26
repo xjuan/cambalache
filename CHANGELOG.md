@@ -9,6 +9,14 @@ Cambalache used even/odd minor numbers to differentiate between stable and
 development releases.
 
 
+## 0.96.3
+
+ - Fix metainfo validation error
+
+## 0.96.2
+
+ - Bump flatpak SDk to version 49
+
 ## 0.96.1
 
  - Fix/improve GResource list model update
