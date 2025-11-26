@@ -1213,6 +1213,8 @@ class CmbWindow(Adw.ApplicationWindow):
             filters=import_filters,
             accept_label=_("Import")
         )
+        if self.project.dirname:
+            dialog.set_initial_folder(Gio.File.new_for_path(self.project.dirname))
         dialog.open_multiple(self, None, dialog_callback)
 
     def _on_import_directory_activate(self, action, data):
@@ -1244,16 +1246,16 @@ class CmbWindow(Adw.ApplicationWindow):
         def dialog_callback(dialog, res):
             main_loop = GLib.MainContext.default()
 
-            progress, progressbar = progress_dialog_new()
-
-            def pulse():
-                progressbar.pulse()
-                while main_loop.pending():
-                    main_loop.iteration(False)
-
             try:
                 dir = dialog.select_folder_finish(res)
                 dirpath = dir.get_path()
+
+                progress, progressbar = progress_dialog_new()
+
+                def pulse():
+                    progressbar.pulse()
+                    while main_loop.pending():
+                        main_loop.iteration(False)
 
                 files = self.project._list_supported_files(dirpath, pulse)
                 n_files = len(files)
@@ -1293,7 +1295,8 @@ class CmbWindow(Adw.ApplicationWindow):
                 logger.warning(f"Error {e}")
 
         dialog = self.__file_open_dialog_new(_("Choose directory to import"), accept_label=_("Import directory"))
-        dialog.set_initial_folder(Gio.File.new_for_path(self.project.dirname))
+        if self.project.dirname:
+            dialog.set_initial_folder(Gio.File.new_for_path(self.project.dirname))
         dialog.select_folder(self, None, dialog_callback)
 
     def _on_add_gresource_activate(self, action, data):
