@@ -47,7 +47,7 @@ from cambalache import (
     config,
     utils,
     _,
-    N_
+    ngettext
 )
 
 from cambalache.cmb_blueprint import CmbBlueprintError
@@ -1314,11 +1314,7 @@ class CmbWindow(Adw.ApplicationWindow):
         except CmbBlueprintError as e:
             self.present_message_to_user(
                 _("Error saving project"),
-                secondary_text=N_(
-                    "blueprintcompiler encounter the following error:",
-                    "blueprintcompiler encounter the following errors:",
-                    len(e.errors)
-                ),
+                secondary_text=ngettext("blueprintcompiler encounter the following error:", "blueprintcompiler encounter the following errors:", len(e.errors)),
                 details=[str(e)]
             )
         finally:

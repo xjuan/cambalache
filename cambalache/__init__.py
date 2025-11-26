@@ -42,9 +42,11 @@ if "_" not in builtins.__dict__:
     _ = locale.gettext
 
 if "N_" not in builtins.__dict__:
-
     def N_(s, p, n):
         return _(p) if n > 1 else _(s)
+
+if "ngettext" not in builtins.__dict__:
+    ngettext = locale.ngettext
 
 
 # noqa: E402,E401

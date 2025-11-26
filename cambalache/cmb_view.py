@@ -39,7 +39,7 @@ from .cmb_object import CmbObject
 from .cmb_context_menu import CmbContextMenu
 from cambalache.cmb_blueprint import cmb_blueprint_decompile
 from . import utils
-from cambalache import getLogger, _, N_
+from cambalache import getLogger, _, ngettext
 from merengue.common import MrgCommand
 
 
@@ -229,7 +229,7 @@ class CmbView(Gtk.Box):
                     except Exception as e:
                         ui_source = _("Error exporting project")
                         ui_source += "\n"
-                        ui_source += N_(
+                        ui_source += ngettext(
                             "blueprintcompiler encounter the following error:",
                             "blueprintcompiler encounter the following errors:",
                             len(e.errors)
