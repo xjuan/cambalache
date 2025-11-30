@@ -9,14 +9,15 @@ msgstr ""
 "Project-Id-Version: cambalache\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-11-26 18:13-0500\n"
-"PO-Revision-Date: 2025-09-03 21:19-0300\n"
+"PO-Revision-Date: 2025-11-29 23:32-0300\n"
 "Last-Translator: John peter sa <johnppetersa@gmail.com>\n"
 "Language-Team: \n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.7\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.8\n"
 
 #: cambalache/app/cmb_application.py:48
 msgid "Print version"
@@ -260,11 +261,11 @@ msgstr "Iniciar introdução interativa"
 
 #: cambalache/app/cmb_window.py:725
 msgid "Copy to clipboard"
-msgstr ""
+msgstr "Copiar para a área de transferência"
 
 #: cambalache/app/cmb_window.py:726
 msgid "Close"
-msgstr ""
+msgstr "Fechar"
 
 #: cambalache/app/cmb_window.py:808 cambalache/app/cmb_window.py:1039
 #: cambalache/app/cmb_window.py:1178
@@ -300,9 +301,9 @@ msgstr ""
 "Seu arquivo será salvo como \"{name}.cmb.ui\" para evitar perda de dados."
 
 #: cambalache/app/cmb_window.py:843
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Exception importing {filename}"
-msgstr "Erro ao importar {filename}"
+msgstr "Exceção ao importar {filename}"
 
 #: cambalache/app/cmb_window.py:857
 #, python-brace-format
@@ -379,12 +380,12 @@ msgstr "Importar {n} diretório \"{dirpath}\""
 #: cambalache/app/cmb_window.py:1283
 #, python-brace-format
 msgid "{errors} files out of {n} had errors while loading"
-msgstr ""
+msgstr "{errors} arquivos de {n} apresentaram erros durante o carregamento"
 
 #: cambalache/app/cmb_window.py:1285
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Error importing directory {basename}"
-msgstr "Erro ao importar {filename}"
+msgstr "Erro ao importar o diretório {basename}"
 
 #: cambalache/app/cmb_window.py:1290
 #, python-brace-format
@@ -404,11 +405,10 @@ msgid "Error saving project"
 msgstr "Erro ao salvar projeto"
 
 #: cambalache/app/cmb_window.py:1317 cambalache/cmb_view.py:233
-#, fuzzy
 msgid "blueprintcompiler encounter the following error:"
 msgid_plural "blueprintcompiler encounter the following errors:"
-msgstr[0] "O compilador do blueprint encontrou o seguinte erro:"
-msgstr[1] "O compilador do blueprint encontrou o seguinte erro:"
+msgstr[0] "O compilador de blueprint encontrou o seguinte erro:"
+msgstr[1] "O compilador de blueprints encontrou os seguintes erros:"
 
 #: cambalache/app/cmb_window.py:1332
 msgid "Choose a file to save the project"
@@ -773,19 +773,20 @@ msgid ""
 "<b>File Has Changed on Disk</b>\n"
 "<small>The file has been modified by another application.</small>"
 msgstr ""
+"<b>O arquivo foi alterado no disco</b>\n"
+"<small>O arquivo foi modificado por outro aplicativo.</small>"
 
 #: cambalache/cmb_file_changed_bar.ui:27
 msgid "Discard Changes and Reload"
-msgstr ""
+msgstr "Descartar alterações e recarregar"
 
 #: cambalache/cmb_fragment_editor.ui:13
 msgid "Extra fragments:"
 msgstr "Fragmentos extras:"
 
 #: cambalache/cmb_fragment_editor.ui:31
-#, fuzzy
 msgid "Child fragments:"
-msgstr "Fragmento de Criança"
+msgstr "Fragmentos infantis:"
 
 #: cambalache/cmb_gresource.py:97
 #, python-brace-format
@@ -1063,14 +1064,14 @@ msgid "{n} wrong inline object ({detail})"
 msgstr "{n} objeto embutido errado ({detail})"
 
 #: cambalache/cmb_project.py:828
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "a missing parent attribute for template '{detail}'"
-msgstr "um atributo ausente '{detail}'"
+msgstr "Atributo pai ausente para o modelo '{detail}'"
 
 #: cambalache/cmb_project.py:829
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "{n} missing parent attributes for the following templates ({detail})"
-msgstr "{n} atributos ausentes ({detail})"
+msgstr "{n} atributos pai ausentes para os seguintes modelos ({detail})"
 
 #: cambalache/cmb_project.py:834
 #, python-brace-format
@@ -1108,9 +1109,9 @@ msgid "xml:{line} not an inline object '{detail}'"
 msgstr "xml:{line} não é um objeto embutido '{detail}'"
 
 #: cambalache/cmb_project.py:841
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "xml:{line} missing template parent attribute '{detail}'"
-msgstr "xml:{line} atributo ausente '{detail}'"
+msgstr "xml:{line} atributo pai do modelo ausente '{detail}'"
 
 #: cambalache/cmb_project.py:873
 #, python-brace-format
@@ -1374,7 +1375,7 @@ msgstr "Vincular {object}::{property} a {bind_object}::{bind_property}"
 #: cambalache/cmb_property.py:229 cambalache/cmb_property.py:341
 #, python-brace-format
 msgid "Clear {object}::{property} binding"
-msgstr "Limpar {object}::{property} a ligação "
+msgstr "Limpar {object}::{property} a ligação"
 
 #: cambalache/cmb_property.py:257 cambalache/cmb_property.py:290
 #, python-brace-format
@@ -1384,7 +1385,7 @@ msgstr "Vincular {object}::{property} a {expression_object}"
 #: cambalache/cmb_property.py:268
 #, python-brace-format
 msgid "Clear {object}::{property} binding expression"
-msgstr "Limpar {object}::{property} expressão de vinculação "
+msgstr "Limpar {object}::{property} expressão de vinculação"
 
 #: cambalache/cmb_property.py:301
 #, python-brace-format
@@ -1699,7 +1700,7 @@ msgstr ""
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:19
 msgid "Getting ready for release 1.0!"
-msgstr ""
+msgstr "Preparando tudo para o lançamento da versão 1.0!"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:21
 msgid "Add GtkExpression support"
@@ -1710,22 +1711,20 @@ msgid "Add Blueprint support"
 msgstr "Adicionar suporte ao Blueprint"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:23
-#, fuzzy
 msgid "Improved workspace rendering"
-msgstr "Melhore o desempenho do espaço de trabalho"
+msgstr "Renderização aprimorada do espaço de trabalho"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:24
-#, fuzzy
 msgid "Scrollable workspace"
-msgstr "Espaço de trabalho Bagunça"
+msgstr "Espaço de trabalho com rolagem"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:25
 msgid "Monitor files for external changes"
-msgstr ""
+msgstr "Monitore os arquivos em busca de alterações externas"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:26
 msgid "Add support for more types like GIcon, GdkCursor etc"
-msgstr ""
+msgstr "Adicionar suporte para mais tipos como GIcon, GdkCursor etc"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:27
 msgid "Deprecate project format 0.94 and older"
