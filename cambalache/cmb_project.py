@@ -2525,52 +2525,43 @@ class CmbProject(GObject.Object, Gio.ListModel):
             self.__items.pop(i)
             self.items_changed(i, 1, 0)
 
-    def __update_path(self, item, filename):
+    def __update_path_idle(self, data):
+        item, filename = data
         in_selection = [item] == self.__selection
 
         path_parent = item.path_parent
 
         # Do not do anything if item has no parent
         if not path_parent and not os.path.dirname(filename):
-            return
+            return GLib.SOURCE_REMOVE
 
         # Do not do anything if the path is the same
         if path_parent and path_parent.path and path_parent.path == os.path.dirname(filename):
-            return
+            return GLib.SOURCE_REMOVE
 
         # Remove item
         self.__remove_item(item)
         # add it again
         self.__add_item(item, filename)
 
-        if in_selection:
-            GLib.idle_add(self.__set_selection_idle, item)
-
         # Clear unused paths
         if path_parent and path_parent.n_items == 0:
-            GLib.idle_add(self.__clear_unused_paths_idle, path_parent)
+            while path_parent is not None:
+                next_parent = path_parent.path_parent
 
-    def __set_selection_idle(self, item):
-        self.set_selection([item])
-        return GLib.SOURCE_REMOVE
+                if path_parent.n_items != 1:
+                    break
 
-    def __clear_unused_paths_idle(self, path_parent):
-        if path_parent.n_items:
-            return
+                path_parent = next_parent
 
-        while path_parent is not None:
-            next_parent = path_parent.path_parent
+            if path_parent:
+                if path_parent.path_parent:
+                    path_parent.path_parent.remove_item(path_parent)
+                else:
+                    self.__remove_item(path_parent)
 
-            if path_parent.n_items != 1:
-                break
-
-            path_parent = next_parent
-
-        if path_parent:
-            if path_parent.path_parent:
-                path_parent.path_parent.remove_item(path_parent)
-            else:
-                self.__remove_item(path_parent)
+        if in_selection:
+            self.set_selection([item])
 
         return GLib.SOURCE_REMOVE
 
@@ -2584,7 +2575,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
     def do_ui_changed(self, ui, field):
         if field == "filename":
-            self.__update_path(ui, ui.filename)
+            GLib.idle_add(self.__update_path_idle, (ui, ui.filename))
 
         self.emit("changed")
 
@@ -2601,7 +2592,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
     def do_css_changed(self, css, field):
         if field == "filename":
-            self.__update_path(css, css.filename)
+            GLib.idle_add(self.__update_path_idle, (css, css.filename))
 
         self.emit("changed")
 
@@ -2617,7 +2608,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
     def do_gresource_changed(self, gresource, field):
         if gresource.resource_type == "gresources" and field == "gresources_filename":
-            self.__update_path(gresource, gresource.gresources_filename)
+            GLib.idle_add(self.__update_path_idle, (gresource, gresource.gresources_filename))
 
         self.emit("changed")
 
