@@ -167,8 +167,6 @@ class CmbWindow(Adw.ApplicationWindow):
 
         self.__recent_manager = self.__get_recent_manager()
 
-        self.editor_stack.set_size_request(420, -1)
-
         self.actions = {}
 
         for action in [
@@ -312,6 +310,8 @@ class CmbWindow(Adw.ApplicationWindow):
         for prop in settings:
             self.settings.bind(prop, self, prop.replace("-", "_"), Gio.SettingsBindFlags.DEFAULT)
 
+        # Force minimum fize
+        self.set_default_size(320, 240)
         self.__load_window_state()
         self.__update_actions()
 
@@ -1621,8 +1621,9 @@ class CmbWindow(Adw.ApplicationWindow):
         elif state & self.FULLSCREEN:
             self.fullscreen()
         else:
-            size = self.window_settings.get_value("size").unpack()
-            self.set_default_size(*size)
+            w, h = self.window_settings.get_value("size").unpack()
+            if w and h:
+                self.set_default_size(w, h)
 
     def __save_window_state(self):
         fullscreen = self.props.fullscreened
