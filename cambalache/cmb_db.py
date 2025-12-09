@@ -451,13 +451,18 @@ class CmbDB(GObject.GObject):
                 (gtype, gtype, gtype, gtype),
             )
 
+        self.commit()
+
     def __init_data(self):
         supported_targets = {"gtk+-3.0", "gtk-4.0"}
 
         if self.target_tk not in supported_targets:
             raise Exception(f"Unknown target toolkit {self.target_tk}")
 
-        exclude_catalogs = {"gdk-3.0", "gtk+-3.0"} if self.target_tk == "gtk-4.0" else {"gdk-4.0", "gsk-4.0", "gtk-4.0"}
+        if self.target_tk == "gtk-4.0":
+            exclude_catalogs = {"atk-1.0", "gdk-3.0", "gtk+-3.0"}
+        else:
+            exclude_catalogs = {"gdk-4.0", "gsk-4.0", "gtk-4.0"}
 
         # Dictionary of catalog XML trees
         catalogs_tree = {}
@@ -528,6 +533,19 @@ class CmbDB(GObject.GObject):
         if self.target_tk not in catalog_graph:
             raise Exception(f"Could not find {self.target_tk} catalog")
 
+        # Target Tk and all its dependencies are considered builtin catalogs
+        # They are loaded by default and can not be unloaded
+        # The rest of catalogs are considered third party and can be enabled if needed
+        builtin_catalogs = set()
+
+        def add_deps(lib):
+            deps = catalog_graph[lib]
+            builtin_catalogs.add(lib)
+            for dep in deps:
+                add_deps(dep)
+
+        add_deps(self.target_tk)
+
         try:
             ts = TopologicalSorter(catalog_graph)
             sorted_catalogs = tuple(ts.static_order())
@@ -542,7 +560,7 @@ class CmbDB(GObject.GObject):
 
             deps = catalog_graph[name_version]
 
-            # Check all dependencies for it are available
+            # Check all dependencies
             for dep in deps:
                 if dep not in catalog_graph:
                     deps = None
@@ -555,7 +573,8 @@ class CmbDB(GObject.GObject):
             # Load catalog
             tree, path = catalogs_tree.get(name_version, (None, None))
             if tree:
-                self.load_catalog_from_tree(tree, path)
+                third_party = name_version not in builtin_catalogs
+                self.load_catalog(name_version, path=path, tree=tree, third_party=third_party)
 
         # Add builtins, (menu depends on gio)
         self.__init_builtin_types()
@@ -662,10 +681,21 @@ class CmbDB(GObject.GObject):
 
         self.accessibility_metadata = metadata
 
-    def load_catalog_from_tree(self, tree, filename):
+    def load_catalog(self, name_version, path=None, tree=None, third_party=False):
+        if path is None:
+            logger.warning(f"Do not know from where to load {name_version}")
+            return
+
+        if tree is None:
+            tree = etree.parse(path)
+
+        if tree.docinfo.doctype != "<!DOCTYPE cambalache-catalog SYSTEM \"cambalache-catalog.dtd\">":
+            logger.warning(f"File {path} is not a Cambalache catalog")
+            return
+
         root = tree.getroot()
 
-        logger.debug(f"Loading catalog: {filename}")
+        logger.debug(f"Loading catalog {name_version}: {path}")
 
         name = root.get("name", None)
         version = root.get("version", None)
@@ -673,12 +703,19 @@ class CmbDB(GObject.GObject):
         prefix = root.get("prefix", None)
         targets = root.get("targets", "")
 
+        if name_version != f"{name}-{version}":
+            logger.warning(f"{name_version} does not match catalog {path}")
+            return
+
         c = self.conn.cursor()
 
         # Insert library
         c.execute(
-            "INSERT INTO library(library_id, version, namespace, prefix) VALUES (?, ?, ?, ?);",
-            (name, version, namespace, prefix),
+            """
+            INSERT INTO library(library_id, version, namespace, prefix, third_party, enabled)
+            VALUES (?, ?, ?, ?, ?, ?);
+            """,
+            (name, version, namespace, prefix, third_party, not third_party),
         )
 
         # Insert target versions
@@ -702,8 +739,7 @@ class CmbDB(GObject.GObject):
             if row and row[0] == deps[dep]:
                 continue
             else:
-                logger.warning(f"Missing dependency {dep} for {filename}")
-                deps.pop(dep)
+                logger.warning(f"Missing dependency {dep} for {name_version}")
 
         # Insert dependencies
         for dep in deps:
@@ -711,8 +747,6 @@ class CmbDB(GObject.GObject):
                 c.execute("INSERT INTO library_dependency(library_id, dependency_id) VALUES (?, ?);", (name, dep))
             except Exception as e:
                 logger.warning(e)
-                # TODO: should we try to load the module?
-                # pass
 
         # Avoid circular dependencies errors
         self.foreign_keys = False
@@ -724,8 +758,8 @@ class CmbDB(GObject.GObject):
                 self.__load_table_from_tuples(c, child.tag, child.text)
 
         self.foreign_keys = True
-        c.close()
 
+        c.close()
         self.commit()
 
     def move_to_fs(self, filename):
@@ -769,11 +803,11 @@ class CmbDB(GObject.GObject):
         )
         ui_id = c.lastrowid
 
-        for key in requirements:
-            req = requirements[key]
+        for library_id in requirements:
+            req = requirements[library_id]
             c.execute(
                 "INSERT INTO ui_library (ui_id, library_id, version, comment) VALUES (?, ?, ?, ?);",
-                (ui_id, key, req["version"], req["comment"]),
+                (ui_id, library_id, req["version"], req["comment"]),
             )
         c.close()
 
