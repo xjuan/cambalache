@@ -36,7 +36,9 @@ CREATE TABLE IF NOT EXISTS library (
   prefix TEXT NOT NULL,
   shared_library TEXT,
   license_id TEXT,
-  license_text TEXT
+  license_text TEXT,
+  third_party BOOLEAN,
+  enabled BOOLEAN
 ) WITHOUT ROWID;
 
 

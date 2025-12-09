@@ -34,28 +34,79 @@ class CmbBaseLibraryInfo(CmbBase):
     __gtype_name__ = "CmbBaseLibraryInfo"
 
     library_id = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    version = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    namespace = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    prefix = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    shared_library = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    license_id = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
-    license_text = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     @classmethod
-    def from_row(cls, project, library_id, version, namespace, prefix, shared_library, license_id, license_text):
-        return cls(
-            project=project,
-            library_id=library_id,
-            version=version,
-            namespace=namespace,
-            prefix=prefix,
-            shared_library=shared_library,
-            license_id=license_id,
-            license_text=license_text,
-        )
+    def from_row(
+        cls, project, library_id, version, namespace, prefix, shared_library, license_id, license_text, third_party, enabled
+    ):
+        return cls(project=project, library_id=library_id)
+
+    @GObject.Property(type=str)
+    def version(self):
+        return self.db_get("SELECT version FROM library WHERE (library_id) IS (?);", (self.library_id,))
+
+    @version.setter
+    def _set_version(self, value):
+        self.db_set("UPDATE library SET version=? WHERE (library_id) IS (?);", (self.library_id,), value)
+
+    @GObject.Property(type=str)
+    def namespace(self):
+        return self.db_get("SELECT namespace FROM library WHERE (library_id) IS (?);", (self.library_id,))
+
+    @namespace.setter
+    def _set_namespace(self, value):
+        self.db_set("UPDATE library SET namespace=? WHERE (library_id) IS (?);", (self.library_id,), value)
+
+    @GObject.Property(type=str)
+    def prefix(self):
+        return self.db_get("SELECT prefix FROM library WHERE (library_id) IS (?);", (self.library_id,))
+
+    @prefix.setter
+    def _set_prefix(self, value):
+        self.db_set("UPDATE library SET prefix=? WHERE (library_id) IS (?);", (self.library_id,), value)
+
+    @GObject.Property(type=str)
+    def shared_library(self):
+        return self.db_get("SELECT shared_library FROM library WHERE (library_id) IS (?);", (self.library_id,))
+
+    @shared_library.setter
+    def _set_shared_library(self, value):
+        self.db_set("UPDATE library SET shared_library=? WHERE (library_id) IS (?);", (self.library_id,), value)
+
+    @GObject.Property(type=str)
+    def license_id(self):
+        return self.db_get("SELECT license_id FROM library WHERE (library_id) IS (?);", (self.library_id,))
+
+    @license_id.setter
+    def _set_license_id(self, value):
+        self.db_set("UPDATE library SET license_id=? WHERE (library_id) IS (?);", (self.library_id,), value)
+
+    @GObject.Property(type=str)
+    def license_text(self):
+        return self.db_get("SELECT license_text FROM library WHERE (library_id) IS (?);", (self.library_id,))
+
+    @license_text.setter
+    def _set_license_text(self, value):
+        self.db_set("UPDATE library SET license_text=? WHERE (library_id) IS (?);", (self.library_id,), value)
+
+    @GObject.Property(type=bool, default=False)
+    def third_party(self):
+        return self.db_get("SELECT third_party FROM library WHERE (library_id) IS (?);", (self.library_id,))
+
+    @third_party.setter
+    def _set_third_party(self, value):
+        self.db_set("UPDATE library SET third_party=? WHERE (library_id) IS (?);", (self.library_id,), value)
+
+    @GObject.Property(type=bool, default=False)
+    def enabled(self):
+        return self.db_get("SELECT enabled FROM library WHERE (library_id) IS (?);", (self.library_id,))
+
+    @enabled.setter
+    def _set_enabled(self, value):
+        self.db_set("UPDATE library SET enabled=? WHERE (library_id) IS (?);", (self.library_id,), value)
 
 
 class CmbBasePropertyInfo(CmbBase):

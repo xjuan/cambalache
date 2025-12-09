@@ -178,7 +178,7 @@ from .cmb_base_file_monitor import CmbBaseFileMonitor
             )
 
             # Base Objects
-            self.dump_table_as_class(fd, "library", "CmbBaseLibraryInfo")
+            self.dump_table_as_class(fd, "library", "CmbBaseLibraryInfo", mutable=True)
             self.dump_table_as_class(fd, "property", "CmbBasePropertyInfo")
             self.dump_table_as_class(fd, "signal", "CmbSignalInfo")
             self.dump_table_as_class(fd, "type", "CmbBaseTypeInfo")
