@@ -26,6 +26,9 @@ import os
 import gi
 
 gi.require_version('GIRepository', '3.0')
+gi.require_version('CambalachePrivate', '4.0')
+
+# flake8: noqa: E402,F401
 from cambalache import config
 from gi.repository import Gio
 

@@ -11,7 +11,7 @@ project(
 
 # File format version follows app version and only changes when there is a
 # change that prevents older versions to load it.
-fileformatversion = '0.96.0'
+fileformatversion = '0.99.0'
 
 python = import('python')
 python_bin = python.find_installation('python3')

@@ -23,31 +23,30 @@
 # SPDX-License-Identifier: LGPL-2.1-only
 #
 
-import gi
 import os
 import locale
 import tempfile
 
-gi.require_version('CambalachePrivate', '4.0')
 from gi.repository import GLib, GObject, Gio, Gdk, Gtk, Pango, Adw, GtkSource, CambalachePrivate
 from .cmb_tutor import CmbTutor, CmbTutorState
 from . import cmb_tutorial
 
 from cambalache import (
-    CmbProject,
     CmbBaseFileMonitor,
-    CmbUI,
     CmbCSS,
-    CmbObject,
     CmbGResource,
     CmbGResourceEditor,
+    CmbObject,
+    CmbProject,
+    CmbProjectSettings,
     CmbTypeChooserPopover,
-    getLogger,
-    notification_center,
-    config,
-    utils,
+    CmbUI,
     _,
-    ngettext
+    config,
+    getLogger,
+    ngettext,
+    notification_center,
+    utils,
 )
 
 from cambalache.cmb_blueprint import CmbBlueprintError
@@ -205,6 +204,7 @@ class CmbWindow(Adw.ApplicationWindow):
             "save",
             "save_as",
             "select_project_location",
+            "settings",
             "show_workspace",
             "undo",
             "workspace_restart",
@@ -677,15 +677,16 @@ class CmbWindow(Adw.ApplicationWindow):
         has_project = self.__is_project_visible()
 
         for action in [
-            "save_as",
-            "add_ui",
             "add_css",
             "add_gresource",
+            "add_ui",
+            "close",
+            "debug",
             "delete",
             "import",
             "import_directory",
-            "close",
-            "debug"
+            "save_as",
+            "settings",
         ]:
             self.actions[action].set_enabled(has_project)
 
@@ -1396,6 +1397,13 @@ class CmbWindow(Adw.ApplicationWindow):
             dialog.present()
         else:
             close_project()
+
+    def _on_settings_activate(self, action, data):
+        if self.project is None:
+            return
+
+        settings = CmbProjectSettings(project=self.project)
+        settings.present(self)
 
     def _on_debug_activate(self, action, data):
         if self.project.filename:

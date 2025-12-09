@@ -1,10 +1,11 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
-<!-- Created with Cambalache 0.99.4 -->
-<cambalache-project version="0.96.0" target_tk="gtk-4.0">
-  <gresources filename="cambalache.gresource.xml" sha256="9953ae41b8df3849d78315e56f891acdd8fd4dd89c90d0813f13d016b6d52ecf"/>
+<!-- Created with Cambalache 0.99.6 -->
+<cambalache-project version="0.96.0" target_tk="gtk-4.0" depends="casilda-1.0,libadwaita-1">
+  <icontheme-search-path>icons/scalable/actions</icontheme-search-path>
+  <gresources filename="cambalache.gresource.xml" sha256="18b8465c6ad7e2fa4daf3e4f44f8af421b755c8d0a72f4fb51eb5f54d3b8d4f1"/>
   <gresources filename="app/app.gresource.xml" sha256="e8a5cb4daa4b53dbc940f2423c8693d2547697a9718106c7929e622e79c10c1f"/>
-  <css priority="400" is_global="1" filename="cambalache.css" sha256="39175a0d928ac6f9b3c4686ff0a67029b7a4087ad71e1398a91a1f840cf0c349"/>
+  <css priority="400" is_global="1" filename="cambalache.css" sha256="e34ccd9ceb13737464b1171aa8b02585d0e0b41eda1b35241231de393bd6c00f"/>
   <css is_global="0" filename="app/cambalache.css" sha256="6714346793aa0c082ac7459ac601c6ddc6914c5649015bab3eba4f17cc5ea50c"/>
   <ui template-class="CmbChildTypeComboBox">
     <content><![CDATA[<interface>
@@ -241,6 +242,8 @@
 </interface>
 ]]></content>
   </ui>
+  <ui template-class="CmbProjectSettings" filename="cmb_project_settings.ui" sha256="a2f46a259b0a86ec6b4b8097580ef208b211f2954d2044648a2633360ffc162f"/>
+  <ui template-class="CmbLibraryRow" filename="cmb_library_row.ui" sha256="0572248d230c1ad83a2d9b6ab69986792b2a27cdb0ae1a1299bccf67679afa49"/>
   <ui template-class="CmbPixbufEntry">
     <requires>CmbFileEntry</requires>
     <content><![CDATA[<interface>
@@ -297,7 +300,7 @@
     <requires>CmbUIRequiresEditor</requires>
     <requires>CmbFragmentEditor</requires>
   </ui>
-  <ui template-class="CmbWindow" filename="app/cmb_window.ui" sha256="e3569465ebf3cc4a2943ddc56298743854414913d81b1f95edd14f5037e9639a">
+  <ui template-class="CmbWindow" filename="app/cmb_window.ui" sha256="56ac264f350aa110f09d6e06724fb982837959a99b02210ec61d808656fa66d7">
     <requires>CmbNotificationListView</requires>
     <requires>CmbObjectEditor</requires>
     <requires>CmbUIEditor</requires>
