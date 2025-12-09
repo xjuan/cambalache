@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.99.5 -->
+<interface>
+  <!-- interface-name cmb_project_editor.ui -->
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="libadwaita" version="1.7"/>
+  <template class="CmbProjectSettings" parent="AdwPreferencesDialog">
+    <property name="search-enabled">False</property>
+    <property name="title">Settings</property>
+    <child>
+      <object class="AdwPreferencesPage">
+        <property name="use-underline">False</property>
+        <child>
+          <object class="AdwPreferencesGroup" id="catalog_group">
+            <property name="description" translatable="yes">Available widget catalogs</property>
+            <property name="separate-rows">False</property>
+            <property name="title" translatable="yes">Catalogs</property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwPreferencesGroup" id="icontheme_group">
+            <property name="description" translatable="yes">List of directories to load icons</property>
+            <property name="header-suffix">
+              <object class="GtkButton">
+                <property name="has-frame">False</property>
+                <property name="icon-name">list-add-symbolic</property>
+                <property name="valign">center</property>
+                <property name="vexpand">False</property>
+                <signal name="clicked" handler="on_icontheme_add_button_clicked"/>
+              </object>
+            </property>
+            <property name="separate-rows">False</property>
+            <property name="title" translatable="yes">Icon Themes</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

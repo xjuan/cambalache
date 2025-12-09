@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.99.6 -->
+<interface>
+  <!-- interface-name cmb_catalog_row.ui -->
+  <requires lib="gtk" version="4.18"/>
+  <requires lib="libadwaita" version="1.0"/>
+  <template class="CmbLibraryRow" parent="AdwPreferencesRow">
+    <child>
+      <object class="AdwPreferencesRow">
+        <property name="activatable">False</property>
+        <property name="selectable">False</property>
+        <child>
+          <object class="GtkBox">
+            <property name="spacing">6</property>
+            <property name="valign">center</property>
+            <child>
+              <object class="GtkLabel" id="label">
+                <property name="halign">start</property>
+                <property name="hexpand">False</property>
+                <property name="use-markup">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="description">
+                <property name="ellipsize">none</property>
+                <property name="halign">start</property>
+                <property name="hexpand">False</property>
+                <property name="use-markup">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkStack" id="stack">
+                <property name="halign">end</property>
+                <property name="hexpand">True</property>
+                <property name="hhomogeneous">True</property>
+                <property name="transition-type">crossfade</property>
+                <property name="valign">center</property>
+                <property name="vhomogeneous">True</property>
+                <child>
+                  <object class="GtkStackPage">
+                    <property name="child">
+                      <object class="GtkSwitch" id="switch">
+                        <property name="halign">center</property>
+                        <property name="valign">center</property>
+                        <signal name="notify::active" handler="on_switch_notify"/>
+                      </object>
+                    </property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkStackPage">
+                    <property name="child">
+                      <object class="GtkButton" id="clear">
+                        <property name="label" translatable="yes">Clear</property>
+                        <signal name="clicked" handler="on_clear_clicked"/>
+                      </object>
+                    </property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

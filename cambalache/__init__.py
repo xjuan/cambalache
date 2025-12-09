@@ -37,17 +37,15 @@ gi.require_version("GtkSource", "5")
 gi.require_version("WebKit", "6.0")
 gi.require_version('Adw', '1')
 
+# flake8: noqa: E402,F401
+from gi.repository import Gio, Gdk, Gtk
+
 # Ensure _() builtin
 if "_" not in builtins.__dict__:
     _ = gettext.gettext
 
 if "ngettext" not in builtins.__dict__:
     ngettext = gettext.ngettext
-
-
-# noqa: E402,E401
-from gi.repository import Gio, Gdk, Gtk
-
 
 resource = Gio.Resource.load(os.path.join(config.pkgdatadir, "cambalache.gresource"))
 resource._register()
@@ -72,7 +70,6 @@ def getLogger(name):
     logger.addHandler(ch)
 
     return logger
-
 
 from .cmb_base_objects import CmbBaseObject
 from .cmb_base_file_monitor import CmbBaseFileMonitor
@@ -107,3 +104,4 @@ from .cmb_accessible_editor import CmbAccessibleEditor
 from .cmb_type_chooser import CmbTypeChooser
 from .cmb_type_chooser_widget import CmbTypeChooserWidget
 from .cmb_type_chooser_popover import CmbTypeChooserPopover
+from .cmb_project_settings import CmbProjectSettings
