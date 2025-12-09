@@ -403,6 +403,23 @@ class CmbView(Gtk.Box):
 
         self.__merengue_command("update_css_provider", args={"css_id": obj.css_id, "field": field, "value": value})
 
+    def __on_library_info_changed(self, project, info, field):
+        if field != "enabled":
+            return
+
+        if info.enabled:
+            self.__merengue_command(
+                "load_namespace",
+                args={
+                    "namespace": info.namespace,
+                    "version": info.version,
+                    "object_types": info.object_types,
+                },
+            )
+        else:
+            # Restart workspace so unused namespaces are unloaded
+            self.restart_workspace()
+
     def __on_object_data_changed(self, project, data):
         self.__merengue_update_ui(data.ui_id)
 
@@ -452,13 +469,12 @@ class CmbView(Gtk.Box):
             self.__project.disconnect_by_func(self.__on_css_added)
             self.__project.disconnect_by_func(self.__on_css_removed)
             self.__project.disconnect_by_func(self.__on_css_changed)
+            self.__project.disconnect_by_func(self.__on_library_info_changed)
             self.__merengue.disconnect_by_func(self.__on_merengue_handle_command)
             self.__merengue.stop()
 
         self.__project = project
         self.db_inspector.project = project
-
-        self.__update_view()
 
         if project:
             project.connect("changed", self.__on_changed)
@@ -478,6 +494,7 @@ class CmbView(Gtk.Box):
             project.connect("css-added", self.__on_css_added)
             project.connect("css-removed", self.__on_css_removed)
             project.connect("css-changed", self.__on_css_changed)
+            project.connect("library-info-changed", self.__on_library_info_changed)
             self.__merengue.connect("handle-command", self.__on_merengue_handle_command)
 
             # Run view process
@@ -492,6 +509,8 @@ class CmbView(Gtk.Box):
 
             # Update css themes
             self.menu.target_tk = project.target_tk
+
+        self.__update_view()
 
     @GObject.Property(type=str)
     def gtk_theme(self):
@@ -549,7 +568,9 @@ class CmbView(Gtk.Box):
 
         self.__ui = None
         self.__set_error_message(None)
-        self.__merengue.start()
+
+        if self.__project:
+            self.__merengue.start()
 
     def __command_selection_changed(self, selection):
         objects = []
@@ -566,7 +587,7 @@ class CmbView(Gtk.Box):
 
         for id, info in self.project.library_info.items():
             # Only load 3rd party libraries, Gtk ones are already loaded
-            if not info.third_party:
+            if not info.third_party or not info.enabled:
                 continue
 
             self.__merengue_command(
@@ -586,7 +607,7 @@ class CmbView(Gtk.Box):
 
         self.__merengue_command(
             "set_icontheme_search_paths",
-            args={"paths": [os.path.join(dirname, path) for path in self.project.icontheme_search_paths]}
+            args={"paths": [os.path.join(dirname, path.props.string) for path in self.project.icontheme_search_paths]}
         )
 
     def __on_preview_notify(self, obj, pspec):
