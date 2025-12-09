@@ -30,7 +30,7 @@ import sqlite3
 import hashlib
 
 from pathlib import Path
-from gi.repository import GObject, Gio, GLib
+from gi.repository import GObject, Gio, GLib, Gtk
 from graphlib import TopologicalSorter, CycleError
 
 from lxml import etree
@@ -97,6 +97,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         "type-info-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbTypeInfo,)),
         "type-info-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbTypeInfo,)),
         "type-info-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbTypeInfo,)),
+        "library-info-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbLibraryInfo, str)),
     }
 
     target_tk = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
@@ -132,7 +133,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         self.__filename = None
 
-        self.icontheme_search_paths = []
+        # Icon theme search paths
+        self.icontheme_search_paths = Gtk.StringList()
 
         super().__init__(**kwargs)
 
@@ -151,9 +153,9 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         # DataModel is only used internally
         self.db = CmbDB(target_tk=self.target_tk)
-        self.db.type_info = self.type_info
-        self.__init_data()
 
+        self.__init_library_info()
+        self.db.type_info = self.type_info
         self.__load()
 
     def __bool__(self):
@@ -240,34 +242,16 @@ class CmbProject(GObject.Object, Gio.ListModel):
             retval.append(row[0])
         return retval
 
-    def __init_type_info(self, c):
-        for row in c.execute("SELECT * FROM type WHERE parent_id IS NOT NULL ORDER BY type_id;"):
-            type_id = row[0]
-            self.type_info[type_id] = CmbTypeInfo.from_row(self, *row)
-
-        # Set parent back reference
-        for type_id in self.type_info:
-            info = self.type_info[type_id]
-            info.parent = self.type_info.get(info.parent_id, None)
-
-    def __init_library_info(self, c):
-        for row in c.execute("SELECT * FROM library ORDER BY library_id;"):
+    def __init_library_info(self):
+        # Init library_info
+        for row in self.db.execute("SELECT * FROM library;").fetchall():
             library_id = row[0]
+            library_info = CmbLibraryInfo.from_row(self, *row)
+            self.library_info[library_id] = library_info
 
-            info = CmbLibraryInfo.from_row(self, *row)
-            info.third_party = library_id not in ("gobject", "pango", "gdkpixbuf", "gio", "gdk", "gtk", "gtk+")
-            self.library_info[library_id] = info
-
-    def __init_data(self):
-        if self.target_tk is None:
-            return
-
-        c = self.db.cursor()
-
-        self.__init_type_info(c)
-        self.__init_library_info(c)
-
-        c.close()
+            # Add library type info to project pool
+            if library_info.enabled:
+                self.type_info.update(library_info.type_info)
 
     def __get_abs_path(self, filename):
         projectdir = os.path.dirname(self.filename) if self.filename else "."
@@ -481,6 +465,37 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 _("Project format {version} is not supported, "
                   "Open/save with Cambalache 0.96.0 to migrate to the new format.").format(version=version)
             )
+
+        # Dependencies
+        if version > (0, 96, 0):
+            depends = root.get("depends", None)
+            if depends:
+                catalogs = depends.split(",")
+                unknown_depends = []
+
+                for catalog in catalogs:
+                    tokens = catalog.split("-")
+
+                    if len(tokens) != 2:
+                        raise Exception(_("Error parsing dependency {library}").format(library=catalog))
+                        continue
+
+                    library_id, version = tokens
+
+                    if library_id not in self.library_info:
+                        unknown_depends.append(library_id)
+                        continue
+                    # TODO: check version
+                    self.library_info[library_id].enabled = True
+
+                if unknown_depends:
+                    raise Exception(_("Unknown dependencies found {depends}").format(depends=unknown_depends))
+        else:
+            # TODO: remove this after deprecating format 0.96
+            # Old project loaded everything by default
+            for library_id, info in self.library_info.items():
+                if info.third_party:
+                    info.enabled = True
 
         ui_graph = {}
         ui_node_template = {}
@@ -768,8 +783,14 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         project.addprevious(etree.Comment(f" Created with Cambalache {config.VERSION} "))
 
+        # Save catalog dependencies
+        catalogs = [f"{o.library_id}-{o.version}" for o in self.library_info.values() if o.third_party and o.enabled]
+        if catalogs:
+            project.set("depends", ",".join(catalogs))
+
+        # Save IconTheme search paths
         for path in self.icontheme_search_paths:
-            project.append(E("icontheme-search-path", path))
+            project.append(E("icontheme-search-path", path.props.string))
 
         # Save GResources
         for row in c.execute("SELECT gresource_id, gresources_filename FROM gresource WHERE resource_type='gresources';"):
@@ -1360,6 +1381,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
         if not allow_internal_removal and obj.internal:
             raise Exception(_("Internal objects can not be removed"))
 
+        print("REMOVE OBJECT", obj)
+
         try:
             was_selected = obj in self.__selection
             parent = obj.parent
@@ -1407,6 +1430,28 @@ class CmbProject(GObject.Object, Gio.ListModel):
             # Select parent if removed object was selected
             if was_selected and parent:
                 self.set_selection([parent])
+
+    def remove_library_objects(self, info):
+        self.history_push(_("Remove objects from {library}").format(library=info.library_id))
+
+        to_remove = set()
+
+        for row in self.db.execute(
+            "SELECT ui_id, object_id FROM object AS o, type AS t WHERE o.type_id=t.type_id AND t.library_id=?;",
+            (info.library_id,)
+        ).fetchall():
+            ui_id, object_id = row
+            obj = self.get_object_by_id(ui_id, object_id)
+            to_remove.add((obj, str(obj)))
+
+        for obj, name in to_remove:
+            print("remove_library_objects REMOVE", name)
+            if self.db.execute(
+                "SELECT COUNT(object_id) FROM object WHERE ui_id=? AND object_id=?;", (obj.ui_id, obj.object_id)
+            ).fetchone()[0] == 1:
+                self.remove_object(obj)
+
+        self.history_pop()
 
     def get_selection(self):
         return self.__selection
@@ -2216,6 +2261,9 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
     def _gresource_changed(self, obj, field):
         self.emit("gresource-changed", obj, field)
+
+    def _library_info_changed(self, obj, field):
+        self.emit("library-info-changed", obj, field)
 
     def db_move_to_fs(self, filename):
         self.db.move_to_fs(filename)
