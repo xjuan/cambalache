@@ -115,14 +115,13 @@ def window_entry_set_text(entry_name, text):
     return entry
 
 
-def window_stack_set_page(stack_name, page):
-    stack = utils.find_by_buildable_id(window, stack_name)
-    assert stack
+def window_select_editor_page(editor_name, page):
+    editor = utils.find_by_buildable_id(window, editor_name)
+    assert editor
+    assert editor.stack
 
-    stack.set_visible_child_name(page)
+    editor.stack.set_visible_child_name(page)
     utils.process_all_pending_gtk_events()
-
-    return stack
 
 
 def window_widget_grab_focus(widget):
@@ -183,7 +182,7 @@ def _test_cmb_window_ui_stack_fragment(target):
   </submenu>
 </menu>"""
 
-    window_stack_set_page("ui_stack", "fragment")
+    window_select_editor_page("ui_editor", "fragment")
     window_assert_screenshot("cambalache_ui_stack_fragment.png", target)
 
 
@@ -198,7 +197,7 @@ def _test_cmb_window_ui_stack_requires(target):
     select_object(ui_id=1)
     utils.process_all_pending_gtk_events()
 
-    window_stack_set_page("ui_stack", "requires")
+    window_select_editor_page("ui_editor", "requires")
     window_assert_screenshot("cambalache_ui_stack_requires.png", target)
 
 
@@ -210,7 +209,7 @@ def _test_cmb_window_add_window(target):
 def _test_cmb_window_object_stack_layout(target):
     window_add_object("GtkGrid", 2, 1)
     window_add_object("GtkButton", 3, 2)
-    window_stack_set_page("object_stack", "layout")
+    window_select_editor_page("object_editor", "layout")
     window_assert_screenshot("cambalache_object_stack_layout.png", target)
 
 
@@ -219,15 +218,20 @@ def _test_cmb_window_object_stack_signals(target):
 
     button.add_signal("GtkButton", "clicked", "on_button_clicked")
 
-    window_stack_set_page("object_stack", "signals")
+    window_select_editor_page("object_editor", "signals")
     window_assert_screenshot("cambalache_object_stack_signals.png", target)
+
+
+def _test_cmb_window_object_stack_accessible(target):
+    window_select_editor_page("object_editor", "accessible")
+    window_assert_screenshot("cambalache_object_stack_accessible.png", target)
 
 
 def _test_cmb_window_object_stack_fragment(target):
     button = window.project.get_object_by_id(1, 3)
     button.custom_fragment = '<styles><style name="acustomstyle"></styles>'
 
-    window_stack_set_page("object_stack", "fragment")
+    window_select_editor_page("object_editor", "fragment")
     window_assert_screenshot("cambalache_object_stack_fragment.png", target)
 
 
@@ -255,6 +259,10 @@ def test_gtk3_cmb_window_object_stack_layout():
 
 def test_gtk3_cmb_window_object_stack_signals():
     _test_cmb_window_object_stack_signals("gtk+-3.0")
+
+
+def test_gtk3_cmb_window_object_stack_accessible():
+    _test_cmb_window_object_stack_accessible("gtk+-3.0")
 
 
 def test_gtk3_cmb_window_object_stack_fragment():
@@ -304,6 +312,10 @@ def test_gtk4_cmb_window_object_stack_layout():
 
 def test_gtk4_cmb_window_object_stack_signals():
     _test_cmb_window_object_stack_signals("gtk-4.0")
+
+
+def test_gtk4_cmb_window_object_stack_accessible():
+    _test_cmb_window_object_stack_accessible("gtk-4.0")
 
 
 def test_gtk4_cmb_window_object_stack_fragment():
