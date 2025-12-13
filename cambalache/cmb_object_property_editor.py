@@ -27,10 +27,10 @@ from gi.repository import GObject, Gtk
 
 from .cmb_object import CmbObject
 from .cmb_object_data_editor import CmbObjectDataEditor
-from .control import CmbEntry, CmbChildTypeComboBox, cmb_create_editor
+from .control import CmbEntry, CmbChildTypeComboBox, CmbSourceView, cmb_create_editor
 from .cmb_property_label import CmbPropertyLabel
 from cambalache import _
-from .constants import EXTERNAL_TYPE
+from .constants import EXTERNAL_TYPE, CUSTOM_TYPE
 from . import utils
 
 
@@ -42,6 +42,7 @@ class CmbObjectPropertyEditor(Gtk.Box):
     def __init__(self, **kwargs):
         self.__object = None
         self.__id_label = None
+        self.__type_label = None
         self.__template_switch = None
         self.__bindings = []
 
@@ -49,8 +50,8 @@ class CmbObjectPropertyEditor(Gtk.Box):
 
         self.props.orientation = Gtk.Orientation.VERTICAL
 
-    def bind_property(self, *args):
-        binding = GObject.Object.bind_property(*args)
+    def bind_property(self, s, sp, t, tp, flags=GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL):
+        binding = GObject.Object.bind_property(s, sp, t, tp, flags)
         self.__bindings.append(binding)
         return binding
 
@@ -62,16 +63,24 @@ class CmbObjectPropertyEditor(Gtk.Box):
 
         # Id/Class entry
         entry = CmbEntry()
-        self.bind_property(
-            self.__object,
-            "name",
-            entry,
-            "cmb-value",
-            GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
-        )
+        self.bind_property(self.__object, "name", entry, "cmb-value")
 
-        grid.attach(self.__id_label, 0, 0, 1, 1)
-        grid.attach(entry, 1, 0, 1, 1)
+        i = 0
+        grid.attach(self.__id_label, 0, i, 1, 1)
+        grid.attach(entry, 1, i, 1, 1)
+        i += 1
+
+        if self.__object.type_id == CUSTOM_TYPE:
+            editor = CmbEntry(halign=Gtk.Align.START)
+
+            prop = self.__object.properties_dict.get("type")
+            self.bind_property(prop, "value", editor, "cmb-value")
+
+            self.__type_label = Gtk.Label(label=_("Type"), halign=Gtk.Align.START)
+
+            grid.attach(self.__type_label, 0, i, 1, 1)
+            grid.attach(editor, 1, i, 1, 1)
+            i += 1
 
         # Template check
         if self.__object and self.__object.parent_id == 0:
@@ -90,8 +99,8 @@ class CmbObjectPropertyEditor(Gtk.Box):
             self.__template_switch.connect("notify::active", self.__on_template_switch_notify)
             self.__update_template_label()
 
-            grid.attach(label, 0, 1, 1, 1)
-            grid.attach(self.__template_switch, 1, 1, 1, 1)
+            grid.attach(label, 0, i, 1, 1)
+            grid.attach(self.__template_switch, 1, i, 1, 1)
 
         return grid
 
@@ -116,6 +125,9 @@ class CmbObjectPropertyEditor(Gtk.Box):
         istmpl = self.__object.ui.template_id == self.__object.object_id
         self.__id_label.props.label = _("Type Name") if istmpl else _("Object Id")
 
+        if self.__type_label:
+            self.__type_label.props.label = _("Parent Class") if istmpl else _("Type")
+
     def __on_template_switch_notify(self, switch, pspec):
         self.__object.ui.template_id = self.__object.object_id if switch.props.active else 0
         self.__update_template_label()
@@ -137,13 +149,7 @@ class CmbObjectPropertyEditor(Gtk.Box):
 
         combo = CmbChildTypeComboBox(object=self.__object)
 
-        self.bind_property(
-            self.__object,
-            "type",
-            combo,
-            "cmb-value",
-            GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
-        )
+        self.bind_property(self.__object, "type", combo, "cmb-value")
         box.append(combo)
         return box
 
@@ -182,6 +188,14 @@ It has to be exposed by your application with GtkBuilder expose_object method."
             )
             self.append(label)
             self.show()
+            return
+        elif obj.type_id == CUSTOM_TYPE:
+            # Fragment Editor
+            sw = Gtk.ScrolledWindow(has_frame=True, vexpand=True, margin_top=6)
+            editor = CmbSourceView(lang="xml")
+            self.bind_property(obj, "custom-fragment", editor, "text")
+            sw.set_child(editor)
+            self.append(sw)
             return
 
         info = parent.info if self.layout and parent else obj.info
@@ -224,13 +238,7 @@ It has to be exposed by your application with GtkBuilder expose_object method."
                 if editor is None:
                     continue
 
-                self.bind_property(
-                    prop,
-                    "value",
-                    editor,
-                    "cmb-value",
-                    GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
-                )
+                self.bind_property(prop, "value", editor, "cmb-value")
 
                 if self.layout:
                     label = CmbPropertyLabel(layout_prop=prop)
