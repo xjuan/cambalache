@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.99.6 -->
+<!-- Created with Cambalache 0.99.7 -->
 <interface>
   <!-- interface-name cmb_window.ui -->
   <!-- interface-copyright Juan Pablo Ugarte -->
@@ -156,7 +156,7 @@
               <object class="GtkButton" id="settings_button">
                 <property name="action-name">win.settings</property>
                 <property name="has-frame">False</property>
-                <property name="tooltip-text" translatable="yes">Add new UI to project</property>
+                <property name="tooltip-text" translatable="yes">Edit project settings</property>
                 <child>
                   <object class="GtkImage">
                     <property name="icon-name">preferences-system-symbolic</property>
