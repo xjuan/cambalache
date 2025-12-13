@@ -26,6 +26,9 @@
 # It is not a valid GType name on purpose since it will never be exported.
 EXTERNAL_TYPE = "(external)"
 
+# This type is used for unknown types, the xml is preserved vervatim
+CUSTOM_TYPE = "(custom)"
+
 GMENU_TYPE = "(menu)"
 GMENU_SECTION_TYPE = "(section)"
 GMENU_SUBMENU_TYPE = "(submenu)"

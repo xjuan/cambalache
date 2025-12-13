@@ -35,7 +35,7 @@ from graphlib import TopologicalSorter, CycleError
 from gi.repository import GLib, Gio, GObject
 from cambalache import config, getLogger, _
 from . import utils
-from .constants import EXTERNAL_TYPE, GMENU_TYPE, GMENU_SECTION_TYPE, GMENU_SUBMENU_TYPE, GMENU_ITEM_TYPE
+from .constants import EXTERNAL_TYPE, CUSTOM_TYPE, GMENU_TYPE, GMENU_SECTION_TYPE, GMENU_SUBMENU_TYPE, GMENU_ITEM_TYPE
 from .cmb_db_profile import CmbProfileConnection
 
 logger = getLogger(__name__)
@@ -389,37 +389,44 @@ class CmbDB(GObject.GObject):
         c.close()
 
     def __init_builtin_types(self):
+        target_lib = "gtk" if self.target_tk == "gtk-4.0" else "gtk+"
+
         # Add special type for external object references. See gtk_builder_expose_object()
-        self.execute(
-            "INSERT INTO type (type_id, parent_id, library_id) VALUES (?, 'object', ?);",
-            (EXTERNAL_TYPE, "gtk" if self.target_tk == "gtk-4.0" else "gtk+")
+        self.executemany(
+            "INSERT INTO type (type_id, parent_id, library_id, derivable) VALUES (?, 'object', ?, ?);",
+            [
+                (EXTERNAL_TYPE, target_lib, False),
+                (CUSTOM_TYPE, target_lib, True),
+            ]
         )
 
         # Add GMenu related types
-        for gtype, category in [
-            (GMENU_TYPE, "model"),
-            (GMENU_SECTION_TYPE, "hidden"),
-            (GMENU_SUBMENU_TYPE, "hidden"),
-            (GMENU_ITEM_TYPE, "hidden"),
-        ]:
-            self.execute(
-                "INSERT INTO type (type_id, parent_id, library_id, category) VALUES (?, 'GObject', 'gio', ?);",
-                (gtype, category),
-            )
+        self.executemany(
+            "INSERT INTO type (type_id, parent_id, library_id, category) VALUES (?, 'GObject', 'gio', ?);",
+            [
+                (GMENU_TYPE, "model"),
+                (GMENU_SECTION_TYPE, "hidden"),
+                (GMENU_SUBMENU_TYPE, "hidden"),
+                (GMENU_ITEM_TYPE, "hidden"),
+            ]
+        )
 
         # menu is a GMenuModel
         self.execute("INSERT INTO type_iface (type_id, iface_id) VALUES (?, ?);", (GMENU_TYPE, "GMenuModel"))
 
         # Add properties
-        for values in [
-            (GMENU_SECTION_TYPE, "label", "gchararray", True),
-            (GMENU_SUBMENU_TYPE, "label", "gchararray", True),
-            (GMENU_ITEM_TYPE, "label", "gchararray", True),
-            (GMENU_ITEM_TYPE, "action", "gchararray", False),
-            (GMENU_ITEM_TYPE, "action-namespace", "gchararray", False),
-            (GMENU_ITEM_TYPE, "icon", "CmbIconName", False),
-        ]:
-            self.execute("INSERT INTO property (owner_id, property_id, type_id, translatable) VALUES (?, ?, ?, ?);", values)
+        self.executemany(
+            "INSERT INTO property (owner_id, property_id, type_id, translatable) VALUES (?, ?, ?, ?);",
+            [
+                (CUSTOM_TYPE, "type", "gchararray", False),
+                (GMENU_SECTION_TYPE, "label", "gchararray", True),
+                (GMENU_SUBMENU_TYPE, "label", "gchararray", True),
+                (GMENU_ITEM_TYPE, "label", "gchararray", True),
+                (GMENU_ITEM_TYPE, "action", "gchararray", False),
+                (GMENU_ITEM_TYPE, "action-namespace", "gchararray", False),
+                (GMENU_ITEM_TYPE, "icon", "CmbIconName", False),
+            ]
+        )
 
         # Add constraints
         for gtype in [GMENU_TYPE, GMENU_SECTION_TYPE, GMENU_SUBMENU_TYPE]:
@@ -792,6 +799,9 @@ class CmbDB(GObject.GObject):
     def execute(self, *args):
         return self.conn.execute(*args)
 
+    def executemany(self, *args):
+        return self.conn.executemany(*args)
+
     def executescript(self, *args):
         return self.conn.executescript(*args)
 
@@ -1097,8 +1107,9 @@ class CmbDB(GObject.GObject):
         pinfo = self.__get_property_info(info, property_id)
 
         if pinfo is None:
-            self.__unknown_property(prop, info.type_id, property_id)
-            return
+            # Do not report property as unknown, instead load it as custom xml fragment
+            # self.__unknown_property(prop, info.type_id, property_id)
+            return False
 
         # Property value
         value = prop.text
@@ -1137,6 +1148,8 @@ class CmbDB(GObject.GObject):
             bind_flags=bind_flags,
             inline_object_id=inline_object_id
         )
+
+        return True
 
     def __import_binding(self, c, info, ui_id, object_id, prop, object_id_map=None):
         name, object = self.__node_get(prop, "name", ["object"])
@@ -1708,18 +1721,33 @@ class CmbDB(GObject.GObject):
         if is_template:
             name, klass = self.__node_get(node, "class", ["parent"])
 
-            if not klass:
-                klass = "GtkWidget"
-                self.__collect_error("template-missing-parent", node, name)
+            # if not klass:
+            #     self.__collect_error("template-missing-parent", node, name)
         else:
             klass, name = self.__node_get(node, "class", ["id"])
 
         comment = self.__node_get_comment(node)
-        info = self.type_info.get(klass, None)
+        info = self.type_info.get(klass, None) if klass else None
 
         if not info:
-            self.__collect_error("unknown-type", node, klass)
-            return
+            # self.__collect_error("unknown-type", node, klass)
+
+            # Insert custom object
+            object_id = self.add_object(ui_id, CUSTOM_TYPE, name, parent_id, internal_child, child_type, comment)
+            fragment = self.__custom_fragments_tostring([n for n in node.iterchildren()])
+            self.execute("UPDATE object SET custom_fragment=? WHERE ui_id=? AND object_id=?", (fragment, ui_id, object_id))
+            self.execute(
+                """
+                INSERT OR REPLACE INTO object_property (ui_id, object_id, owner_id, property_id, value)
+                VALUES (?, ?, ?, ?, ?);
+                """,
+                (ui_id, object_id, CUSTOM_TYPE, "type", klass),
+            )
+
+            if is_template:
+                self.execute("UPDATE ui SET template_id=? WHERE ui_id=?", (object_id, ui_id))
+
+            return object_id
 
         # Accessibility properties for gtk 3
         if self.target_tk == "gtk+-3.0" and internal_child == "accessible" and klass == "AtkObject":
@@ -1756,7 +1784,8 @@ class CmbDB(GObject.GObject):
 
         for child in node.iterchildren():
             if child.tag == "property":
-                self.__import_property(c, info, ui_id, object_id, child, object_id_map=object_id_map)
+                if not self.__import_property(c, info, ui_id, object_id, child, object_id_map=object_id_map):
+                    custom_fragments.append(child)
             elif child.tag == "binding" and self.target_tk == "gtk-4.0":
                 self.__import_binding(c, info, ui_id, object_id, child, object_id_map=object_id_map)
             elif child.tag == "signal":
@@ -1790,16 +1819,11 @@ class CmbDB(GObject.GObject):
 
         return object_id
 
-    def __custom_fragments_tostring(self, custom_fragments):
-        if len(custom_fragments) == 0:
+    def __custom_fragments_tostring(self, fragments):
+        if len(fragments) == 0:
             return None
 
-        fragment = ""
-
-        for node in custom_fragments:
-            fragment += etree.tostring(node).decode("utf-8").strip()
-
-        return fragment
+        return "\n".join([etree.tostring(n, pretty_print=True, encoding="UTF-8").decode("utf-8").strip() for n in fragments])
 
     def __node_get_comment(self, node):
         prev = node.getprevious()
@@ -2288,7 +2312,8 @@ class CmbDB(GObject.GObject):
                 self.__node_add_comment(child_obj, comment)
 
         # Dump custom fragments
-        self.__export_custom_fragment(obj, custom_fragment)
+        if not merengue:
+            self.__export_custom_fragment(obj, custom_fragment)
 
         c.close()
 
@@ -2489,30 +2514,61 @@ class CmbDB(GObject.GObject):
 
         return n_objs == 0 and n_children == 0 and n_props == 0 and n_layout_props == 0 and n_signals == 0 and n_data == 0
 
+    def __export_custom(self, ui_id, object_id, template_id=None, merengue=False):
+        if merengue:
+            return None
+
+        row = self.execute(
+            "SELECT name, custom_fragment FROM object WHERE ui_id=? AND object_id=?;",
+            (ui_id, object_id)
+        ).fetchone()
+        name, custom_fragment = row
+
+        row = self.execute(
+            "SELECT value FROM object_property WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id=?;",
+            (ui_id, object_id, CUSTOM_TYPE, "type")
+        ).fetchone()
+        klass, = row
+
+        if template_id == object_id:
+            obj = E.template()
+            utils.xml_node_set(obj, "class", name)
+            utils.xml_node_set(obj, "parent", klass)
+        else:
+            obj = E.object()
+            utils.xml_node_set(obj, "class", klass)
+            utils.xml_node_set(obj, "id", name)
+
+        self.__export_custom_fragment(obj, custom_fragment, prepend_comment=False)
+
+        return obj
+
     def __export_object(self, ui_id, object_id, merengue=False, template_id=None, ignore_id=False):
         target_gtk4 = self.target_tk == "gtk-4.0"
         target_gtk3 = not target_gtk4
 
-        c = self.conn.cursor()
-
-        c.execute("SELECT type_id, name, custom_fragment FROM object WHERE ui_id=? AND object_id=?;", (ui_id, object_id))
-        type_id, name, custom_fragment = c.fetchone()
+        row = self.execute(
+            "SELECT type_id, name, custom_fragment FROM object WHERE ui_id=? AND object_id=?;",
+            (ui_id, object_id)
+        ).fetchone()
+        type_id, name, custom_fragment = row
 
         info = self.type_info.get(type_id, None)
 
         if info is None:
             logger.warning(f"Type info missing for type {type_id}")
-            c.close()
             return None
 
-        # Special case <menu>
-        if type_id == GMENU_TYPE:
-            c.close()
+        if type_id == CUSTOM_TYPE:
+            # Special case custom objects
+            return self.__export_custom(ui_id, object_id, template_id=template_id, merengue=merengue)
+        elif type_id == GMENU_TYPE:
+            # Special case <menu>
             return self.__export_menu(ui_id, object_id, merengue=merengue, ignore_id=ignore_id)
         elif info.is_a("GtkExpression"):
-            c.close()
             return self.__export_expression(ui_id, object_id, merengue=merengue)
 
+        c = self.conn.cursor()
         cc = self.conn.cursor()
 
         merengue_template = merengue and info.library_id is None and info.parent_id is not None
@@ -2988,7 +3044,7 @@ class CmbDB(GObject.GObject):
                     else:
                         child_obj.append(layout)
 
-            if custom_child_fragment is not None:
+            if not merengue and custom_child_fragment is not None:
                 # Dump custom child fragments
                 self.__export_custom_fragment(child, custom_child_fragment)
 
@@ -3001,14 +3057,15 @@ class CmbDB(GObject.GObject):
                 self.__export_type_data(ui_id, object_id, parent, pinfo, obj, merengue=merengue)
 
         # Dump custom fragments
-        self.__export_custom_fragment(obj, custom_fragment)
+        if not merengue:
+            self.__export_custom_fragment(obj, custom_fragment)
 
         c.close()
         cc.close()
 
         return obj
 
-    def __export_custom_fragment(self, node, custom_fragment):
+    def __export_custom_fragment(self, node, custom_fragment, prepend_comment=True):
         if custom_fragment is None:
             return
         try:
@@ -3016,7 +3073,9 @@ class CmbDB(GObject.GObject):
         except Exception:
             pass
         else:
-            node.append(etree.Comment(f" Custom {node.tag} fragments "))
+            if prepend_comment:
+                node.append(etree.Comment(f" Custom {node.tag} fragments "))
+
             for child in root:
                 node.append(child)
 
@@ -3115,7 +3174,8 @@ class CmbDB(GObject.GObject):
             self.__node_add_comment(child, comment)
 
         # Dump custom fragments
-        self.__export_custom_fragment(node, custom_fragment)
+        if not merengue:
+            self.__export_custom_fragment(node, custom_fragment)
 
         c.close()
 
