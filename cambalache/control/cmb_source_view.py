@@ -30,11 +30,11 @@ class CmbSourceView(GtkSource.View):
     __gtype_name__ = "CmbSourceView"
 
     def __init__(self, **kwargs):
+        self.manager = GtkSource.LanguageManager.get_default()
+        self.buffer = GtkSource.Buffer()
+
         super().__init__(**kwargs)
 
-        self.manager = GtkSource.LanguageManager.get_default()
-
-        self.buffer = GtkSource.Buffer()
         self.props.buffer = self.buffer
         self.buffer.connect("changed", self.__on_buffer_changed)
 
@@ -79,3 +79,4 @@ class CmbSourceView(GtkSource.View):
 
     def __on_buffer_changed(self, buffer):
         self.notify("text")
+
