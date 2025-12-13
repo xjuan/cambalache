@@ -32,12 +32,18 @@ from .cmb_object import CmbObject
 class CmbObjectEditor(Gtk.Box):
     __gtype_name__ = "CmbObjectEditor"
 
+    switcher = Gtk.Template.Child()
     stack = Gtk.Template.Child()
     property_editor = Gtk.Template.Child()
     layout_editor = Gtk.Template.Child()
     signal_editor = Gtk.Template.Child()
     fragment_editor = Gtk.Template.Child()
     accessible_editor = Gtk.Template.Child()
+
+    layout_page = Gtk.Template.Child()
+    signals_page = Gtk.Template.Child()
+    fragment_page = Gtk.Template.Child()
+    accessible_page = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         self._object = None
@@ -52,12 +58,17 @@ class CmbObjectEditor(Gtk.Box):
     def _set_object(self, obj):
         self._object = obj
 
+        is_not_builtin = not obj.info.is_builtin if obj else True
         self.property_editor.object = obj
 
-        is_not_builtin = not obj.info.is_builtin if obj else True
-        for editor in [self.layout_editor, self.signal_editor, self.fragment_editor, self.accessible_editor]:
+        for editor, page in [
+            (self.layout_editor, self.layout_page),
+            (self.signal_editor, self.signals_page),
+            (self.accessible_editor, self.accessible_page),
+            (self.fragment_editor, self.fragment_page),
+        ]:
             editor.object = obj
-            editor.props.visible = is_not_builtin
+            page.props.visible = is_not_builtin
 
 
 Gtk.WidgetClass.set_css_name(CmbObjectEditor, "CmbObjectEditor")
