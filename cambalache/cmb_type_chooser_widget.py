@@ -147,6 +147,7 @@ class CmbTypeChooserWidget(Gtk.Box):
         # Special case External object type
         if show_categories or self.uncategorized_only:
             store.append(project.type_info[constants.EXTERNAL_TYPE])
+            store.append(project.type_info[constants.CUSTOM_TYPE])
 
         return filter_model
 

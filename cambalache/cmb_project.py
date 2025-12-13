@@ -1289,7 +1289,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         return obj
 
     def _check_can_add(self, obj_type, parent_type):
-        if constants.EXTERNAL_TYPE in [obj_type, parent_type]:
+        if constants.EXTERNAL_TYPE in [obj_type, parent_type] or constants.CUSTOM_TYPE in [obj_type, parent_type]:
             return False
 
         obj_info = self.type_info.get(obj_type, None)

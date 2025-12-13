@@ -35,7 +35,7 @@ from .cmb_base_objects import (
 )
 from .cmb_property_info import CmbPropertyInfo
 
-from .constants import EXTERNAL_TYPE, GMENU_TYPE, GMENU_SECTION_TYPE, GMENU_SUBMENU_TYPE, GMENU_ITEM_TYPE
+from .constants import EXTERNAL_TYPE, CUSTOM_TYPE, GMENU_TYPE, GMENU_SECTION_TYPE, GMENU_SUBMENU_TYPE, GMENU_ITEM_TYPE
 
 from cambalache import getLogger
 
@@ -101,7 +101,7 @@ class CmbTypeInfo(CmbBaseTypeInfo):
         self.instantiable = self.is_object and not self.abstract
 
         self.is_menu_builtin = self.type_id in [GMENU_TYPE, GMENU_SECTION_TYPE, GMENU_SUBMENU_TYPE, GMENU_ITEM_TYPE]
-        self.is_builtin = self.is_menu_builtin or self.type_id in [EXTERNAL_TYPE]
+        self.is_builtin = self.is_menu_builtin or self.type_id in [EXTERNAL_TYPE, CUSTOM_TYPE]
 
     def __str__(self):
         return f"CmbTypeInfo<{self.type_id}>"
