@@ -2380,17 +2380,18 @@ class CmbDB(GObject.GObject):
                 if has_children:
                     continue
                 if is_object:
-                    row = self.conn.execute(
-                        "SELECT object_id FROM object WHERE ui_id=? AND name=?", (ui_id, value.strip())
-                    ).fetchone()
-
-                    if row is None:
-                        continue
-
                     if merengue:
-                        node.text = f"__cmb__{ui_id}.{row[0]}"
+                        node.text = f"__cmb__{ui_id}.{value}"
                     else:
-                        node.text = value
+                        row = self.conn.execute(
+                            "SELECT name FROM object WHERE ui_id=? AND object_id=?", (ui_id, value)
+                        ).fetchone()
+
+                        if row is None:
+                            print("   OPS NOT FOUND", (ui_id, value.strip()))
+                            continue
+
+                        node.text = row[0]
                 else:
                     node.text = value
             else:
@@ -3069,7 +3070,8 @@ class CmbDB(GObject.GObject):
         if custom_fragment is None:
             return
         try:
-            root = etree.fromstring(f"<root>{custom_fragment}</root>")
+            parser = etree.XMLParser(remove_blank_text=True)
+            root = etree.fromstring(f"<root>{custom_fragment}</root>", parser=parser)
         except Exception:
             pass
         else:
