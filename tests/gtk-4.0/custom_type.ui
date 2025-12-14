@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<interface>
+  <!-- interface-name custom_type.ui -->
+  <requires lib="gtk" version="4.0"/>
+  <object class="GtkBox">
+    <property name="homogeneous">True</property>
+    <child>
+      <object class="MyLabel">
+        <property name="label">Hola</property>
+        <random-tags>
+          <items>1</items>
+          <items>2</items>
+          <items>3</items>
+        </random-tags>
+      </object>
+    </child>
+    <child>
+      <object class="GtkButton">
+        <property name="label">Mundo</property>
+        <!-- Custom object fragments -->
+        <property name="future-property">World</property>
+      </object>
+    </child>
+  </object>
+</interface>
