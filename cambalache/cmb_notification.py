@@ -378,5 +378,9 @@ class CmbNotificationCenter(GObject.GObject):
             self.store.remove(position)
             self.__save_notifications()
 
+    def remove_all(self):
+        self.store.remove_all()
+        self.__save_notifications()
+
 
 notification_center = CmbNotificationCenter()

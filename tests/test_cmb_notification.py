@@ -246,3 +246,14 @@ def test_cmb_notification_refresh_results(mocker):
 
     assert poll.results.total == 2
     assert poll.results.votes == [0, 1, 1]
+
+
+# This should cleanup all notifications
+def test_cmb_notification_remove_all(mocker):
+    wait_for_all_threads()
+
+    assert notification_center.store.props.n_items > 0
+
+    notification_center.remove_all()
+
+    assert notification_center.store.props.n_items == 0
