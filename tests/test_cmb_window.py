@@ -80,7 +80,7 @@ def window_assert_screenshot(original_basename, target=None, ui_basename=None):
     screenshot = utils.image_reload_as_png(screenshot)
 
     # Get MSE
-    ignore_color = (0xF5, 0x00, 0xF5)
+    ignore_color = (0xFF, 0x00, 0xFF)
     r, g, b, total = utils.mean_squared_error(original, screenshot, ignore_color)
 
     assert r is not None
