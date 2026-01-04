@@ -29,6 +29,7 @@ install_data([
     'cmb_window.py',
     'cmb_tutor.py',
     'cmb_tutorial.py',
+    'cmb_np_page.py',
     ],
     install_dir: moduledir)
 

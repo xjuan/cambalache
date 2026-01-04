@@ -5,6 +5,7 @@
     <file>metainfo.xml</file>
     <file>SUPPORTERS.md</file>
     <file>cmb_window.ui</file>
+    <file>cmb_np_page.ui</file>
     <file>cmb_shortcuts.ui</file>
     <file>cambalache.css</file>
     <file compressed="true" preprocess="xml-stripblanks">images/logo.gpa</file>
