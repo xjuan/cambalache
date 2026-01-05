@@ -1,7 +1,7 @@
 #
-# CmbNewProjectPage
+# CmbNewProjectDialog
 #
-# Copyright (C) 2021-2024  Juan Pablo Ugarte
+# Copyright (C) 2026  Matthieu Lorier
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -18,19 +18,19 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 # Authors:
-#   Juan Pablo Ugarte <juanpablougarte@gmail.com>
+#   Matthieu Lorier <loriermatthieu@gmail.com>
 #
 # SPDX-License-Identifier: LGPL-2.1-only
 #
 
 import os
 
-from gi.repository import GLib, GObject, Gio, Gdk, Gtk, Pango, Adw, GtkSource, CambalachePrivate
+from gi.repository import Gtk, Adw, GObject, GLib
 
 
-@Gtk.Template(resource_path="/ar/xjuan/Cambalache/app/cmb_np_page.ui")
-class CmbNewProjectPage(Adw.PreferencesPage):
-    __gtype_name__ = "CmbNewProjectPage"
+@Gtk.Template(resource_path="/ar/xjuan/Cambalache/app/cmb_np_dialog.ui")
+class CmbNewProjectDialog(Adw.Dialog):
+    __gtype_name__ = "CmbNewProjectDialog"
     __gsignals__ = {
         "name-changed": (GObject.SignalFlags.ACTION, None, ())
     }
@@ -44,7 +44,7 @@ class CmbNewProjectPage(Adw.PreferencesPage):
         super().__init__(**kwargs)
         self.__np_location = None
         
-    @property
+    @GObject.Property(type=str)
     def np_location(self):
         return self.__np_location
         
@@ -56,7 +56,7 @@ class CmbNewProjectPage(Adw.PreferencesPage):
         home = GLib.get_home_dir()
         projects = os.path.join(home, "Projects")
         self.__np_location = projects if os.path.isdir(projects) else home
-        self.location_row.props.subtitle = os.path.basename(self.__np_location)
+        self.location_row.props.subtitle = self.__np_location
 
     @Gtk.Template.Callback("on_name_entry_changed")
     def __on_name_entry_changed(self, entry):

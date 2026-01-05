@@ -266,15 +266,6 @@
                 </child>
                 <child>
                   <object class="GtkStackPage">
-                    <property name="name">new_project</property>
-                    <property name="title" translatable="yes">New Project</property>
-                    <property name="child">
-                      <object class="CmbNewProjectPage" id="new_project_page"/>
-                    </property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkStackPage">
                     <property name="child">
                       <object class="GtkPaned">
                         <property name="end-child">
