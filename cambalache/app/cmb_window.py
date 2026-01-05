@@ -956,7 +956,6 @@ class CmbWindow(Adw.ApplicationWindow):
 
             uipath = os.path.join(self.new_project_dialog.np_location, uiname)
 
-        self.new_project_dialog.clear_properties()
         self.props.application.activate_action("new", GLib.Variant("(sss)", (target_tk, filename, uipath)))
         self.new_project_dialog.close()
         self.new_project_dialog = None
@@ -1466,7 +1465,6 @@ class CmbWindow(Adw.ApplicationWindow):
         self.project.remove_parent(selection[0])
 
     def _on_show_workspace_activate(self, action, data):
-        self.new_project_dialog.clear_properties()
         self.__set_page("workspace" if self.project else "cambalache")
 
     def __clear_tutor(self):

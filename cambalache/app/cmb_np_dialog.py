@@ -70,12 +70,3 @@ class CmbNewProjectDialog(Adw.Dialog):
         self.location_row.set_sensitive(sensitive)
         self.ui_filename_entry.set_sensitive(sensitive)
         self.emit("name-changed")
-        
-    def clear_properties(self):
-        self.name_entry.props.text = ""
-        self.name_entry.remove_css_class("warning")
-        self.ui_filename_entry.props.text = ""
-        self.ui_filename_entry.set_sensitive(False)
-        self.location_row.set_sensitive(False)
-        self.toolkit_chooser.set_active_name("gtk-4.0")
-        self.setup_default_project_location()
