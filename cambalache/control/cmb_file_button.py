@@ -63,7 +63,7 @@ class CmbFileButton(Gtk.Button):
                 dialog.set_initial_file(file)
 
                 # See which filter matches the file info and use it as default
-                if file.query_exists(None):
+                if self.__filters and file.query_exists(None):
                     info = file.query_info(Gio.FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE, Gio.FileQueryInfoFlags.NONE, None)
                     for filter in self.__filters:
                         if filter.match(info):
