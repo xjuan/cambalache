@@ -86,7 +86,7 @@ from .cmb_type_info import CmbTypeInfo
 from .cmb_project import CmbProject
 
 from .cmb_db_inspector import CmbDBInspector
-from .cmb_file_changed_bar import CmbFileChangedBar
+from .cmb_file_status_bar import CmbFileStatusBar
 from .cmb_view import CmbView
 from .cmb_list_view import CmbListView
 from .cmb_notification import notification_center, CmbNotification, CmbNotificationCenter
