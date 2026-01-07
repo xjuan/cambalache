@@ -32,23 +32,54 @@ from cambalache import getLogger
 logger = getLogger(__name__)
 
 
+class FileStatus(GObject.GEnum):
+    NONE = 0
+    DELETED = 1
+    CHANGED = 2
+    NOT_FOUND = 3
+    RENAMED = 4
+
+
 # FIXME: this should be a GInterface
 class CmbBaseFileMonitor(CmbBase):
     __gtype_name__ = "CmbBaseFileMonitor"
 
-    changed_on_disk = GObject.Property(type=bool, default=False, flags=GObject.ParamFlags.READWRITE)
+    file_status = GObject.Property(type=FileStatus, default=FileStatus.NONE, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.saving = False
         self.monitor = None
         self.gfile = None
+        self.new_filename = None
+
+    def __on_file_changed(self, file_monitor, file, other_file, event_type):
+        if event_type in [Gio.FileMonitorEvent.CHANGES_DONE_HINT, Gio.FileMonitorEvent.MOVED_IN]:
+            if self.saving:
+                self.saving = False
+                return
+
+            self.file_status = FileStatus.CHANGED
+        elif event_type in [Gio.FileMonitorEvent.DELETED, Gio.FileMonitorEvent.MOVED_OUT]:
+            # TODO: if moved out but still inside the directory hierarchy we should update the path
+            self.file_status = FileStatus.DELETED
+        elif event_type == Gio.FileMonitorEvent.RENAMED:
+            if self.file_status == FileStatus.NOT_FOUND:
+                self.file_status = FileStatus.CHANGED
+                return
+
+            filename = other_file.get_path()
+            projectdir = os.path.dirname(self.project.filename) if self.project.filename else "."
+            self.new_filename = os.path.relpath(filename, projectdir)
+            self.file_status = FileStatus.RENAMED
 
     def update_file_monitor(self, filename):
         if self.monitor:
             self.monitor.cancel()
 
+        old_path = None
         if self.gfile:
+            old_path = self.gfile.get_path()
             self.gfile = None
 
         if not filename:
@@ -63,19 +94,17 @@ class CmbBaseFileMonitor(CmbBase):
         else:
             fullpath = filename
 
-        if os.path.exists(fullpath):
-            def on_file_changed(file_monitor, file, other_file, event_type):
-                if event_type == Gio.FileMonitorEvent.CHANGES_DONE_HINT:
-                    if self.saving:
-                        self.saving = False
-                        return
+        if old_path and os.path.exists(old_path) and old_path != fullpath:
+            os.rename(old_path, fullpath)
+            self.project.save()
 
-                    self.changed_on_disk = True
-
-            self.gfile = Gio.File.new_for_path(fullpath)
-            self.monitor = self.gfile.monitor(Gio.FileMonitorFlags.NONE, None)
-            self.monitor.connect("changed", on_file_changed)
+        self.gfile = Gio.File.new_for_path(fullpath)
+        self.monitor = self.gfile.monitor(Gio.FileMonitorFlags.WATCH_MOVES, None)
+        self.monitor.connect("changed", self.__on_file_changed)
 
     def reload(self):
-        logger.warning("Missing implementation")
-        self.changed_on_disk = False
+        self.file_status = FileStatus.NONE
+
+        # Clear history
+        self.project.history_enabled = True
+        self.project.clear_history()
