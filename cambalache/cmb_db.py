@@ -2388,10 +2388,10 @@ class CmbDB(GObject.GObject):
                         ).fetchone()
 
                         if row is None:
-                            print("   OPS NOT FOUND", (ui_id, value.strip()))
-                            continue
-
-                        node.text = row[0]
+                            # FIXME in this case value should always point to an object id
+                            node.text = value
+                        else:
+                            node.text = row[0]
                 else:
                     node.text = value
             else:
@@ -3011,6 +3011,9 @@ class CmbDB(GObject.GObject):
                 child_position += 1
 
             child_obj = self.__export_object(ui_id, child_id, merengue=merengue, ignore_id=ignore_id)
+            if child_obj is None:
+                continue
+
             child = E.child(child_obj)
             utils.xml_node_set(child, "internal-child", internal)
             utils.xml_node_set(child, "type", ctype)
@@ -3436,3 +3439,4 @@ def cmb_object_list_remove(object_list, object_id):
 
 def cmb_print(msg):
     print(msg, file=sys.stderr)
+
