@@ -59,12 +59,12 @@ class CmbGResource(CmbBaseGResource, Gio.ListModel):
         if resource_type == "gresources" and pspec.name == "gresources-filename":
             self.update_file_monitor(self.gresources_filename)
 
-        if (resource_type == "gresources" and pspec.name == "gresources-filename") or \
-           (resource_type == "gresource" and pspec.name == "gresource-prefix") or \
-           (resource_type == "file" and pspec.name == "file-filename"):
+        if (resource_type == "gresources" and pspec.name in ["gresources-filename", "file-status"]) or \
+           (resource_type == "gresource" and pspec.name in ["gresource-prefix", "file-status"]) or \
+           (resource_type == "file" and pspec.name in ["file-filename", "file-status"]):
             obj.notify("display-name")
 
-        if pspec.name not in ["changed-on-disk", "path-parent"]:
+        if pspec.name not in ["file-status", "path-parent"]:
             self.project._gresource_changed(self, pspec.name)
 
     @GObject.Property(type=CmbBaseGResource)
@@ -92,15 +92,17 @@ class CmbGResource(CmbBaseGResource, Gio.ListModel):
             gresources_filename = self.gresources_filename
             if gresources_filename:
                 basename, relpath = self.project._get_basename_relpath(self.gresources_filename)
-                return basename
-
-            return _("Unnamed GResource {id}").format(id=self.gresource_id)
+                display_name = basename
+            else:
+                display_name = _("Unnamed GResource {id}").format(id=self.gresource_id)
         elif resource_type == "gresource":
             gresource_prefix = self.gresource_prefix
-            return gresource_prefix if gresource_prefix else _("Unprefixed resource {id}").format(id=self.gresource_id)
+            display_name = gresource_prefix if gresource_prefix else _("Unprefixed resource {id}").format(id=self.gresource_id)
         elif resource_type == "file":
             file_filename = self.file_filename
-            return file_filename if file_filename else _("Unnamed file {id}").format(id=self.gresource_id)
+            display_name = file_filename if file_filename else _("Unnamed file {id}").format(id=self.gresource_id)
+
+        return f'<span underline="error">{display_name}</span>' if self.file_status else display_name
 
     def reload(self):
         if not self.project or not self.gresources_filename:
@@ -112,11 +114,7 @@ class CmbGResource(CmbBaseGResource, Gio.ListModel):
         # Import file and overwrite
         gresource = self.project.import_gresource(self.gresources_filename, overwrite=True)
 
-        self.changed_on_disk = False
-
-        # Clear history
-        self.project.history_enabled = True
-        self.project.clear_history()
+        super().reload()
 
         # Select currently reloaded file
         self.project.set_selection([gresource])

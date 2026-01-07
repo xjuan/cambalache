@@ -47,8 +47,12 @@ class CmbCSS(CmbBaseCSS):
         self.connect("notify", self.__on_notify)
 
     def __on_notify(self, obj, pspec):
-        if pspec.name not in ["changed-on-disk", "path-parent"]:
+        if pspec.name not in ["display-name", "file-status", "path-parent"]:
             self.project._css_changed(self, pspec.name)
+
+        # Update display name if one of the following properties changed
+        if pspec.name in ["filename", "file-status"]:
+            self.notify("display-name")
 
         if pspec.name == "filename":
             self.update_file_monitor(self.filename)
@@ -59,7 +63,8 @@ class CmbCSS(CmbBaseCSS):
 
     @GObject.Property(type=str)
     def display_name(self):
-        return CmbCSS.get_display_name(self.css_id, self.filename)
+        display_name = CmbCSS.get_display_name(self.css_id, self.filename)
+        return f'<span underline="error">{display_name}</span>' if self.file_status else display_name
 
     @GObject.Property(type=int)
     def priority(self):
@@ -98,9 +103,7 @@ class CmbCSS(CmbBaseCSS):
                 self.css = fd.read()
                 fd.close()
 
-                self.changed_on_disk = False
-                self.project.history_enabled = True
-                self.project.clear_history()
+                super().reload()
 
                 return True
         else:

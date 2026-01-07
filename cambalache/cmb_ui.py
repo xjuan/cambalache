@@ -67,11 +67,11 @@ class CmbUI(CmbBaseUI, Gio.ListModel):
         self.db_set("UPDATE ui SET template_id=? WHERE (ui_id) IS (?);", (self.ui_id,), value if value != 0 else None)
 
     def __on_notify(self, obj, pspec):
-        if pspec.name not in ["changed-on-disk", "path-parent"]:
+        if pspec.name not in ["file-status", "path-parent"]:
             self.project._ui_changed(self, pspec.name)
 
         # Update display name if one of the following properties changed
-        if pspec.name in ["filename", "template-id"]:
+        if pspec.name in ["filename", "template-id", "file-status"]:
             self.notify("display-name")
 
         if pspec.name == "filename":
@@ -154,7 +154,8 @@ class CmbUI(CmbBaseUI, Gio.ListModel):
             if template:
                 return template.name
 
-        return CmbUI.get_display_name(self.ui_id, filename)
+        display_name = CmbUI.get_display_name(self.ui_id, filename)
+        return f'<span underline="error">{display_name}</span>' if self.file_status else display_name
 
     def __get_infered_target(self, library_id):
         ui_id = self.ui_id
@@ -205,11 +206,7 @@ class CmbUI(CmbBaseUI, Gio.ListModel):
         # Import file and overwrite
         ui, msgs, detail_msg = self.project.import_file(self.filename, overwrite=True)
 
-        self.changed_on_disk = False
-
-        # Clear history
-        self.project.history_enabled = True
-        self.project.clear_history()
+        super().reload()
 
         # Select currently reloaded file
         self.project.set_selection([ui])
