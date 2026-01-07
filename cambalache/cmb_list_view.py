@@ -32,6 +32,9 @@ from .cmb_context_menu import CmbContextMenu
 from .cmb_path import CmbPath
 from .cmb_project import CmbProject
 from .cmb_tree_expander import CmbTreeExpander
+from .cmb_base_file_monitor import CmbBaseFileMonitor, FileStatus
+
+from cambalache import _
 
 
 class CmbListView(Gtk.ListView):
@@ -190,7 +193,6 @@ class CmbListView(Gtk.ListView):
             return
 
         list_item = single_selection.get_selected_item()
-        position = single_selection.get_selected()
 
         if list_item is None:
             self.__project.set_selection([])
@@ -253,10 +255,23 @@ class CmbListView(Gtk.ListView):
 
         obj = expander.get_item()
 
+        msg = None
         if isinstance(obj, CmbObject):
             msg = obj.version_warning
-            if msg:
-                tooltip.set_text(msg)
-                return True
+        elif isinstance(obj, CmbBaseFileMonitor):
+            status = obj.file_status
+
+            if status == FileStatus.CHANGED:
+                msg = _("File Has Changed on Disk")
+            elif status == FileStatus.NOT_FOUND:
+                msg = _("File Not Found")
+            elif status == FileStatus.DELETED:
+                msg = _("File Deleted")
+            elif status == FileStatus.RENAMED:
+                msg = _("File renamed to {new_filename}").format(new_filename=obj.new_filename)
+
+        if msg:
+            tooltip.set_text(msg)
+            return True
 
         return False
