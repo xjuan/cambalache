@@ -41,6 +41,7 @@ from .cmb_ui import CmbUI
 from .cmb_css import CmbCSS
 from .cmb_gresource import CmbGResource
 from .cmb_base import CmbBase
+from .cmb_base_file_monitor import FileStatus
 from .cmb_object import CmbObject
 from .cmb_object_data import CmbObjectData
 from .cmb_path import CmbPath
@@ -302,10 +303,16 @@ class CmbProject(GObject.Object, Gio.ListModel):
     def __load_ui_from_node(self, node):
         filename, sha256 = utils.xml_node_get(node, ["filename", "sha256"])
         if filename:
-            if filename.endswith(".blp"):
-                root, relpath, hexdigest = self.__parse_blp_file(filename)
-            else:
-                root, relpath, hexdigest = self.__parse_xml_file(filename)
+            try:
+                if filename.endswith(".blp"):
+                    root, relpath, hexdigest = self.__parse_blp_file(filename)
+                else:
+                    root, relpath, hexdigest = self.__parse_xml_file(filename)
+            except FileNotFoundError:
+                ui_id = self.db.add_ui(None, filename)
+                ui = self.__populate_ui(ui_id)
+                ui.file_status = FileStatus.NOT_FOUND
+                return
 
             if sha256 != hexdigest:
                 logger.warning(f"{filename} hash mismatch, file was modified")
@@ -388,32 +395,43 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         if filename:
             fullpath, relpath = self.__get_abs_path(filename)
-            with open(fullpath) as fd:
-                css = fd.read()
+            try:
+                with open(fullpath) as fd:
+                    css_content = fd.read()
+            except FileNotFoundError:
+                css_content = None
 
+            if css_content is not None:
                 m = hashlib.sha256()
-                m.update(css.encode())
+                m.update(css_content.encode())
                 hexdigest = m.hexdigest()
 
                 if sha256 != hexdigest:
                     logger.warning(f"{filename} hash mismatch, file was modified")
-
-                fd.close()
         else:
             content = node.find("content")
             if content:
-                css = content.text.encode()
+                css_content = content.text.encode()
             else:
                 raise Exception(_("content tag is missing"))
 
-        css_id = self.db.add_css(filename, priority, is_global, css=css)
-        self.__populate_css(css_id)
+        css_id = self.db.add_css(filename, priority, is_global, css=css_content)
+        css = self.__populate_css(css_id)
+
+        if css_content is None:
+            css.file_status = FileStatus.NOT_FOUND
 
     def __load_gresource_from_node(self, node):
         filename, sha256 = utils.xml_node_get(node, ["filename", "sha256"])
 
         if filename:
-            root, relpath, hexdigest = self.__parse_xml_file(filename)
+            try:
+                root, relpath, hexdigest = self.__parse_xml_file(filename)
+            except FileNotFoundError:
+                gresource_id = self.db.add_gresource("gresources", gresources_filename=filename)
+                gresource = self.__populate_gresource(gresource_id)
+                gresource.file_status = FileStatus.NOT_FOUND
+                return
 
             if sha256 != hexdigest:
                 logger.warning(f"{filename} hash mismatch, file was modified")
@@ -901,7 +919,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
             row = self.db.execute("DELETE FROM ui WHERE filename=? RETURNING ui_id;", (filename,)).fetchone()
             ui_id, = row if row else (None, )
             old_ui = self.get_object_by_id(ui_id)
-            self.__file_state.pop(filename)
+            if filename in self.__file_state:
+                self.__file_state.pop(filename)
 
         # Import file
         if filename.endswith(".blp"):
@@ -1013,7 +1032,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
             ).fetchone()
             gresource_id, = row if row else (None, )
             old_gresource = self.get_gresource_by_id(gresource_id)
-            self.__file_state.pop(filename)
+            if filename in self.__file_state:
+                self.__file_state.pop(filename)
 
         root, relpath, hexdigest = self.__parse_xml_file(filename)
         gresource_id = self.db.import_gresource_from_node(root, relpath)
@@ -1380,8 +1400,6 @@ class CmbProject(GObject.Object, Gio.ListModel):
     def remove_object(self, obj, allow_internal_removal=False):
         if not allow_internal_removal and obj.internal:
             raise Exception(_("Internal objects can not be removed"))
-
-        print("REMOVE OBJECT", obj)
 
         try:
             was_selected = obj in self.__selection
