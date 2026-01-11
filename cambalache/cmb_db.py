@@ -1720,9 +1720,6 @@ class CmbDB(GObject.GObject):
 
         if is_template:
             name, klass = self.__node_get(node, "class", ["parent"])
-
-            # if not klass:
-            #     self.__collect_error("template-missing-parent", node, name)
         else:
             klass, name = self.__node_get(node, "class", ["id"])
 
@@ -1730,8 +1727,6 @@ class CmbDB(GObject.GObject):
         info = self.type_info.get(klass, None) if klass else None
 
         if not info:
-            # self.__collect_error("unknown-type", node, klass)
-
             # Insert custom object
             object_id = self.add_object(ui_id, CUSTOM_TYPE, name, parent_id, internal_child, child_type, comment)
             fragment = self.__custom_fragments_tostring([n for n in node.iterchildren()])
@@ -1762,7 +1757,20 @@ class CmbDB(GObject.GObject):
 
         # Insert object
         try:
-            object_id = self.add_object(ui_id, klass, name, parent_id, internal_child, child_type, comment)
+            if internal_child:
+                # Internal children are created by default so they show up in the hierarchy
+                # They are not serialized unless something is added or set
+                row = self.execute(
+                    """
+                    UPDATE object SET name=?, comment=? WHERE ui_id=? AND parent_id=? AND internal=?
+                    RETURNING object_id;
+                    """,
+                    (name, comment, ui_id, parent_id, internal_child)
+                ).fetchone()
+                object_id, = row
+            else:
+                # Create the new object
+                object_id = self.add_object(ui_id, klass, name, parent_id, internal_child, child_type, comment)
         except Exception as e:
             logger.warning(f"XML:{node.sourceline} - Error importing {klass} {e}")
             return
