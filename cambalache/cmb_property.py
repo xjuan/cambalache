@@ -90,8 +90,11 @@ class CmbProperty(CmbBaseProperty):
                 values + (self.ui_id, self.object_id, self.owner_id, self.property_id)
             ).fetchone()
 
-            # If all values are none/false we can remove the row
-            if all(not val for val in row):
+            value, *others = row
+
+            # If value is the same as the default and the rest are none/false we can remove the row
+            # TODO: do not reset properties that where loaded from xml
+            if value == self.info.default_value and all(not val for val in others):
                 self.reset()
         else:
             self.project.db.execute(
