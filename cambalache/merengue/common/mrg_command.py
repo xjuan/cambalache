@@ -32,7 +32,7 @@ class MrgCommand():
         self.__consume_next_command()
 
     def __consume_next_command(self):
-        if self.__writing_command or not self.__commands:
+        if self.__conn is None or self.__writing_command or not self.__commands:
             return
 
         self.__writing_command = True
