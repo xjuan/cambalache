@@ -1182,10 +1182,9 @@ class CmbWindow(Adw.ApplicationWindow):
         dialog = self.__file_open_dialog_new(
             _("Choose file to import"),
             filters=import_filters,
-            accept_label=_("Import")
+            accept_label=_("Import"),
+            use_project_dir=True
         )
-        if self.project.dirname:
-            dialog.set_initial_folder(Gio.File.new_for_path(self.project.dirname))
         dialog.open_multiple(self, None, dialog_callback)
 
     def _on_import_directory_activate(self, action, data):
@@ -1265,9 +1264,11 @@ class CmbWindow(Adw.ApplicationWindow):
             except Exception as e:
                 logger.warning(f"Error {e}")
 
-        dialog = self.__file_open_dialog_new(_("Choose directory to import"), accept_label=_("Import directory"))
-        if self.project.dirname:
-            dialog.set_initial_folder(Gio.File.new_for_path(self.project.dirname))
+        dialog = self.__file_open_dialog_new(
+            _("Choose directory to import"),
+            accept_label=_("Import directory"),
+            use_project_dir=True
+        )
         dialog.select_folder(self, None, dialog_callback)
 
     def _on_add_gresource_activate(self, action, data):
