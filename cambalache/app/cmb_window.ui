@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.99.8 -->
+<!-- Created with Cambalache 0.99.9 -->
 <interface>
   <!-- interface-name cmb_window.ui -->
   <!-- interface-copyright Juan Pablo Ugarte -->
@@ -197,8 +197,6 @@
                 <property name="transition-type">crossfade</property>
                 <child>
                   <object class="GtkStackPage">
-                    <property name="name">cambalache</property>
-                    <property name="title" translatable="yes">Cambalache</property>
                     <property name="child">
                       <object class="GtkOverlay">
                         <child type="overlay">
@@ -262,6 +260,8 @@
                         </child>
                       </object>
                     </property>
+                    <property name="name">cambalache</property>
+                    <property name="title" translatable="yes">Cambalache</property>
                   </object>
                 </child>
                 <child>

@@ -1,21 +1,14 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.99.7 -->
+<!-- Created with Cambalache 0.99.9 -->
 <interface>
   <!-- interface-name cmb_np_page.ui -->
   <!-- interface-copyright Matthieu Lorier -->
   <requires lib="gio" version="2.0"/>
   <requires lib="gtk" version="4.14"/>
   <requires lib="libadwaita" version="1.5"/>
-
   <template class="CmbNewProjectDialog" parent="AdwDialog">
-    <property name="title" translatable="yes">New Project</property>
-    <property name="content-width">650</property>
-    <property name="content-height">390</property>
     <property name="child">
       <object class="AdwToolbarView">
-        <child type="top">
-          <object class="AdwHeaderBar"/>
-        </child>
         <property name="content">
           <object class="AdwPreferencesPage">
             <child>
@@ -28,24 +21,23 @@
                 </child>
                 <child>
                   <object class="AdwEntryRow" id="ui_filename_entry">
-                    <property name="title" translatable="yes">UI Filename</property>
                     <property name="sensitive">False</property>
+                    <property name="title" translatable="yes">UI Filename</property>
                   </object>
                 </child>
                 <child>
                   <object class="AdwActionRow" id="location_row">
-                    <property name="title" translatable="yes">Project Location</property>
                     <property name="sensitive">False</property>
+                    <property name="title" translatable="yes">Location</property>
                     <child>
                       <object class="GtkButton">
-                        <property name="valign">center</property>
                         <property name="action-name">win.select_project_location</property>
                         <property name="child">
                           <object class="AdwButtonContent">
                             <property name="icon-name">folder-open-symbolic</property>
-                            <property name="label" translatable="yes">Select Folder</property>
                           </object>
                         </property>
+                        <property name="valign">center</property>
                       </object>
                     </child>
                   </object>
@@ -55,17 +47,15 @@
                     <property name="title" translatable="yes">Toolkit Target</property>
                     <child>
                       <object class="AdwToggleGroup" id="toolkit_chooser">
-                        <property name="valign">center</property>
-                        <property name="homogeneous">True</property>
                         <property name="active-name">gtk-4.0</property>
+                        <property name="homogeneous">True</property>
+                        <property name="valign">center</property>
                         <child>
                           <object class="AdwToggle">
-                            <property name="name">gtk+-3.0</property>
-                            <property name="tooltip" translatable="yes">Old stable version</property>
                             <property name="child">
                               <object class="GtkBox">
-                                <property name="margin-start">5</property>
                                 <property name="margin-end">5</property>
+                                <property name="margin-start">5</property>
                                 <property name="spacing">3</property>
                                 <child>
                                   <object class="GtkImage">
@@ -82,16 +72,16 @@
                                 </child>
                               </object>
                             </property>
+                            <property name="name">gtk+-3.0</property>
+                            <property name="tooltip" translatable="yes">Old stable version</property>
                           </object>
                         </child>
                         <child>
                           <object class="AdwToggle">
-                            <property name="name">gtk-4.0</property>
-                            <property name="tooltip" translatable="yes">Recommended for new projects</property>
                             <property name="child">
                               <object class="GtkBox">
-                                <property name="margin-start">5</property>
                                 <property name="margin-end">5</property>
+                                <property name="margin-start">5</property>
                                 <property name="spacing">3</property>
                                 <child>
                                   <object class="GtkImage">
@@ -108,6 +98,8 @@
                                 </child>
                               </object>
                             </property>
+                            <property name="name">gtk-4.0</property>
+                            <property name="tooltip" translatable="yes">Recommended for new projects</property>
                           </object>
                         </child>
                       </object>
@@ -120,9 +112,9 @@
               <object class="AdwPreferencesGroup">
                 <child>
                   <object class="GtkButton">
-                    <property name="label" translatable="yes">Create</property>
-                    <property name="halign">center</property>
                     <property name="action-name">win.new</property>
+                    <property name="halign">center</property>
+                    <property name="label" translatable="yes">Create</property>
                     <property name="sensitive">False</property>
                     <style>
                       <class name="suggested-action"/>
@@ -134,7 +126,13 @@
             </child>
           </object>
         </property>
+        <child type="top">
+          <object class="AdwHeaderBar"/>
+        </child>
       </object>
     </property>
+    <property name="content-height">390</property>
+    <property name="content-width">650</property>
+    <property name="title" translatable="yes">New Project</property>
   </template>
 </interface>
