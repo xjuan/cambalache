@@ -635,6 +635,7 @@ class CmbBaseProperty(CmbBase):
         bind_flags,
         binding_expression_id,
         binding_expression_object_id,
+        serialize_default_value,
     ):
         return cls(project=project, ui_id=ui_id, object_id=object_id, owner_id=owner_id, property_id=property_id)
 
@@ -929,6 +930,31 @@ class CmbBaseProperty(CmbBase):
     def _set_binding_expression_object_id(self, value):
         self.db_set(
             "UPDATE object_property SET binding_expression_object_id=? WHERE (ui_id, object_id, owner_id, property_id) IS (?, ?, ?, ?);",
+            (
+                self.ui_id,
+                self.object_id,
+                self.owner_id,
+                self.property_id,
+            ),
+            value,
+        )
+
+    @GObject.Property(type=bool, default=False)
+    def serialize_default_value(self):
+        return self.db_get(
+            "SELECT serialize_default_value FROM object_property WHERE (ui_id, object_id, owner_id, property_id) IS (?, ?, ?, ?);",
+            (
+                self.ui_id,
+                self.object_id,
+                self.owner_id,
+                self.property_id,
+            ),
+        )
+
+    @serialize_default_value.setter
+    def _set_serialize_default_value(self, value):
+        self.db_set(
+            "UPDATE object_property SET serialize_default_value=? WHERE (ui_id, object_id, owner_id, property_id) IS (?, ?, ?, ?);",
             (
                 self.ui_id,
                 self.object_id,

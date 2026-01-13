@@ -265,6 +265,7 @@ CREATE TABLE object_property (
   bind_flags TEXT,
   binding_expression_id INTEGER,
   binding_expression_object_id INTEGER,
+  serialize_default_value BOOLEAN,
   PRIMARY KEY(ui_id, object_id, owner_id, property_id),
   FOREIGN KEY(ui_id, object_id) REFERENCES object(ui_id, object_id) ON DELETE CASCADE,
   FOREIGN KEY(ui_id, inline_object_id) REFERENCES object(ui_id, object_id) ON DELETE CASCADE,
