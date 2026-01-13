@@ -37,81 +37,59 @@ class MrgGtkPopover(MrgGtkWidget):
 
         super().__init__(**kwargs)
 
+        # Create wrapper window
+        self.__button = Gtk.MenuButton(
+            visible=True, halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER, receives_default=False
+        )
+
+        self.window = Gtk.Window(title="Popover Preview Window", deletable=False)
+        self.window.set_default_size(320, 240)
+
         if Gtk.MAJOR_VERSION == 4:
+            self.__button.set_icon_name("open-menu-symbolic")
+            self.window.set_child(self.__button)
             self.property_ignore_list.add("autohide")
         else:
+            self.__button.add(Gtk.Image(visible=True, icon_name="open-menu-symbolic"))
+            self.window.add(self.__button)
             self.property_ignore_list.add("modal")
 
-    def __ensure_popup(self):
-        if self.object is None:
-            return
-
-        if self.__button:
-            self.__button.set_popover(self.object)
-
-        if Gtk.MAJOR_VERSION == 3:
-            self.object.set_modal(False)
-        else:
-            self.object.set_autohide(False)
-
     def object_changed(self, old, new):
-        # Clear old popover
-        if old and self.__button:
-            self.__button.set_popover(None)
-
         self.selection = None
 
         if self.object is None:
-            if self.window:
-                self.window.destroy()
-                self.window = None
+            self.__button.set_popover(None)
+            self.window.hide()
             return
+
+        self.selection = MrgSelection(app=self.app, container=self.object)
+        CambalachePrivate.widget_set_application_id(self.window, f"Cmb:{self.ui_id}.{self.object_id}")
 
         # TODO: keep track when these prop changes and update window
         if Gtk.MAJOR_VERSION == 4:
-            canot_be_activated = self.object.props.parent is None
+            unused = self.object.props.parent is None
         else:
-            canot_be_activated = self.object.props.relative_to is None
+            unused = self.object.props.relative_to is None
 
-        if self.window is None and canot_be_activated:
-            self.__button = Gtk.MenuButton(
-                visible=True, halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER, receives_default=False
-            )
+        if unused:
+            self.__button.set_popover(self.object)
 
-            self.window = Gtk.Window(title="Popover Preview Window", deletable=False)
-
-            self.window.set_default_size(320, 240)
-
-            if Gtk.MAJOR_VERSION == 4:
-                self.__button.set_icon_name("open-menu-symbolic")
-                self.window.set_child(self.__button)
-            else:
-                image = Gtk.Image(visible=True, icon_name="open-menu-symbolic")
-                self.__button.add(image)
-                self.window.add(self.__button)
-
-        self.selection = MrgSelection(app=self.app, container=self.object)
-
-        self.__ensure_popup()
-        self.object.popdown()
-
-        if Gtk.MAJOR_VERSION == 3:
-            self.object.show_all()
-            if self.window:
+            if Gtk.MAJOR_VERSION == 3:
                 self.window.show_all()
-        else:
-            if self.window:
-                self.window.show()
+                self.object.set_modal(False)
+            else:
+                self.object.set_autohide(False)
 
-        if self.window:
-            CambalachePrivate.widget_set_application_id(self.window, f"Cmb:{self.ui_id}.{self.object_id}")
+            self.window.present()
+        else:
+            self.window.hide()
 
     def on_selected_changed(self):
         super().on_selected_changed()
 
-        if self.object:
-            self.object.popup()
+        if self.__button:
+            self.__button.popup()
 
     def show_child(self, child):
-        if self.object:
-            self.object.popup()
+        if self.__button:
+            self.__button.popup()
