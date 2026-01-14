@@ -1146,7 +1146,8 @@ class CmbDB(GObject.GObject):
             bind_source_id=bind_source_id,
             bind_property_id=bind_property_id,
             bind_flags=bind_flags,
-            inline_object_id=inline_object_id
+            inline_object_id=inline_object_id,
+            serialize_default_value=(value == pinfo.default_value)
         )
 
         return True
@@ -1197,7 +1198,8 @@ class CmbDB(GObject.GObject):
         bind_flags=None,
         inline_object_id=None,
         binding_expression_id=None,
-        binding_expression_object_id=None
+        binding_expression_object_id=None,
+        serialize_default_value=None
     ):
         comment = self.__node_get_comment(prop)
 
@@ -1219,8 +1221,8 @@ class CmbDB(GObject.GObject):
                 INSERT OR REPLACE INTO object_property
                   (ui_id, object_id, owner_id, property_id, value, translatable, comment, translation_context,
                    translation_comments, inline_object_id, bind_source_id, bind_property_id, bind_flags,
-                   binding_expression_id, binding_expression_object_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                   binding_expression_id, binding_expression_object_id, serialize_default_value)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
                 """,
                 (
                     ui_id,
@@ -1238,6 +1240,7 @@ class CmbDB(GObject.GObject):
                     bind_flags,
                     binding_expression_id,
                     binding_expression_object_id,
+                    serialize_default_value,
                 ),
             )
         except Exception as e:
