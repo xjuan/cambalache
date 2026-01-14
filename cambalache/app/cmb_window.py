@@ -206,17 +206,17 @@ class CmbWindow(Adw.ApplicationWindow):
             self.actions[action] = gaction
             self.add_action(gaction)
 
-        # Stateful actions
-        for action, parameter_type, state in [
-            ("add_parent", "s", None),
-            ("open_recent", "s", None),
-            ("workspace_theme", "s", "")
+        # Actions with parameters and state
+        for action, parameter_type, state_type, state in [
+            ("add_parent", "s", None, None),
+            ("open_recent", "s", None, None),
+            ("workspace_theme", "s", "s", ""),
         ]:
-            if state is None:
+            if state_type is None:
                 gaction = Gio.SimpleAction.new(action, GLib.VariantType.new(parameter_type))
             else:
                 gaction = Gio.SimpleAction.new_stateful(
-                    action, GLib.VariantType.new(parameter_type), GLib.Variant(parameter_type, state)
+                    action, GLib.VariantType.new(parameter_type), GLib.Variant(state_type, state)
                 )
             gaction.connect("activate", getattr(self, f"_on_{action}_activate"))
             self.actions[action] = gaction
@@ -272,7 +272,7 @@ class CmbWindow(Adw.ApplicationWindow):
         builder.add_from_resource("/ar/xjuan/Cambalache/app/cmb_shortcuts.ui")
         self.shortcut_window = builder.get_object("shortcuts")
         self.set_help_overlay(self.shortcut_window)
-        
+
         # New project dialog
         self.new_project_dialog = None
 
