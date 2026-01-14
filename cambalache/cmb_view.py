@@ -184,7 +184,7 @@ class CmbView(Gtk.Box):
         super().__init__(**kwargs)
 
         self.__click_gesture = Gtk.GestureClick(propagation_phase=Gtk.PropagationPhase.CAPTURE, button=3)
-        self.__click_gesture.connect("pressed", self.__on_click_gesture_pressed)
+        self.__click_gesture.connect("released", self.__on_click_gesture_released)
         self.compositor_box.add_controller(self.__click_gesture)
 
         self.__merengue = CmbMerengueProcess(compositor=self.compositor)
@@ -521,8 +521,9 @@ class CmbView(Gtk.Box):
         self.__theme = theme
         self.__merengue_command("gtk_settings_set", args={"property": "gtk-theme-name", "value": theme})
 
-    def __on_click_gesture_pressed(self, gesture, n_press, x, y):
-        if gesture.get_current_button() == 3:
+    def __on_click_gesture_released(self, gesture, n_press, x, y):
+        if n_press == 1 and gesture.get_current_button() == 3 and \
+         x >= 0 and x <= self.compositor_box.get_width() and y >= 0 and y <= self.compositor_box.get_height():
             self.menu.popup_at(x, y)
 
     def inspect(self):
