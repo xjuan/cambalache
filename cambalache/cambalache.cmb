@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
-<!-- Created with Cambalache 0.99.9 -->
+<!-- Created with Cambalache 0.99.10 -->
 <cambalache-project version="0.99.0" target_tk="gtk-4.0" depends="casilda-1.0,libadwaita-1">
   <icontheme-search-path>icons/scalable/actions</icontheme-search-path>
-  <gresources filename="cambalache.gresource.xml" sha256="623600becc12daf4d3f25f3b7d4b9d31900764d1a610b044a05bd618a84ea740"/>
+  <gresources filename="cambalache.gresource.xml" sha256="7c068391e2e8ffce2c396fb2fd0fec6cbdb286bcca46b8e6ee37bcdeeb977732"/>
   <gresources filename="app/app.gresource.xml" sha256="8165d14788e06d3285d7c70fa4c90a26a7d2e151ccfddec3683461295047af22"/>
   <css priority="400" is_global="1" filename="cambalache.css" sha256="e34ccd9ceb13737464b1171aa8b02585d0e0b41eda1b35241231de393bd6c00f"/>
   <css is_global="0" filename="app/cambalache.css" sha256="6714346793aa0c082ac7459ac601c6ddc6914c5649015bab3eba4f17cc5ea50c"/>
@@ -245,6 +245,7 @@
   <ui template-class="CmbProjectSettings" filename="cmb_project_settings.ui" sha256="a2f46a259b0a86ec6b4b8097580ef208b211f2954d2044648a2633360ffc162f"/>
   <ui template-class="CmbLibraryRow" filename="cmb_library_row.ui" sha256="0572248d230c1ad83a2d9b6ab69986792b2a27cdb0ae1a1299bccf67679afa49"/>
   <ui template-class="CmbNewProjectDialog" filename="app/cmb_np_dialog.ui" sha256="fb2bc5de76608a3084a4497caa9658c90128851d448f5fa3e97b74c9fdcac0a2"/>
+  <ui template-class="CmbPropertyLabel" filename="cmb_property_label.ui" sha256="a1e3a35e84cd16ba64b0d470f1a6bf95d42167e22b9545accd6afcba0e81b93f"/>
   <ui template-class="CmbPixbufEntry">
     <requires>CmbFileEntry</requires>
     <content><![CDATA[<interface>

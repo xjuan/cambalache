@@ -23,13 +23,14 @@
 # SPDX-License-Identifier: LGPL-2.1-only
 #
 
-from gi.repository import GObject, Gtk
+from gi.repository import GObject, Gtk, Gio, GLib
 
 from .cmb_property import CmbProperty
 from .cmb_layout_property import CmbLayoutProperty
 from .cmb_binding_popover import CmbBindingPopover
 
 
+@Gtk.Template(resource_path="/ar/xjuan/Cambalache/cmb_property_label.ui")
 class CmbPropertyLabel(Gtk.Button):
     __gtype_name__ = "CmbPropertyLabel"
 
@@ -39,6 +40,12 @@ class CmbPropertyLabel(Gtk.Button):
     )
     bindable = GObject.Property(type=bool, default=True, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
 
+    label = Gtk.Template.Child()
+    bind_icon = Gtk.Template.Child()
+    reset_button = Gtk.Template.Child()
+    serialize_check = Gtk.Template.Child()
+    menu = Gtk.Template.Child()
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -46,15 +53,9 @@ class CmbPropertyLabel(Gtk.Button):
             raise Exception("CmbPropertyLabel requires prop or layout_prop to be set")
             return
 
-        self.props.focus_on_click = False
-        self.label = Gtk.Label(halign=Gtk.Align.START, valign=Gtk.Align.CENTER)
-        box = Gtk.Box()
 
         # Update label status
         if self.prop:
-            self.bind_icon = Gtk.Image(icon_size=Gtk.IconSize.NORMAL)
-            box.append(self.bind_icon)
-
             # A11y properties are prefixed to avoid clashes, do not show prefix here
             self.label.props.label = self.prop.info.a11y_property_id if self.prop.info.is_a11y else self.prop.property_id
 
@@ -63,14 +64,23 @@ class CmbPropertyLabel(Gtk.Button):
 
             if self.bindable:
                 self.connect("clicked", self.__on_bind_button_clicked)
+
+            self.reset_button.set_sensitive(self.prop.has_value())
+            self.reset_button.props.child.props.halign = Gtk.Align.START
+            self.serialize_check.props.active = self.prop.serialize_default_value
         elif self.layout_prop:
-            self.bind_icon = None
+            self.bind_icon.props.visible = False
             self.label.props.label = self.layout_prop.property_id
             self.__update_layout_property_label()
             self.layout_prop.connect("notify::value", lambda o, p: self.__update_layout_property_label())
 
-        box.append(self.label)
-        self.set_child(box)
+            # TODO add support for layout property reset
+
+        # Context menu
+        self.menu.set_parent(self)
+        self.__click_gesture = Gtk.GestureClick(propagation_phase=Gtk.PropagationPhase.CAPTURE, button=3)
+        self.__click_gesture.connect("released", self.__on_click_gesture_released)
+        self.add_controller(self.__click_gesture)
 
     def __on_notify(self, prop, pspec):
         if pspec.name in {
@@ -121,6 +131,24 @@ class CmbPropertyLabel(Gtk.Button):
         # Destroy popup on close
         popover.connect("closed", lambda p: p.unparent())
         popover.popup()
+
+    def __on_click_gesture_released(self, gesture, n_press, x, y):
+        if self.prop is None:
+            return
+
+        if n_press == 1 and gesture.get_current_button() == 3 and \
+           x >= 0 and x <= self.get_width() and y >= 0 and y <= self.get_height():
+            self.menu.popup()
+
+    @Gtk.Template.Callback("on_reset_property_clicked")
+    def __on_reset_property_clicked(self, button):
+        self.prop.reset()
+        self.menu.popdown()
+
+    @Gtk.Template.Callback("on_serialize_default_toggled")
+    def __on_serialize_default_property_toggled(self, check):
+        self.prop.serialize_default_value = check.props.active
+        self.menu.popdown()
 
 
 Gtk.WidgetClass.set_css_name(CmbPropertyLabel, "CmbPropertyLabel")

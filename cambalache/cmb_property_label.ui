@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.99.10 -->
+<interface>
+  <!-- interface-name cmb_property_label.ui -->
+  <requires lib="gio" version="2.0"/>
+  <requires lib="gtk" version="4.18"/>
+  <template class="CmbPropertyLabel" parent="GtkButton">
+    <property name="child">
+      <object class="GtkBox">
+        <child>
+          <object class="GtkImage" id="bind_icon"/>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label">
+            <property name="halign">start</property>
+            <property name="valign">center</property>
+          </object>
+        </child>
+      </object>
+    </property>
+    <property name="focus-on-click">False</property>
+    <property name="halign">start</property>
+    <property name="has-frame">False</property>
+    <property name="valign">center</property>
+  </template>
+  <object class="GtkPopover" id="menu">
+    <property name="accessible-role">menu</property>
+    <property name="child">
+      <object class="GtkBox">
+        <property name="homogeneous">True</property>
+        <property name="margin-bottom">6</property>
+        <property name="margin-end">6</property>
+        <property name="margin-start">6</property>
+        <property name="margin-top">6</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">4</property>
+        <child>
+          <object class="GtkButton" id="reset_button">
+            <property name="accessible-role">menu-item</property>
+            <property name="css-name">modelbutton</property>
+            <property name="has-frame">False</property>
+            <property name="label" translatable="yes">Reset property</property>
+            <signal name="clicked" handler="on_reset_property_clicked"/>
+            <style>
+              <class name="flat"/>
+            </style>
+          </object>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="serialize_check">
+            <property name="accessible-role">menu-item-checkbox</property>
+            <property name="css-name">modelbutton</property>
+            <property name="label" translatable="yes">Serialize default</property>
+            <signal name="toggled" handler="on_serialize_default_toggled"/>
+            <style>
+              <class name="flat"/>
+            </style>
+          </object>
+        </child>
+      </object>
+    </property>
+    <property name="visible">False</property>
+    <style>
+      <class name="menu"/>
+    </style>
+  </object>
+</interface>

@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.99.8 -->
+<!-- Created with Cambalache 0.99.10 -->
 <gresources>
   <gresource prefix="/ar/xjuan/Cambalache">
     <file>cambalache.css</file>
@@ -19,6 +19,7 @@
     <file>cmb_poll_notification_view.ui</file>
     <file>cmb_poll_option_check.ui</file>
     <file>cmb_project_settings.ui</file>
+    <file>cmb_property_label.ui</file>
     <file>cmb_signal_editor.ui</file>
     <file>cmb_type_chooser.ui</file>
     <file>cmb_type_chooser_widget.ui</file>
