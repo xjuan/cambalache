@@ -62,6 +62,12 @@ class CmbProperty(CmbBaseProperty):
         ).fetchone()
         return row[0] if row is not None else None
 
+    def has_value(self):
+        return self.db_get(
+            "SELECT count(ui_id) FROM object_property WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id=?;",
+            (self.ui_id, self.object_id, self.owner_id, self.property_id),
+        ) > 0
+
     def __db_set(self, **kwargs):
         # Do not use REPLACE INTO, to make sure both INSERT and UPDATE triggers are used
 
@@ -69,13 +75,8 @@ class CmbProperty(CmbBaseProperty):
         values = tuple(kwargs.values())
         placeholders = ",".join((["?"] * len(values)))
 
-        count = self.db_get(
-            "SELECT count(ui_id) FROM object_property WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id=?;",
-            (self.ui_id, self.object_id, self.owner_id, self.property_id),
-        )
-
         # Ensure row exists
-        if count:
+        if self.has_value():
             # Execute update statement and return row values
             statement = ",".join([f"{col}=?" for col in columns])
             row = self.project.db.execute(
@@ -93,9 +94,9 @@ class CmbProperty(CmbBaseProperty):
             value, *others = row
 
             # If value is the same as the default and the rest are none/false we can remove the row
-            # TODO: do not reset properties that where loaded from xml
-            if value == self.info.default_value and all(not val for val in others):
-                self.reset()
+            # Do not reset properties that where loaded from xml with the default value
+            if not self.serialize_default_value and value == self.info.default_value and all(not val for val in others):
+                self.__reset()
         else:
             self.project.db.execute(
                 f"""
@@ -108,6 +109,7 @@ class CmbProperty(CmbBaseProperty):
         self.__update_internal_child()
 
         if self._init is False:
+            self.project._object_property_changed(self.object, self)
             self.object._property_changed(self)
 
     @GObject.Property(type=str)
@@ -142,15 +144,19 @@ class CmbProperty(CmbBaseProperty):
     def _set_translation_comments(self, value):
         self.__db_set(translation_comments=value)
 
-    def reset(self):
-        if self.info.internal_child:
-            self.project.history_push(_("Unset {obj} {prop} {prop_type}").format(**self.__get_msgs()))
-
+    def __reset(self):
         self.project.db.execute(
             "DELETE FROM object_property WHERE ui_id=? AND object_id=? AND owner_id=? AND property_id=?;",
             (self.ui_id, self.object_id, self.owner_id, self.property_id),
         )
+
+    def reset(self):
+        if self.info.internal_child:
+            self.project.history_push(_("Unset {obj} {prop} {prop_type}").format(**self.__get_msgs()))
+
+        self.__reset()
         self.__update_internal_child()
+        self.notify("value")
 
         if self.info.internal_child:
             self.project.history_pop()
@@ -310,6 +316,14 @@ class CmbProperty(CmbBaseProperty):
         self.__db_set(binding_expression_id=expression_object.object_id)
         self.project.history_pop()
         self.project._object_property_binding_changed(self.object, self)
+
+    @GObject.Property(type=bool, default=False)
+    def serialize_default_value(self):
+        return self.__db_get("serialize_default_value")
+
+    @serialize_default_value.setter
+    def _set_serialize_default_value(self, value):
+        self.__db_set(value=self.value, serialize_default_value=value)
 
     def _update_version_warning(self):
         target = self.object.ui.get_target(self.library_id)
