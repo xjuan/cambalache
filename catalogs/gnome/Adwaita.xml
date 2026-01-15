@@ -10,6 +10,7 @@
     <AdwBanner>
       <properties>
         <property id="title" translatable="True"/>
+        <property id="button-label" translatable="True"/>
       </properties>
     </AdwBanner>
 
@@ -64,6 +65,7 @@
     <AdwToggle>
       <properties>
         <property id="icon-name" type="CmbIconName"/>
+        <property id="label" translatable="True"/>
       </properties>
     </AdwToggle>
 

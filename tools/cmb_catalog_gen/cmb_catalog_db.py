@@ -640,6 +640,7 @@ class CmbCatalogDB:
             FROM property
             WHERE type_id='gchararray' AND original_owner_id IS NULL AND translatable IS NULL AND
                 (property_id LIKE '%title%' OR
+                 property_id LIKE '%placeholder-text%' OR
                  property_id LIKE '%label%');
             """
         ):

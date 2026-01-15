@@ -74,6 +74,7 @@
 
     <GtkFileDialog>
       <properties>
+        <property id="accept-label" translatable="True"/>
         <property id="title" translatable="True"/>
       </properties>
     </GtkFileDialog>
@@ -92,6 +93,7 @@
 
     <GtkPrintDialog>
       <properties>
+        <property id="accept-label" translatable="True"/>
         <property id="title" translatable="True"/>
       </properties>
     </GtkPrintDialog>
@@ -443,12 +445,18 @@
     </GtkShortcutsShortcut>
 
     <GtkExpander>
+      <properties>
+        <property id="label" translatable="True"/>
+      </properties>
       <children-types>
         <type max-children="1">label</type>
       </children-types>
     </GtkExpander>
 
     <GtkFrame>
+      <properties>
+        <property id="label" translatable="True"/>
+      </properties>
       <children-types>
         <type max-children="1">label</type>
       </children-types>
@@ -533,6 +541,7 @@
     <GtkNumerableIcon target="Gtk+-3.0">
       <properties>
         <property id="background-icon-name" type="CmbIconName"/>
+        <property id="label" translatable="True"/>
       </properties>
     </GtkNumerableIcon>
 
@@ -552,6 +561,7 @@
     <GtkMenuButton>
       <properties>
         <property target="Gtk-4.0" id="icon-name" type="CmbIconName"/>
+        <property id="label" translatable="True"/>
       </properties>
     </GtkMenuButton>
 
@@ -624,6 +634,56 @@
       </internal-children>
     </GtkStatusbar>
 
+    <GtkCellRendererText>
+      <properties>
+        <property id="placeholder-text" translatable="True"/>
+      </properties>
+    </GtkCellRendererText>
+
+    <GtkFileChooserNative>
+      <properties>
+        <property id="accept-label" translatable="True"/>
+        <property id="cancel-label" translatable="True"/>
+      </properties>
+    </GtkFileChooserNative>
+
+    <GtkNotebookPage>
+      <properties>
+        <property id="menu-label" translatable="True"/>
+        <property id="tab-label" translatable="True"/>
+      </properties>
+    </GtkNotebookPage>
+
+    <GtkNotebookLayoutChild>
+      <properties>
+        <property id="menu-label" translatable="True"/>
+        <property id="tab-label" translatable="True"/>
+      </properties>
+    </GtkNotebookLayoutChild>
+
+    <GtkPasswordEntry>
+      <properties>
+        <property id="placeholder-text" translatable="True"/>
+      </properties>
+    </GtkPasswordEntry>
+
+    <GtkPrintOperation>
+      <properties>
+        <property id="custom-tab-label" translatable="True"/>
+      </properties>
+    </GtkPrintOperation>
+
+    <GtkSearchEntry>
+      <properties>
+        <property id="placeholder-text" translatable="True"/>
+      </properties>
+    </GtkSearchEntry>
+
+    <GtkText>
+      <properties>
+        <property id="placeholder-text" translatable="True"/>
+      </properties>
+    </GtkText>
   </types>
 
   <categories>
