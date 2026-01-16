@@ -53,6 +53,7 @@ class CmbPropertyLabel(Gtk.Button):
             raise Exception("CmbPropertyLabel requires prop or layout_prop to be set")
             return
 
+        self.__on_init = True
 
         # Update label status
         if self.prop:
@@ -67,6 +68,7 @@ class CmbPropertyLabel(Gtk.Button):
 
             self.reset_button.set_sensitive(self.prop.has_value())
             self.reset_button.props.child.props.halign = Gtk.Align.START
+
             self.serialize_check.props.active = self.prop.serialize_default_value
         elif self.layout_prop:
             self.bind_icon.props.visible = False
@@ -81,6 +83,8 @@ class CmbPropertyLabel(Gtk.Button):
         self.__click_gesture = Gtk.GestureClick(propagation_phase=Gtk.PropagationPhase.CAPTURE, button=3)
         self.__click_gesture.connect("released", self.__on_click_gesture_released)
         self.add_controller(self.__click_gesture)
+
+        self.__on_init = False
 
     def __on_notify(self, prop, pspec):
         if pspec.name in {
@@ -147,6 +151,9 @@ class CmbPropertyLabel(Gtk.Button):
 
     @Gtk.Template.Callback("on_serialize_default_toggled")
     def __on_serialize_default_property_toggled(self, check):
+        if self.__on_init:
+            return
+
         self.prop.serialize_default_value = check.props.active
         self.menu.popdown()
 
