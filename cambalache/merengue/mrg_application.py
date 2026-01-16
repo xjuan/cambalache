@@ -54,7 +54,7 @@ class MrgApplication(Gtk.Application, MrgCommand):
 
         self.init_command(self.command_socket)
 
-        # List of available controler classes for objects
+        # List of available controller classes for objects
         self.registry = MrgControllerRegistry()
 
         # Dict of controllers
@@ -194,19 +194,6 @@ class MrgApplication(Gtk.Application, MrgCommand):
 
         controller.set_object_child_property(child.object, property_id, value)
 
-    def _show_widget(self, controller):
-        child = controller.object
-        parent = child.props.parent
-        while parent:
-            parent_id = utils.object_get_id(parent)
-            controller = self.controllers.get(parent_id, None)
-
-            if controller:
-                controller.show_child(child)
-                child = parent
-
-            parent = parent.props.parent
-
     def set_selection(self, ui_id, selection):
         # Gtk 3: Ungrab pointer everytime we switch selection just in case
         # there is a broken grab (Fix issue #101)
@@ -223,13 +210,6 @@ class MrgApplication(Gtk.Application, MrgCommand):
 
             if obj:
                 controller.selected = True
-
-                # TODO: move this logic to MrgGtkWidget
-                if issubclass(type(obj), Gtk.Widget):
-                    self._show_widget(controller)
-
-                if issubclass(type(obj), Gtk.Window):
-                    obj.present()
 
     def selection_changed(self, ui_id, selection):
         # Clear objects

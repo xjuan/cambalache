@@ -123,6 +123,10 @@ class MrgGtkWidget(MrgController):
         if toplevel and self.selected:
             toplevel.present()
 
+        # This will make the selected object shown in the workspace
+        if self.selected:
+            self.show()
+
     def __on_selected_changed(self, obj, pspec):
         self.on_selected_changed()
 
@@ -234,6 +238,19 @@ class MrgGtkWidget(MrgController):
             CambalachePrivate.object_set_property_from_string(layout_child, property_id, val)
         else:
             CambalachePrivate.container_child_set_property_from_string(self.object, child, property_id, val)
+
+    def show(self):
+        child = self.object
+        parent = child.props.parent
+        while parent:
+            parent_id = utils.object_get_id(parent)
+            controller = self.app.controllers.get(parent_id, None)
+
+            if controller:
+                controller.show_child(child)
+                child = parent
+
+            parent = parent.props.parent
 
     def show_child(self, child):
         pass
