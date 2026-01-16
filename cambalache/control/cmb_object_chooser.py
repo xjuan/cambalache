@@ -82,7 +82,7 @@ class CmbObjectChooser(Gtk.Entry):
             self.__object_id = value
             self.notify("cmb-value")
 
-    def __on_parent_property_changed(self, parent, prop):
+    def __on_parent_property_changed(self, parent, prop, field):
         if not self.is_inline or prop.property_id != self.inline_property_id:
             return
 

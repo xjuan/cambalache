@@ -53,7 +53,7 @@ class CmbProperty(CmbBaseProperty):
         return f"CmbProperty<{self.object.type_id} {self.info.owner_id}::{self.property_id}>"
 
     def __on_notify(self, obj, pspec):
-        self.project._object_property_changed(self.object, self)
+        self.object._property_changed(self, pspec.name)
 
     def __db_get(self, column):
         row = self.project.db.execute(
@@ -109,8 +109,7 @@ class CmbProperty(CmbBaseProperty):
         self.__update_internal_child()
 
         if self._init is False:
-            self.project._object_property_changed(self.object, self)
-            self.object._property_changed(self)
+            self.object._property_changed(self, columns[0])
 
     @GObject.Property(type=str)
     def value(self):
@@ -323,7 +322,7 @@ class CmbProperty(CmbBaseProperty):
 
     @serialize_default_value.setter
     def _set_serialize_default_value(self, value):
-        self.__db_set(value=self.value, serialize_default_value=value)
+        self.__db_set(serialize_default_value=value, value=self.value)
 
     def _update_version_warning(self):
         target = self.object.ui.get_target(self.library_id)

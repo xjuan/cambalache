@@ -45,7 +45,7 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
     info = GObject.Property(type=CmbTypeInfo, flags=GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY)
 
     __gsignals__ = {
-        "property-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbProperty,)),
+        "property-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbProperty, str)),
         "layout-property-changed": (GObject.SignalFlags.RUN_FIRST, None, (GObject.GObject, CmbLayoutProperty)),
         "signal-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbSignal,)),
         "signal-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbSignal,)),
@@ -233,9 +233,9 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
             # Dictionary of properties
             self.__layout_dict[property_name] = prop
 
-    def _property_changed(self, prop):
-        self.emit("property-changed", prop)
-        self.project._object_property_changed(self, prop)
+    def _property_changed(self, prop, field):
+        self.emit("property-changed", prop, field)
+        self.project._object_property_changed(self, prop, field)
 
     def _layout_property_changed(self, prop):
         parent = self.project.get_object_by_id(self.ui_id, self.parent_id)

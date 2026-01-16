@@ -297,7 +297,10 @@ class CmbView(Gtk.Box):
         if field in ["type", "position", "custom-fragment", "parent-id"]:
             self.__merengue_update_ui(obj.ui_id)
 
-    def __on_object_property_changed(self, project, obj, prop):
+    def __on_object_property_changed(self, project, obj, prop, field):
+        if field != "value":
+            return
+
         info = prop.info
 
         # FIXME: implement new merengue command for updating a11y props

@@ -169,7 +169,7 @@ class CmbAccessibleEditor(Gtk.Box):
 
         self.show()
 
-    def __on_object_property_changed_notify(self, obj, prop):
+    def __on_object_property_changed_notify(self, obj, prop, field):
         if prop.property_id == "accessible-role":
             self.__update_view()
 

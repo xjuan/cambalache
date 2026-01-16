@@ -77,7 +77,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         "object-added": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject,)),
         "object-removed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject,)),
         "object-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, str)),
-        "object-property-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, CmbProperty)),
+        "object-property-changed": (GObject.SignalFlags.RUN_FIRST, None, (CmbObject, CmbProperty, str)),
         "object-layout-property-changed": (
             GObject.SignalFlags.RUN_FIRST,
             None,
@@ -2235,8 +2235,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         self.emit("object-changed", obj, field)
 
-    def _object_property_changed(self, obj, prop):
-        self.emit("object-property-changed", obj, prop)
+    def _object_property_changed(self, obj, prop, field):
+        self.emit("object-property-changed", obj, prop, field)
 
     def _object_layout_property_changed(self, obj, child, prop):
         self.emit("object-layout-property-changed", obj, child, prop)
@@ -2687,7 +2687,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
     def do_object_changed(self, obj, field):
         self.emit("changed")
 
-    def do_object_property_changed(self, obj, prop):
+    def do_object_property_changed(self, obj, prop, field):
         self.emit("changed")
 
     def do_object_layout_property_changed(self, obj, child, prop):
