@@ -99,6 +99,16 @@ def window_activate_action(action_name):
     utils.process_all_pending_gtk_events()
 
 
+def window_toggle_group_set_active(toggle_group, value):
+    group = utils.find_by_buildable_id(window, toggle_group)
+    assert group
+
+    group.set_active_name(value)
+
+    utils.process_all_pending_gtk_events()
+    return group
+
+
 def window_button_clicked(button_name):
     button = utils.find_by_buildable_id(window, button_name)
     assert button
@@ -153,17 +163,16 @@ def select_object(obj_id=None, ui_id=1):
 def _test_new_project(target):
     # New project view
     window_activate_action("win.create_new")
-    window_entry_set_text("np_name_entry", "test_project")
+    window_entry_set_text("name_entry", "test_project")
 
-    button = "np_gtk3_radiobutton" if target == "gtk+-3.0" else "np_gtk4_radiobutton"
-    window_button_clicked(button)
-    window_widget_grab_focus(button)
+    window_toggle_group_set_active("toolkit_chooser", target)
+    # window_widget_grab_focus(toggle)
 
     window_assert_screenshot("cambalache_new_project.png", target)
 
 
 def _test_np_create_button(target):
-    window_button_clicked("np_create_button")
+    window_button_clicked("create_button")
     window_assert_screenshot("cambalache_np_create_button.png", target)
 
 

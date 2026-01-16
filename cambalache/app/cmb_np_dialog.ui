@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.99.9 -->
+<!-- Created with Cambalache 0.99.11 -->
 <interface>
   <!-- interface-name cmb_np_page.ui -->
   <!-- interface-copyright Matthieu Lorier -->
   <requires lib="gio" version="2.0"/>
   <requires lib="gtk" version="4.14"/>
-  <requires lib="libadwaita" version="1.5"/>
+  <requires lib="libadwaita" version="1.8"/>
   <template class="CmbNewProjectDialog" parent="AdwDialog">
     <property name="child">
       <object class="AdwToolbarView">
@@ -111,7 +111,7 @@
             <child>
               <object class="AdwPreferencesGroup">
                 <child>
-                  <object class="GtkButton">
+                  <object class="GtkButton" id="create_button">
                     <property name="action-name">win.new</property>
                     <property name="halign">center</property>
                     <property name="label" translatable="yes">Create</property>
