@@ -178,6 +178,7 @@ class CmbView(Gtk.Box):
         self.__project = None
         self.__ui = None
         self.__theme = None
+        self.__css_update_timeout = {}
 
         self.menu = self.__create_context_menu()
 
@@ -374,17 +375,11 @@ class CmbView(Gtk.Box):
         self.__update_view()
 
     def __on_css_added(self, project, obj):
-        if self.project.filename and obj.filename:
-            dirname = os.path.dirname(self.project.filename)
-            filename = os.path.join(dirname, obj.filename)
-        else:
-            filename = None
-
         self.__merengue_command(
             "add_css_provider",
             args={
                 "css_id": obj.css_id,
-                "filename": filename,
+                "css": obj.css,
                 "priority": obj.priority,
                 "is_global": obj.is_global,
                 "provider_for": obj.provider_for,
@@ -394,17 +389,30 @@ class CmbView(Gtk.Box):
     def __on_css_removed(self, project, obj):
         self.__merengue_command("remove_css_provider", args={"css_id": obj.css_id})
 
+    def __update_css_timeout(self, data):
+        self.__merengue_command("update_css_provider", args=data)
+        self.__css_update_timeout.pop(data["css_id"])
+        return GLib.SOURCE_REMOVE
+
     def __on_css_changed(self, project, obj, field):
+        data = {
+            "css_id": obj.css_id,
+            "field": field,
+            "value": obj.get_property(field)
+        }
+
+        # Limit rate to 1 seconds
         if field == "css":
-            return
+            last_timeout = self.__css_update_timeout.get(obj.css_id, None)
 
-        value = obj.get_property(field)
+            # Remove old timeout for this CSS
+            if last_timeout is not None:
+                GLib.source_remove(last_timeout)
 
-        if field == "filename" and value:
-            dirname = os.path.dirname(self.project.filename)
-            value = os.path.join(dirname, value)
-
-        self.__merengue_command("update_css_provider", args={"css_id": obj.css_id, "field": field, "value": value})
+            # Queue CSS update
+            self.__css_update_timeout[obj.css_id] = GLib.timeout_add_seconds(1, self.__update_css_timeout, data)
+        else:
+            self.__merengue_command("update_css_provider", args=data)
 
     def __on_library_info_changed(self, project, info, field):
         if field != "enabled":
@@ -671,6 +679,10 @@ class CmbView(Gtk.Box):
                 self.notify("gtk_theme")
         elif command == "update_ui_error":
             self.__set_error_message(args["error"])
+        elif command == "css_parsing_status":
+            css = self.project.get_css_by_id(args["css_id"])
+            if css:
+                css._emit_parsing_status(args["error_count"], args["error"], args["start"], args["end"])
 
     def __add_remove_placeholder(self, command, modifier):
         if self.project is None:
