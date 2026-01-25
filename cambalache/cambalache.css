@@ -137,3 +137,12 @@ box.cmb-file-changed-bar {
 CmbProjectSettings preferencesgroup row {
   padding: 1em;
 }
+
+CmbCSSEditor GtkSourceAssistant.background {
+  padding: 6px 10px;
+  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
