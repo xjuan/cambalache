@@ -410,8 +410,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
                     logger.warning(f"{filename} hash mismatch, file was modified")
         else:
             content = node.find("content")
-            if content:
-                css_content = content.text.encode()
+            if content is not None:
+                css_content = content.text
             else:
                 raise Exception(_("content tag is missing"))
 
@@ -1168,7 +1168,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
             else:
                 css = None
 
-            css_id = self.db.add_css(relpath, css=css)
+            css_id = self.db.add_css(relpath, css=css, priority=600, is_global=True)
             self.db.commit()
             self.history_pop()
         except Exception:
