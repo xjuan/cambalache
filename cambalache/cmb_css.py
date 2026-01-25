@@ -36,6 +36,10 @@ from cambalache import _
 class CmbCSS(CmbBaseCSS):
     __gtype_name__ = "CmbCSS"
 
+    __gsignals__ = {
+        "parsing-status": (GObject.SignalFlags.RUN_FIRST, None, (int, str, int, int)),
+    }
+
     path_parent = GObject.Property(type=CmbPath, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
@@ -45,6 +49,9 @@ class CmbCSS(CmbBaseCSS):
         self.update_file_monitor(self.filename)
 
         self.connect("notify", self.__on_notify)
+
+    def _emit_parsing_status(self, error_count, message, start, end):
+        self.emit("parsing-status", error_count, message, start, end)
 
     def __on_notify(self, obj, pspec):
         if pspec.name not in ["display-name", "file-status", "path-parent"]:
