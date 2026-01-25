@@ -14,7 +14,7 @@
     </p>
   </description>
   <releases>
-    <release date="2026-01-15" version="0.99.12">
+    <release date="2026-01-25" version="0.99.13">
       <description>
         <p>Getting ready for release 1.0!</p>
         <ul>
@@ -23,6 +23,7 @@
           <li>Project Settings dialog</li>
           <li>3rd party libraries selector</li>
           <li>Icon theme path support</li>
+          <li>CSS editor UX improvements</li>
           <li>Improved workspace rendering</li>
           <li>Scrollable workspace</li>
           <li>Monitor files for external changes</li>
