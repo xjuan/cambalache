@@ -162,7 +162,7 @@
             </child>
             <child>
               <object class="GtkButton" id="close_button">
-                <property name="css-classes">close</property>
+                <property name="css-classes">cmb-close</property>
                 <property name="halign">end</property>
                 <property name="hexpand">True</property>
                 <property name="icon-name">window-close-symbolic</property>

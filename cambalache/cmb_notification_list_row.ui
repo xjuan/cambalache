@@ -28,7 +28,7 @@
                     <style>
                       <class name="flat"/>
                       <class name="compact"/>
-                      <class name="close"/>
+                      <class name="cmb-close"/>
                     </style>
                   </object>
                 </child>

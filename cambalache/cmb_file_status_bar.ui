@@ -28,7 +28,7 @@
             </child>
             <child>
               <object class="GtkButton">
-                <property name="css-classes">close</property>
+                <property name="css-classes">cmb-close</property>
                 <property name="css-name">button</property>
                 <property name="halign">center</property>
                 <property name="icon-name">window-close-symbolic</property>

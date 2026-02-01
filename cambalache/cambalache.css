@@ -40,7 +40,7 @@ CmbPropertyLabel.hidden:hover > box > image  {
   opacity: 1;
 }
 
-button.close {
+button.cmb-close {
   padding: unset;
   margin: unset;
   border: unset;
