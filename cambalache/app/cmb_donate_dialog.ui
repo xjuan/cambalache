@@ -1,8 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.96.3 -->
+<!-- Created with Cambalache 0.99.13 -->
 <interface>
   <!-- interface-name cmb_donate_dialog.ui -->
   <!-- interface-copyright Matthieu Lorier -->
+  <!-- interface-authors Matthieu Lorier -->
   <requires lib="gio" version="2.0"/>
   <requires lib="gtk" version="4.14"/>
   <requires lib="libadwaita" version="1.8"/>
@@ -21,7 +22,7 @@
                 <child>
                   <object class="GtkImage">
                     <property name="margin-bottom">30</property>
-                    <property name="pixel-size">100</property>
+                    <property name="pixel-size">80</property>
                     <property name="resource">/ar/xjuan/Cambalache/app/images/lp-logo.svg</property>
                   </object>
                 </child>
@@ -69,8 +70,8 @@
             </child>
             <child>
               <object class="GtkSeparator">
-                <property name="margin-top">70</property>
                 <property name="margin-bottom">70</property>
+                <property name="margin-top">70</property>
               </object>
             </child>
             <child>
@@ -82,7 +83,7 @@
                 <child>
                   <object class="GtkImage">
                     <property name="margin-bottom">30</property>
-                    <property name="pixel-size">100</property>
+                    <property name="pixel-size">80</property>
                     <property name="resource">/ar/xjuan/Cambalache/app/images/patreon-logo.svg</property>
                   </object>
                 </child>
