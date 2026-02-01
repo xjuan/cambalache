@@ -4,6 +4,7 @@
   <gresource prefix="/ar/xjuan/Cambalache/app">
     <file>metainfo.xml</file>
     <file>SUPPORTERS.md</file>
+    <file>cmb_donate_dialog.ui</file>
     <file>cmb_window.ui</file>
     <file>cmb_np_dialog.ui</file>
     <file>cmb_shortcuts.ui</file>

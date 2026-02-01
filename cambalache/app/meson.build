@@ -25,6 +25,7 @@ configure_file(
 install_data([
     '__init__.py',
     'cmb_application.py',
+    'cmb_donate_dialog.py',
     'cmb_scrolled_window.py',
     'cmb_window.py',
     'cmb_tutor.py',
@@ -32,4 +33,3 @@ install_data([
     'cmb_np_dialog.py',
     ],
     install_dir: moduledir)
-
