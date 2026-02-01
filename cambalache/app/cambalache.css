@@ -129,3 +129,7 @@ image.icon-size-64 {
 windowtitle.changed {
   font-style: italic;
 }
+
+CmbDonateDialog label.donate-desc {
+  font-size: 1.1em;
+}

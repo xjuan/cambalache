@@ -1,0 +1,141 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.96.3 -->
+<interface>
+  <!-- interface-name cmb_donate_dialog.ui -->
+  <!-- interface-copyright Matthieu Lorier -->
+  <requires lib="gio" version="2.0"/>
+  <requires lib="gtk" version="4.14"/>
+  <requires lib="libadwaita" version="1.8"/>
+  <template class="CmbDonateDialog" parent="AdwDialog">
+    <property name="child">
+      <object class="AdwToolbarView">
+        <property name="content">
+          <object class="GtkBox">
+            <property name="hexpand">True</property>
+            <child>
+              <object class="GtkBox">
+                <property name="hexpand">True</property>
+                <property name="margin-top">20</property>
+                <property name="orientation">vertical</property>
+                <property name="vexpand">True</property>
+                <child>
+                  <object class="GtkImage">
+                    <property name="margin-bottom">30</property>
+                    <property name="pixel-size">100</property>
+                    <property name="resource">/ar/xjuan/Cambalache/app/images/lp-logo.svg</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">Liberapay</property>
+                    <property name="margin-bottom">5</property>
+                    <style>
+                      <class name="title-2"/>
+                    </style>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="justify">center</property>
+                    <property name="label" translatable="yes">
+• Liberapay is a recurrent donations platform
+
+• Run by a non-profit organization
+
+• Source code is public
+
+• No commission fee
+
+• ~5% payment processing fee
+                    </property>
+                    <style>
+                      <class name="donate-desc"/>
+                    </style>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton">
+                    <property name="action-name">win.liberapay</property>
+                    <property name="halign">center</property>
+                    <property name="label" translatable="yes">Donate</property>
+                    <property name="margin-top">20</property>
+                    <style>
+                      <class name="suggested-action"/>
+                      <class name="pill"/>
+                    </style>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkSeparator">
+                <property name="margin-top">70</property>
+                <property name="margin-bottom">70</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkBox">
+                <property name="hexpand">True</property>
+                <property name="margin-top">20</property>
+                <property name="orientation">vertical</property>
+                <property name="vexpand">True</property>
+                <child>
+                  <object class="GtkImage">
+                    <property name="margin-bottom">30</property>
+                    <property name="pixel-size">100</property>
+                    <property name="resource">/ar/xjuan/Cambalache/app/images/patreon-logo.svg</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">Patreon</property>
+                    <property name="margin-bottom">5</property>
+                    <style>
+                      <class name="title-2"/>
+                    </style>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="justify">center</property>
+                    <property name="label" translatable="yes">
+• Patreon is a membership platform for creators
+
+• Run by private company
+
+• No source code available
+
+• ~8% commission fee
+
+• ~8% payment processing fee
+                    </property>
+                    <style>
+                      <class name="donate-desc"/>
+                    </style>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton">
+                    <property name="action-name">win.patreon</property>
+                    <property name="halign">center</property>
+                    <property name="label" translatable="yes">Donate</property>
+                    <property name="margin-top">20</property>
+                    <style>
+                      <class name="pill"/>
+                    </style>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </property>
+        <child type="top">
+          <object class="AdwHeaderBar"/>
+        </child>
+      </object>
+    </property>
+    <property name="content-height">575</property>
+    <property name="content-width">850</property>
+    <property name="title" translatable="yes">Help us continue developing</property>
+  </template>
+</interface>

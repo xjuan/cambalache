@@ -30,6 +30,7 @@ import tempfile
 from gi.repository import GLib, GObject, Gio, Gdk, Gtk, Pango, Adw, GtkSource, CambalachePrivate
 from .cmb_tutor import CmbTutor, CmbTutorState
 from .cmb_np_dialog import CmbNewProjectDialog
+from .cmb_donate_dialog import CmbDonateDialog
 from . import cmb_tutorial
 
 from cambalache import (
@@ -1435,7 +1436,8 @@ class CmbWindow(Adw.ApplicationWindow):
         self.project.add_parent(data.get_string(), obj)
 
     def _on_donate_activate(self, action, data):
-        self.__set_page("donate")
+        dialog = CmbDonateDialog()
+        dialog.present(self)
 
     def _on_liberapay_activate(self, action, data):
         Gtk.show_uri(self, "https://liberapay.com/xjuan/donate", Gdk.CURRENT_TIME)
@@ -1666,3 +1668,4 @@ class CmbWindow(Adw.ApplicationWindow):
     def __on_new_notification(self, center, notification):
         self.__notification_present()
         self.__update_action_notification()
+
