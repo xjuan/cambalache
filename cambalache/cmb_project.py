@@ -320,7 +320,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
             ui_id = self.db.import_from_node(root, relpath)
 
             cmb_version = self.__get_version_comment_from_root(root)
-            self.__file_state[filename] = cmb_version, sha256
+            self.__file_state[filename] = cmb_version, hexdigest
         else:
             content = node.find("content")
             if content is not None:
@@ -439,7 +439,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
             gresource_id = self.db.import_gresource_from_node(root, relpath)
 
             cmb_version = self.__get_version_comment_from_root(root)
-            self.__file_state[filename] = cmb_version, sha256
+            self.__file_state[filename] = cmb_version, hexdigest
         else:
             content = node.find("content")
             if content:
