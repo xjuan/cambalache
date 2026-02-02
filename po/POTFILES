@@ -1,4 +1,6 @@
 cambalache/app/cmb_application.py
+cambalache/app/cmb_donate_dialog.ui
+cambalache/app/cmb_np_dialog.ui
 cambalache/app/cmb_shortcuts.ui
 cambalache/app/cmb_tutorial.py
 cambalache/app/cmb_window.py
@@ -11,10 +13,13 @@ cambalache/cmb_css.py
 cambalache/cmb_css_editor.py
 cambalache/cmb_css_editor.ui
 cambalache/cmb_db.py
-cambalache/cmb_file_changed_bar.ui
+cambalache/cmb_file_status_bar.py
 cambalache/cmb_fragment_editor.ui
 cambalache/cmb_gresource.py
 cambalache/cmb_gresource_editor.ui
+cambalache/cmb_library_info.py
+cambalache/cmb_library_row.ui
+cambalache/cmb_list_view.py
 cambalache/cmb_object.py
 cambalache/cmb_object_data.py
 cambalache/cmb_object_data_editor.py
@@ -23,7 +28,10 @@ cambalache/cmb_object_property_editor.py
 cambalache/cmb_path.py
 cambalache/cmb_poll_notification_view.py
 cambalache/cmb_project.py
+cambalache/cmb_project_settings.py
+cambalache/cmb_project_settings.ui
 cambalache/cmb_property.py
+cambalache/cmb_property_label.ui
 cambalache/cmb_signal_editor.ui
 cambalache/cmb_tree_expander.py
 cambalache/cmb_type_chooser.ui
