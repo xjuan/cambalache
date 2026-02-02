@@ -2,14 +2,14 @@
 # Copyright (C) 2021 THE cambalache'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the cambalache package.
 # Automatically generated, 2021.
-# Juan Pablo Ugarte <juanpablougarte@gmail.com>, 2021-2025.
+# Juan Pablo Ugarte <juanpablougarte@gmail.com>, 2021-2026.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: cambalache\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-02 12:59-0500\n"
-"PO-Revision-Date: 2026-02-02 12:49-0500\n"
+"POT-Creation-Date: 2026-02-02 11:22-0500\n"
+"PO-Revision-Date: 2026-02-02 13:07-0500\n"
 "Last-Translator: Juan Pablo Ugarte <juanpablougarte@gmail.com>\n"
 "Language-Team: Spanish; Castilian\n"
 "Language: es\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Gtranslator 48.0\n"
+"X-Generator: Gtranslator 49.0\n"
 
 #: cambalache/app/cmb_application.py:48
 msgid "Print version"
@@ -33,10 +33,9 @@ msgstr "Seleccione que archivos:"
 
 #: cambalache/app/cmb_donate_dialog.ui:31
 msgid "Liberapay"
-msgstr ""
+msgstr "Liberapay"
 
 #: cambalache/app/cmb_donate_dialog.ui:41
-#, fuzzy
 msgid ""
 "\n"
 "• Liberapay is a recurrent donations platform\n"
@@ -50,6 +49,7 @@ msgid ""
 "• ~5% payment processing fee\n"
 "                    "
 msgstr ""
+"\n"
 "• Liberapay es una plataforma de donaciones recurrentes\n"
 "\n"
 "• Dirigido por una organización sin fines de lucro\n"
@@ -68,10 +68,9 @@ msgstr "Donar"
 
 #: cambalache/app/cmb_donate_dialog.ui:92
 msgid "Patreon"
-msgstr ""
+msgstr "Patreon"
 
 #: cambalache/app/cmb_donate_dialog.ui:102
-#, fuzzy
 msgid ""
 "\n"
 "• Patreon is a membership platform for creators\n"
@@ -85,6 +84,7 @@ msgid ""
 "• ~8% payment processing fee\n"
 "                    "
 msgstr ""
+"\n"
 "• Patreon es una plataforma de membresía para creadores\n"
 "\n"
 "• Dirigido por empresa privada\n"
@@ -97,12 +97,11 @@ msgstr ""
 
 #: cambalache/app/cmb_donate_dialog.ui:140
 msgid "Help us continue developing"
-msgstr ""
+msgstr "Ayúdanos a continuar desarrollando"
 
 #: cambalache/app/cmb_np_dialog.ui:18
-#, fuzzy
 msgid "Project Name"
-msgstr "Vista del Proyecto"
+msgstr "Nombre del Proyecto"
 
 #: cambalache/app/cmb_np_dialog.ui:25
 msgid "UI Filename"
@@ -113,22 +112,20 @@ msgid "Location"
 msgstr "Directorio"
 
 #: cambalache/app/cmb_np_dialog.ui:47
-#, fuzzy
 msgid "Toolkit Target"
 msgstr "Biblioteca"
 
 #: cambalache/app/cmb_np_dialog.ui:70
 msgid "Gtk 3"
-msgstr ""
+msgstr "Gtk 3"
 
 #: cambalache/app/cmb_np_dialog.ui:76
 msgid "Old stable version"
 msgstr "Versión estable vieja"
 
 #: cambalache/app/cmb_np_dialog.ui:96
-#, fuzzy
 msgid "Gtk 4"
-msgstr "Portado a Gtk 4"
+msgstr "Gtk 4"
 
 #: cambalache/app/cmb_np_dialog.ui:102
 msgid "Recommended for new projects"
@@ -359,11 +356,11 @@ msgstr "Comenzar introducción interactiva"
 
 #: cambalache/app/cmb_window.py:702
 msgid "Copy to clipboard"
-msgstr ""
+msgstr "Copiar al portapapeles"
 
 #: cambalache/app/cmb_window.py:703
 msgid "Close"
-msgstr ""
+msgstr "Cerrar"
 
 #: cambalache/app/cmb_window.py:785 cambalache/app/cmb_window.py:1011
 #: cambalache/app/cmb_window.py:1150
@@ -399,9 +396,9 @@ msgstr ""
 "El archivo sera giuardado como '{name}.cmb.ui' para evitar perder datos."
 
 #: cambalache/app/cmb_window.py:820
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Exception importing {filename}"
-msgstr "Error importando {filename}"
+msgstr "Eexcepción importando {filename}"
 
 #: cambalache/app/cmb_window.py:834
 #, python-brace-format
@@ -478,12 +475,12 @@ msgstr "Importar {n} directorio \"{dirpath}\""
 #: cambalache/app/cmb_window.py:1254
 #, python-brace-format
 msgid "{errors} files out of {n} had errors while loading"
-msgstr ""
+msgstr "{errors} archivos de {n} tuvieron errores al abrir"
 
 #: cambalache/app/cmb_window.py:1256
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Error importing directory {basename}"
-msgstr "Error importando {filename}"
+msgstr "Error importando directorio {basename}"
 
 #: cambalache/app/cmb_window.py:1261
 #, python-brace-format
@@ -503,11 +500,10 @@ msgid "Error saving project"
 msgstr "Error guardando proyecto"
 
 #: cambalache/app/cmb_window.py:1290 cambalache/cmb_view.py:234
-#, fuzzy
 msgid "blueprintcompiler encounter the following error:"
 msgid_plural "blueprintcompiler encounter the following errors:"
 msgstr[0] "blueprintcompiler encontró el siguiente error:"
-msgstr[1] "blueprintcompiler encontró el siguiente error:"
+msgstr[1] "blueprintcompiler encontró los siguientes errores:"
 
 #: cambalache/app/cmb_window.py:1305
 msgid "Choose a file to save the project"
@@ -567,7 +563,7 @@ msgstr "Agrega GResource"
 
 #: cambalache/app/cmb_window.ui:40
 msgid "Settings"
-msgstr ""
+msgstr "Ajustes"
 
 #: cambalache/app/cmb_window.ui:50
 msgid "Save As"
@@ -599,7 +595,7 @@ msgstr "_Abrir"
 
 #: cambalache/app/cmb_window.ui:159
 msgid "Edit project settings"
-msgstr ""
+msgstr "Editar ajustes del proyecto"
 
 #: cambalache/app/cmb_window.ui:171
 msgid "Add new UI to project"
@@ -732,33 +728,32 @@ msgstr "Sin nombre {css_id}"
 #. Translators: GTK_STYLE_PROVIDER_PRIORITY_FALLBACK
 #: cambalache/cmb_css_editor.py:94
 msgid "Fallback (1)"
-msgstr ""
+msgstr "Fallback (1)"
 
 #. Translators: GTK_STYLE_PROVIDER_PRIORITY_THEME
 #: cambalache/cmb_css_editor.py:96
 msgid "Theme (200)"
-msgstr ""
+msgstr "Theme (200)"
 
 #. Translators: GTK_STYLE_PROVIDER_PRIORITY_SETTINGS
 #: cambalache/cmb_css_editor.py:98
 msgid "Settings (400)"
-msgstr ""
+msgstr "Settings (400)"
 
 #. Translators: GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
 #: cambalache/cmb_css_editor.py:100
-#, fuzzy
 msgid "Application (600)"
-msgstr "Aplicaciones"
+msgstr "Application (600)"
 
 #. Translators: GTK_STYLE_PROVIDER_PRIORITY_USER
 #: cambalache/cmb_css_editor.py:102
 msgid "User (800)"
-msgstr ""
+msgstr "User (800)"
 
 #. Translators: label for custom GtkStyleProvider priority
 #: cambalache/cmb_css_editor.py:104
 msgid "Custom"
-msgstr ""
+msgstr "Otro"
 
 #: cambalache/cmb_css_editor.ui:24 cambalache/cmb_ui_property_editor.ui:17
 msgid "Filename:"
@@ -825,27 +820,32 @@ msgid ""
 "<b>File Has Changed on Disk</b>\n"
 "<small>The file has been modified by another application.</small>"
 msgstr ""
+"<b>Archivo cambio en disco</b>\n"
+"<small>El archivo fue modificado por otra aplicación</small>"
 
 #: cambalache/cmb_file_status_bar.py:100
 msgid "Discard Changes and Reload"
-msgstr ""
+msgstr "Descartar cambios y recargar"
 
 #: cambalache/cmb_file_status_bar.py:102
 msgid ""
 "<b>File Not Found</b>\n"
 "<small>The file does not exists.</small>"
 msgstr ""
+"<b>Archivo no encontrado</b>\n"
+"<small>El archivo no existe.</small>"
 
 #: cambalache/cmb_file_status_bar.py:103 cambalache/cmb_file_status_bar.py:106
-#, fuzzy
 msgid "Remove"
-msgstr "Borrar fila"
+msgstr "Borrar"
 
 #: cambalache/cmb_file_status_bar.py:105
 msgid ""
 "<b>File Deleted</b>\n"
 "<small>The file has been deleted by another application.</small>"
 msgstr ""
+"<b>Archivo borrado</b>\n"
+"<small>El archivo ha sido borrado por otra aplicación.</small>"
 
 #: cambalache/cmb_file_status_bar.py:109
 #, python-brace-format
@@ -854,19 +854,21 @@ msgid ""
 "<small>The file has been renamed to {filename} by another application.</"
 "small>"
 msgstr ""
+"<b>Archivo renombrado</b>\n"
+"<small>El archivo ha sido renombrado a {filename} por otra aplicación.</"
+"small>"
 
 #: cambalache/cmb_file_status_bar.py:111
 msgid "Update"
-msgstr ""
+msgstr "Actualizar"
 
 #: cambalache/cmb_fragment_editor.ui:13
 msgid "Extra fragments:"
 msgstr "Fragmentos extras:"
 
 #: cambalache/cmb_fragment_editor.ui:31
-#, fuzzy
 msgid "Child fragments:"
-msgstr "Fragmento hijo"
+msgstr "Fragmentos hijo:"
 
 #: cambalache/cmb_gresource.py:97
 #, python-brace-format
@@ -926,23 +928,21 @@ msgid "Clear"
 msgstr "Limpiar"
 
 #: cambalache/cmb_list_view.py:265
-#, fuzzy
 msgid "File Has Changed on Disk"
-msgstr "El archivo cambio en disco."
+msgstr "El archivo cambio en disco"
 
 #: cambalache/cmb_list_view.py:267
 msgid "File Not Found"
-msgstr ""
+msgstr "Archivo no encontrado"
 
 #: cambalache/cmb_list_view.py:269
-#, fuzzy
 msgid "File Deleted"
-msgstr "Archivo exportado"
+msgstr "Archivo borrado"
 
 #: cambalache/cmb_list_view.py:271
 #, python-brace-format
 msgid "File renamed to {new_filename}"
-msgstr ""
+msgstr "El archivo se ha renombrado a {new_filename}"
 
 #: cambalache/cmb_object.py:485 cambalache/cmb_object_data.py:199
 #, python-brace-format
@@ -1017,7 +1017,7 @@ msgstr "Nombre de tipo"
 
 #: cambalache/cmb_object_property_editor.py:129
 msgid "Parent Class"
-msgstr ""
+msgstr "Clase padre"
 
 #: cambalache/cmb_object_property_editor.py:148
 msgid "Child Type"
@@ -1090,14 +1090,14 @@ msgstr ""
 "Cambalache 0.96.0 para migrar al formato nuevo."
 
 #: cambalache/cmb_project.py:498
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Error parsing dependency {library}"
-msgstr "Error importando {filename}"
+msgstr "Error sintáctico en la dependencia {library}"
 
 #: cambalache/cmb_project.py:510
 #, python-brace-format
 msgid "Unknown dependencies found {depends}"
-msgstr ""
+msgstr "Se encontraron dependencias desconocidas: {depends}"
 
 #: cambalache/cmb_project.py:544
 #, python-brace-format
@@ -1179,14 +1179,14 @@ msgid "{n} wrong inline object ({detail})"
 msgstr "{n} objetos por valor equivocados ({detail})"
 
 #: cambalache/cmb_project.py:867
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "a missing parent attribute for template '{detail}'"
-msgstr "un atributo faltante '{detail}'"
+msgstr "un atributo parent faltante para template '{detail}'"
 
 #: cambalache/cmb_project.py:868
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "{n} missing parent attributes for the following templates ({detail})"
-msgstr "{n} atributos faltantes ({detail})"
+msgstr "{n} atributos parent faltantes para template ({detail})"
 
 #: cambalache/cmb_project.py:873
 #, python-brace-format
@@ -1224,9 +1224,9 @@ msgid "xml:{line} not an inline object '{detail}'"
 msgstr "xml:{line} no es un objeto por valor '{detail}'"
 
 #: cambalache/cmb_project.py:880
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "xml:{line} missing template parent attribute '{detail}'"
-msgstr "xml:{line} atributo faltante '{detail}'"
+msgstr "xml:{line} atributo parent faltante en template '{detail}'"
 
 #: cambalache/cmb_project.py:912
 #, python-brace-format
@@ -1293,9 +1293,9 @@ msgid "Remove object {name}"
 msgstr "Borrar object {name}"
 
 #: cambalache/cmb_project.py:1453
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Remove objects from {library}"
-msgstr "Borrar objecto {obj}"
+msgstr "Borrar objectos de {library}"
 
 #. Translators: This refers to "properties" in object property undo/redo messages
 #: cambalache/cmb_project.py:1963 cambalache/cmb_property.py:193
@@ -1489,24 +1489,23 @@ msgstr "Borrar padre de {name}"
 
 #: cambalache/cmb_project_settings.py:96
 msgid "Select icon path search directory"
-msgstr ""
+msgstr "Seleccione la ruta del directorio de búsqueda de iconos"
 
 #: cambalache/cmb_project_settings.ui:15
-#, fuzzy
 msgid "Available widget catalogs"
-msgstr "Actualiza catalogo de componentes al SDK 48"
+msgstr "Catálogos de componentes disponible"
 
 #: cambalache/cmb_project_settings.ui:17
 msgid "Catalogs"
-msgstr ""
+msgstr "Catálogos"
 
 #: cambalache/cmb_project_settings.ui:22
 msgid "List of directories to load icons"
-msgstr ""
+msgstr "Lista de directorios para cargar iconos"
 
 #: cambalache/cmb_project_settings.ui:33
 msgid "Icon Themes"
-msgstr ""
+msgstr "Temas de iconos"
 
 #: cambalache/cmb_property.py:225
 #, python-brace-format
@@ -1543,13 +1542,12 @@ msgid "Bind {object}::{property} to {expression_type}"
 msgstr "Enlazar {object}::{property} a {expression_type}"
 
 #: cambalache/cmb_property_label.ui:42
-#, fuzzy
 msgid "Reset property"
-msgstr "propiedad"
+msgstr "Restablecer propiedad"
 
 #: cambalache/cmb_property_label.ui:53
 msgid "Serialize default"
-msgstr ""
+msgstr "Serializar valor por defecto"
 
 #: cambalache/cmb_signal_editor.ui:44
 msgid "Signal"
@@ -1850,7 +1848,7 @@ msgstr ""
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:19
 msgid "Getting ready for release 1.0!"
-msgstr ""
+msgstr "¡Preparándonos para la versión 1.0!"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:21
 msgid "Add GtkExpression support"
@@ -1862,25 +1860,23 @@ msgstr "Agrega soporte para Blueprint"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:23
 msgid "Project Settings dialog"
-msgstr ""
+msgstr "Diálogo de configuración de proyecto"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:24
-#, fuzzy
 msgid "3rd party libraries selector"
-msgstr "¡Lanzamiento de bibliotecas de terceros!"
+msgstr "Selector de bibliotecas de terceros"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:25
 msgid "Icon theme path support"
-msgstr ""
+msgstr "Compatibilidad de ruta de temas de iconos"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:26
-#, fuzzy
 msgid "CSS editor UX improvements"
-msgstr "Muchos arreglos y mejoras menores en la UI"
+msgstr "Mejoras en el editor de CSS"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:27
 msgid "New Project and donate pages to dialogs. Matthieu Lorier"
-msgstr ""
+msgstr "Diálogos de Nuevo proyecto y donaciones. Matthieu Lorier"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:28
 msgid "Improved workspace rendering"
@@ -1888,19 +1884,19 @@ msgstr "Mejora el rendimiento del área de trabajo"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:29
 msgid "Scrollable workspace"
-msgstr "Área de trabajo de Cambalache"
+msgstr "Área de trabajo desplazable"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:30
 msgid "Monitor files for external changes"
-msgstr ""
+msgstr "Detección de cambios externos en archivos"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:31
 msgid "Add support for more types like GIcon, GdkCursor etc"
-msgstr "Soporte para importar varios archivos a la vez"
+msgstr "Soporte de mas tipos como GICon, GdkCursor etc"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:32
 msgid "Support loading unknown types and properties"
-msgstr "Agrega soporte para clases y propiedades de SDK 45"
+msgstr "Soporte de propiedades y tipos desconocidos"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:33
 msgid "Deprecate project format 0.94 and older"
