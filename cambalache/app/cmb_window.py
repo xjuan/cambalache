@@ -184,7 +184,6 @@ class CmbWindow(Adw.ApplicationWindow):
             "inspect",
             "intro",
             "liberapay",
-            "new",
             "notification",
             "open",
             "open_inspector",
@@ -196,7 +195,6 @@ class CmbWindow(Adw.ApplicationWindow):
             "remove_placeholder_row",
             "save",
             "save_as",
-            "select_project_location",
             "settings",
             "show_workspace",
             "undo",
@@ -643,12 +641,6 @@ class CmbWindow(Adw.ApplicationWindow):
         else:
             self.title.remove_css_class("changed")
 
-    def __update_action_new(self):
-        if self.new_project_dialog:
-            self.actions["new"].set_enabled(bool(self.new_project_dialog.name_entry.props.text))
-        else:
-            self.actions["new"].set_enabled(False)
-
     def __update_actions(self):
         has_project = self.__is_project_visible()
 
@@ -666,7 +658,6 @@ class CmbWindow(Adw.ApplicationWindow):
         ]:
             self.actions[action].set_enabled(has_project)
 
-        self.__update_action_new()
         self.__update_action_save()
         self.__update_action_intro()
         self.__update_action_notification()
@@ -914,52 +905,20 @@ class CmbWindow(Adw.ApplicationWindow):
         dialog = self.__file_open_dialog_new(_("Choose project to open"), filter_obj=self.open_filter)
         dialog.open(self, None, dialog_callback)
 
-    def _on_select_project_location_activate(self, action, data):
-        def dialog_callback(dialog, res):
-            try:
-                self.new_project_dialog.np_location = dialog.select_folder_finish(res).get_path()
-                self.new_project_dialog.location_row.props.subtitle = self.new_project_dialog.np_location
-
-            except Exception as e:
-                logger.warning(f"Error {e}")
-
-        dialog = self.__file_open_dialog_new(_("Select project location"))
-        dialog.select_folder(self, None, dialog_callback)
-
     def _on_create_new_activate(self, action, data):
         self.new_project_dialog = CmbNewProjectDialog()
-        self.new_project_dialog.setup_default_project_location()
-        self.new_project_dialog.connect("name-changed", self.__on_np_name_changed)
+        self.new_project_dialog.connect("create-new-project", self.__on_create_new_project)
         self.new_project_dialog.present(self)
 
-    def __on_np_name_changed(self, np_page):
-        self.__update_action_new()
-
-    def _on_new_activate(self, action, data):
-        self.new_project_dialog.disconnect_by_func(self.__on_np_name_changed)
-        name = self.new_project_dialog.name_entry.props.text
-        uiname = self.new_project_dialog.ui_filename_entry.props.text
-        filename = ""
-        uipath = ""
-        target_tk = self.new_project_dialog.toolkit_chooser.props.active_name
-
-        if len(name):
-            name, ext = os.path.splitext(name)
-            filename = os.path.join(self.new_project_dialog.np_location, name + ".cmb")
-
-            if len(uiname) == 0:
-                uiname = self.new_project_dialog.name_entry.props.text + ".ui"
-
-            if os.path.exists(filename):
-                self.present_message_to_user(_("File name already exists, choose a different name."))
-                self.set_focus(self.new_project_dialog.name_entry)
-                return
-
-            uipath = os.path.join(self.new_project_dialog.np_location, uiname)
-
-        self.props.application.activate_action("new", GLib.Variant("(sss)", (target_tk, filename, uipath)))
+    def __on_create_new_project(self, dialog, target_tk, filename, uipath):
+        # Close dialog
         self.new_project_dialog.close()
         self.new_project_dialog = None
+
+        # Emit application new action
+        self.props.application.activate_action("new", GLib.Variant("(sss)", (target_tk, filename, uipath)))
+
+        # Switch to workspace page if project was created
         self.__set_page("workspace" if self.project else "cambalache")
 
     def __on_undo_redo_activate(self, undo):

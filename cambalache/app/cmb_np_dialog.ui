@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.99.11 -->
+<!-- Created with Cambalache 0.99.14 -->
 <interface>
   <!-- interface-name cmb_np_page.ui -->
   <!-- interface-copyright Matthieu Lorier -->
@@ -11,6 +11,8 @@
       <object class="AdwToolbarView">
         <property name="content">
           <object class="AdwPreferencesPage">
+            <property name="description"/>
+            <property name="title"/>
             <child>
               <object class="AdwPreferencesGroup">
                 <child>
@@ -31,13 +33,13 @@
                     <property name="title" translatable="yes">Location</property>
                     <child>
                       <object class="GtkButton">
-                        <property name="action-name">win.select_project_location</property>
                         <property name="child">
                           <object class="AdwButtonContent">
                             <property name="icon-name">folder-open-symbolic</property>
                           </object>
                         </property>
                         <property name="valign">center</property>
+                        <signal name="clicked" handler="on_location_button_clicked"/>
                       </object>
                     </child>
                   </object>
@@ -110,12 +112,14 @@
             </child>
             <child>
               <object class="AdwPreferencesGroup">
+                <property name="description"/>
+                <property name="title"/>
                 <child>
                   <object class="GtkButton" id="create_button">
-                    <property name="action-name">win.new</property>
                     <property name="halign">center</property>
                     <property name="label" translatable="yes">Create</property>
                     <property name="sensitive">False</property>
+                    <signal name="clicked" handler="on_create_button_clicked"/>
                     <style>
                       <class name="suggested-action"/>
                       <class name="pill"/>

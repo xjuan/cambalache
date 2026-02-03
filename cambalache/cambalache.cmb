@@ -244,7 +244,7 @@
   </ui>
   <ui template-class="CmbProjectSettings" filename="cmb_project_settings.ui" sha256="a2f46a259b0a86ec6b4b8097580ef208b211f2954d2044648a2633360ffc162f"/>
   <ui template-class="CmbLibraryRow" filename="cmb_library_row.ui" sha256="0572248d230c1ad83a2d9b6ab69986792b2a27cdb0ae1a1299bccf67679afa49"/>
-  <ui template-class="CmbNewProjectDialog" filename="app/cmb_np_dialog.ui" sha256="45830b84734a8536c20f51a30545157162b24da153b16c513c8e72ff70652fbf"/>
+  <ui template-class="CmbNewProjectDialog" filename="app/cmb_np_dialog.ui" sha256="b719c0548bdb4cf018f283ba227c14b69af5927546ffad2a63eeaba38a290996"/>
   <ui template-class="CmbPropertyLabel" filename="cmb_property_label.ui" sha256="a1e3a35e84cd16ba64b0d470f1a6bf95d42167e22b9545accd6afcba0e81b93f"/>
   <ui template-class="CmbDonateDialog" filename="app/cmb_donate_dialog.ui" sha256="fbe3a204862834b049f248735c3566af1d3c1cf959729ab98a7ead9404f2d711"/>
   <ui template-class="CmbPixbufEntry">
