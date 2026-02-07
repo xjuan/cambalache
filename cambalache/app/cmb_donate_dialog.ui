@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.99.13 -->
+<!-- Created with Cambalache 0.99.14 -->
 <interface>
   <!-- interface-name cmb_donate_dialog.ui -->
   <!-- interface-copyright Matthieu Lorier -->
@@ -21,9 +21,9 @@
                 <property name="vexpand">True</property>
                 <child>
                   <object class="GtkImage">
+                    <property name="icon-name">cmb-lp-logo</property>
                     <property name="margin-bottom">30</property>
                     <property name="pixel-size">80</property>
-                    <property name="resource">/ar/xjuan/Cambalache/app/images/lp-logo.svg</property>
                   </object>
                 </child>
                 <child>
@@ -82,9 +82,9 @@
                 <property name="vexpand">True</property>
                 <child>
                   <object class="GtkImage">
+                    <property name="icon-name">cmb-patreon-logo</property>
                     <property name="margin-bottom">30</property>
                     <property name="pixel-size">80</property>
-                    <property name="resource">/ar/xjuan/Cambalache/app/images/patreon-logo.svg</property>
                   </object>
                 </child>
                 <child>

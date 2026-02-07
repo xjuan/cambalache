@@ -122,10 +122,10 @@ class CmbPropertyLabel(Gtk.Button):
             return
 
         if self.prop.bind_property_id or self.prop.binding_expression_id:
-            self.bind_icon.props.icon_name = "binded-symbolic"
+            self.bind_icon.props.icon_name = "cmb-binded-symbolic"
             self.remove_css_class("hidden")
         else:
-            self.bind_icon.props.icon_name = "bind-symbolic"
+            self.bind_icon.props.icon_name = "cmb-bind-symbolic"
             self.add_css_class("hidden")
 
     def __on_bind_button_clicked(self, button):

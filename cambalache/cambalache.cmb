@@ -2,11 +2,12 @@
 <!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
 <!-- Created with Cambalache 0.99.14 -->
 <cambalache-project version="0.99.0" target_tk="gtk-4.0" depends="casilda-1.0,libadwaita-1">
+  <icontheme-search-path>app/icons</icontheme-search-path>
   <icontheme-search-path>icons/scalable/actions</icontheme-search-path>
-  <gresources filename="cambalache.gresource.xml" sha256="7c068391e2e8ffce2c396fb2fd0fec6cbdb286bcca46b8e6ee37bcdeeb977732"/>
-  <gresources filename="app/app.gresource.xml" sha256="4100bef5f094ad905285658c2c5bff727056d1183cadfce22354be94ebb8bd10"/>
-  <css priority="400" is_global="1" filename="cambalache.css" sha256="459f451ecb95118a6774f3a40efb10fd74210b7a1f197739c55d0a82a14dce92"/>
-  <css priority="600" is_global="0" filename="app/cambalache.css" sha256="387d1272255abd820cb981f854ce89fbb729a4487a04468de9262f106663ac41"/>
+  <gresources filename="cambalache.gresource.xml" sha256="28221d7959cd23deb33ef48ccfdcd5490c6d096767aa4b658de176b2de3adbb0"/>
+  <gresources filename="app/app.gresource.xml" sha256="9225b142509f81b1753e6e0f4bc15305d5ae0373065b32e9f93f38ad68e2199b"/>
+  <css priority="400" is_global="1" filename="cambalache.css" sha256="22c6df37cd19cc26ca3b6266e122942d5782f6d6c51385c43fc13b1e3c56e9e0"/>
+  <css priority="600" is_global="0" filename="app/cambalache.css" sha256="bd62fc4abdc547c99191a6ebbbc7b6ae36fb05219f7db16d78e9c0f0a75c5864"/>
   <ui template-class="CmbChildTypeComboBox">
     <content><![CDATA[<interface>
   <!-- interface-name CmbChildTypeComboBox -->
@@ -221,7 +222,7 @@
   <ui template-class="CmbMessageNotificationView" filename="cmb_message_notification_view.ui" sha256="debeffd184e225d82ed29ac590654b8160363e8d5606366dc8acb3ff9840fee3"/>
   <ui template-class="CmbPollNotificationView" filename="cmb_poll_notification_view.ui" sha256="8f47a1e503b85eb5ac3ac54962a40fc2237588e1216afba859a3016a1dcfc121"/>
   <ui template-class="CmbPollOptionCheck" filename="cmb_poll_option_check.ui" sha256="aa433f201dc1863f3727e1baa2c4cc239192a1ae4c53553de69d529ba2cc6fed"/>
-  <ui template-class="CmbNotificationListRow" filename="cmb_notification_list_row.ui" sha256="c2900d7b5011723368454cfcb087447a625e6d2597a5b64b6287b8fc000125b8"/>
+  <ui template-class="CmbNotificationListRow" filename="cmb_notification_list_row.ui" sha256="759ae3c8c0fe424ff0245cb0450aa4e666521cb86bd2feb99b5f90a592012fd1"/>
   <ui template-class="CmbPropertyChooser">
     <content><![CDATA[<interface>
   <requires lib="gtk" version="4.0"/>
@@ -244,9 +245,9 @@
   </ui>
   <ui template-class="CmbProjectSettings" filename="cmb_project_settings.ui" sha256="a2f46a259b0a86ec6b4b8097580ef208b211f2954d2044648a2633360ffc162f"/>
   <ui template-class="CmbLibraryRow" filename="cmb_library_row.ui" sha256="0572248d230c1ad83a2d9b6ab69986792b2a27cdb0ae1a1299bccf67679afa49"/>
-  <ui template-class="CmbNewProjectDialog" filename="app/cmb_np_dialog.ui" sha256="b719c0548bdb4cf018f283ba227c14b69af5927546ffad2a63eeaba38a290996"/>
+  <ui template-class="CmbNewProjectDialog" filename="app/cmb_np_dialog.ui" sha256="610ac1d6f046c2717aa926d90b3e6ac8a8fac91a1723f64aadfe525942d6e7f7"/>
   <ui template-class="CmbPropertyLabel" filename="cmb_property_label.ui" sha256="a1e3a35e84cd16ba64b0d470f1a6bf95d42167e22b9545accd6afcba0e81b93f"/>
-  <ui template-class="CmbDonateDialog" filename="app/cmb_donate_dialog.ui" sha256="fbe3a204862834b049f248735c3566af1d3c1cf959729ab98a7ead9404f2d711"/>
+  <ui template-class="CmbDonateDialog" filename="app/cmb_donate_dialog.ui" sha256="0efa053ba8d0e30440a0c2d73373af6855944514cd61aac996245fd65b667ef0"/>
   <ui template-class="CmbPixbufEntry">
     <requires>CmbFileEntry</requires>
     <content><![CDATA[<interface>
@@ -281,7 +282,7 @@
     <requires>CmbFileButton</requires>
     <requires>CmbEntry</requires>
   </ui>
-  <ui template-class="CmbBindingPopover" filename="cmb_binding_popover.ui" sha256="8e0dd04c5547b632794db8d154bcc94396a72caa5e5310aca9736e3f832c340f">
+  <ui template-class="CmbBindingPopover" filename="cmb_binding_popover.ui" sha256="db1d4be335749e68f3b0976730a13fe5be857b5ad941387dd1977b43925d4a79">
     <requires>CmbObjectChooser</requires>
     <requires>CmbPropertyChooser</requires>
     <requires>CmbFlagsEntry</requires>
@@ -303,7 +304,7 @@
     <requires>CmbUIRequiresEditor</requires>
     <requires>CmbFragmentEditor</requires>
   </ui>
-  <ui template-class="CmbWindow" filename="app/cmb_window.ui" sha256="0537e3c5eb77e0cb88bb4e1a9e4156d7b8b1427c730bbd0c43b2ba1652aa78b1">
+  <ui template-class="CmbWindow" filename="app/cmb_window.ui" sha256="db6cad7f38f5b3e63b7683b6c404de4214059b12fe9b86c808d11573facf4c5a">
     <requires>CmbNotificationListView</requires>
     <requires>CmbObjectEditor</requires>
     <requires>CmbUIEditor</requires>

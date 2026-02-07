@@ -28,24 +28,6 @@ window.cmb-window label.message {
   background-color: rgba(0, 0, 0, .6);
 }
 
-window.cmb-window list.notifications {
-  margin: 1em 2em;
-  border-radius: 1em;
-  border:  1px solid  var(--secondary-sidebar-border-color);
-}
-
-window.cmb-window list.notifications > row {
-  padding: 1ex;
-}
-
-window.cmb-window list.notifications > row:last-child {
-  border-width: 0;
-}
-
-window.cmb-window list.notifications row > revealer > box > box:last-child {
-  padding: 0 1em;
-}
-
 window.cmb-window.dark .message {
   color: black;
   background-color: rgba(255, 255, 255, .6);
@@ -132,4 +114,8 @@ windowtitle.changed {
 
 CmbDonateDialog label.donate-desc {
   font-size: 1.1em;
+}
+
+popover.notifications > * {
+  background-color: @window_bg_color;
 }

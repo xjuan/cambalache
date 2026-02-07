@@ -89,7 +89,9 @@ class CmbWindow(Adw.ApplicationWindow):
     logo = Gtk.Template.Child()
     version_label = Gtk.Template.Child()
     front_notification_list_view = Gtk.Template.Child()
-    notification_dialog = Gtk.Template.Child()
+
+    # Notification
+    notification_button = Gtk.Template.Child()
     notification_list_view = Gtk.Template.Child()
 
     # Window message
@@ -184,7 +186,6 @@ class CmbWindow(Adw.ApplicationWindow):
             "inspect",
             "intro",
             "liberapay",
-            "notification",
             "open",
             "open_inspector",
             "paste",
@@ -324,7 +325,8 @@ class CmbWindow(Adw.ApplicationWindow):
 
         self.notification_list_view.notification_center = notification_center
         self.front_notification_list_view.notification_center = notification_center
-        notification_center.connect("new-notification", self.__on_new_notification)
+        notification_center.store.connect("items-changed", self.__on_notification_center_store_items_changed)
+        self.__update_notification_status()
 
     def __get_recent_manager(self):
         # Load the user host recently used file
@@ -595,9 +597,6 @@ class CmbWindow(Adw.ApplicationWindow):
 
         self.intro_button.set_visible(enabled)
 
-    def __update_action_notification(self):
-        self.actions["notification"].set_enabled(len(notification_center.store) > 0)
-
     def __update_action_add_object(self):
         has_project = self.__is_project_visible()
         has_selection = True if self.project and len(self.project.get_selection()) > 0 else False
@@ -660,7 +659,6 @@ class CmbWindow(Adw.ApplicationWindow):
 
         self.__update_action_save()
         self.__update_action_intro()
-        self.__update_action_notification()
         self.__update_action_clipboard()
         self.__update_action_undo_redo()
         self.__update_action_add_object()
@@ -1617,14 +1615,35 @@ class CmbWindow(Adw.ApplicationWindow):
         else:
             self.message_revealer.props.reveal_child = False
 
-    def __notification_present(self):
-        if self.stack.get_visible_child_name() != "cambalache":
-            self.notification_dialog.present(self)
+    @Gtk.Template.Callback("on_notification_close_button")
+    def __on_notification_close_button(self, button):
+        self.notification_button.props.popover.props.autohide = True
+        self.notification_button.popdown()
 
-    def _on_notification_activate(self, action, data):
-        self.__notification_present()
+    def __on_notification_popover_timeout(self, data):
+        self.notification_button.props.popover.props.autohide = True
+        self.notification_button.popdown()
+        return GLib.SOURCE_REMOVE
 
-    def __on_new_notification(self, center, notification):
-        self.__notification_present()
-        self.__update_action_notification()
+    def __on_notification_center_store_items_changed(self, store, position, removed, added):
+        self.__update_notification_status()
+
+        if added and self.stack.get_visible_child_name() != "cambalache":
+            # Set autohide to false, otherwise popover is immediately closed and input does not work anymore
+            self.notification_button.props.popover.props.autohide = False
+            self.notification_button.popup()
+            GLib.timeout_add_seconds(60, self.__on_notification_popover_timeout, None)
+
+    def __update_notification_status(self):
+        enabled = bool(notification_center.store.props.n_items > 0)
+
+        if enabled:
+            self.notification_button.remove_css_class("hidden")
+            self.notification_button.set_visible(True)
+            self.notification_button.set_sensitive(True)
+        else:
+            self.notification_button.add_css_class("hidden")
+            self.notification_button.set_sensitive(False)
+            self.notification_button.popdown()
+
 

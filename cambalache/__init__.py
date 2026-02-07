@@ -53,7 +53,8 @@ resource._register()
 provider = Gtk.CssProvider()
 provider.load_from_resource("/ar/xjuan/Cambalache/cambalache.css")
 display = Gdk.Display.get_default()
-Gtk.StyleContext.add_provider_for_display(display, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION - 1)
+Gtk.StyleContext.add_provider_for_display(display, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+
 
 # FIXME: this is needed in flatpak for icons to work
 Gtk.IconTheme.get_for_display(display).add_search_path("/app/share/icons")

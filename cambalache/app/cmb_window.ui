@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.99.13 -->
+<!-- Created with Cambalache 0.99.14 -->
 <interface>
   <!-- interface-name cmb_window.ui -->
   <!-- interface-copyright Juan Pablo Ugarte -->
@@ -58,10 +58,6 @@
       <item>
         <attribute name="action">win.intro</attribute>
         <attribute name="label" translatable="yes">Interactive intro</attribute>
-      </item>
-      <item>
-        <attribute name="action">win.notification</attribute>
-        <attribute name="label" translatable="yes">Notifications</attribute>
       </item>
       <item>
         <attribute name="action">win.contact</attribute>
@@ -183,9 +179,64 @@
                 <property name="tooltip-text" translatable="yes">Start interactive introduction</property>
                 <child>
                   <object class="GtkImage">
-                    <property name="icon-name">start-here-symbolic</property>
+                    <property name="icon-name">dialog-information-symbolic</property>
                   </object>
                 </child>
+              </object>
+            </child>
+            <child type="end">
+              <object class="GtkMenuButton" id="notification_button">
+                <property name="popover">
+                  <object class="GtkPopover" id="notification_popover">
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="hexpand">True</property>
+                            <property name="spacing">6</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="attributes">weight bold</property>
+                                <property name="halign">center</property>
+                                <property name="hexpand">True</property>
+                                <property name="label" translatable="yes">Notifications</property>
+                                <property name="margin-start">20</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="notification_close_button">
+                                <property name="icon-name">window-close-symbolic</property>
+                                <signal name="clicked" handler="on_notification_close_button"/>
+                                <style>
+                                  <class name="cmb-close"/>
+                                  <class name="flat"/>
+                                  <class name="compact"/>
+                                </style>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="CmbNotificationListView" id="notification_list_view"/>
+                        </child>
+                      </object>
+                    </child>
+                    <style>
+                      <class name="notifications"/>
+                    </style>
+                  </object>
+                </property>
+                <property name="tooltip-text" translatable="yes">Notifications</property>
+                <property name="visible">False</property>
+                <child>
+                  <object class="GtkImage">
+                    <property name="icon-name">cmb-notifications</property>
+                  </object>
+                </child>
+                <style>
+                  <class name="flat"/>
+                </style>
               </object>
             </child>
           </object>
@@ -471,20 +522,5 @@ application/x-glade
 text/css</property>
     <property name="name">All supported files</property>
     <property name="suffixes">gresource.xml</property>
-  </object>
-  <object class="AdwDialog" id="notification_dialog">
-    <property name="child">
-      <object class="GtkBox">
-        <property name="orientation">vertical</property>
-        <child>
-          <object class="AdwHeaderBar"/>
-        </child>
-        <child>
-          <object class="CmbNotificationListView" id="notification_list_view"/>
-        </child>
-      </object>
-    </property>
-    <property name="follows-content-size">True</property>
-    <property name="title" translatable="yes">Notifications</property>
   </object>
 </interface>

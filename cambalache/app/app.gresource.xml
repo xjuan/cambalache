@@ -11,9 +11,5 @@
     <file>cambalache.css</file>
     <file compressed="true" preprocess="xml-stripblanks">images/logo.gpa</file>
     <file compressed="true" preprocess="xml-stripblanks">images/logo-dark.gpa</file>
-    <file preprocess="xml-stripblanks">images/gtk3.svg</file>
-    <file preprocess="xml-stripblanks">images/gtk4.svg</file>
-    <file preprocess="xml-stripblanks">images/lp-logo.svg</file>
-    <file preprocess="xml-stripblanks">images/patreon-logo.svg</file>
   </gresource>
 </gresources>

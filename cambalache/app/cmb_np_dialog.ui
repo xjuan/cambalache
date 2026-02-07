@@ -61,7 +61,7 @@
                                 <property name="spacing">3</property>
                                 <child>
                                   <object class="GtkImage">
-                                    <property name="resource">/ar/xjuan/Cambalache/app/images/gtk3.svg</property>
+                                    <property name="icon-name">cmb-gtk3</property>
                                     <style>
                                       <class name="icon-size-24"/>
                                     </style>
@@ -87,7 +87,7 @@
                                 <property name="spacing">3</property>
                                 <child>
                                   <object class="GtkImage">
-                                    <property name="resource">/ar/xjuan/Cambalache/app/images/gtk4.svg</property>
+                                    <property name="icon-name">cmb-gtk4</property>
                                     <style>
                                       <class name="icon-size-24"/>
                                     </style>

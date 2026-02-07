@@ -30,6 +30,7 @@ popover.cmb-icon-chooser iconview:not(:selected) {
 }
 
 button.hidden,
+menubutton.hidden,
 CmbPropertyLabel.hidden > box > image {
   opacity: 0;
   transition: opacity 200ms ease-in-out 0;
@@ -146,3 +147,26 @@ CmbCSSEditor GtkSourceAssistant.background {
   color: white;
 }
 
+
+list.notifications {
+  margin: 1em 2em;
+  border-radius: 1em;
+  border: 1px solid  var(--secondary-sidebar-border-color);
+}
+
+list.notifications > row {
+  padding: 1em;
+}
+
+list.notifications > row:last-child {
+  border-width: 0;
+}
+
+row.cmb-notification-list-row button.cmb-close {
+  opacity: 0;
+  transition: opacity 200ms ease-in-out 0;
+}
+
+row.cmb-notification-list-row:hover button.cmb-close {
+  opacity: 1;
+}

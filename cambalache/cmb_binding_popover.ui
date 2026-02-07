@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.97.6 -->
+<!-- Created with Cambalache 0.99.14 -->
 <interface>
   <!-- interface-name cmb_property_binding_widget.ui -->
   <requires lib="gtk" version="4.18"/>
@@ -167,6 +167,9 @@
                 <property name="hexpand">True</property>
                 <property name="icon-name">window-close-symbolic</property>
                 <signal name="clicked" handler="on_close_clicked"/>
+                <style>
+                  <class name="flat"/>
+                </style>
                 <layout>
                   <property name="column">1</property>
                   <property name="row">0</property>

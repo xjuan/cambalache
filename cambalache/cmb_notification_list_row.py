@@ -48,7 +48,9 @@ class CmbNotificationListRow(Gtk.ListBoxRow):
         notification = self.view.notification
         start_date = datetime.datetime.utcfromtimestamp(notification.start_date).strftime("%x")
         self.date_label.set_label(f"<small>{start_date}</small>")
-        self.box.append(self.view)
+        self.box.prepend(self.view)
+
+        self.add_css_class("cmb-notification-list-row")
 
     @Gtk.Template.Callback("on_map")
     def __on_map(self, w):

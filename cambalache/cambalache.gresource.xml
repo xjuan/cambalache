@@ -32,7 +32,12 @@
     <file>db/cmb_base.sql</file>
     <file>db/cmb_history.sql</file>
     <file>db/cmb_project.sql</file>
-    <file>icons/scalable/actions/bind-symbolic.svg</file>
-    <file>icons/scalable/actions/binded-symbolic.svg</file>
+    <file>icons/scalable/actions/cmb-bind-symbolic.svg</file>
+    <file>icons/scalable/actions/cmb-binded-symbolic.svg</file>
+    <file>icons/scalable/actions/cmb-gtk3.svg</file>
+    <file>icons/scalable/actions/cmb-gtk4.svg</file>
+    <file>icons/scalable/actions/cmb-lp-logo.svg</file>
+    <file>icons/scalable/actions/cmb-notifications-symbolic.svg</file>
+    <file>icons/scalable/actions/cmb-patreon-logo.svg</file>
   </gresource>
 </gresources>
