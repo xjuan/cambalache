@@ -168,7 +168,8 @@ class CmbNotificationCenter(GObject.GObject):
         logger.info(f"User Agent: {self.user_agent}")
         logger.info(f"UUID: {self.uuid}")
 
-        self._get_notification()
+        # Wait a few seconds before pooling
+        GLib.timeout_add_seconds(4, self._get_notification)
 
     def __get_container(self):
         if "FLATPAK_ID" in os.environ:
