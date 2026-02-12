@@ -64,6 +64,7 @@ class CmbContextMenu(Gtk.PopoverMenu):
             "GtkExpander",
             "GtkRevealer",
             "GtkOverlay",
+            "GtkScrolledWindow",
         ]
 
         if self.target_tk == "gtk+-3.0":
