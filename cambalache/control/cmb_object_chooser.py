@@ -100,29 +100,32 @@ class CmbObjectChooser(Gtk.Entry):
 
     def __on_drop_drop(self, target, origin_item, x, y):
         if self.is_inline:
+            project = self.parent.project
             prop = self.parent.properties_dict.get(self.inline_property_id, None)
 
             if prop is None:
                 return
 
-            self.parent.project.history_push(_("Move {name} to {property}").format(
+            project.history_push(_("Move {name} to {property}").format(
                 name=origin_item.display_name,
-                property=f"{self.parent.type_id}::{self.inline_property_id}"))
+                property=f"{self.parent.type_id}::{self.inline_property_id}")
+            )
+
+            if prop.inline_object_id:
+                old_inline_object = project.get_object_by_id(prop.ui_id, prop.inline_object_id)
+                project.remove_object(old_inline_object)
 
             # TODO: implement this in plain SQL
             parent_id = self.parent.object_id
             object_id = origin_item.object_id
 
             origin_item.parent_id = parent_id
-            origin_item.inline_property_id = self.inline_property_id
-
             prop.value = object_id
-
             prop.inline_object_id = object_id
             self.inline_object_id = object_id
             self.__update_icons()
 
-            self.parent.project.history_pop()
+            project.history_pop()
         else:
             # TODO: ensure dragged object has an id
             # Select dragged object id
