@@ -1544,7 +1544,7 @@ class CmbWindow(Adw.ApplicationWindow):
             filename, host = GLib.filename_from_uri(recent.get_uri())
 
             item = Gio.MenuItem()
-            item.set_label(recent.get_display_name())
+            item.set_label(recent.get_display_name().replace("_", "__"))
             item.set_action_and_target_value("win.open_recent", GLib.Variant("s", filename))
             self.recent_menu.append_item(item)
 
