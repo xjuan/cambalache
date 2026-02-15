@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cambalache\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-02 12:59-0500\n"
+"POT-Creation-Date: 2026-02-15 13:49-0500\n"
 "PO-Revision-Date: 2025-11-29 23:32-0300\n"
 "Last-Translator: John peter sa <johnppetersa@gmail.com>\n"
 "Language-Team: \n"
@@ -62,7 +62,7 @@ msgstr ""
 
 #: cambalache/app/cmb_donate_dialog.ui:61
 #: cambalache/app/cmb_donate_dialog.ui:122 cambalache/app/cmb_tutorial.py:84
-#: cambalache/app/cmb_window.ui:72
+#: cambalache/app/cmb_window.ui:68
 msgid "Donate"
 msgstr "Doar"
 
@@ -99,46 +99,54 @@ msgstr ""
 msgid "Help us continue developing"
 msgstr ""
 
-#: cambalache/app/cmb_np_dialog.ui:18
+#: cambalache/app/cmb_np_dialog.py:74 cambalache/app/cmb_np_dialog.py:122
+msgid "File name already exists, choose a different name."
+msgstr "O nome do arquivo já existe, escolha um nome diferente."
+
+#: cambalache/app/cmb_np_dialog.py:103
+msgid "Select project location"
+msgstr "Selecione o local do projeto"
+
+#: cambalache/app/cmb_np_dialog.ui:20
 #, fuzzy
 msgid "Project Name"
 msgstr "Visualização do Projeto"
 
-#: cambalache/app/cmb_np_dialog.ui:25
+#: cambalache/app/cmb_np_dialog.ui:27
 msgid "UI Filename"
 msgstr "Nome do arquivo da interface do usuário"
 
-#: cambalache/app/cmb_np_dialog.ui:31
+#: cambalache/app/cmb_np_dialog.ui:33
 msgid "Location"
 msgstr "Localização"
 
-#: cambalache/app/cmb_np_dialog.ui:47
+#: cambalache/app/cmb_np_dialog.ui:49
 #, fuzzy
 msgid "Toolkit Target"
 msgstr "Alvo do kit de ferramentas"
 
-#: cambalache/app/cmb_np_dialog.ui:70
+#: cambalache/app/cmb_np_dialog.ui:72
 msgid "Gtk 3"
 msgstr ""
 
-#: cambalache/app/cmb_np_dialog.ui:76
+#: cambalache/app/cmb_np_dialog.ui:78
 msgid "Old stable version"
 msgstr "Versão estável mais antiga"
 
-#: cambalache/app/cmb_np_dialog.ui:96
+#: cambalache/app/cmb_np_dialog.ui:98
 #, fuzzy
 msgid "Gtk 4"
 msgstr "Porta Gtk 4"
 
-#: cambalache/app/cmb_np_dialog.ui:102
+#: cambalache/app/cmb_np_dialog.ui:104
 msgid "Recommended for new projects"
 msgstr "Recomendado para novos projetos"
 
-#: cambalache/app/cmb_np_dialog.ui:117
+#: cambalache/app/cmb_np_dialog.ui:120
 msgid "Create"
 msgstr "Criar"
 
-#: cambalache/app/cmb_np_dialog.ui:136 cambalache/app/cmb_tutorial.py:38
+#: cambalache/app/cmb_np_dialog.ui:140 cambalache/app/cmb_tutorial.py:38
 #: cambalache/app/cmb_window.ui:12
 msgid "New Project"
 msgstr "Novo Projeto"
@@ -175,7 +183,7 @@ msgstr "Feche o projeto"
 msgid "General"
 msgstr "Geral"
 
-#: cambalache/app/cmb_shortcuts.ui:61 cambalache/app/cmb_window.ui:78
+#: cambalache/app/cmb_shortcuts.ui:61 cambalache/app/cmb_window.ui:74
 msgid "Keyboard Shortcuts"
 msgstr "Atalhos de teclado"
 
@@ -183,7 +191,7 @@ msgstr "Atalhos de teclado"
 msgid "Quit application"
 msgstr "Pare de aplicação"
 
-#: cambalache/app/cmb_shortcuts.ui:74 cambalache/app/cmb_window.ui:418
+#: cambalache/app/cmb_shortcuts.ui:74 cambalache/app/cmb_window.ui:469
 msgid "Workspace"
 msgstr "Espaço de trabalho"
 
@@ -239,7 +247,7 @@ msgstr "Onde você pode criar um novo projeto"
 msgid "Import UI files"
 msgstr "Importar arquivos de IU"
 
-#: cambalache/app/cmb_tutorial.py:45 cambalache/app/cmb_window.py:1186
+#: cambalache/app/cmb_tutorial.py:45 cambalache/app/cmb_window.py:1143
 msgid "Import"
 msgstr "Importar"
 
@@ -314,7 +322,7 @@ msgstr "Bem fácil! Não é?"
 msgid "If you have any question, contact us on Matrix!"
 msgstr "Se você tiver alguma dúvida, entre em contato conosco no Matrix!"
 
-#: cambalache/app/cmb_tutorial.py:77 cambalache/app/cmb_window.ui:68
+#: cambalache/app/cmb_tutorial.py:77 cambalache/app/cmb_window.ui:64
 msgid "Contact"
 msgstr "Contato"
 
@@ -330,7 +338,7 @@ msgstr ""
 msgid "Have a nice day!"
 msgstr "Tenha um bom dia!"
 
-#: cambalache/app/cmb_window.py:126
+#: cambalache/app/cmb_window.py:128
 msgid ""
 "Cambalache will not have access to the file for save because it is outside "
 "of your home directory. Consider using Flatseal or flatpak to give "
@@ -341,7 +349,7 @@ msgstr ""
 "permissões ao diretório do host."
 
 #. Bind preview
-#: cambalache/app/cmb_window.py:309
+#: cambalache/app/cmb_window.py:308
 msgid "Hide placeholders"
 msgstr "Ocultar marcadores de posição"
 
@@ -353,43 +361,43 @@ msgstr "Sem título"
 msgid "Hold <alt> to create object in place"
 msgstr "Segure <alt> para criar o objeto no lugar"
 
-#: cambalache/app/cmb_window.py:596 cambalache/app/cmb_window.ui:183
+#: cambalache/app/cmb_window.py:596 cambalache/app/cmb_window.ui:179
 msgid "Start interactive introduction"
 msgstr "Iniciar introdução interativa"
 
-#: cambalache/app/cmb_window.py:702
+#: cambalache/app/cmb_window.py:691
 msgid "Copy to clipboard"
 msgstr "Copiar para a área de transferência"
 
-#: cambalache/app/cmb_window.py:703
+#: cambalache/app/cmb_window.py:692
 msgid "Close"
 msgstr "Fechar"
 
-#: cambalache/app/cmb_window.py:785 cambalache/app/cmb_window.py:1011
-#: cambalache/app/cmb_window.py:1150
+#: cambalache/app/cmb_window.py:774 cambalache/app/cmb_window.py:968
+#: cambalache/app/cmb_window.py:1107
 #, python-brace-format
 msgid "Error importing {filename}"
 msgstr "Erro ao importar {filename}"
 
 #. Translators: This is used to create a unordered list of unsupported features to show the user
-#: cambalache/app/cmb_window.py:789 cambalache/app/cmb_window.py:1134
+#: cambalache/app/cmb_window.py:778 cambalache/app/cmb_window.py:1091
 #, python-brace-format
 msgid "    • {message}"
 msgstr "    • {message}"
 
 #. Translators: This will be the heading of a list of unsupported features
-#: cambalache/app/cmb_window.py:792 cambalache/app/cmb_window.py:1137
+#: cambalache/app/cmb_window.py:781 cambalache/app/cmb_window.py:1094
 msgid "Cambalache encounter the following issues:"
 msgstr "Bagunça enfrenta os seguintes problemas:"
 
 #. Translators: this is the last message after the list of unsupported features
-#: cambalache/app/cmb_window.py:795 cambalache/app/cmb_window.py:1140
+#: cambalache/app/cmb_window.py:784 cambalache/app/cmb_window.py:1097
 #, python-brace-format
 msgid "Your file will be saved as '{name}.cmb.ui' to avoid data loss."
 msgstr ""
 "Seu arquivo será salvo como '{name}.cmb.ui' para evitar perda de dados."
 
-#: cambalache/app/cmb_window.py:805 cambalache/app/cmb_window.py:1146
+#: cambalache/app/cmb_window.py:794 cambalache/app/cmb_window.py:1103
 #, python-brace-format
 msgid ""
 "Cambalache encounter {unsupported_feature}\n"
@@ -398,48 +406,40 @@ msgstr ""
 "Encontro com Bagunça {unsupported_feature}\n"
 "Seu arquivo será salvo como \"{name}.cmb.ui\" para evitar perda de dados."
 
-#: cambalache/app/cmb_window.py:820
+#: cambalache/app/cmb_window.py:809
 #, python-brace-format
 msgid "Exception importing {filename}"
 msgstr "Exceção ao importar {filename}"
 
-#: cambalache/app/cmb_window.py:834
+#: cambalache/app/cmb_window.py:823
 #, python-brace-format
 msgid "Which is the target Gtk version of {filename}?"
 msgstr "Qual é a versão Gtk de destino do {filename}?"
 
-#: cambalache/app/cmb_window.py:880
+#: cambalache/app/cmb_window.py:869
 #, python-brace-format
 msgid "Unknown file type {content_type}"
 msgstr "Tipo de arquivo desconhecido {content_type}"
 
-#: cambalache/app/cmb_window.py:893
+#: cambalache/app/cmb_window.py:882
 #, python-brace-format
 msgid "Error loading {filename}"
 msgstr "Erro ao carregar {filename}"
 
-#: cambalache/app/cmb_window.py:899
+#: cambalache/app/cmb_window.py:888
 #, python-brace-format
 msgid "Error opening {filename}"
 msgstr "Erro ao abrir {filename}"
 
-#: cambalache/app/cmb_window.py:914
+#: cambalache/app/cmb_window.py:903
 msgid "Choose project to open"
 msgstr "Escolha o projeto para abrir"
 
-#: cambalache/app/cmb_window.py:926
-msgid "Select project location"
-msgstr "Selecione o local do projeto"
-
-#: cambalache/app/cmb_window.py:954
-msgid "File name already exists, choose a different name."
-msgstr "O nome do arquivo já existe, escolha um nome diferente."
-
-#: cambalache/app/cmb_window.py:976
+#: cambalache/app/cmb_window.py:933
 msgid "Undo/Redo stack got corrupted"
 msgstr "A pilha Desfazer/Refazer foi corrompida"
 
-#: cambalache/app/cmb_window.py:977
+#: cambalache/app/cmb_window.py:934
 #, python-brace-format
 msgid ""
 "Please try to reproduce and file an issue\n"
@@ -448,95 +448,95 @@ msgstr ""
 "Tente reproduzir e registrar um problema \n"
 " Erro: {msg}"
 
-#: cambalache/app/cmb_window.py:1019 cambalache/app/cmb_window.py:1360
+#: cambalache/app/cmb_window.py:976 cambalache/app/cmb_window.py:1317
 msgid "Choose a new file to save the project"
 msgstr "Escolha um novo arquivo para salvar o projeto"
 
-#: cambalache/app/cmb_window.py:1042
+#: cambalache/app/cmb_window.py:999
 #, python-brace-format
 msgid "Do you really want to remove {name}?"
 msgstr "Você realmente quer remover {name}?"
 
-#: cambalache/app/cmb_window.py:1091
+#: cambalache/app/cmb_window.py:1048
 #, python-brace-format
 msgid "Error deleting {name}"
 msgstr "Erro ao excluir {name}"
 
-#: cambalache/app/cmb_window.py:1184
+#: cambalache/app/cmb_window.py:1141
 msgid "Choose file to import"
 msgstr "Escolha o arquivo para importar"
 
-#: cambalache/app/cmb_window.py:1203
+#: cambalache/app/cmb_window.py:1160
 msgid "Loading directory contents"
 msgstr "Conteúdo do diretório de carregamento"
 
-#: cambalache/app/cmb_window.py:1234
+#: cambalache/app/cmb_window.py:1191
 #, python-brace-format
 msgid "Import {n} directory \"{dirpath}\""
 msgstr "Importar {n} diretório \"{dirpath}\""
 
-#: cambalache/app/cmb_window.py:1254
+#: cambalache/app/cmb_window.py:1211
 #, python-brace-format
 msgid "{errors} files out of {n} had errors while loading"
 msgstr "{errors} arquivos de {n} apresentaram erros durante o carregamento"
 
-#: cambalache/app/cmb_window.py:1256
+#: cambalache/app/cmb_window.py:1213
 #, python-brace-format
 msgid "Error importing directory {basename}"
 msgstr "Erro ao importar o diretório {basename}"
 
-#: cambalache/app/cmb_window.py:1261
+#: cambalache/app/cmb_window.py:1218
 #, python-brace-format
 msgid "Imported {n} files"
 msgstr "Arquivos {n} importados"
 
-#: cambalache/app/cmb_window.py:1269
+#: cambalache/app/cmb_window.py:1226
 msgid "Choose directory to import"
 msgstr "Escolha o diretório para importar"
 
-#: cambalache/app/cmb_window.py:1270 cambalache/app/cmb_window.ui:36
+#: cambalache/app/cmb_window.py:1227 cambalache/app/cmb_window.ui:36
 msgid "Import directory"
 msgstr "Diretório de importação"
 
-#: cambalache/app/cmb_window.py:1289
+#: cambalache/app/cmb_window.py:1246
 msgid "Error saving project"
 msgstr "Erro ao salvar projeto"
 
-#: cambalache/app/cmb_window.py:1290 cambalache/cmb_view.py:234
+#: cambalache/app/cmb_window.py:1247 cambalache/cmb_view.py:234
 msgid "blueprintcompiler encounter the following error:"
 msgid_plural "blueprintcompiler encounter the following errors:"
 msgstr[0] "O compilador de blueprint encontrou o seguinte erro:"
 msgstr[1] "O compilador de blueprints encontrou os seguintes erros:"
 
-#: cambalache/app/cmb_window.py:1305
+#: cambalache/app/cmb_window.py:1262
 msgid "Choose a file to save the project"
 msgstr "Escolha um arquivo para salvar o projeto"
 
-#: cambalache/app/cmb_window.py:1315
+#: cambalache/app/cmb_window.py:1272
 msgid "Save changes before closing?"
 msgstr "Salvar alterações antes de fechar?"
 
-#: cambalache/app/cmb_window.py:1326
+#: cambalache/app/cmb_window.py:1283
 msgid "Close without Saving"
 msgstr "Fechar sem salvar"
 
-#: cambalache/app/cmb_window.py:1328
+#: cambalache/app/cmb_window.py:1285
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: cambalache/app/cmb_window.py:1330 cambalache/app/cmb_window.ui:46
+#: cambalache/app/cmb_window.py:1287 cambalache/app/cmb_window.ui:46
 msgid "Save"
 msgstr "Salvar"
 
-#: cambalache/app/cmb_window.py:1398
+#: cambalache/app/cmb_window.py:1355
 msgid "Supporters"
 msgstr "Apoiadores"
 
-#: cambalache/app/cmb_window.py:1636
+#: cambalache/app/cmb_window.py:1593
 msgid "<Ctrl>+Ins/Del to add/remove placeholders"
 msgstr "<Ctrl>+Ins/Del para adicionar/remover marcadores de posição"
 
-#: cambalache/app/cmb_window.py:1638
+#: cambalache/app/cmb_window.py:1595
 msgid ""
 "<Ctrl>+Ins/Del to add/remove columns\n"
 "<Shift>+<Ctrl>+Ins/Del to add/remove rows"
@@ -544,7 +544,7 @@ msgstr ""
 "<Ctrl>+Ins/Del para adicionar/remover colunas\n"
 "<Shift>+<Ctrl>+Ins/Del para adicionar/remover linhas"
 
-#: cambalache/app/cmb_window.py:1640
+#: cambalache/app/cmb_window.py:1597
 msgid "<Ctrl>+Ins/Del to add/remove pages"
 msgstr "<Ctrl>+Ins/Del para adicionar/remover páginas"
 
@@ -580,44 +580,44 @@ msgstr "Fechar Projeto"
 msgid "Interactive intro"
 msgstr "Introdução interativa"
 
-#: cambalache/app/cmb_window.ui:64 cambalache/app/cmb_window.ui:488
-msgid "Notifications"
-msgstr "Notificações"
-
-#: cambalache/app/cmb_window.ui:82
+#: cambalache/app/cmb_window.ui:78
 msgid "About"
 msgstr "Sobre"
 
-#: cambalache/app/cmb_window.ui:109
+#: cambalache/app/cmb_window.ui:105
 msgid "Recent Projects"
 msgstr "Projetos recentes"
 
-#: cambalache/app/cmb_window.ui:110
+#: cambalache/app/cmb_window.ui:106
 msgid "_Open"
 msgstr "_Abrir"
 
-#: cambalache/app/cmb_window.ui:159
+#: cambalache/app/cmb_window.ui:155
 msgid "Edit project settings"
 msgstr ""
 
-#: cambalache/app/cmb_window.ui:171
+#: cambalache/app/cmb_window.ui:167
 msgid "Add new UI to project"
 msgstr "Adicionar nova IU ao projeto"
 
-#: cambalache/app/cmb_window.ui:264 data/ar.xjuan.Cambalache.desktop.in:2
+#: cambalache/app/cmb_window.ui:203 cambalache/app/cmb_window.ui:230
+msgid "Notifications"
+msgstr "Notificações"
+
+#: cambalache/app/cmb_window.ui:315 data/ar.xjuan.Cambalache.desktop.in:2
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:6
 msgid "Cambalache"
 msgstr "Bagunça"
 
-#: cambalache/app/cmb_window.ui:283
+#: cambalache/app/cmb_window.ui:334
 msgid "Object Editor"
 msgstr "Editor de Objetos"
 
-#: cambalache/app/cmb_window.ui:295
+#: cambalache/app/cmb_window.ui:346
 msgid "UI Editor"
 msgstr "Editor de IU"
 
-#: cambalache/app/cmb_window.ui:307
+#: cambalache/app/cmb_window.ui:358
 msgid "CSS Editor"
 msgstr "Editor CSS"
 
@@ -679,7 +679,7 @@ msgstr "<b>Expressão Gtk</b>"
 msgid "<b>Property Binding</b>"
 msgstr "<b> Ligação da propriedade </b>"
 
-#: cambalache/cmb_context_menu.py:102
+#: cambalache/cmb_context_menu.py:103
 msgid "CSS theme"
 msgstr "Tema CSS"
 
@@ -1114,385 +1114,385 @@ msgstr ""
 msgid "Unknown tag {tag} in project file."
 msgstr "Tag desconhecida {tag} no arquivo de projeto."
 
-#: cambalache/cmb_project.py:562 cambalache/cmb_project.py:1019
+#: cambalache/cmb_project.py:562 cambalache/cmb_project.py:1027
 msgid "Could not load project because of dependency cycle"
 msgstr "Não foi possível carregar o projeto devido ao ciclo de dependência"
 
-#: cambalache/cmb_project.py:859
+#: cambalache/cmb_project.py:867
 #, python-brace-format
 msgid "one unknown class '{detail}'"
 msgstr "uma classe desconhecida '{detail}'"
 
-#: cambalache/cmb_project.py:859
+#: cambalache/cmb_project.py:867
 #, python-brace-format
 msgid "{n} unknown classes ({detail})"
 msgstr "{n} classes desconhecidas ({detail})"
 
-#: cambalache/cmb_project.py:860
+#: cambalache/cmb_project.py:868
 #, python-brace-format
 msgid "one unknown property '{detail}'"
 msgstr "uma propriedade desconhecida '{detail}'"
 
-#: cambalache/cmb_project.py:860
+#: cambalache/cmb_project.py:868
 #, python-brace-format
 msgid "{n} unknown properties ({detail})"
 msgstr "{n} propriedades desconhecidas ({detail})"
 
-#: cambalache/cmb_project.py:861
+#: cambalache/cmb_project.py:869
 #, python-brace-format
 msgid "one unknown signal '{detail}'"
 msgstr "um sinal desconhecido '{detail}'"
 
-#: cambalache/cmb_project.py:861
+#: cambalache/cmb_project.py:869
 #, python-brace-format
 msgid "{n} unknown signals ({detail})"
 msgstr "{n} sinais desconhecidos ({detail})"
 
-#: cambalache/cmb_project.py:862
+#: cambalache/cmb_project.py:870
 #, python-brace-format
 msgid "one unknown tag '{detail}'"
 msgstr "uma tag desconhecida '{detail}'"
 
-#: cambalache/cmb_project.py:862
+#: cambalache/cmb_project.py:870
 #, python-brace-format
 msgid "{n} unknown tags ({detail})"
 msgstr "{n} tags desconhecidas ({detail})"
 
-#: cambalache/cmb_project.py:863
+#: cambalache/cmb_project.py:871
 #, python-brace-format
 msgid "one unknown attribute '{detail}'"
 msgstr "um atributo desconhecido '{detail}'"
 
-#: cambalache/cmb_project.py:863
+#: cambalache/cmb_project.py:871
 #, python-brace-format
 msgid "{n} unknown attributes ({detail})"
 msgstr "{n} atributos desconhecidos ({detail})"
 
-#: cambalache/cmb_project.py:864
+#: cambalache/cmb_project.py:872
 #, python-brace-format
 msgid "one missing attribute '{detail}'"
 msgstr "um atributo ausente '{detail}'"
 
-#: cambalache/cmb_project.py:864
+#: cambalache/cmb_project.py:872
 #, python-brace-format
 msgid "{n} missing attributes ({detail})"
 msgstr "{n} atributos ausentes ({detail})"
 
-#: cambalache/cmb_project.py:865
+#: cambalache/cmb_project.py:873
 #, python-brace-format
 msgid "one wrong inline object '{detail}'"
 msgstr "um objeto embutido errado '{detail}'"
 
-#: cambalache/cmb_project.py:865
+#: cambalache/cmb_project.py:873
 #, python-brace-format
 msgid "{n} wrong inline object ({detail})"
 msgstr "{n} objeto embutido errado ({detail})"
 
-#: cambalache/cmb_project.py:867
+#: cambalache/cmb_project.py:875
 #, python-brace-format
 msgid "a missing parent attribute for template '{detail}'"
 msgstr "Atributo pai ausente para o modelo '{detail}'"
 
-#: cambalache/cmb_project.py:868
+#: cambalache/cmb_project.py:876
 #, python-brace-format
 msgid "{n} missing parent attributes for the following templates ({detail})"
 msgstr "{n} atributos pai ausentes para os seguintes modelos ({detail})"
 
-#: cambalache/cmb_project.py:873
+#: cambalache/cmb_project.py:881
 #, python-brace-format
 msgid "xml:{line} unknown class '{detail}'"
 msgstr "xml:{line} classe desconhecida '{detail}'"
 
-#: cambalache/cmb_project.py:874
+#: cambalache/cmb_project.py:882
 #, python-brace-format
 msgid "xml:{line} unknown property '{detail}'"
 msgstr "xml:{line} propriedade desconhecida '{detail}'"
 
-#: cambalache/cmb_project.py:875
+#: cambalache/cmb_project.py:883
 #, python-brace-format
 msgid "xml:{line} unknown signal '{detail}'"
 msgstr "xml:{line} sinal desconhecido '{detail}'"
 
-#: cambalache/cmb_project.py:876
+#: cambalache/cmb_project.py:884
 #, python-brace-format
 msgid "xml:{line} unknown tag '{detail}'"
 msgstr "xml:{line} tag desconhecida '{detail}'"
 
-#: cambalache/cmb_project.py:877
+#: cambalache/cmb_project.py:885
 #, python-brace-format
 msgid "xml:{line} unknown attribute '{detail}'"
 msgstr "xml:{line} atributo desconhecido '{detail}'"
 
-#: cambalache/cmb_project.py:878
+#: cambalache/cmb_project.py:886
 #, python-brace-format
 msgid "xml:{line} missing attribute '{detail}'"
 msgstr "xml:{line} atributo ausente '{detail}'"
 
-#: cambalache/cmb_project.py:879
+#: cambalache/cmb_project.py:887
 #, python-brace-format
 msgid "xml:{line} not an inline object '{detail}'"
 msgstr "xml:{line} não é um objeto embutido '{detail}'"
 
-#: cambalache/cmb_project.py:880
+#: cambalache/cmb_project.py:888
 #, python-brace-format
 msgid "xml:{line} missing template parent attribute '{detail}'"
 msgstr "xml:{line} atributo pai do modelo ausente '{detail}'"
 
-#: cambalache/cmb_project.py:912
+#: cambalache/cmb_project.py:920
 #, python-brace-format
 msgid "Import file \"{filename}\""
 msgstr "Importar arquivo \"{filename}\""
 
-#: cambalache/cmb_project.py:1024
+#: cambalache/cmb_project.py:1032
 #, python-brace-format
 msgid "Import GResource \"{filename}\""
 msgstr "Importar GResource \"{filename}\""
 
-#: cambalache/cmb_project.py:1106
+#: cambalache/cmb_project.py:1114
 #, python-brace-format
 msgid "Add UI {basename}"
 msgstr "Adicionar IU {basename}"
 
-#: cambalache/cmb_project.py:1122
+#: cambalache/cmb_project.py:1130
 #, python-brace-format
 msgid "Remove UI \"{name}\""
 msgstr "Remover IU \"{name}\""
 
-#: cambalache/cmb_project.py:1164
+#: cambalache/cmb_project.py:1172
 #, python-brace-format
 msgid "Add CSS {basename}"
 msgstr "Adicionar CSS {basename}"
 
-#: cambalache/cmb_project.py:1187
+#: cambalache/cmb_project.py:1195
 #, python-brace-format
 msgid "Remove CSS \"{name}\""
 msgstr "Remover CSS \"{name}\""
 
-#: cambalache/cmb_project.py:1230
+#: cambalache/cmb_project.py:1238
 #, python-brace-format
 msgid "Add GResource {basename}"
 msgstr "Adicionar GResource {basename}"
 
-#: cambalache/cmb_project.py:1232
+#: cambalache/cmb_project.py:1240
 #, python-brace-format
 msgid "Add GResource prefix {prefix}"
 msgstr "Adicionar prefixo GResource {prefix}"
 
-#: cambalache/cmb_project.py:1234
+#: cambalache/cmb_project.py:1242
 #, python-brace-format
 msgid "Add GResource file {filename}"
 msgstr "Adicionar arquivo GResource {filename}"
 
-#: cambalache/cmb_project.py:1270
+#: cambalache/cmb_project.py:1278
 #, python-brace-format
 msgid "Remove GResource \"{name}\""
 msgstr "Remover GResource \"{name}\""
 
-#: cambalache/cmb_project.py:1359
+#: cambalache/cmb_project.py:1367
 #, python-brace-format
 msgid "Add object {name}"
 msgstr "Adicionar objeto {name}"
 
-#: cambalache/cmb_project.py:1402
+#: cambalache/cmb_project.py:1410
 msgid "Internal objects can not be removed"
 msgstr "Objetos internos não podem ser removidos"
 
-#: cambalache/cmb_project.py:1430
+#: cambalache/cmb_project.py:1438
 #, python-brace-format
 msgid "Remove object {name}"
 msgstr "Remover objeto {name}"
 
-#: cambalache/cmb_project.py:1453
+#: cambalache/cmb_project.py:1461
 #, fuzzy, python-brace-format
 msgid "Remove objects from {library}"
 msgstr "Remover objeto {obj}"
 
 #. Translators: This refers to "properties" in object property undo/redo messages
-#: cambalache/cmb_project.py:1963 cambalache/cmb_property.py:193
+#: cambalache/cmb_project.py:1971 cambalache/cmb_property.py:193
 msgid "property"
 msgstr "propriedade"
 
-#: cambalache/cmb_project.py:1966 cambalache/cmb_project.py:2010
+#: cambalache/cmb_project.py:1974 cambalache/cmb_project.py:2018
 msgid "True"
 msgstr "Verdadeiro"
 
-#: cambalache/cmb_project.py:1966 cambalache/cmb_project.py:2010
+#: cambalache/cmb_project.py:1974 cambalache/cmb_project.py:2018
 msgid "False"
 msgstr "Falso"
 
 #. Translators: This refers to accessibility properties in object property undo/redo messages
-#: cambalache/cmb_project.py:1983
+#: cambalache/cmb_project.py:1991
 msgid "a11y property"
 msgstr "propriedade a11y"
 
 #. Translators: This refers to accessibility relations in object property undo/redo messages
-#: cambalache/cmb_project.py:1985
+#: cambalache/cmb_project.py:1993
 msgid "a11y relation"
 msgstr "relação a11y"
 
 #. Translators: This refers to accessibility states in object property undo/redo messages
-#: cambalache/cmb_project.py:1987
+#: cambalache/cmb_project.py:1995
 msgid "a11y state"
 msgstr "estado a11y"
 
 #. Translators: This refers to accessibility actions in object property undo/redo messages
-#: cambalache/cmb_project.py:1989
+#: cambalache/cmb_project.py:1997
 msgid "a11y action"
 msgstr "ação a11y"
 
-#: cambalache/cmb_project.py:2059
+#: cambalache/cmb_project.py:2067
 #, python-brace-format
 msgid "Create UI {ui}"
 msgstr "Criar IU {ui}"
 
-#: cambalache/cmb_project.py:2060
+#: cambalache/cmb_project.py:2068
 #, python-brace-format
 msgid "Remove UI {ui}"
 msgstr "Remover IU {ui}"
 
-#: cambalache/cmb_project.py:2061
+#: cambalache/cmb_project.py:2069
 #, python-brace-format
 msgid "Update {field} of UI {ui}"
 msgstr "Atualizar {field} da IU {ui}"
 
-#: cambalache/cmb_project.py:2064
+#: cambalache/cmb_project.py:2072
 #, python-brace-format
 msgid "Set {ui} {lib} to {version}"
 msgstr "Defina {ui} {lib} como {version}"
 
-#: cambalache/cmb_project.py:2065
+#: cambalache/cmb_project.py:2073
 #, python-brace-format
 msgid "Remove {ui} {lib}"
 msgstr "Remover {ui} {lib}"
 
-#: cambalache/cmb_project.py:2066
+#: cambalache/cmb_project.py:2074
 #, python-brace-format
 msgid "Update {lib} of UI {ui} to {version}"
 msgstr "Atualizar {lib} da IU {ui} para {version}"
 
-#: cambalache/cmb_project.py:2069
+#: cambalache/cmb_project.py:2077
 #, python-brace-format
 msgid "Add CSS provider {css}"
 msgstr "Adicionar provedor CSS {css}"
 
-#: cambalache/cmb_project.py:2070
+#: cambalache/cmb_project.py:2078
 #, python-brace-format
 msgid "Remove CSS provider {css}"
 msgstr "Remover provedor CSS {css}"
 
-#: cambalache/cmb_project.py:2071
+#: cambalache/cmb_project.py:2079
 #, python-brace-format
 msgid "Update {field} of CSS provider {css}"
 msgstr "Atualizar {field} do provedor CSS {css}"
 
-#: cambalache/cmb_project.py:2074
+#: cambalache/cmb_project.py:2082
 #, python-brace-format
 msgid "Add {ui} to CSS provider {css}"
 msgstr "Adicione {ui} ao provedor CSS {css}"
 
-#: cambalache/cmb_project.py:2075
+#: cambalache/cmb_project.py:2083
 #, python-brace-format
 msgid "Remove {ui} from CSS provider {css}"
 msgstr "Remover {ui} do provedor CSS {css}"
 
-#: cambalache/cmb_project.py:2078
+#: cambalache/cmb_project.py:2086
 #, python-brace-format
 msgid "Create object {obj}"
 msgstr "Criar objeto {obj}"
 
-#: cambalache/cmb_project.py:2079
+#: cambalache/cmb_project.py:2087
 #, python-brace-format
 msgid "Remove object {obj}"
 msgstr "Remover objeto {obj}"
 
-#: cambalache/cmb_project.py:2080
+#: cambalache/cmb_project.py:2088
 #, python-brace-format
 msgid "Update {field} of object {obj}"
 msgstr "Atualizar {field} do objeto {obj}"
 
 #. Translators: This text is used for object properties undo/redo messages
 #. prop_type could be "property", "a11y property", "a11y relation", "a11y state" or "a11y action"
-#: cambalache/cmb_project.py:2085
+#: cambalache/cmb_project.py:2093
 #, python-brace-format
 msgid "Set {obj} {prop} {prop_type} to {value}"
 msgstr "Defina {obj} {prop} {prop_type} como {value}"
 
-#: cambalache/cmb_project.py:2086 cambalache/cmb_property.py:154
+#: cambalache/cmb_project.py:2094 cambalache/cmb_property.py:154
 #, python-brace-format
 msgid "Unset {obj} {prop} {prop_type}"
 msgstr "Desativar {obj} {prop} {prop_type}"
 
-#: cambalache/cmb_project.py:2087
+#: cambalache/cmb_project.py:2095
 #, python-brace-format
 msgid "Update {obj} {prop} {prop_type} to {value}"
 msgstr "Atualizar {obj} {prop} {prop_type} para {value}"
 
-#: cambalache/cmb_project.py:2090
+#: cambalache/cmb_project.py:2098
 #, python-brace-format
 msgid "Set {obj} {prop} layout property to {value}"
 msgstr "Definir a propriedade de layout {prop} do objeto {obj} para {value}"
 
-#: cambalache/cmb_project.py:2091
+#: cambalache/cmb_project.py:2099
 #, python-brace-format
 msgid "Unset {obj} {prop} layout property"
 msgstr "Remover a propriedade de layout {prop} do objeto {obj}"
 
-#: cambalache/cmb_project.py:2092
+#: cambalache/cmb_project.py:2100
 #, python-brace-format
 msgid "Update {obj} {prop} layout property to {value}"
 msgstr "Atualizar a propriedade de layout {prop} do objeto {obj} para {value}"
 
-#: cambalache/cmb_project.py:2095
+#: cambalache/cmb_project.py:2103
 #, python-brace-format
 msgid "Add {signal} signal to {obj}"
 msgstr "Adicionar sinal {signal} a {obj}"
 
-#: cambalache/cmb_project.py:2096
+#: cambalache/cmb_project.py:2104
 #, python-brace-format
 msgid "Remove {signal} signal from {obj}"
 msgstr "Remover o sinal {signal} do objeto {obj}"
 
-#: cambalache/cmb_project.py:2097
+#: cambalache/cmb_project.py:2105
 #, python-brace-format
 msgid "Update {signal} signal of {obj}"
 msgstr "Atualizar o sinal {signal} do objeto {obj}"
 
-#: cambalache/cmb_project.py:2100 cambalache/cmb_project.py:2105
+#: cambalache/cmb_project.py:2108 cambalache/cmb_project.py:2113
 #, python-brace-format
 msgid "Add {data}={value} to {obj}"
 msgstr "Adicione {data}={value} a {obj}"
 
-#: cambalache/cmb_project.py:2101 cambalache/cmb_project.py:2106
+#: cambalache/cmb_project.py:2109 cambalache/cmb_project.py:2114
 #, python-brace-format
 msgid "Remove {data}={value} from {obj}"
 msgstr "Remover {data}={value} de {obj}"
 
-#: cambalache/cmb_project.py:2102 cambalache/cmb_project.py:2107
+#: cambalache/cmb_project.py:2110 cambalache/cmb_project.py:2115
 #, python-brace-format
 msgid "Update {data} of {obj} to {value}"
 msgstr "Atualizar {data} de {obj} para {value}"
 
-#: cambalache/cmb_project.py:2323
+#: cambalache/cmb_project.py:2331
 #, python-brace-format
 msgid "Paste clipboard to {name}"
 msgstr "Colar área de transferência em {name}"
 
-#: cambalache/cmb_project.py:2355
+#: cambalache/cmb_project.py:2363
 #, python-brace-format
 msgid "Cut object {name}"
 msgstr "Cortar objeto {name}"
 
-#: cambalache/cmb_project.py:2357
+#: cambalache/cmb_project.py:2365
 #, python-brace-format
 msgid "Cut {n_objects} object"
 msgstr "Cortar {n_objects} objeto"
 
-#: cambalache/cmb_project.py:2370
+#: cambalache/cmb_project.py:2378
 #, python-brace-format
 msgid "Add {type_id} parent to {name}"
 msgstr "Adicionar {type_id} pai a {name}"
 
-#: cambalache/cmb_project.py:2444
+#: cambalache/cmb_project.py:2452
 #, python-brace-format
 msgid "Remove parent of {name}"
 msgstr "Remover pai de {name}"
@@ -1753,16 +1753,16 @@ msgstr "Somente padrão"
 msgid "Only symbolic"
 msgstr "Apenas simbólico"
 
-#: cambalache/control/cmb_object_chooser.py:108
+#: cambalache/control/cmb_object_chooser.py:109
 #, python-brace-format
 msgid "Move {name} to {property}"
 msgstr "Mover {name} para {property}"
 
-#: cambalache/control/cmb_object_chooser.py:160
+#: cambalache/control/cmb_object_chooser.py:163
 msgid "Clear property"
 msgstr "Propriedade limpa"
 
-#: cambalache/control/cmb_object_chooser.py:166
+#: cambalache/control/cmb_object_chooser.py:169
 msgid "Add inline object"
 msgstr "Adicionar objeto embutido"
 

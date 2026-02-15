@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cambalache\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-02 12:59-0500\n"
+"POT-Creation-Date: 2026-02-15 13:49-0500\n"
 "PO-Revision-Date: 2025-01-07 12:26-0500\n"
 "Last-Translator: Erwinjitsu <erwinjitsu@proton.me>\n"
 "Language-Team: Suomi\n"
@@ -62,7 +62,7 @@ msgstr ""
 
 #: cambalache/app/cmb_donate_dialog.ui:61
 #: cambalache/app/cmb_donate_dialog.ui:122 cambalache/app/cmb_tutorial.py:84
-#: cambalache/app/cmb_window.ui:72
+#: cambalache/app/cmb_window.ui:68
 msgid "Donate"
 msgstr "Lahjoita"
 
@@ -99,46 +99,54 @@ msgstr ""
 msgid "Help us continue developing"
 msgstr ""
 
-#: cambalache/app/cmb_np_dialog.ui:18
+#: cambalache/app/cmb_np_dialog.py:74 cambalache/app/cmb_np_dialog.py:122
+msgid "File name already exists, choose a different name."
+msgstr "Tiedosto on jo olemassa, valitse jokin muu nimi"
+
+#: cambalache/app/cmb_np_dialog.py:103
+msgid "Select project location"
+msgstr "Valitse projektin sijainti"
+
+#: cambalache/app/cmb_np_dialog.ui:20
 #, fuzzy
 msgid "Project Name"
 msgstr "Projektinäkymä"
 
-#: cambalache/app/cmb_np_dialog.ui:25
+#: cambalache/app/cmb_np_dialog.ui:27
 msgid "UI Filename"
 msgstr "ui-Tiedostonimi"
 
-#: cambalache/app/cmb_np_dialog.ui:31
+#: cambalache/app/cmb_np_dialog.ui:33
 msgid "Location"
 msgstr "Sijainti"
 
-#: cambalache/app/cmb_np_dialog.ui:47
+#: cambalache/app/cmb_np_dialog.ui:49
 #, fuzzy
 msgid "Toolkit Target"
 msgstr "Kirjasto kohde"
 
-#: cambalache/app/cmb_np_dialog.ui:70
+#: cambalache/app/cmb_np_dialog.ui:72
 msgid "Gtk 3"
 msgstr ""
 
-#: cambalache/app/cmb_np_dialog.ui:76
+#: cambalache/app/cmb_np_dialog.ui:78
 msgid "Old stable version"
 msgstr "Vanha vakaa versio"
 
-#: cambalache/app/cmb_np_dialog.ui:96
+#: cambalache/app/cmb_np_dialog.ui:98
 #, fuzzy
 msgid "Gtk 4"
 msgstr "GTK 4 portti"
 
-#: cambalache/app/cmb_np_dialog.ui:102
+#: cambalache/app/cmb_np_dialog.ui:104
 msgid "Recommended for new projects"
 msgstr "Suositellaan uusiin projekteihin"
 
-#: cambalache/app/cmb_np_dialog.ui:117
+#: cambalache/app/cmb_np_dialog.ui:120
 msgid "Create"
 msgstr "Luo"
 
-#: cambalache/app/cmb_np_dialog.ui:136 cambalache/app/cmb_tutorial.py:38
+#: cambalache/app/cmb_np_dialog.ui:140 cambalache/app/cmb_tutorial.py:38
 #: cambalache/app/cmb_window.ui:12
 msgid "New Project"
 msgstr "Uusi Projekti"
@@ -175,7 +183,7 @@ msgstr "Sulje projekti"
 msgid "General"
 msgstr "Yleinen"
 
-#: cambalache/app/cmb_shortcuts.ui:61 cambalache/app/cmb_window.ui:78
+#: cambalache/app/cmb_shortcuts.ui:61 cambalache/app/cmb_window.ui:74
 msgid "Keyboard Shortcuts"
 msgstr "Pikanäppäimet"
 
@@ -183,7 +191,7 @@ msgstr "Pikanäppäimet"
 msgid "Quit application"
 msgstr "Poistu sovelluksesta"
 
-#: cambalache/app/cmb_shortcuts.ui:74 cambalache/app/cmb_window.ui:418
+#: cambalache/app/cmb_shortcuts.ui:74 cambalache/app/cmb_window.ui:469
 msgid "Workspace"
 msgstr "Työtila"
 
@@ -239,7 +247,7 @@ msgstr "Mistä voit luoda uuden projektin"
 msgid "Import UI files"
 msgstr "Tuo .ui-tiedostoja"
 
-#: cambalache/app/cmb_tutorial.py:45 cambalache/app/cmb_window.py:1186
+#: cambalache/app/cmb_tutorial.py:45 cambalache/app/cmb_window.py:1143
 msgid "Import"
 msgstr "Tuo"
 
@@ -314,7 +322,7 @@ msgstr "Helppoa, eikö vain!"
 msgid "If you have any question, contact us on Matrix!"
 msgstr "Jos sinulla on kysyttävää, muista ottaa yhteyttä meihin Matrixissa!"
 
-#: cambalache/app/cmb_tutorial.py:77 cambalache/app/cmb_window.ui:68
+#: cambalache/app/cmb_tutorial.py:77 cambalache/app/cmb_window.ui:64
 msgid "Contact"
 msgstr "Yhteystiedot"
 
@@ -330,7 +338,7 @@ msgstr ""
 msgid "Have a nice day!"
 msgstr "Hyvää päivänjatkoa!"
 
-#: cambalache/app/cmb_window.py:126
+#: cambalache/app/cmb_window.py:128
 msgid ""
 "Cambalache will not have access to the file for save because it is outside "
 "of your home directory. Consider using Flatseal or flatpak to give "
@@ -341,7 +349,7 @@ msgstr ""
 "käyttöä oikeuksien antamiseksi kyseiseen polkuun."
 
 #. Bind preview
-#: cambalache/app/cmb_window.py:309
+#: cambalache/app/cmb_window.py:308
 msgid "Hide placeholders"
 msgstr "Kätke tyhjät paikat"
 
@@ -353,43 +361,43 @@ msgstr "Nimetön"
 msgid "Hold <alt> to create object in place"
 msgstr "Pidä <alt> pohjassa luodaksesi olion paikkaan"
 
-#: cambalache/app/cmb_window.py:596 cambalache/app/cmb_window.ui:183
+#: cambalache/app/cmb_window.py:596 cambalache/app/cmb_window.ui:179
 msgid "Start interactive introduction"
 msgstr "Aloita interaktiivinen tutustuminen"
 
-#: cambalache/app/cmb_window.py:702
+#: cambalache/app/cmb_window.py:691
 msgid "Copy to clipboard"
 msgstr ""
 
-#: cambalache/app/cmb_window.py:703
+#: cambalache/app/cmb_window.py:692
 msgid "Close"
 msgstr ""
 
-#: cambalache/app/cmb_window.py:785 cambalache/app/cmb_window.py:1011
-#: cambalache/app/cmb_window.py:1150
+#: cambalache/app/cmb_window.py:774 cambalache/app/cmb_window.py:968
+#: cambalache/app/cmb_window.py:1107
 #, python-brace-format
 msgid "Error importing {filename}"
 msgstr "Virhe tuodessa tiedostoa {filename}"
 
 #. Translators: This is used to create a unordered list of unsupported features to show the user
-#: cambalache/app/cmb_window.py:789 cambalache/app/cmb_window.py:1134
+#: cambalache/app/cmb_window.py:778 cambalache/app/cmb_window.py:1091
 #, python-brace-format
 msgid "    • {message}"
 msgstr "    • {message}"
 
 #. Translators: This will be the heading of a list of unsupported features
-#: cambalache/app/cmb_window.py:792 cambalache/app/cmb_window.py:1137
+#: cambalache/app/cmb_window.py:781 cambalache/app/cmb_window.py:1094
 msgid "Cambalache encounter the following issues:"
 msgstr "Cambalache kohtasi seuraavia ongelmia:"
 
 #. Translators: this is the last message after the list of unsupported features
-#: cambalache/app/cmb_window.py:795 cambalache/app/cmb_window.py:1140
+#: cambalache/app/cmb_window.py:784 cambalache/app/cmb_window.py:1097
 #, python-brace-format
 msgid "Your file will be saved as '{name}.cmb.ui' to avoid data loss."
 msgstr ""
 "Tiedostosi tallennetaan nimellä '{name}.cmb.ui' data häviöiden välttämiseksi."
 
-#: cambalache/app/cmb_window.py:805 cambalache/app/cmb_window.py:1146
+#: cambalache/app/cmb_window.py:794 cambalache/app/cmb_window.py:1103
 #, python-brace-format
 msgid ""
 "Cambalache encounter {unsupported_feature}\n"
@@ -399,48 +407,40 @@ msgstr ""
 "Tiedostosi tallennetaan muodossa '{name}.cmb.ui' data häviöiden "
 "välttämiseksi."
 
-#: cambalache/app/cmb_window.py:820
+#: cambalache/app/cmb_window.py:809
 #, fuzzy, python-brace-format
 msgid "Exception importing {filename}"
 msgstr "Virhe tuodessa tiedostoa {filename}"
 
-#: cambalache/app/cmb_window.py:834
+#: cambalache/app/cmb_window.py:823
 #, python-brace-format
 msgid "Which is the target Gtk version of {filename}?"
 msgstr "Mikä on tiedoston {filename} kohdeversio?"
 
-#: cambalache/app/cmb_window.py:880
+#: cambalache/app/cmb_window.py:869
 #, python-brace-format
 msgid "Unknown file type {content_type}"
 msgstr "Tuntematon tiedostotyyppi {content_type}"
 
-#: cambalache/app/cmb_window.py:893
+#: cambalache/app/cmb_window.py:882
 #, python-brace-format
 msgid "Error loading {filename}"
 msgstr "Virhe ladatessa {filename}"
 
-#: cambalache/app/cmb_window.py:899
+#: cambalache/app/cmb_window.py:888
 #, python-brace-format
 msgid "Error opening {filename}"
 msgstr "Virhe avatessa {filename}"
 
-#: cambalache/app/cmb_window.py:914
+#: cambalache/app/cmb_window.py:903
 msgid "Choose project to open"
 msgstr "Valitse projekti avattavaksi"
 
-#: cambalache/app/cmb_window.py:926
-msgid "Select project location"
-msgstr "Valitse projektin sijainti"
-
-#: cambalache/app/cmb_window.py:954
-msgid "File name already exists, choose a different name."
-msgstr "Tiedosto on jo olemassa, valitse jokin muu nimi"
-
-#: cambalache/app/cmb_window.py:976
+#: cambalache/app/cmb_window.py:933
 msgid "Undo/Redo stack got corrupted"
 msgstr "Kumoamishistoria korruptoitui"
 
-#: cambalache/app/cmb_window.py:977
+#: cambalache/app/cmb_window.py:934
 #, python-brace-format
 msgid ""
 "Please try to reproduce and file an issue\n"
@@ -449,99 +449,99 @@ msgstr ""
 "Yritä toistaa virhe uudelleen ja tee virheilmoitus\n"
 "Virhe: {msg}"
 
-#: cambalache/app/cmb_window.py:1019 cambalache/app/cmb_window.py:1360
+#: cambalache/app/cmb_window.py:976 cambalache/app/cmb_window.py:1317
 msgid "Choose a new file to save the project"
 msgstr "Valitse uusi tiedosto, johon projekti tallennetaan"
 
-#: cambalache/app/cmb_window.py:1042
+#: cambalache/app/cmb_window.py:999
 #, python-brace-format
 msgid "Do you really want to remove {name}?"
 msgstr "Haluatko varmasti poistaa {name}?"
 
-#: cambalache/app/cmb_window.py:1091
+#: cambalache/app/cmb_window.py:1048
 #, python-brace-format
 msgid "Error deleting {name}"
 msgstr "Virhe poistaessa {filename}"
 
-#: cambalache/app/cmb_window.py:1184
+#: cambalache/app/cmb_window.py:1141
 msgid "Choose file to import"
 msgstr "Valitse tiedosto, joka tuodaan"
 
-#: cambalache/app/cmb_window.py:1203
+#: cambalache/app/cmb_window.py:1160
 msgid "Loading directory contents"
 msgstr ""
 
-#: cambalache/app/cmb_window.py:1234
+#: cambalache/app/cmb_window.py:1191
 #, python-brace-format
 msgid "Import {n} directory \"{dirpath}\""
 msgstr ""
 
-#: cambalache/app/cmb_window.py:1254
+#: cambalache/app/cmb_window.py:1211
 #, python-brace-format
 msgid "{errors} files out of {n} had errors while loading"
 msgstr ""
 
-#: cambalache/app/cmb_window.py:1256
+#: cambalache/app/cmb_window.py:1213
 #, fuzzy, python-brace-format
 msgid "Error importing directory {basename}"
 msgstr "Virhe tuodessa tiedostoa {filename}"
 
-#: cambalache/app/cmb_window.py:1261
+#: cambalache/app/cmb_window.py:1218
 #, fuzzy, python-brace-format
 msgid "Imported {n} files"
 msgstr "Tuo .ui-tiedostoja"
 
-#: cambalache/app/cmb_window.py:1269
+#: cambalache/app/cmb_window.py:1226
 #, fuzzy
 msgid "Choose directory to import"
 msgstr "Valitse tiedosto, joka tuodaan"
 
-#: cambalache/app/cmb_window.py:1270 cambalache/app/cmb_window.ui:36
+#: cambalache/app/cmb_window.py:1227 cambalache/app/cmb_window.ui:36
 #, fuzzy
 msgid "Import directory"
 msgstr "Tuo tiedosto"
 
-#: cambalache/app/cmb_window.py:1289
+#: cambalache/app/cmb_window.py:1246
 #, fuzzy
 msgid "Error saving project"
 msgstr "Tallenna projekti"
 
-#: cambalache/app/cmb_window.py:1290 cambalache/cmb_view.py:234
+#: cambalache/app/cmb_window.py:1247 cambalache/cmb_view.py:234
 #, fuzzy
 msgid "blueprintcompiler encounter the following error:"
 msgid_plural "blueprintcompiler encounter the following errors:"
 msgstr[0] "Cambalache kohtasi seuraavia ongelmia:"
 msgstr[1] "Cambalache kohtasi seuraavia ongelmia:"
 
-#: cambalache/app/cmb_window.py:1305
+#: cambalache/app/cmb_window.py:1262
 msgid "Choose a file to save the project"
 msgstr "Valitse tiedosto, johon projekti tallennetaan"
 
-#: cambalache/app/cmb_window.py:1315
+#: cambalache/app/cmb_window.py:1272
 msgid "Save changes before closing?"
 msgstr "Tallenna muutokset ennen sulkemista?"
 
-#: cambalache/app/cmb_window.py:1326
+#: cambalache/app/cmb_window.py:1283
 msgid "Close without Saving"
 msgstr "Sulje tallentamatta"
 
-#: cambalache/app/cmb_window.py:1328
+#: cambalache/app/cmb_window.py:1285
 msgid "Cancel"
 msgstr "Peru"
 
-#: cambalache/app/cmb_window.py:1330 cambalache/app/cmb_window.ui:46
+#: cambalache/app/cmb_window.py:1287 cambalache/app/cmb_window.ui:46
 msgid "Save"
 msgstr "Tallenna"
 
-#: cambalache/app/cmb_window.py:1398
+#: cambalache/app/cmb_window.py:1355
 msgid "Supporters"
 msgstr "Tukijamme"
 
-#: cambalache/app/cmb_window.py:1636
+#: cambalache/app/cmb_window.py:1593
 msgid "<Ctrl>+Ins/Del to add/remove placeholders"
 msgstr "<Ctrl>+Ins/Del lisätäksesi/poistaaksesi tyhjiä paikkoja"
 
-#: cambalache/app/cmb_window.py:1638
+#: cambalache/app/cmb_window.py:1595
 msgid ""
 "<Ctrl>+Ins/Del to add/remove columns\n"
 "<Shift>+<Ctrl>+Ins/Del to add/remove rows"
@@ -549,7 +549,7 @@ msgstr ""
 "<Ctrl>+Ins/Del lisätäksesi/poistaaksesi sarakkeita\n"
 "<Shift>+<Ctrl>+Ins/Del lisätäksesi/poistaaksesi rivejä"
 
-#: cambalache/app/cmb_window.py:1640
+#: cambalache/app/cmb_window.py:1597
 msgid "<Ctrl>+Ins/Del to add/remove pages"
 msgstr "<Ctrl>+Ins/Del lisätäksesi/poistaaksesi sivuja"
 
@@ -585,46 +585,46 @@ msgstr "Sulje Projekti"
 msgid "Interactive intro"
 msgstr "Interaktiivinen intro"
 
-#: cambalache/app/cmb_window.ui:64 cambalache/app/cmb_window.ui:488
-#, fuzzy
-msgid "Notifications"
-msgstr "Sijainti"
-
-#: cambalache/app/cmb_window.ui:82
+#: cambalache/app/cmb_window.ui:78
 msgid "About"
 msgstr "Tietoja"
 
-#: cambalache/app/cmb_window.ui:109
+#: cambalache/app/cmb_window.ui:105
 #, fuzzy
 msgid "Recent Projects"
 msgstr "Uusi Projekti"
 
-#: cambalache/app/cmb_window.ui:110
+#: cambalache/app/cmb_window.ui:106
 msgid "_Open"
 msgstr "_Avaa"
 
-#: cambalache/app/cmb_window.ui:159
+#: cambalache/app/cmb_window.ui:155
 msgid "Edit project settings"
 msgstr ""
 
-#: cambalache/app/cmb_window.ui:171
+#: cambalache/app/cmb_window.ui:167
 msgid "Add new UI to project"
 msgstr "Lisää uusi ui-tiedosto projektiin"
 
-#: cambalache/app/cmb_window.ui:264 data/ar.xjuan.Cambalache.desktop.in:2
+#: cambalache/app/cmb_window.ui:203 cambalache/app/cmb_window.ui:230
+#, fuzzy
+msgid "Notifications"
+msgstr "Sijainti"
+
+#: cambalache/app/cmb_window.ui:315 data/ar.xjuan.Cambalache.desktop.in:2
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:6
 msgid "Cambalache"
 msgstr "Cambalache"
 
-#: cambalache/app/cmb_window.ui:283
+#: cambalache/app/cmb_window.ui:334
 msgid "Object Editor"
 msgstr "Oliomuokkain"
 
-#: cambalache/app/cmb_window.ui:295
+#: cambalache/app/cmb_window.ui:346
 msgid "UI Editor"
 msgstr "Käyttöliittymämuokkain"
 
-#: cambalache/app/cmb_window.ui:307
+#: cambalache/app/cmb_window.ui:358
 msgid "CSS Editor"
 msgstr "CSS-muokkain"
 
@@ -691,7 +691,7 @@ msgstr "<b>Käännös</b>"
 msgid "<b>Property Binding</b>"
 msgstr ""
 
-#: cambalache/cmb_context_menu.py:102
+#: cambalache/cmb_context_menu.py:103
 msgid "CSS theme"
 msgstr "CSS teema"
 
@@ -1115,385 +1115,385 @@ msgstr ""
 msgid "Unknown tag {tag} in project file."
 msgstr "Tuntematon root tagi {tag}"
 
-#: cambalache/cmb_project.py:562 cambalache/cmb_project.py:1019
+#: cambalache/cmb_project.py:562 cambalache/cmb_project.py:1027
 msgid "Could not load project because of dependency cycle"
 msgstr ""
 
-#: cambalache/cmb_project.py:859
+#: cambalache/cmb_project.py:867
 #, python-brace-format
 msgid "one unknown class '{detail}'"
 msgstr "yksi tuntematon luokka '{detail}'"
 
-#: cambalache/cmb_project.py:859
+#: cambalache/cmb_project.py:867
 #, python-brace-format
 msgid "{n} unknown classes ({detail})"
 msgstr "{n} tuntematonta luokkaa ({detail})"
 
-#: cambalache/cmb_project.py:860
+#: cambalache/cmb_project.py:868
 #, python-brace-format
 msgid "one unknown property '{detail}'"
 msgstr "yksi tuntematon ominaisuus '{detail}'"
 
-#: cambalache/cmb_project.py:860
+#: cambalache/cmb_project.py:868
 #, python-brace-format
 msgid "{n} unknown properties ({detail})"
 msgstr "{n} tuntematonta ominaisuutta ({detail})"
 
-#: cambalache/cmb_project.py:861
+#: cambalache/cmb_project.py:869
 #, python-brace-format
 msgid "one unknown signal '{detail}'"
 msgstr "yksi tuntematon signaali '{detail}'"
 
-#: cambalache/cmb_project.py:861
+#: cambalache/cmb_project.py:869
 #, python-brace-format
 msgid "{n} unknown signals ({detail})"
 msgstr "{n} tuntematonta signaalia ({detail})"
 
-#: cambalache/cmb_project.py:862
+#: cambalache/cmb_project.py:870
 #, python-brace-format
 msgid "one unknown tag '{detail}'"
 msgstr "yksi tuntematon tagi '{detail}'"
 
-#: cambalache/cmb_project.py:862
+#: cambalache/cmb_project.py:870
 #, python-brace-format
 msgid "{n} unknown tags ({detail})"
 msgstr "{n} tuntematonta tagia ({detail})"
 
-#: cambalache/cmb_project.py:863
+#: cambalache/cmb_project.py:871
 #, python-brace-format
 msgid "one unknown attribute '{detail}'"
 msgstr "yksi tuntematon attribuutti '{detail}'"
 
-#: cambalache/cmb_project.py:863
+#: cambalache/cmb_project.py:871
 #, python-brace-format
 msgid "{n} unknown attributes ({detail})"
 msgstr "{n} tuntematonta attribuuttia ({detail})"
 
-#: cambalache/cmb_project.py:864
+#: cambalache/cmb_project.py:872
 #, python-brace-format
 msgid "one missing attribute '{detail}'"
 msgstr "yksi puuttuva attribuutti '{detail}'"
 
-#: cambalache/cmb_project.py:864
+#: cambalache/cmb_project.py:872
 #, python-brace-format
 msgid "{n} missing attributes ({detail})"
 msgstr "{n} puuttuvaa attribuuttia ({detail})"
 
-#: cambalache/cmb_project.py:865
+#: cambalache/cmb_project.py:873
 #, python-brace-format
 msgid "one wrong inline object '{detail}'"
 msgstr "yksi väärä yksirivinen olio '{detail}'"
 
-#: cambalache/cmb_project.py:865
+#: cambalache/cmb_project.py:873
 #, python-brace-format
 msgid "{n} wrong inline object ({detail})"
 msgstr "{n} väärää yksirivistä olio ({detail})"
 
-#: cambalache/cmb_project.py:867
+#: cambalache/cmb_project.py:875
 #, fuzzy, python-brace-format
 msgid "a missing parent attribute for template '{detail}'"
 msgstr "yksi puuttuva attribuutti '{detail}'"
 
-#: cambalache/cmb_project.py:868
+#: cambalache/cmb_project.py:876
 #, fuzzy, python-brace-format
 msgid "{n} missing parent attributes for the following templates ({detail})"
 msgstr "{n} puuttuvaa attribuuttia ({detail})"
 
-#: cambalache/cmb_project.py:873
+#: cambalache/cmb_project.py:881
 #, python-brace-format
 msgid "xml:{line} unknown class '{detail}'"
 msgstr "xml:{line} tuntematon luokka '{detail}'"
 
-#: cambalache/cmb_project.py:874
+#: cambalache/cmb_project.py:882
 #, python-brace-format
 msgid "xml:{line} unknown property '{detail}'"
 msgstr "xml:{line} tuntematon ominaisuus '{detail}'"
 
-#: cambalache/cmb_project.py:875
+#: cambalache/cmb_project.py:883
 #, python-brace-format
 msgid "xml:{line} unknown signal '{detail}'"
 msgstr "xml:{line} tuntematon signaali '{detail}'"
 
-#: cambalache/cmb_project.py:876
+#: cambalache/cmb_project.py:884
 #, python-brace-format
 msgid "xml:{line} unknown tag '{detail}'"
 msgstr "xml:{line} tuntematon tagi '{detail}'"
 
-#: cambalache/cmb_project.py:877
+#: cambalache/cmb_project.py:885
 #, python-brace-format
 msgid "xml:{line} unknown attribute '{detail}'"
 msgstr "xml:{line} tuntematon attribuutti '{detail}'"
 
-#: cambalache/cmb_project.py:878
+#: cambalache/cmb_project.py:886
 #, python-brace-format
 msgid "xml:{line} missing attribute '{detail}'"
 msgstr "xml:{line} puuttuva attribuutti '{detail}'"
 
-#: cambalache/cmb_project.py:879
+#: cambalache/cmb_project.py:887
 #, python-brace-format
 msgid "xml:{line} not an inline object '{detail}'"
 msgstr "xml:{line} ei ole yksirivinen olio '{detail}'"
 
-#: cambalache/cmb_project.py:880
+#: cambalache/cmb_project.py:888
 #, fuzzy, python-brace-format
 msgid "xml:{line} missing template parent attribute '{detail}'"
 msgstr "xml:{line} puuttuva attribuutti '{detail}'"
 
-#: cambalache/cmb_project.py:912
+#: cambalache/cmb_project.py:920
 #, python-brace-format
 msgid "Import file \"{filename}\""
 msgstr "Tuo tiedosto \"{filename}\""
 
-#: cambalache/cmb_project.py:1024
+#: cambalache/cmb_project.py:1032
 #, python-brace-format
 msgid "Import GResource \"{filename}\""
 msgstr "Tuo GResource \"{filename}\""
 
-#: cambalache/cmb_project.py:1106
+#: cambalache/cmb_project.py:1114
 #, python-brace-format
 msgid "Add UI {basename}"
 msgstr "Lisää .ui-tiedosto {basename}"
 
-#: cambalache/cmb_project.py:1122
+#: cambalache/cmb_project.py:1130
 #, python-brace-format
 msgid "Remove UI \"{name}\""
 msgstr "Poista .ui-tiedosto \"{name}\""
 
-#: cambalache/cmb_project.py:1164
+#: cambalache/cmb_project.py:1172
 #, python-brace-format
 msgid "Add CSS {basename}"
 msgstr "Lisää CSS {basename}"
 
-#: cambalache/cmb_project.py:1187
+#: cambalache/cmb_project.py:1195
 #, python-brace-format
 msgid "Remove CSS \"{name}\""
 msgstr "Poista CSS \"{name}\""
 
-#: cambalache/cmb_project.py:1230
+#: cambalache/cmb_project.py:1238
 #, python-brace-format
 msgid "Add GResource {basename}"
 msgstr "Lisää GResource {basename}"
 
-#: cambalache/cmb_project.py:1232
+#: cambalache/cmb_project.py:1240
 #, python-brace-format
 msgid "Add GResource prefix {prefix}"
 msgstr "Lisää GResource-etuliite {prefix}"
 
-#: cambalache/cmb_project.py:1234
+#: cambalache/cmb_project.py:1242
 #, python-brace-format
 msgid "Add GResource file {filename}"
 msgstr "Tuo GResource-tiedosto {filename}"
 
-#: cambalache/cmb_project.py:1270
+#: cambalache/cmb_project.py:1278
 #, python-brace-format
 msgid "Remove GResource \"{name}\""
 msgstr "Poista GResource \"{name}\""
 
-#: cambalache/cmb_project.py:1359
+#: cambalache/cmb_project.py:1367
 #, python-brace-format
 msgid "Add object {name}"
 msgstr "Lisää olio {name}"
 
-#: cambalache/cmb_project.py:1402
+#: cambalache/cmb_project.py:1410
 msgid "Internal objects can not be removed"
 msgstr ""
 
-#: cambalache/cmb_project.py:1430
+#: cambalache/cmb_project.py:1438
 #, python-brace-format
 msgid "Remove object {name}"
 msgstr "Poista olio {name}"
 
-#: cambalache/cmb_project.py:1453
+#: cambalache/cmb_project.py:1461
 #, fuzzy, python-brace-format
 msgid "Remove objects from {library}"
 msgstr "Poista olio {obj}"
 
 #. Translators: This refers to "properties" in object property undo/redo messages
-#: cambalache/cmb_project.py:1963 cambalache/cmb_property.py:193
+#: cambalache/cmb_project.py:1971 cambalache/cmb_property.py:193
 msgid "property"
 msgstr "ominaisuus"
 
-#: cambalache/cmb_project.py:1966 cambalache/cmb_project.py:2010
+#: cambalache/cmb_project.py:1974 cambalache/cmb_project.py:2018
 msgid "True"
 msgstr "Tosi"
 
-#: cambalache/cmb_project.py:1966 cambalache/cmb_project.py:2010
+#: cambalache/cmb_project.py:1974 cambalache/cmb_project.py:2018
 msgid "False"
 msgstr "Epätosi"
 
 #. Translators: This refers to accessibility properties in object property undo/redo messages
-#: cambalache/cmb_project.py:1983
+#: cambalache/cmb_project.py:1991
 msgid "a11y property"
 msgstr "esteettömyys ominaisuus"
 
 #. Translators: This refers to accessibility relations in object property undo/redo messages
-#: cambalache/cmb_project.py:1985
+#: cambalache/cmb_project.py:1993
 msgid "a11y relation"
 msgstr "esteettömyys relaatio"
 
 #. Translators: This refers to accessibility states in object property undo/redo messages
-#: cambalache/cmb_project.py:1987
+#: cambalache/cmb_project.py:1995
 msgid "a11y state"
 msgstr "esteettömyys tila"
 
 #. Translators: This refers to accessibility actions in object property undo/redo messages
-#: cambalache/cmb_project.py:1989
+#: cambalache/cmb_project.py:1997
 msgid "a11y action"
 msgstr "esteettömyys toiminto"
 
-#: cambalache/cmb_project.py:2059
+#: cambalache/cmb_project.py:2067
 #, python-brace-format
 msgid "Create UI {ui}"
 msgstr "Luo .ui-tiedosto {ui}"
 
-#: cambalache/cmb_project.py:2060
+#: cambalache/cmb_project.py:2068
 #, python-brace-format
 msgid "Remove UI {ui}"
 msgstr "Poista .ui-tiedosto {ui}"
 
-#: cambalache/cmb_project.py:2061
+#: cambalache/cmb_project.py:2069
 #, python-brace-format
 msgid "Update {field} of UI {ui}"
 msgstr "Päivitä {field} .ui-tiedostosta {ui}"
 
-#: cambalache/cmb_project.py:2064
+#: cambalache/cmb_project.py:2072
 #, python-brace-format
 msgid "Set {ui} {lib} to {version}"
 msgstr "Aseta {ui} {lib} versioon {version}"
 
-#: cambalache/cmb_project.py:2065
+#: cambalache/cmb_project.py:2073
 #, python-brace-format
 msgid "Remove {ui} {lib}"
 msgstr "Poista {ui} {lib}"
 
-#: cambalache/cmb_project.py:2066
+#: cambalache/cmb_project.py:2074
 #, python-brace-format
 msgid "Update {lib} of UI {ui} to {version}"
 msgstr "Päivitä {lib} .ui-tiedosto {ui} versioon {version}"
 
-#: cambalache/cmb_project.py:2069
+#: cambalache/cmb_project.py:2077
 #, python-brace-format
 msgid "Add CSS provider {css}"
 msgstr "Lisää CSS provideri {css}"
 
-#: cambalache/cmb_project.py:2070
+#: cambalache/cmb_project.py:2078
 #, python-brace-format
 msgid "Remove CSS provider {css}"
 msgstr "Poista CSS {css}"
 
-#: cambalache/cmb_project.py:2071
+#: cambalache/cmb_project.py:2079
 #, python-brace-format
 msgid "Update {field} of CSS provider {css}"
 msgstr "Päivitä {field} CSS providerista {css}"
 
-#: cambalache/cmb_project.py:2074
+#: cambalache/cmb_project.py:2082
 #, python-brace-format
 msgid "Add {ui} to CSS provider {css}"
 msgstr "Lisää {ui} CSS provideriin {css}"
 
-#: cambalache/cmb_project.py:2075
+#: cambalache/cmb_project.py:2083
 #, python-brace-format
 msgid "Remove {ui} from CSS provider {css}"
 msgstr "Poista {ui} CSS providerista {css}"
 
-#: cambalache/cmb_project.py:2078
+#: cambalache/cmb_project.py:2086
 #, python-brace-format
 msgid "Create object {obj}"
 msgstr "Luo olio {obj}"
 
-#: cambalache/cmb_project.py:2079
+#: cambalache/cmb_project.py:2087
 #, python-brace-format
 msgid "Remove object {obj}"
 msgstr "Poista olio {obj}"
 
-#: cambalache/cmb_project.py:2080
+#: cambalache/cmb_project.py:2088
 #, python-brace-format
 msgid "Update {field} of object {obj}"
 msgstr "Päivitä {field} oliosta {obj}"
 
 #. Translators: This text is used for object properties undo/redo messages
 #. prop_type could be "property", "a11y property", "a11y relation", "a11y state" or "a11y action"
-#: cambalache/cmb_project.py:2085
+#: cambalache/cmb_project.py:2093
 #, python-brace-format
 msgid "Set {obj} {prop} {prop_type} to {value}"
 msgstr "Aseta {obj} {prop} {prop_type} arvoon {value}"
 
-#: cambalache/cmb_project.py:2086 cambalache/cmb_property.py:154
+#: cambalache/cmb_project.py:2094 cambalache/cmb_property.py:154
 #, python-brace-format
 msgid "Unset {obj} {prop} {prop_type}"
 msgstr "Poista {obj} {prop} {prop_type}"
 
-#: cambalache/cmb_project.py:2087
+#: cambalache/cmb_project.py:2095
 #, python-brace-format
 msgid "Update {obj} {prop} {prop_type} to {value}"
 msgstr "Päivitä {obj} {prop} {prop_type} arvoon {value}"
 
-#: cambalache/cmb_project.py:2090
+#: cambalache/cmb_project.py:2098
 #, python-brace-format
 msgid "Set {obj} {prop} layout property to {value}"
 msgstr "Aseta {obj} {prop} kokoonpano-ominaisuus arvoon {value}"
 
-#: cambalache/cmb_project.py:2091
+#: cambalache/cmb_project.py:2099
 #, python-brace-format
 msgid "Unset {obj} {prop} layout property"
 msgstr "Poista {obj} {prop} kokoonpano-ominaisuus"
 
-#: cambalache/cmb_project.py:2092
+#: cambalache/cmb_project.py:2100
 #, python-brace-format
 msgid "Update {obj} {prop} layout property to {value}"
 msgstr "Päivitä {obj} {prop} kokoonpano-ominaisuus arvoon {value}"
 
-#: cambalache/cmb_project.py:2095
+#: cambalache/cmb_project.py:2103
 #, python-brace-format
 msgid "Add {signal} signal to {obj}"
 msgstr "Lisää {signal} signaali oliolle {obj}"
 
-#: cambalache/cmb_project.py:2096
+#: cambalache/cmb_project.py:2104
 #, python-brace-format
 msgid "Remove {signal} signal from {obj}"
 msgstr "Poista {signal} signaali oliosta {obj}"
 
-#: cambalache/cmb_project.py:2097
+#: cambalache/cmb_project.py:2105
 #, python-brace-format
 msgid "Update {signal} signal of {obj}"
 msgstr "Päivitä {signal} signaali oliosta {obj}"
 
-#: cambalache/cmb_project.py:2100 cambalache/cmb_project.py:2105
+#: cambalache/cmb_project.py:2108 cambalache/cmb_project.py:2113
 #, python-brace-format
 msgid "Add {data}={value} to {obj}"
 msgstr "Lisää {data}={value} olioon {obj}"
 
-#: cambalache/cmb_project.py:2101 cambalache/cmb_project.py:2106
+#: cambalache/cmb_project.py:2109 cambalache/cmb_project.py:2114
 #, python-brace-format
 msgid "Remove {data}={value} from {obj}"
 msgstr "Poista {data}={value} oliosta {obj}"
 
-#: cambalache/cmb_project.py:2102 cambalache/cmb_project.py:2107
+#: cambalache/cmb_project.py:2110 cambalache/cmb_project.py:2115
 #, python-brace-format
 msgid "Update {data} of {obj} to {value}"
 msgstr "Päivitä {data} oliosta {obj} arvoon {value}"
 
-#: cambalache/cmb_project.py:2323
+#: cambalache/cmb_project.py:2331
 #, python-brace-format
 msgid "Paste clipboard to {name}"
 msgstr "Liitä leikepöydältä olioon {name}"
 
-#: cambalache/cmb_project.py:2355
+#: cambalache/cmb_project.py:2363
 #, python-brace-format
 msgid "Cut object {name}"
 msgstr "Leikka olio {name}"
 
-#: cambalache/cmb_project.py:2357
+#: cambalache/cmb_project.py:2365
 #, python-brace-format
 msgid "Cut {n_objects} object"
 msgstr "Leikkaa {n_objects} oliota"
 
-#: cambalache/cmb_project.py:2370
+#: cambalache/cmb_project.py:2378
 #, python-brace-format
 msgid "Add {type_id} parent to {name}"
 msgstr "Lisää {type_id} isä oliolle {name}"
 
-#: cambalache/cmb_project.py:2444
+#: cambalache/cmb_project.py:2452
 #, python-brace-format
 msgid "Remove parent of {name}"
 msgstr "Poista {name} olion isä"
@@ -1758,16 +1758,16 @@ msgstr "Vain standardi"
 msgid "Only symbolic"
 msgstr "Vain symbolinen"
 
-#: cambalache/control/cmb_object_chooser.py:108
+#: cambalache/control/cmb_object_chooser.py:109
 #, python-brace-format
 msgid "Move {name} to {property}"
 msgstr "Siirrä {name} ominaisuuteen {property}"
 
-#: cambalache/control/cmb_object_chooser.py:160
+#: cambalache/control/cmb_object_chooser.py:163
 msgid "Clear property"
 msgstr "Siivoa ominaisuus"
 
-#: cambalache/control/cmb_object_chooser.py:166
+#: cambalache/control/cmb_object_chooser.py:169
 msgid "Add inline object"
 msgstr "Lisää yksirivinen olio"
 

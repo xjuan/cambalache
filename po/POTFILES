@@ -1,5 +1,6 @@
 cambalache/app/cmb_application.py
 cambalache/app/cmb_donate_dialog.ui
+cambalache/app/cmb_np_dialog.py
 cambalache/app/cmb_np_dialog.ui
 cambalache/app/cmb_shortcuts.ui
 cambalache/app/cmb_tutorial.py
