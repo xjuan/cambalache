@@ -128,7 +128,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         self.__gresource_id = {}
 
         # File state
-        self.__file_state = {}
+        self._file_state = {}
 
         self.__template_info = {}
 
@@ -320,7 +320,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
             ui_id = self.db.import_from_node(root, relpath)
 
             cmb_version = self.__get_version_comment_from_root(root)
-            self.__file_state[filename] = cmb_version, hexdigest
+            self._file_state[filename] = cmb_version, hexdigest
         else:
             content = node.find("content")
             if content is not None:
@@ -439,7 +439,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
             gresource_id = self.db.import_gresource_from_node(root, relpath)
 
             cmb_version = self.__get_version_comment_from_root(root)
-            self.__file_state[filename] = cmb_version, hexdigest
+            self._file_state[filename] = cmb_version, hexdigest
         else:
             content = node.find("content")
             if content:
@@ -599,8 +599,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
     def dirname(self):
         return os.path.dirname(self.__filename) if self.__filename else "."
 
-    def __save_xml_and_update_node(self, node, root, filename, file_object):
-        if root is None or filename is None:
+    def __save_xml_and_update_node(self, file_object, node, root, filename):
+        if file_object is None or root is None or filename is None:
             return
 
         if not os.path.isabs(filename):
@@ -615,20 +615,23 @@ class CmbProject(GObject.Object, Gio.ListModel):
         interface = root.getroot()
         hexdigest = None
         blueprint_decompiled = None
-        use_blp = filename.endswith(".blp")
+
+        use_blp = filename.endswith(".blp") if isinstance(file_object, CmbUI) else False
 
         if use_blp:
             str_exported = etree.tostring(interface, pretty_print=True, encoding="UTF-8").decode("UTF-8")
             blueprint_decompiled = cmb_blueprint_decompile(str_exported)
+            if blueprint_decompiled:
+                blueprint_decompiled = blueprint_decompiled.encode()
 
         # Ensure directory exists
         os.makedirs(os.path.dirname(fullpath), exist_ok=True)
 
-        original_comment, original_hash = self.__file_state.get(filename, (None, None))
+        original_comment, original_hash = self._file_state.get(filename, (None, None))
         if original_comment is not None:
             if use_blp:
                 m = hashlib.sha256()
-                m.update(blueprint_decompiled.encode())
+                m.update(blueprint_decompiled)
                 hexdigest = m.hexdigest()
             else:
                 comment = self.__get_version_comment_from_root(interface)
@@ -644,19 +647,24 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 comment.text = new_comment
 
         if original_hash is None or original_hash != hexdigest:
-            if use_blp:
-                with open(fullpath, "wb") as fd:
-                    fd.write(blueprint_decompiled.encode())
-            else:
-                if file_object:
-                    file_object.saving = True
+            file_object.saving = True
 
+            if use_blp:
+                m = hashlib.sha256()
+                m.update(blueprint_decompiled)
+                hexdigest = m.hexdigest()
+
+                with open(fullpath, "wb") as fd:
+                    fd.write(blueprint_decompiled)
+            else:
                 # Dump xml to file
                 with open(fullpath, "wb") as fd:
                     hash_file = FileHash(fd)
                     root.write(hash_file, pretty_print=True, xml_declaration=True, encoding="UTF-8")
                     hexdigest = hash_file.hexdigest()
                     hash_file.close()
+
+            file_object.saving = False
 
         # Store filename and hash in node
         utils.xml_node_set(node, "filename", filename)
@@ -733,7 +741,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         # Save UI file
         if filename:
             root = self.db.export_ui(ui_id)
-            self.__save_xml_and_update_node(ui, root, filename, file_object)
+            self.__save_xml_and_update_node(file_object, ui, root, filename)
         else:
             # Embed UI content in project as CDATA
             root = self.db.export_ui(ui_id)
@@ -743,9 +751,6 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
     def __save_css_and_get_node(self, css_id, filename, css_text, priority, is_global):
         file_object = self.get_css_by_id(css_id)
-        if file_object:
-            file_object.saving = True
-
         css = E.css()
 
         utils.xml_node_set(css, "priority", priority)
@@ -761,6 +766,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 dirname = os.path.dirname(self.filename)
                 fullpath = os.path.join(dirname, filename)
 
+            file_object.saving = True
             with open(fullpath, "w") as fd:
                 fd.write(css_text)
 
@@ -768,6 +774,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
                 m.update(css_text.encode())
 
                 utils.xml_node_set(css, "sha256", m.hexdigest())
+
+            file_object.saving = False
         else:
             # Load from project
             content = E.content(css_text)
@@ -781,7 +789,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
 
         if filename:
             root = self.db.export_gresource(gresource_id)
-            self.__save_xml_and_update_node(gresources, root, filename, file_object)
+            self.__save_xml_and_update_node(file_object, gresources, root, filename)
         else:
             # Embed file contents in project as CDATA
             root = self.db.export_gresource(gresource_id)
@@ -919,8 +927,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
             row = self.db.execute("DELETE FROM ui WHERE filename=? RETURNING ui_id;", (filename,)).fetchone()
             ui_id, = row if row else (None, )
             old_ui = self.get_object_by_id(ui_id)
-            if filename in self.__file_state:
-                self.__file_state.pop(filename)
+            if filename in self._file_state:
+                self._file_state.pop(filename)
 
         # Import file
         if filename.endswith(".blp"):
@@ -1032,8 +1040,8 @@ class CmbProject(GObject.Object, Gio.ListModel):
             ).fetchone()
             gresource_id, = row if row else (None, )
             old_gresource = self.get_gresource_by_id(gresource_id)
-            if filename in self.__file_state:
-                self.__file_state.pop(filename)
+            if filename in self._file_state:
+                self._file_state.pop(filename)
 
         root, relpath, hexdigest = self.__parse_xml_file(filename)
         gresource_id = self.db.import_gresource_from_node(root, relpath)

@@ -54,10 +54,8 @@ class CmbBaseFileMonitor(CmbBase):
         self.new_filename = None
 
     def __on_file_changed(self, file_monitor, file, other_file, event_type):
-        if event_type in [Gio.FileMonitorEvent.CHANGES_DONE_HINT, Gio.FileMonitorEvent.MOVED_IN]:
-            if self.saving:
-                self.saving = False
-                return
+        if self.saving:
+            return
 
             self.file_status = FileStatus.CHANGED
         elif event_type in [Gio.FileMonitorEvent.DELETED, Gio.FileMonitorEvent.MOVED_OUT]:
@@ -95,6 +93,11 @@ class CmbBaseFileMonitor(CmbBase):
             fullpath = filename
 
         if old_path and os.path.exists(old_path) and old_path != fullpath:
+            # Clear file state
+            if filename in self.project._file_state:
+                self.project._file_state.pop(filename)
+
+            # Rename and force project save
             os.rename(old_path, fullpath)
             self.project.save()
 
