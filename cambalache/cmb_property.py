@@ -95,7 +95,9 @@ class CmbProperty(CmbBaseProperty):
 
             # If value is the same as the default and the rest are none/false we can remove the row
             # Do not reset properties that where loaded from xml with the default value
-            if not self.serialize_default_value and value == self.info.default_value and all(not val for val in others):
+            if not self.serialize_default_value and \
+               (value is None or value == self.info.default_value) and \
+               all(not val for val in others):
                 self.__reset()
         else:
             self.project.db.execute(
