@@ -778,7 +778,6 @@ class CmbGirData:
             retval[name] = {
                 "type": type_name,
                 "is_object": is_object,
-                "disable_inline_object": is_object and type_name in ["GMenuModel"],
                 "version": child.get("version"),
                 "deprecated_version": child.get("deprecated-version"),
                 "construct": child.get("construct-only"),
