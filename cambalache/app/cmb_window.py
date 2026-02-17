@@ -1359,13 +1359,18 @@ class CmbWindow(Adw.ApplicationWindow):
         lang = lang_country.split("_")[0]
 
         translators = {
-            "cs": ["Vojtěch Perník"],
+            "cs": ["Daniel Rusek", "Vojtěch Perník"],
             "de": ["PhilProg", "Philipp Unger"],
             "es": ["Juan Pablo Ugarte"],
+            "fi": ["Erwinjitsu", "Ilmari Lauhakangas"],
             "fr": ["rene-coty"],
             "it": ["Lorenzo Capalbo"],
             "nl": ["Gert"],
+            "pt_BR": ["John peter sa"],
+            "ro": ["Vlad"],
+            "sv": ["Anders Jonsson"],
             "uk": ["Volodymyr M. Lisivka"],
+            "zh_CN": ["xu-haozhe"],
         }
 
         translator_list = translators.get(lang, None)
