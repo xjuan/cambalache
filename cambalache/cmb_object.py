@@ -600,7 +600,7 @@ class CmbObject(CmbBaseObject, Gio.ListModel):
         for prop_id in properties:
             prop = self.__properties_dict[prop_id]
             prop.notify("value")
-            self._property_changed(prop)
+            self._property_changed(prop, prop_id)
 
     @GObject.Property(type=str)
     def display_name_type(self):
