@@ -23,6 +23,7 @@
 # SPDX-License-Identifier: LGPL-2.1-only
 #
 
+import os
 from gi.repository import GObject
 
 from .cmb_base_objects import CmbBaseProperty, CmbBaseObject
@@ -53,6 +54,9 @@ class CmbProperty(CmbBaseProperty):
         return f"CmbProperty<{self.object.type_id} {self.info.owner_id}::{self.property_id}>"
 
     def __on_notify(self, obj, pspec):
+        if self.info.type_id in ["GFile", "GMenuModel"]:
+            self._update_version_warning()
+
         self.object._property_changed(self, pspec.name)
 
     def __db_get(self, column):
@@ -327,21 +331,29 @@ class CmbProperty(CmbBaseProperty):
         self.__db_set(serialize_default_value=value, value=self.value)
 
     def _update_version_warning(self):
+        warnings = []
         target = self.object.ui.get_target(self.library_id)
-        warning = utils.get_version_warning(
-            target, self.info.version, self.info.deprecated_version, self.property_id
-        ) or ""
 
-        if self.project.target_tk == "gtk-4.0" and self.info.type_id == "GFile":
+        deprecation_warning = utils.get_version_warning(
+            target, self.info.version, self.info.deprecated_version, self.property_id
+        )
+        if deprecation_warning:
+            warnings.append(deprecation_warning)
+
+        if self.project.target_tk == "gtk-4.0":
             target = self.object.ui.get_target("gtk")
             if target is not None:
                 version = utils.parse_version(target)
-                if version is None or utils.version_cmp(version, (4, 16, 0)) < 0:
-                    if len(warning):
-                        warning += "\n"
-                    warning += _("Warning: GFile uri needs to be absolute for Gtk < 4.16")
 
-        self.version_warning = warning if len(warning) else None
+                if self.info.type_id == "GFile" and (version is None or utils.version_cmp(version, (4, 16, 0)) < 0) and \
+                   (self.value and not os.path.isabs(self.value)):
+                    warnings.append(_("Warning: GFile uri needs to be absolute for Gtk < 4.16"))
+                if self.info.type_id == "GMenuModel" and (version is None or utils.version_cmp(version, (4, 18, 0)) < 0) and \
+                   self.inline_object_id:
+                    # FIXME: mark as translatable
+                    warnings.append("Inline menus are not supported in Gtk < 4.18")
+
+        self.version_warning = "\n".join(warnings) if len(warnings) else None
 
     def __clear_expression_inline_object(self):
         binding_expression_id = self.binding_expression_id
@@ -421,3 +433,4 @@ class CmbProperty(CmbBaseProperty):
 
         self.notify("binding-expression-id")
         self.project.history_pop()
+

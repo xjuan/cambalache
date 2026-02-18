@@ -1125,7 +1125,7 @@ class CmbDB(GObject.GObject):
                 self.__collect_error("not-inline-object", prop, f"{info.type_id}:{property_id}")
                 return
 
-            if prop[0].tag == "object" or \
+            if prop[0].tag in ["object", "menu"] or \
                (pinfo.type_id == "GtkExpression" and prop[0].tag in ["lookup", "constant", "closure"]):
                 inline_object_id = self.__import_object(ui_id, prop[0], object_id)
                 value = None

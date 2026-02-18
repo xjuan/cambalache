@@ -89,6 +89,7 @@ class CmbPropertyLabel(Gtk.Button):
     def __on_notify(self, prop, pspec):
         if pspec.name in {
             "value",
+            "inline-object-id",
             "bind-source-id",
             "bind-owner-id",
             "bind-property-id",

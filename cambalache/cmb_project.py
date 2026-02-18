@@ -1387,7 +1387,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
             obj._update_new_parent()
             return obj
 
-    def __remove_object(self, obj, template_ui=None, template_instances=None):
+    def __remove_object(self, obj, template_ui=None, template_instances=None, inline_properties=None):
         ui_id = obj.ui_id
         object_id = obj.object_id
 
@@ -1398,6 +1398,11 @@ class CmbProject(GObject.Object, Gio.ListModel):
         if template_instances is not None:
             for tmpl_obj in template_instances:
                 self.__remove_object(tmpl_obj)
+
+        # Clear references to this object
+        if inline_properties is not None:
+            for prop in inline_properties:
+                prop.inline_object_id = 0
 
         self.__selection_remove(obj)
 
@@ -1437,6 +1442,21 @@ class CmbProject(GObject.Object, Gio.ListModel):
             name = obj.name if obj.name is not None else obj.type_id
             self.history_push(_("Remove object {name}").format(name=name))
 
+            # Clear inline references to this object if any
+            inline_properties = []
+            for row in self.db.execute(
+                "SELECT object_id, property_id FROM object_property WHERE ui_id=? AND inline_object_id=?;",
+                (ui_id, object_id)
+            ):
+                inline_object_id, inline_property_id = row
+                inline_obj = self.get_object_by_id(ui_id, inline_object_id)
+                inline_properties.append(inline_obj.properties_dict[inline_property_id])
+
+            self.db.execute(
+                "DELETE FROM object_property WHERE ui_id=? AND inline_object_id=?;",
+                (ui_id, object_id)
+            )
+
             if template_instances is not None and len(template_instances):
                 self.db.execute("DELETE FROM object WHERE type_id=?;", (obj.name,))
 
@@ -1450,7 +1470,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         except Exception as e:
             logger.warning(f"Error removing object {obj}: {e}")
         finally:
-            self.__remove_object(obj, template_ui, template_instances)
+            self.__remove_object(obj, template_ui, template_instances, inline_properties)
             obj._remove_from_old_parent()
 
             # Select parent if removed object was selected
