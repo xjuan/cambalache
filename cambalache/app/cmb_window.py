@@ -487,8 +487,8 @@ class CmbWindow(Adw.ApplicationWindow):
     def __update_action_undo_redo(self):
         if self.__is_project_visible():
             undo_msg, redo_msg = self.project.get_undo_redo_msg()
-            self.undo_button.set_tooltip_text(f"Undo: {undo_msg}" if undo_msg is not None else None)
-            self.redo_button.set_tooltip_text(f"Redo: {redo_msg}" if redo_msg is not None else None)
+            self.undo_button.set_tooltip_markup(f"Undo: {undo_msg}" if undo_msg is not None else None)
+            self.redo_button.set_tooltip_markup(f"Redo: {redo_msg}" if redo_msg is not None else None)
 
             history_index = self.project.history_index
             history_index_max = self.project.history_index_max
@@ -553,10 +553,10 @@ class CmbWindow(Adw.ApplicationWindow):
         self.__update_gresource_view()
 
     def __on_project_selection_changed(self, project):
-        sel = project.get_selection()
+        selection = project.get_selection()
         self.__update_action_clipboard()
 
-        obj = sel[0] if len(sel) > 0 else None
+        obj = selection[0] if selection else None
 
         if isinstance(obj, CmbUI):
             self.ui_editor.object = obj
@@ -587,6 +587,10 @@ class CmbWindow(Adw.ApplicationWindow):
 
         self.__update_action_add_object()
         self.__update_action_remove_parent()
+
+        if not selection:
+            self.workspace_stack.set_visible_child_name("ui")
+            self.editor_stack.set_visible_child_name("empty")
 
     def __update_action_intro(self):
         enabled = False
@@ -686,6 +690,8 @@ class CmbWindow(Adw.ApplicationWindow):
             text=message,
             secondary_text=secondary_text,
             modal=True,
+            use_markup=True,
+            secondary_use_markup=True,
         )
 
         dialog.add_button(_("Copy to clipboard"), 1)
@@ -997,6 +1003,7 @@ class CmbWindow(Adw.ApplicationWindow):
             message_type=Gtk.MessageType.QUESTION,
             buttons=Gtk.ButtonsType.YES_NO,
             text=_("Do you really want to remove {name}?").format(name=obj.display_name),
+            use_markup=True,
         )
 
         def on_dialog_response(dialog, response):
@@ -1045,7 +1052,10 @@ class CmbWindow(Adw.ApplicationWindow):
                 else:
                     self.__remove_object_with_confirmation(obj)
             except Exception as e:
-                self.present_message_to_user(_("Error deleting {name}").format(name=obj.display_name_type), secondary_text=str(e))
+                self.present_message_to_user(
+                    _("Error deleting {name}").format(name=obj.display_name),
+                    secondary_text=str(e)
+                )
 
     def _on_add_object_activate(self, action, data):
         info = self.type_chooser.props.selected_type

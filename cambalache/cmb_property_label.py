@@ -106,7 +106,7 @@ class CmbPropertyLabel(Gtk.Button):
             self.remove_css_class("modified")
 
         msg = prop.version_warning
-        self.set_tooltip_text(msg)
+        self.set_tooltip_markup(msg)
 
         if msg:
             self.add_css_class("warning")

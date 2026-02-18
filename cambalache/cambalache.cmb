@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
-<!-- Created with Cambalache 0.99.14 -->
+<!-- Created with Cambalache 0.99.16 -->
 <cambalache-project version="0.99.0" target_tk="gtk-4.0" depends="casilda-1.0,libadwaita-1">
   <icontheme-search-path>app/icons</icontheme-search-path>
   <icontheme-search-path>icons/scalable/actions</icontheme-search-path>
@@ -304,7 +304,7 @@
     <requires>CmbUIRequiresEditor</requires>
     <requires>CmbFragmentEditor</requires>
   </ui>
-  <ui template-class="CmbWindow" filename="app/cmb_window.ui" sha256="db6cad7f38f5b3e63b7683b6c404de4214059b12fe9b86c808d11573facf4c5a">
+  <ui template-class="CmbWindow" filename="app/cmb_window.ui" sha256="535cc6179c3da0125392ad3cef82b5d75960535d2645bd360bd14e2976be23f0">
     <requires>CmbNotificationListView</requires>
     <requires>CmbObjectEditor</requires>
     <requires>CmbUIEditor</requires>
