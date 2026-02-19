@@ -58,6 +58,7 @@ class CmbMerengueProcess(GObject.Object, MrgCommand):
 
     gtk_version = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
     compositor = GObject.Property(type=GObject.Object, flags=GObject.ParamFlags.READWRITE)
+    gresource_overlays = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
 
     def __init__(self, **kwargs):
         self.__file = os.path.join(config.merenguedir, "merengue", "merengue")
@@ -101,6 +102,10 @@ class CmbMerengueProcess(GObject.Object, MrgCommand):
 
         # Force Gdk backend to wayland
         envp.append("GDK_BACKEND=wayland")
+
+        # This is used for mergenue to map resource files without compiling and loading a gresource bundle
+        if self.gresource_overlays:
+            envp.append(f"G_RESOURCE_OVERLAYS={self.gresource_overlays}")
 
         # Use WAYLAND_SOCKET instead of WAYLAND_DISPLAY
         envp.append(f"WAYLAND_SOCKET={wayland_socket}")
@@ -192,6 +197,7 @@ class CmbView(Gtk.Box):
         self.__merengue.connect("exit", self.__on_process_exit)
         self.__merengue_last_exit = None
         self.__merengue_started = None
+        self.__restart_merenge_timeout_source = None
 
         self.connect("notify::preview", self.__on_preview_notify)
 
@@ -280,6 +286,20 @@ class CmbView(Gtk.Box):
                 "xml": ui,
             },
         )
+
+    def __restart_merenge_timeout(self, data):
+        self.restart_workspace()
+        self.__restart_merenge_timeout_source = 0
+        return GLib.SOURCE_REMOVE
+
+    def __on_notify(self, project, pspec):
+        if pspec.name == "gresource-overlays":
+            self.__merengue.gresource_overlays = project.gresource_overlays
+            # Limit restart to 4 seconds
+            if self.__restart_merenge_timeout_source:
+                GLib.source_remove(self.__restart_merenge_timeout_source)
+
+            self.__restart_merenge_timeout_source = GLib.timeout_add_seconds(4, self.__restart_merenge_timeout, None)
 
     def __on_changed(self, project):
         self.__update_view()
@@ -463,6 +483,7 @@ class CmbView(Gtk.Box):
     @project.setter
     def _set_project(self, project):
         if self.__project:
+            self.__project.disconnect_by_func(self.__on_notify)
             self.__project.disconnect_by_func(self.__on_changed)
             self.__project.disconnect_by_func(self.__on_ui_changed)
             self.__project.disconnect_by_func(self.__on_object_added)
@@ -488,6 +509,7 @@ class CmbView(Gtk.Box):
         self.db_inspector.project = project
 
         if project:
+            project.connect("notify", self.__on_notify)
             project.connect("changed", self.__on_changed)
             project.connect("ui-changed", self.__on_ui_changed)
             project.connect("object-added", self.__on_object_added)
@@ -513,6 +535,9 @@ class CmbView(Gtk.Box):
                 self.__merengue.gtk_version = "3.0"
             elif project.target_tk == "gtk-4.0":
                 self.__merengue.gtk_version = "4.0"
+
+            # Sync GResource overlays
+            self.__merengue.gresource_overlays = project.gresource_overlays
 
             # Clear any error
             self.__set_error_message(None)
