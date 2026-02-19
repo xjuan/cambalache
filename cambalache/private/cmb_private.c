@@ -136,3 +136,14 @@ cmb_private_container_child_set_property_from_string (GtkContainer *container,
 }
 
 #endif
+
+
+/**
+ * cmb_private_log_field_get_string:
+ *
+ */
+const gchar *
+cmb_private_log_field_get_string (const GLogField *field)
+{
+  return (field->length < 0) ? field->value : NULL;
+}

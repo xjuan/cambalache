@@ -48,5 +48,8 @@ void
 cmb_private_widget_set_application_id (GtkWidget *widget,
                                        const gchar *app_id);
 
+const gchar *
+cmb_private_log_field_get_string (const GLogField *field);
+
 G_END_DECLS
 
