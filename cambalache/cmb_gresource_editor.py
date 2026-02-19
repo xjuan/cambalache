@@ -23,6 +23,7 @@
 # SPDX-License-Identifier: LGPL-2.1-only
 #
 
+import os
 from gi.repository import GObject, Gtk
 
 from .cmb_gresource import CmbGResource
@@ -89,8 +90,7 @@ class CmbGResourceEditor(Gtk.Box):
         resource_type = obj.resource_type
         self.set_sensitive(True)
         self.stack.set_visible_child_name(resource_type)
-        self.gresources_filename.dirname = obj.project.dirname
-        self.file_filename.dirname = obj.project.dirname
+        self.__update_gresources_bundle_dirname()
 
         for for_type, field, target in self.fields:
             if resource_type != for_type:
@@ -104,6 +104,12 @@ class CmbGResourceEditor(Gtk.Box):
                 GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
             )
             self._bindings.append(binding)
+
+    def __update_gresources_bundle_dirname(self):
+        dirname = self._object.gresources_bundle.gresources_filename
+        fullpath, relpath = self._object.project.get_abs_path(os.path.dirname(dirname))
+        self.gresources_filename.dirname = fullpath
+        self.file_filename.dirname = fullpath
 
     @Gtk.Template.Callback("on_add_gresource_button_clicked")
     def __on_add_gresource_button_clicked(self, button):
