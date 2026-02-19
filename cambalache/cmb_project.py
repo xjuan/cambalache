@@ -206,6 +206,36 @@ class CmbProject(GObject.Object, Gio.ListModel):
         row = self.db.execute("SELECT version FROM history WHERE history_id=?;", (self.history_index, )).fetchone()
         return row[0] if row else 0
 
+    @GObject.Property(type=str)
+    def gresource_overlays(self):
+        overlays = []
+
+        # Directories
+        for row in self.db.execute(
+            """
+            SELECT p.gresources_filename, g.gresource_prefix
+            FROM gresource AS g,gresource AS p ON g.parent_id=p.gresource_id
+            WHERE g.resource_type='gresource' AND g.gresource_prefix IS NOT NULL;
+            """
+        ).fetchall():
+            gresources_filename, gresource_prefix = row
+            fullpath, relpath = self.get_abs_path(os.path.dirname(gresources_filename))
+            overlays.append(f"{gresource_prefix}={fullpath}")
+
+        # Aliases
+        for row in self.db.execute(
+            """
+            SELECT gp.gresources_filename, p.gresource_prefix, g.file_filename, g.file_alias
+            FROM gresource AS g,gresource AS p, gresource AS gp ON g.parent_id=p.gresource_id AND p.parent_id=gp.gresource_id
+            WHERE g.resource_type='file' AND g.file_alias IS NOT NULL;
+            """
+        ).fetchall():
+            gresources_filename, gresource_prefix, file_filename, file_alias = row
+            fullpath, relpath = self.get_abs_path(os.path.dirname(gresources_filename))
+            overlays.append(f"{gresource_prefix}/{file_alias}={fullpath}/{file_filename}")
+
+        return chr(GLib.SEARCHPATH_SEPARATOR).join(overlays) if overlays else None
+
     def _get_table_data(self, table):
         c = self.db.cursor()
 
@@ -254,7 +284,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
             if library_info.enabled:
                 self.type_info.update(library_info.type_info)
 
-    def __get_abs_path(self, filename):
+    def get_abs_path(self, filename):
         projectdir = os.path.dirname(self.filename) if self.filename else "."
         if os.path.isabs(filename):
             fullpath = filename
@@ -266,7 +296,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         return fullpath, relpath
 
     def __parse_xml_file(self, filename):
-        fullpath, relpath = self.__get_abs_path(filename)
+        fullpath, relpath = self.get_abs_path(filename)
 
         with open(fullpath, "rb") as fd:
             hash_file = FileHash(fd)
@@ -279,7 +309,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         return None, None, None
 
     def __parse_blp_file(self, filename):
-        fullpath, relpath = self.__get_abs_path(filename)
+        fullpath, relpath = self.get_abs_path(filename)
 
         with open(fullpath, "rb") as fd:
             blueprint_decompiled = fd.read()
@@ -394,7 +424,7 @@ class CmbProject(GObject.Object, Gio.ListModel):
         filename, sha256, priority, is_global = utils.xml_node_get(node, ["filename", "sha256", "priority", "is_global"])
 
         if filename:
-            fullpath, relpath = self.__get_abs_path(filename)
+            fullpath, relpath = self.get_abs_path(filename)
             try:
                 with open(fullpath) as fd:
                     css_content = fd.read()
@@ -2693,16 +2723,31 @@ class CmbProject(GObject.Object, Gio.ListModel):
     def do_gresource_added(self, gresource):
         if gresource.resource_type == "gresources":
             self.__add_item(gresource, gresource.gresources_filename)
+
+        if gresource.resource_type in ["gresources", "gresource"]:
+            self.notify("gresource-overlays")
+
         self.emit("changed")
 
     def do_gresource_removed(self, gresource):
         if gresource.resource_type == "gresources":
             self.__remove_item(gresource)
+
+        if gresource.resource_type in ["gresources", "gresource"]:
+            self.notify("gresource-overlays")
+
         self.emit("changed")
 
     def do_gresource_changed(self, gresource, field):
-        if gresource.resource_type == "gresources" and field == "gresources_filename":
+        if gresource.resource_type == "gresources" and field == "gresources-filename":
             GLib.idle_add(self.__update_path_idle, (gresource, gresource.gresources_filename))
+            self.notify("gresource-overlays")
+
+        if gresource.resource_type == "gresource" and field == "gresources-prefix":
+            self.notify("gresource-overlays")
+
+        if gresource.resource_type == "file" and field == "file-alias":
+            self.notify("gresource-overlays")
 
         self.emit("changed")
 
