@@ -106,8 +106,8 @@ class CmbGResourceEditor(Gtk.Box):
             self._bindings.append(binding)
 
     def __update_gresources_bundle_dirname(self):
-        dirname = self._object.gresources_bundle.gresources_filename
-        fullpath, relpath = self._object.project.get_abs_path(os.path.dirname(dirname))
+        filename = self._object.gresources_bundle.gresources_filename or self._object.project.filename or "."
+        fullpath, relpath = self._object.project.get_abs_path(os.path.dirname(filename))
         self.gresources_filename.dirname = fullpath
         self.file_filename.dirname = fullpath
 
