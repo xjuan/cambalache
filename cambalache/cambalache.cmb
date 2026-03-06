@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
-<!-- Created with Cambalache 0.99.16 -->
+<!-- Created with Cambalache 0.99.17 -->
 <cambalache-project version="0.99.0" target_tk="gtk-4.0" depends="casilda-1.0,libadwaita-1">
   <icontheme-search-path>app/icons</icontheme-search-path>
   <icontheme-search-path>icons/scalable/actions</icontheme-search-path>
@@ -145,7 +145,7 @@
 </interface>
 ]]></content>
   </ui>
-  <ui template-class="CmbTranslatableWidget" filename="control/cmb_translatable_widget.ui" sha256="b3178157210f93308b92d99f933cb8d04f2de0278ad75680c7460e2c520b1684"/>
+  <ui template-class="CmbTranslatableWidget" filename="control/cmb_translatable_widget.ui" sha256="8d05e5ef75afffa5a74f63c7e4233f372c663a53da542851c84fb894f572c000"/>
   <ui template-class="CmbTypeChooserPopover">
     <property id="category" type-id="gchararray" disable-inline-object="0" required="0" disabled="0"/>
     <property id="derived-type-id" type-id="gchararray" disable-inline-object="0" required="0" disabled="0"/>
@@ -272,7 +272,7 @@
     <signal id="placeholder-activated"/>
     <signal id="placeholder-selected"/>
   </ui>
-  <ui template-class="CmbUIPropertyEditor" filename="cmb_ui_property_editor.ui" sha256="dc8cccdce4c8ef5a9841d17c71900575e7f62dd806d167278aa6b46e74284e6d">
+  <ui template-class="CmbUIPropertyEditor" filename="cmb_ui_property_editor.ui" sha256="4fefcbe1e98cba8b8a9a648913ab8cf4cbc0de2dee6b14efac2824264654d1bc">
     <requires>CmbTextBuffer</requires>
     <requires>CmbFileButton</requires>
     <requires>CmbEntry</requires>

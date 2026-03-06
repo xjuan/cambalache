@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.95.0 -->
+<!-- Created with Cambalache 0.99.17 -->
 <interface>
   <!-- interface-name cmb_translatable_widget.ui -->
   <!-- interface-copyright Philipp Unger -->
@@ -30,7 +30,9 @@
           </object>
         </property>
         <property name="focusable">1</property>
+        <property name="has-frame">True</property>
         <property name="height-request">60</property>
+        <property name="min-content-height">128</property>
         <property name="width-request">300</property>
       </object>
     </child>
@@ -58,6 +60,7 @@
           </object>
         </property>
         <property name="focusable">1</property>
+        <property name="has-frame">True</property>
         <property name="height-request">60</property>
       </object>
     </child>
@@ -78,6 +81,7 @@
           </object>
         </property>
         <property name="focusable">1</property>
+        <property name="has-frame">True</property>
         <property name="height-request">60</property>
       </object>
     </child>

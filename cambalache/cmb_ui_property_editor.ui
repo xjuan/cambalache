@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.99.14 -->
+<!-- Created with Cambalache 0.99.17 -->
 <interface>
   <!-- interface-name cmb_ui_property_editor.ui -->
   <!-- interface-copyright Juan Pablo Ugarte -->
@@ -91,6 +91,7 @@
           </object>
         </property>
         <property name="focusable">1</property>
+        <property name="has-frame">True</property>
         <property name="max-content-height">256</property>
         <property name="min-content-height">96</property>
         <layout>
@@ -108,6 +109,7 @@
           </object>
         </property>
         <property name="focusable">1</property>
+        <property name="has-frame">True</property>
         <property name="max-content-height">256</property>
         <property name="min-content-height">96</property>
         <layout>
@@ -147,6 +149,7 @@
           </object>
         </property>
         <property name="focusable">1</property>
+        <property name="has-frame">True</property>
         <property name="max-content-height">256</property>
         <property name="min-content-height">96</property>
         <layout>
@@ -174,6 +177,7 @@
           </object>
         </property>
         <property name="focusable">1</property>
+        <property name="has-frame">True</property>
         <property name="max-content-height">256</property>
         <property name="min-content-height">96</property>
         <layout>
