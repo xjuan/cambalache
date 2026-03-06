@@ -27,7 +27,7 @@ import hashlib
 import datetime
 
 from lxml import etree
-from gi.repository import Gdk, Gio
+from gi.repository import GLib, Gdk, Gio
 
 
 def parse_version(version):
@@ -107,6 +107,11 @@ def content_type_guess(path):
 
 def utcnow():
     return int(datetime.datetime.now(datetime.UTC).timestamp())
+
+
+def friendly_homedir(path):
+    home = GLib.get_home_dir()
+    return "~" + path.removeprefix(home) if path.startswith(home) else path
 
 
 # XML utilities
