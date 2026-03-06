@@ -26,7 +26,7 @@
 import os
 
 from gi.repository import Gtk, Adw, GObject, GLib
-from cambalache import getLogger, _
+from cambalache import getLogger, _, utils
 
 logger = getLogger(__name__)
 
@@ -49,7 +49,7 @@ class CmbNewProjectDialog(Adw.Dialog):
 
         home = GLib.get_home_dir()
         projects = os.path.join(home, "Projects")
-        self.__location = projects if os.path.isdir(projects) else home
+        self.location = projects if os.path.isdir(projects) else home
 
     @GObject.Property(type=str)
     def location(self):
@@ -58,7 +58,7 @@ class CmbNewProjectDialog(Adw.Dialog):
     @location.setter
     def location(self, location):
         self.__location = location
-        self.location_row.props.subtitle = self.__location
+        self.location_row.props.subtitle = utils.friendly_homedir(location)
 
     @Gtk.Template.Callback("on_name_entry_changed")
     def __on_name_entry_changed(self, entry):
