@@ -4,12 +4,15 @@
 and a data model-first philosophy. This architectural approach translates to comprehensive
 feature coverage with minimal developer intervention for basic support.
 
-![Data Model Diagram](datamodel.svg)
+
+## Data Model
+![Data Model Diagram](cambalache/app/images/datamodel.svg)
 
 To support multiple GTK versions, it renders the workspace out-of-process using a 
 custom Wayland compositor widget based on **wlroots**.
 
-![Merengue Diagram](merengue.svg)
+## Merengue
+![Merengue Diagram](cambalache/app/images/merengue.svg)
 
 ---
 

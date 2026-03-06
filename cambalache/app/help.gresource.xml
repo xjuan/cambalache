@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 1.0.0 -->
+<gresources>
+  <gresource prefix="/ar/xjuan/Cambalache/help">
+    <file>images/cambalache.png</file>
+    <file>images/css.png</file>
+    <file>images/datamodel.svg</file>
+    <file>images/foo_popup.png</file>
+    <file>images/foobar.png</file>
+    <file>images/foobar_resource.png</file>
+    <file>images/gresources.png</file>
+    <file>images/hello_world.png</file>
+    <file>images/logo-horizontal.svg</file>
+    <file>images/merengue.svg</file>
+    <file>images/new_project.png</file>
+    <file>images/new_window.png</file>
+    <file>images/project_settings.png</file>
+    <file>images/template.png</file>
+    <file>images/template_type.png</file>
+  </gresource>
+</gresources>

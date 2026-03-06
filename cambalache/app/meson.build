@@ -7,6 +7,13 @@ gnome.compile_resources('app',
   install_dir: pkgdatadir,
 )
 
+gnome.compile_resources('help',
+  'help.gresource.xml',
+  gresource_bundle: true,
+  install: true,
+  install_dir: pkgdatadir,
+)
+
 conf = configuration_data()
 conf.set('VERSION', meson.project_version())
 conf.set('PYTHON', python_bin.full_path())
@@ -26,10 +33,12 @@ install_data([
     '__init__.py',
     'cmb_application.py',
     'cmb_donate_dialog.py',
+    'cmb_help_window.py',
+    'cmb_np_dialog.py',
+    'cmb_picture.py',
     'cmb_scrolled_window.py',
-    'cmb_window.py',
     'cmb_tutor.py',
     'cmb_tutorial.py',
-    'cmb_np_dialog.py',
+    'cmb_window.py',
     ],
     install_dir: moduledir)

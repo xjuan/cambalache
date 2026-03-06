@@ -1,6 +1,7 @@
-# Cambalache Application
 #
-# Copyright (C) 2021-2024  Juan Pablo Ugarte
+# CmbPicture
+#
+# Copyright (C) 2026  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -22,23 +23,28 @@
 # SPDX-License-Identifier: LGPL-2.1-only
 #
 
-import os
-import gi
+from gi.repository import Gtk
 
-gi.require_version('GIRepository', '3.0')
-gi.require_version('CambalachePrivate', '4.0')
 
-# flake8: noqa: E402,F401
-from cambalache import config
-from gi.repository import Gio
+class CmbPicture(Gtk.Picture):
+    __gtype_name__ = "CmbPicture"
 
-resource = Gio.Resource.load(os.path.join(config.pkgdatadir, "app.gresource"))
-resource._register()
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
-repository = gi.Repository.get_default()
-repository.prepend_search_path(config.privatecambalachedir)
-repository.prepend_library_path(config.privatecambalachedir)
+    def do_get_request_mode(self):
+        return Gtk.SizeRequestMode.HEIGHT_FOR_WIDTH
 
-from .cmb_application import CmbApplication
-from .cmb_scrolled_window import CmbScrolledWindow
-from .cmb_picture import CmbPicture
+    def do_measure(self, orientation, for_size):
+        if self.props.paintable:
+            width = self.props.paintable.get_intrinsic_width()
+            height = self.props.paintable.get_intrinsic_height()
+
+            if width < for_size:
+                return height, height, -1, -1
+
+            h = max(height/2, height * (for_size/width))
+            return (h, h, -1, -1)
+
+        return -1, -1, -1, -1
+

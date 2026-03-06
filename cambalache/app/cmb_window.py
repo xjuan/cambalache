@@ -27,6 +27,7 @@ import os
 import locale
 import tempfile
 
+from datetime import date
 from gi.repository import GLib, GObject, Gio, Gdk, Gtk, Pango, Adw, GtkSource
 from .cmb_tutor import CmbTutor, CmbTutorState
 from .cmb_np_dialog import CmbNewProjectDialog
@@ -299,7 +300,6 @@ class CmbWindow(Adw.ApplicationWindow):
         self.__load_window_state()
         self.__update_actions()
 
-        self.source_style_manager = GtkSource.StyleSchemeManager.get_default()
         app.props.style_manager.connect("notify::dark", lambda o, p: self.__update_dark_mode())
 
         # Bind preview
@@ -377,11 +377,11 @@ class CmbWindow(Adw.ApplicationWindow):
     def __update_window_title(self):
         if self.project is None:
             self.title.props.title = "Cambalache"
-            self.title.props.subtitle = None
+            self.title.props.subtitle = ""
             return
 
         if self.project.filename:
-            path = self.project.filename.replace(GLib.get_home_dir(), "~")
+            path = utils.friendly_homedir(self.project.filename)
         else:
             path = _("Untitled")
 
@@ -463,13 +463,13 @@ class CmbWindow(Adw.ApplicationWindow):
 
     def __update_dark_mode(self):
         if self.props.application.props.style_manager.props.dark:
-            self.source_style = self.source_style_manager.get_scheme("Adwaita-dark")
+            self.source_style = GtkSource.StyleSchemeManager.get_default().get_scheme("Adwaita-dark")
             paintable = Gtk.Svg(resource="/ar/xjuan/Cambalache/app/images/logo-dark.gpa")
             self.add_css_class("dark")
         else:
             paintable = Gtk.Svg(resource="/ar/xjuan/Cambalache/app/images/logo.gpa")
             self.remove_css_class("dark")
-            self.source_style = self.source_style_manager.get_scheme("tango")
+            self.source_style = GtkSource.StyleSchemeManager.get_default().get_scheme("tango")
 
         if fc := self.get_frame_clock():
             paintable.set_frame_clock(fc)
@@ -1397,7 +1397,7 @@ class CmbWindow(Adw.ApplicationWindow):
             "Franco Dodorico",
             "Juan Pablo Ugarte",
         ]
-        about.props.copyright = "© 2020-2025 Juan Pablo Ugarte"
+        about.props.copyright = f"© 2020-{date.today().year} Juan Pablo Ugarte"
         about.props.license_type = Gtk.License.LGPL_2_1_ONLY
 
         self.__update_translators(about)

@@ -119,3 +119,49 @@ CmbDonateDialog label.donate-desc {
 popover.notifications > * {
   background-color: @window_bg_color;
 }
+
+/* Help window */
+window.cmb-help box.docs {
+  margin: 1em 3em;
+}
+
+window.cmb-help box.docs > picture:first-child {
+  margin-bottom:  2em;
+}
+
+window.cmb-help box.docs > picture {
+  margin:  1em 0;
+}
+
+window.cmb-help label.title-1 {
+  margin-bottom: 1ex;
+}
+
+window.cmb-help label.title-2,
+window.cmb-help label.title-3,
+window.cmb-help label.title-4 {
+  margin-top: 1em;
+  margin-bottom: 1ex;
+}
+
+window.cmb-help label.message {
+  margin-top: 1em;
+  margin-bottom: 1ex;
+  padding: 1ex 1em;
+  border-radius: 1ex;
+  color: white;
+  background-color: rgba(0, 0, 0, .6);
+}
+
+window.cmb-help.dark .message {
+  color: black;
+  background-color: rgba(255, 255, 255, .6);
+}
+
+window.cmb-help .code {
+  margin: 1em 0;
+  padding: 1ex 1em;
+  border-radius: 1ex;
+  border: 1px solid @theme_selected_bg_color;
+  font-family: monospace;
+}

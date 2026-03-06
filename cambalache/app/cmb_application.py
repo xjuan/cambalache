@@ -25,13 +25,13 @@
 
 import os
 import sys
-import gi
 
-gi.require_version('Adw', '1')
 from gi.repository import GLib, Gdk, Gtk, Gio, Adw
 
 from .cmb_window import CmbWindow
-from cambalache import CmbProject, utils, config, _
+from .cmb_help_window import CmbHelpWindow
+from cambalache import utils, config, _
+
 
 basedir = os.path.dirname(__file__) or "."
 
@@ -50,6 +50,8 @@ class CmbApplication(Adw.Application):
         self.add_main_option(
             "export-all", b"E", GLib.OptionFlags.NONE, GLib.OptionArg.FILENAME, _("Deprecated: Export project"), None
         )
+
+        self.__help_window = None
 
     def add_new_window(self):
         window = CmbWindow(application=self)
@@ -163,7 +165,7 @@ class CmbApplication(Adw.Application):
         retval = []
 
         for win in self.get_windows():
-            if win.props.application is not None:
+            if isinstance(win, CmbWindow) and win.props.application is not None:
                 retval.append(win)
 
         return retval
@@ -213,6 +215,12 @@ class CmbApplication(Adw.Application):
         window.create_project(target_tk, filename, uipath)
         window.present()
 
+    def _on_help_activate(self, action, data):
+        if self.__help_window is None:
+            self.__help_window = CmbHelpWindow(application=self)
+
+        self.__help_window.present()
+
     # GApplication interface
     def do_open(self, files, nfiles, hint):
         for file in files:
@@ -231,6 +239,7 @@ class CmbApplication(Adw.Application):
             ("quit", ["<Primary>q"], None),
             ("open", None, "(ss)"),
             ("new", None, "(sss)"),
+            ("help", ["F1"], None),
         ]:
             gaction = Gio.SimpleAction.new(action, GLib.VariantType.new(parameter_type) if parameter_type else None)
             gaction.connect("activate", getattr(self, f"_on_{action}_activate"))

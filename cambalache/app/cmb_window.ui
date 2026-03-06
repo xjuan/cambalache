@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.99.16 -->
+<!-- Created with Cambalache 1.0.0 -->
 <interface>
   <!-- interface-name cmb_window.ui -->
   <!-- interface-copyright Juan Pablo Ugarte -->
   <requires lib="gio" version="2.0"/>
-  <requires lib="gtk" version="4.14"/>
+  <requires lib="gtk" version="4.20"/>
   <requires lib="libadwaita" version="1.5"/>
   <menu id="main_menu">
     <item>
@@ -72,6 +72,10 @@
       <item>
         <attribute name="action">win.show-help-overlay</attribute>
         <attribute name="label" translatable="yes">Keyboard Shortcuts</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.help</attribute>
+        <attribute name="label" translatable="yes">Help</attribute>
       </item>
       <item>
         <attribute name="action">win.about</attribute>
@@ -263,6 +267,11 @@
                             <property name="row-homogeneous">True</property>
                             <child>
                               <object class="GtkPicture" id="logo">
+                                <property name="paintable">
+                                  <object class="GtkSvg">
+                                    <property name="resource">/ar/xjuan/Cambalache/app/images/logo.gpa</property>
+                                  </object>
+                                </property>
                                 <property name="vexpand">True</property>
                                 <layout>
                                   <property name="column">1</property>
