@@ -27,7 +27,7 @@ import os
 import locale
 import tempfile
 
-from gi.repository import GLib, GObject, Gio, Gdk, Gtk, Pango, Adw, GtkSource, CambalachePrivate
+from gi.repository import GLib, GObject, Gio, Gdk, Gtk, Pango, Adw, GtkSource
 from .cmb_tutor import CmbTutor, CmbTutorState
 from .cmb_np_dialog import CmbNewProjectDialog
 from .cmb_donate_dialog import CmbDonateDialog
@@ -56,7 +56,6 @@ from cambalache.cmb_blueprint import CmbBlueprintError
 logger = getLogger(__name__)
 
 GObject.type_ensure(CmbGResourceEditor.__gtype__)
-GObject.type_ensure(CambalachePrivate.Svg.__gtype__)
 
 
 @Gtk.Template(resource_path="/ar/xjuan/Cambalache/app/cmb_window.ui")
@@ -301,8 +300,7 @@ class CmbWindow(Adw.ApplicationWindow):
         self.__update_actions()
 
         self.source_style_manager = GtkSource.StyleSchemeManager.get_default()
-        app.props.style_manager.connect("notify::dark", lambda o, p: self.__update_dark_mode(app.props.style_manager))
-        self.__update_dark_mode(app.props.style_manager)
+        app.props.style_manager.connect("notify::dark", lambda o, p: self.__update_dark_mode())
 
         # Bind preview
         hide_placeholders_button = Gtk.ToggleButton(tooltip_text=_("Hide placeholders"), icon_name="view-conceal-symbolic")
@@ -319,6 +317,7 @@ class CmbWindow(Adw.ApplicationWindow):
         self.view.connect("notify::gtk-theme", self.__on_view_gtk_theme_notify)
         self.connect("notify::focus-widget", self.__on_focus_widget_notify)
         self.connect("close-request", self.__on_close_request)
+        self.connect("map", lambda o: self.__update_dark_mode())
 
         self.__recent_manager.connect("changed", lambda rm: self.__update_recent_menu())
         self.__update_recent_menu()
@@ -462,15 +461,18 @@ class CmbWindow(Adw.ApplicationWindow):
         self.__clipboard_enabled = focused_widget_needs
         self.__update_action_clipboard()
 
-    def __update_dark_mode(self, style_manager):
-        if style_manager.props.dark:
+    def __update_dark_mode(self):
+        if self.props.application.props.style_manager.props.dark:
             self.source_style = self.source_style_manager.get_scheme("Adwaita-dark")
-            paintable = CambalachePrivate.Svg(resource="/ar/xjuan/Cambalache/app/images/logo-dark.gpa")
+            paintable = Gtk.Svg(resource="/ar/xjuan/Cambalache/app/images/logo-dark.gpa")
             self.add_css_class("dark")
         else:
-            paintable = CambalachePrivate.Svg(resource="/ar/xjuan/Cambalache/app/images/logo.gpa")
+            paintable = Gtk.Svg(resource="/ar/xjuan/Cambalache/app/images/logo.gpa")
             self.remove_css_class("dark")
             self.source_style = self.source_style_manager.get_scheme("tango")
+
+        if fc := self.get_frame_clock():
+            paintable.set_frame_clock(fc)
 
         paintable.props.playing = True
         paintable.props.state = 2

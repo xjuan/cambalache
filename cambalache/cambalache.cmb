@@ -233,16 +233,6 @@
   <ui template-class="CmbFileStatusBar" filename="cmb_file_status_bar.ui" sha256="a45045757541f55e0c9d87ad493073a29efcb528f7549c0604422c2f16f24ea1">
     <property id="object" type-id="GObject" disable-inline-object="1" required="0" disabled="0"/>
   </ui>
-  <ui template-class="CmbPrivateSvg">
-    <property id="playing" type-id="gboolean" disable-inline-object="0" required="0" disabled="0"/>
-    <property id="resource" type-id="gchararray" disable-inline-object="0" required="0" disabled="0"/>
-    <property id="state" type-id="gint" disable-inline-object="0" required="0" disabled="0"/>
-    <content><![CDATA[<interface>
-  <requires lib="gtk" version="4.0"/>
-  <template class="CmbPrivateSvg" parent="GtkWidgetPaintable"/>
-</interface>
-]]></content>
-  </ui>
   <ui template-class="CmbProjectSettings" filename="cmb_project_settings.ui" sha256="a2f46a259b0a86ec6b4b8097580ef208b211f2954d2044648a2633360ffc162f"/>
   <ui template-class="CmbLibraryRow" filename="cmb_library_row.ui" sha256="0572248d230c1ad83a2d9b6ab69986792b2a27cdb0ae1a1299bccf67679afa49"/>
   <ui template-class="CmbNewProjectDialog" filename="app/cmb_np_dialog.ui" sha256="610ac1d6f046c2717aa926d90b3e6ac8a8fac91a1723f64aadfe525942d6e7f7"/>
