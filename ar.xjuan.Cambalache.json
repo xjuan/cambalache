@@ -1,7 +1,7 @@
 {
     "app-id" : "ar.xjuan.Cambalache",
     "runtime" : "org.gnome.Platform",
-    "runtime-version" : "49",
+    "runtime-version" : "master",
     "sdk" : "org.gnome.Sdk",
     "separate-locales" : false,
     "command" : "cambalache",
@@ -34,8 +34,8 @@
             "sources" : [
                 {
                     "type" : "file",
-                    "url" : "https://files.pythonhosted.org/packages/8f/bd/f9d01fd4132d81c6f43ab01983caea69ec9614b913c290a26738431a015d/lxml-6.0.1.tar.gz",
-                    "sha256" : "2b3a882ebf27dd026df3801a87cf49ff791336e0f94b0fad195db77e01240690"
+                    "url" : "https://files.pythonhosted.org/packages/aa/88/262177de60548e5a2bfc46ad28232c9e9cbde697bd94132aeb80364675cb/lxml-6.0.2.tar.gz",
+                    "sha256" : "cd79f3367bd74b317dda655dc8fcfa304d9eb6e4fb06b7168c5cf27f96e0cd62"
                 }
             ]
         },
@@ -48,15 +48,10 @@
             ],
             "sources" : [
                 {
-                    "type" : "archive",
-                    "url" : "https://git.sr.ht/~kennylevinsen/seatd/archive/0.9.1.tar.gz",
-                    "sha256" : "819979c922a0be258aed133d93920bce6a3d3565a60588d6d372ce9db2712cd3",
-                    "x-checker-data" : {
-                        "type" : "anitya",
-                        "project-id" : 234932,
-                        "stable-only" : true,
-                        "url-template" : "https://git.sr.ht/~kennylevinsen/seatd/archive/$version.tar.gz"
-                    }
+                    "type" : "git",
+                    "url" : "https://git.sr.ht/~kennylevinsen/seatd",
+                    "tag" : "0.9.3",
+                    "commit" : "daa8196e10b180b8b0caeafa8e5f860eb1bd6706"
                 }
             ]
         },
@@ -69,8 +64,8 @@
                 {
                     "type" : "git",
                     "url" : "https://gitlab.freedesktop.org/wlroots/wlroots.git",
-                    "tag" : "0.18.2",
-                    "commit" : "cda69b696d65a53d5d5e75dfed059a3803e0d700"
+                    "tag" : "0.19.2",
+                    "commit" : "8c9e6b7c9f3c5344f456e97dc29dcd8d8a5f015b"
                 }
             ]
         },
@@ -83,8 +78,8 @@
                 {
                     "type" : "git",
                     "url" : "https://gitlab.gnome.org/jpu/casilda.git",
-                    "tag" : "1.0.0",
-                    "commit" : "678d21564ab099ea0ccdc95387ae97ed56b97e45"
+                    "tag" : "1.2.0",
+                    "commit" : "b7fa9892284e0b497bd3f1a37570e176d4573fa0"
                 }
             ]
         },
