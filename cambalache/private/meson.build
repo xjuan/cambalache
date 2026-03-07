@@ -1,12 +1,10 @@
 
 sources = [
   'cmb_private.c',
-  'cmb_private_svg.c',
 ]
 
 headers = [
   'cmb_private.h',
-  'cmb_private_svg.h',
 ]
 
 cc = meson.get_compiler('c')
