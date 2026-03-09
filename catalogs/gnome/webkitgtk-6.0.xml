@@ -45,13 +45,16 @@
 	("WebKitUserScriptInjectionTime","enum","webkitgtk",None,None,None,None,None,None,None),
 	("WebKitUserStyleLevel","enum","webkitgtk",None,None,None,None,None,None,None),
 	("WebKitWebContext","GObject","webkitgtk",None,None,None,1,None,None,None),
+	("WebKitWebExtensionError","enum","webkitgtk",None,None,None,None,None,None,None),
 	("WebKitWebExtensionMatchPatternError","enum","webkitgtk",None,None,None,None,None,None,None),
 	("WebKitWebExtensionMatchPatternOptions","flags","webkitgtk",None,None,None,None,None,None,None),
 	("WebKitWebExtensionMode","enum","webkitgtk",None,None,None,None,None,None,None),
 	("WebKitWebProcessTerminationReason","enum","webkitgtk",None,None,None,None,None,None,None),
 	("WebKitWebView","WebKitWebViewBase","webkitgtk",None,None,None,1,"container",None,None),
 	("WebKitWebViewBase","GtkWidget","webkitgtk",None,None,None,1,None,"hidden",None),
-	("WebKitWebsiteDataTypes","flags","webkitgtk",None,None,None,None,None,None,None)
+	("WebKitWebsiteDataTypes","flags","webkitgtk",None,None,None,None,None,None,None),
+	("WebKitXRSessionFeatures","flags","webkitgtk",None,None,None,None,None,None,None),
+	("WebKitXRSessionMode","enum","webkitgtk",None,None,None,None,None,None,None)
   </type>
   <type_iface>
 	("WebKitWebView","GtkAccessible"),
@@ -220,6 +223,15 @@
 	("WebKitUserScriptInjectionTime","WEBKIT_USER_SCRIPT_INJECT_AT_DOCUMENT_START","start",None,"Insert the code of the user script at the beginning of loaded documents. This is the default."),
 	("WebKitUserStyleLevel","WEBKIT_USER_STYLE_LEVEL_AUTHOR","author",1,"The style sheet will be treated as if it was provided by the loaded documents. That means other user style sheets may still override it."),
 	("WebKitUserStyleLevel","WEBKIT_USER_STYLE_LEVEL_USER","user",None,"The style sheet is an user style sheet, its contents always override other style sheets. This is the default."),
+	("WebKitWebExtensionError","WEBKIT_WEB_EXTENSION_ERROR_INVALID_ARCHIVE","invalid-archive",807,"The archive file is invalid or corrupt."),
+	("WebKitWebExtensionError","WEBKIT_WEB_EXTENSION_ERROR_INVALID_BACKGROUND_PERSISTENCE","invalid-background-persistence",806,"The extension specified background persistence that was not compatible with the platform or features requested."),
+	("WebKitWebExtensionError","WEBKIT_WEB_EXTENSION_ERROR_INVALID_DECLARATIVE_NET_REQUEST_ENTRY","invalid-declarative-net-request-entry",805,"An invalid declarative net request entry was encountered."),
+	("WebKitWebExtensionError","WEBKIT_WEB_EXTENSION_ERROR_INVALID_MANIFEST","invalid-manifest",802,"An invalid `manifest.json` was encountered."),
+	("WebKitWebExtensionError","WEBKIT_WEB_EXTENSION_ERROR_INVALID_MANIFEST_ENTRY","invalid-manifest-entry",804,"An invalid manifest entry was encountered."),
+	("WebKitWebExtensionError","WEBKIT_WEB_EXTENSION_ERROR_INVALID_RESOURCE_CODE_SIGNATURE","invalid-resource-code-signature",801,"A resource failed the bundle's code signature checks."),
+	("WebKitWebExtensionError","WEBKIT_WEB_EXTENSION_ERROR_RESOURCE_NOT_FOUND","resource-not-found",800,"A specified resource was not found on disk."),
+	("WebKitWebExtensionError","WEBKIT_WEB_EXTENSION_ERROR_UNKNOWN","unknown",899,"An unknown error occured."),
+	("WebKitWebExtensionError","WEBKIT_WEB_EXTENSION_ERROR_UNSUPPORTED_MANIFEST_VERSION","unsupported-manifest-version",803,"The manifest version is not supported."),
 	("WebKitWebExtensionMatchPatternError","WEBKIT_WEB_EXTENSION_MATCH_PATTERN_ERROR_INVALID_HOST","invalid-host",809,"The host component was invalid."),
 	("WebKitWebExtensionMatchPatternError","WEBKIT_WEB_EXTENSION_MATCH_PATTERN_ERROR_INVALID_PATH","invalid-path",810,"The path component was invalid."),
 	("WebKitWebExtensionMatchPatternError","WEBKIT_WEB_EXTENSION_MATCH_PATTERN_ERROR_INVALID_SCHEME","invalid-scheme",808,"The scheme component was invalid."),
@@ -229,7 +241,10 @@
 	("WebKitWebExtensionMode","WEBKIT_WEB_EXTENSION_MODE_NONE","none",None,"Not for an extension."),
 	("WebKitWebProcessTerminationReason","WEBKIT_WEB_PROCESS_CRASHED","crashed",None,"the web process crashed."),
 	("WebKitWebProcessTerminationReason","WEBKIT_WEB_PROCESS_EXCEEDED_MEMORY_LIMIT","exceeded-memory-limit",1,"the web process exceeded the memory limit."),
-	("WebKitWebProcessTerminationReason","WEBKIT_WEB_PROCESS_TERMINATED_BY_API","terminated-by-api",2,"the web process termination was requested by an API call. Since: 2.34")
+	("WebKitWebProcessTerminationReason","WEBKIT_WEB_PROCESS_TERMINATED_BY_API","terminated-by-api",2,"the web process termination was requested by an API call. Since: 2.34"),
+	("WebKitXRSessionMode","WEBKIT_XR_SESSION_MODE_IMMERSIVE_AR","immersive-ar",2,"immersive-ar session mode."),
+	("WebKitXRSessionMode","WEBKIT_XR_SESSION_MODE_IMMERSIVE_VR","immersive-vr",1,"immersive-vr session mode."),
+	("WebKitXRSessionMode","WEBKIT_XR_SESSION_MODE_INLINE","inline",None,"inline session mode.")
   </type_enum>
   <type_flags>
 	("WebKitEditorTypingAttributes","WEBKIT_EDITOR_TYPING_ATTRIBUTE_BOLD","bold",4,"Bold typing attribute."),
@@ -276,7 +291,15 @@
 	("WebKitWebsiteDataTypes","WEBKIT_WEBSITE_DATA_MEMORY_CACHE","memory-cache",1,"Memory cache."),
 	("WebKitWebsiteDataTypes","WEBKIT_WEBSITE_DATA_OFFLINE_APPLICATION_CACHE","offline-application-cache",4,"Offline web application cache."),
 	("WebKitWebsiteDataTypes","WEBKIT_WEBSITE_DATA_SERVICE_WORKER_REGISTRATIONS","service-worker-registrations",1024,"Service worker registrations."),
-	("WebKitWebsiteDataTypes","WEBKIT_WEBSITE_DATA_SESSION_STORAGE","session-storage",8,"Session storage data.")
+	("WebKitWebsiteDataTypes","WEBKIT_WEBSITE_DATA_SESSION_STORAGE","session-storage",8,"Session storage data."),
+	("WebKitXRSessionFeatures","WEBKIT_XR_SESSION_FEATURES_BOUNDED_FLOOR","bounded-floor",8,"bounded-floor feature."),
+	("WebKitXRSessionFeatures","WEBKIT_XR_SESSION_FEATURES_HAND_TRACKING","hand-tracking",32,"hand tracking feature."),
+	("WebKitXRSessionFeatures","WEBKIT_XR_SESSION_FEATURES_HIT_TEST","hit-test",64,"hit test feature."),
+	("WebKitXRSessionFeatures","WEBKIT_XR_SESSION_FEATURES_LAYERS","layers",128,"WebXR Layers feature."),
+	("WebKitXRSessionFeatures","WEBKIT_XR_SESSION_FEATURES_LOCAL","local",2,"local feature."),
+	("WebKitXRSessionFeatures","WEBKIT_XR_SESSION_FEATURES_LOCAL_FLOOR","local-floor",4,"local-floor feature."),
+	("WebKitXRSessionFeatures","WEBKIT_XR_SESSION_FEATURES_UNBOUNDED","unbounded",16,"unbounded feature."),
+	("WebKitXRSessionFeatures","WEBKIT_XR_SESSION_FEATURES_VIEWER","viewer",1,"viewer feature.")
   </type_flags>
   <property>
 	("WebKitSettings","allow-file-access-from-file-urls","gboolean",None,None,None,"False",None,None,None,None,None,None,None,None,None,None,None),
@@ -324,6 +347,7 @@
 	("WebKitSettings","javascript-can-access-clipboard","gboolean",None,None,None,"False",None,None,None,None,None,None,None,None,None,None,None),
 	("WebKitSettings","javascript-can-open-windows-automatically","gboolean",None,None,None,"False",None,None,None,None,None,None,None,None,None,None,None),
 	("WebKitSettings","load-icons-ignoring-image-load-setting","gboolean",None,None,None,"False",None,None,None,None,None,None,None,None,None,None,None),
+	("WebKitSettings","math-font-family","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
 	("WebKitSettings","media-content-types-requiring-hardware-support","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
 	("WebKitSettings","media-playback-allows-inline","gboolean",None,None,None,"True",None,None,None,None,None,None,None,None,None,None,None),
 	("WebKitSettings","media-playback-requires-user-gesture","gboolean",None,None,None,"False",None,None,None,None,None,None,None,None,None,None,None),

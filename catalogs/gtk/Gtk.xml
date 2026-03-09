@@ -684,6 +684,18 @@
         <property id="placeholder-text" translatable="True"/>
       </properties>
     </GtkText>
+
+    <GtkColumnViewRow>
+      <properties>
+        <property id="accessible-label" translatable="True"/>
+      </properties>
+    </GtkColumnViewRow>
+
+    <GtkListItem>
+      <properties>
+        <property id="accessible-label" translatable="True"/>
+      </properties>
+    </GtkListItem>
   </types>
 
   <categories>

@@ -47,12 +47,13 @@
 	("WebKitUserStyleLevel","enum","webkit2gtk",None,None,None,None,None,None,None),
 	("WebKitWebContext","GObject","webkit2gtk",None,None,None,1,None,None,None),
 	("WebKitWebExtensionMatchPatternError","enum","webkit2gtk",None,None,None,None,None,None,None),
-	("WebKitWebExtensionMatchPatternOptions","flags","webkit2gtk",None,None,None,None,None,None,None),
 	("WebKitWebExtensionMode","enum","webkit2gtk",None,None,None,None,None,None,None),
 	("WebKitWebProcessTerminationReason","enum","webkit2gtk",None,None,None,None,None,None,None),
 	("WebKitWebView","WebKitWebViewBase","webkit2gtk",None,None,None,1,"container",None,None),
 	("WebKitWebViewBase","GtkContainer","webkit2gtk",None,None,None,1,"container","hidden",None),
-	("WebKitWebsiteDataTypes","flags","webkit2gtk",None,None,None,None,None,None,None)
+	("WebKitWebsiteDataTypes","flags","webkit2gtk",None,None,None,None,None,None,None),
+	("WebKitXRSessionFeatures","flags","webkit2gtk",None,None,None,None,None,None,None),
+	("WebKitXRSessionMode","enum","webkit2gtk",None,None,None,None,None,None,None)
   </type>
   <type_iface>
 	("WebKitWebView","GtkBuildable"),
@@ -234,7 +235,10 @@
 	("WebKitWebExtensionMode","WEBKIT_WEB_EXTENSION_MODE_NONE","none",None,"Not for an extension."),
 	("WebKitWebProcessTerminationReason","WEBKIT_WEB_PROCESS_CRASHED","crashed",None,"the web process crashed."),
 	("WebKitWebProcessTerminationReason","WEBKIT_WEB_PROCESS_EXCEEDED_MEMORY_LIMIT","exceeded-memory-limit",1,"the web process exceeded the memory limit."),
-	("WebKitWebProcessTerminationReason","WEBKIT_WEB_PROCESS_TERMINATED_BY_API","terminated-by-api",2,"the web process termination was requested by an API call. Since: 2.34")
+	("WebKitWebProcessTerminationReason","WEBKIT_WEB_PROCESS_TERMINATED_BY_API","terminated-by-api",2,"the web process termination was requested by an API call. Since: 2.34"),
+	("WebKitXRSessionMode","WEBKIT_XR_SESSION_MODE_IMMERSIVE_AR","immersive-ar",2,"immersive-ar session mode."),
+	("WebKitXRSessionMode","WEBKIT_XR_SESSION_MODE_IMMERSIVE_VR","immersive-vr",1,"immersive-vr session mode."),
+	("WebKitXRSessionMode","WEBKIT_XR_SESSION_MODE_INLINE","inline",None,"inline session mode.")
   </type_enum>
   <type_flags>
 	("WebKitEditorTypingAttributes","WEBKIT_EDITOR_TYPING_ATTRIBUTE_BOLD","bold",4,"Bold typing attribute."),
@@ -265,10 +269,6 @@
 	("WebKitSnapshotOptions","WEBKIT_SNAPSHOT_OPTIONS_INCLUDE_SELECTION_HIGHLIGHTING","include-selection-highlighting",1,"Whether to include in the snapshot the highlight of the selected content."),
 	("WebKitSnapshotOptions","WEBKIT_SNAPSHOT_OPTIONS_NONE","none",None,"Do not include any special options."),
 	("WebKitSnapshotOptions","WEBKIT_SNAPSHOT_OPTIONS_TRANSPARENT_BACKGROUND","transparent-background",2,"Do not fill the background with white before rendering the snapshot. Since 2.8"),
-	("WebKitWebExtensionMatchPatternOptions","WEBKIT_WEB_EXTENSION_MATCH_PATTERN_OPTIONS_IGNORE_PATHS","ignore-paths",4,"The host components should be ignored while matching."),
-	("WebKitWebExtensionMatchPatternOptions","WEBKIT_WEB_EXTENSION_MATCH_PATTERN_OPTIONS_IGNORE_SCHEMES","ignore-schemes",2,"The scheme components should be ignored while matching."),
-	("WebKitWebExtensionMatchPatternOptions","WEBKIT_WEB_EXTENSION_MATCH_PATTERN_OPTIONS_MATCH_BIDIRECTIONALLY","match-bidirectionally",8,"Two patterns should be checked in either direction while matching (A matches B, or B matches A). Invalid for matching URLs."),
-	("WebKitWebExtensionMatchPatternOptions","WEBKIT_WEB_EXTENSION_MATCH_PATTERN_OPTIONS_NONE","none",1,"No special matching options."),
 	("WebKitWebsiteDataTypes","WEBKIT_WEBSITE_DATA_ALL","all",16383,"All types."),
 	("WebKitWebsiteDataTypes","WEBKIT_WEBSITE_DATA_COOKIES","cookies",256,"Cookies."),
 	("WebKitWebsiteDataTypes","WEBKIT_WEBSITE_DATA_DEVICE_ID_HASH_SALT","device-id-hash-salt",512,"Hash salt used to generate the device ids used by webpages. Since 2.24"),
@@ -283,7 +283,15 @@
 	("WebKitWebsiteDataTypes","WEBKIT_WEBSITE_DATA_PLUGIN_DATA","plugin-data",128,"Plugins data. Deprecated 2.32"),
 	("WebKitWebsiteDataTypes","WEBKIT_WEBSITE_DATA_SERVICE_WORKER_REGISTRATIONS","service-worker-registrations",4096,"Service worker registrations. Since 2.30"),
 	("WebKitWebsiteDataTypes","WEBKIT_WEBSITE_DATA_SESSION_STORAGE","session-storage",8,"Session storage data."),
-	("WebKitWebsiteDataTypes","WEBKIT_WEBSITE_DATA_WEBSQL_DATABASES","websql-databases",32,"WebSQL databases. Deprecated 2.24")
+	("WebKitWebsiteDataTypes","WEBKIT_WEBSITE_DATA_WEBSQL_DATABASES","websql-databases",32,"WebSQL databases. Deprecated 2.24"),
+	("WebKitXRSessionFeatures","WEBKIT_XR_SESSION_FEATURES_BOUNDED_FLOOR","bounded-floor",8,"bounded-floor feature."),
+	("WebKitXRSessionFeatures","WEBKIT_XR_SESSION_FEATURES_HAND_TRACKING","hand-tracking",32,"hand tracking feature."),
+	("WebKitXRSessionFeatures","WEBKIT_XR_SESSION_FEATURES_HIT_TEST","hit-test",64,"hit test feature."),
+	("WebKitXRSessionFeatures","WEBKIT_XR_SESSION_FEATURES_LAYERS","layers",128,"WebXR Layers feature."),
+	("WebKitXRSessionFeatures","WEBKIT_XR_SESSION_FEATURES_LOCAL","local",2,"local feature."),
+	("WebKitXRSessionFeatures","WEBKIT_XR_SESSION_FEATURES_LOCAL_FLOOR","local-floor",4,"local-floor feature."),
+	("WebKitXRSessionFeatures","WEBKIT_XR_SESSION_FEATURES_UNBOUNDED","unbounded",16,"unbounded feature."),
+	("WebKitXRSessionFeatures","WEBKIT_XR_SESSION_FEATURES_VIEWER","viewer",1,"viewer feature.")
   </type_flags>
   <property>
 	("WebKitSettings","allow-file-access-from-file-urls","gboolean",None,None,None,"False",None,None,None,None,None,None,None,None,None,None,None),
@@ -337,6 +345,7 @@
 	("WebKitSettings","javascript-can-access-clipboard","gboolean",None,None,None,"False",None,None,None,None,None,None,None,None,None,None,None),
 	("WebKitSettings","javascript-can-open-windows-automatically","gboolean",None,None,None,"False",None,None,None,None,None,None,None,None,None,None,None),
 	("WebKitSettings","load-icons-ignoring-image-load-setting","gboolean",None,None,None,"False",None,None,None,None,None,None,None,None,None,None,None),
+	("WebKitSettings","math-font-family","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
 	("WebKitSettings","media-content-types-requiring-hardware-support","gchararray",None,None,None,None,None,None,None,None,None,None,None,None,None,None,None),
 	("WebKitSettings","media-playback-allows-inline","gboolean",None,None,None,"True",None,None,None,None,None,None,None,None,None,None,None),
 	("WebKitSettings","media-playback-requires-user-gesture","gboolean",None,None,None,"False",None,None,None,None,None,None,None,None,None,None,None),

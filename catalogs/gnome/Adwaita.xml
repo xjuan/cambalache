@@ -54,6 +54,10 @@
         <property id="icon-name" type="CmbIconName"/>
         <property id="subtitle" translatable="True"/>
       </properties>
+      <children-types>
+        <type>prefix</type>
+        <type>suffix</type>
+      </children-types>
     </AdwActionRow>
 
     <AdwAvatar>
@@ -61,6 +65,20 @@
         <property id="icon-name" type="CmbIconName"/>
       </properties>
     </AdwAvatar>
+
+    <AdwSidebarItem>
+      <properties>
+        <property id="icon-name" type="CmbIconName"/>
+        <property id="title" translatable="True"/>
+        <property id="subtitle" translatable="True"/>
+      </properties>
+    </AdwSidebarItem>
+
+    <AdwSidebarSection>
+      <properties>
+        <property id="title" translatable="True"/>
+      </properties>
+    </AdwSidebarSection>
 
     <AdwToggle>
       <properties>
@@ -94,7 +112,18 @@
         <property id="icon-name" type="CmbIconName"/>
         <property id="subtitle" translatable="True"/>
       </properties>
+      <children-types>
+        <type>prefix</type>
+        <type>suffix</type>
+      </children-types>
     </AdwExpanderRow>
+
+    <AdwEntryRow>
+      <children-types>
+        <type>prefix</type>
+        <type>suffix</type>
+      </children-types>
+    </AdwEntryRow>
 
     <AdwPreferencesPage>
       <properties>
@@ -144,6 +173,7 @@
                   workspace-default="&lt;object class=&quot;GtkLabel&quot;&gt;&lt;property name=&quot;label&quot;&gt;Empty Page&lt;/property&gt;&lt;/object&gt;"/>
         <property id="icon-name" type="CmbIconName"/>
         <property id="title" translatable="True"/>
+        <property id="section-title" translatable="True"/>
       </properties>
     </AdwViewStackPage>
 
