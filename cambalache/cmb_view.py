@@ -1,7 +1,7 @@
 #
 # CmbView - Cambalache View
 #
-# Copyright (C) 2021-2024  Juan Pablo Ugarte
+# Copyright (C) 2021-2026  Juan Pablo Ugarte
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -23,23 +23,21 @@
 # SPDX-License-Identifier: LGPL-2.1-only
 #
 
-import gi
 import os
 import json
 import time
 import atexit
 import socket
 
-gi.require_version('Casilda', '1.0')
-from gi.repository import GObject, GLib, Gio, Gdk, Gtk, Casilda
-
 from . import config
 from .cmb_ui import CmbUI
 from .cmb_object import CmbObject
 from .cmb_context_menu import CmbContextMenu
-from cambalache.cmb_blueprint import cmb_blueprint_decompile
-from . import utils
+
+from gi.repository import GObject, GLib, Gtk, Casilda
+
 from cambalache import getLogger, _, ngettext
+from cambalache.cmb_blueprint import cmb_blueprint_decompile
 from merengue.common import MrgCommand
 
 
@@ -103,12 +101,16 @@ class CmbMerengueProcess(GObject.Object, MrgCommand):
         # Force Gdk backend to wayland
         envp.append("GDK_BACKEND=wayland")
 
-        # This is used for mergenue to map resource files without compiling and loading a gresource bundle
+        # This is used for merengue to map resource files without compiling and loading a gresource bundle
         if self.gresource_overlays:
             envp.append(f"G_RESOURCE_OVERLAYS={self.gresource_overlays}")
 
         # Use WAYLAND_SOCKET instead of WAYLAND_DISPLAY
         envp.append(f"WAYLAND_SOCKET={wayland_socket}")
+
+        if "MERENGUE_FORCE_SOFTWARE" in os.environ:
+            envp.append("CASILDA_FORCE_SOFTWARE=1")
+            envp.append("GSK_RENDERER=cairo")
 
         # Spawn merengue with wayland_socket and client file descriptors
         # TODO: send stdout and error to some place useful for the user
