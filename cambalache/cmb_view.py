@@ -38,7 +38,7 @@ from gi.repository import GObject, GLib, Gtk, Casilda
 
 from cambalache import getLogger, _, ngettext
 from cambalache.cmb_blueprint import cmb_blueprint_decompile
-from merengue.common import MrgCommand
+from mrg_command import MrgCommand
 
 
 logger = getLogger(__name__)

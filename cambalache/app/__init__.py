@@ -26,7 +26,6 @@ import os
 import gi
 
 gi.require_version('GIRepository', '3.0')
-gi.require_version('CambalachePrivate', '4.0')
 
 # flake8: noqa: E402,F401
 from cambalache import config
@@ -38,6 +37,8 @@ resource._register()
 repository = gi.Repository.get_default()
 repository.prepend_search_path(config.privatecambalachedir)
 repository.prepend_library_path(config.privatecambalachedir)
+
+gi.require_version('CambalachePrivate', '4.0')
 
 from .cmb_application import CmbApplication
 from .cmb_scrolled_window import CmbScrolledWindow

@@ -28,15 +28,15 @@ import gi
 import json
 import importlib
 
-from gi.repository import GLib, GObject, Gio, Gdk, Gtk
+from gi.repository import GLib, GObject, Gio, Gdk, Gtk, CambalachePrivate
 
 from .mrg_controller_registry import MrgControllerRegistry
 from .mrg_css_provider import MrgCssProvider
 from .mrg_placeholder import MrgPlaceholder
-from .common import MrgCommand
 from . import utils
 
 from merengue import getLogger
+from mrg_command import MrgCommand
 
 logger = getLogger(__name__)
 
@@ -73,6 +73,19 @@ class MrgApplication(Gtk.Application, MrgCommand):
         self.default_seat_pointer = default_seat.get_pointer() if default_seat else None
 
         self.connect("notify::dirname", self.__on_dirname_notify)
+
+        GLib.log_set_writer_func(self.__log_writer_handler)
+
+    def __log_writer_handler(self, level, field_list, data):
+        fields = {f.key: CambalachePrivate.log_field_get_string(f) for f in field_list if f.length < 0}
+
+        if fields.get("GLIB_DOMAIN") == "GLib-GIO":
+            if fields.get("MESSAGE").startswith("Adding GResources overlay") or \
+               fields.get("MESSAGE").startswith("Mapped file") or \
+               fields.get("MESSAGE").startswith("Can't mmap overlay file"):
+                return GLib.LogWriterOutput.HANDLED
+
+        return GLib.log_writer_default(level, field_list, data)
 
     def handle_command(self, line):
         try:

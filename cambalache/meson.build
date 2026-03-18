@@ -84,4 +84,5 @@ install_data([
 subdir('private')
 subdir('control')
 subdir('merengue')
+subdir('mrg_command')
 subdir('app')
