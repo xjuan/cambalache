@@ -109,7 +109,6 @@ class CmbDB(GObject.GObject):
         self.__init_data()
 
     def __del__(self):
-        self.conn.commit()
         self.conn.close()
 
     @GObject.Property(type=bool, default=True)
