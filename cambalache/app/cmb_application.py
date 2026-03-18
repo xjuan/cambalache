@@ -26,14 +26,15 @@
 import os
 import sys
 
-from gi.repository import GLib, Gdk, Gtk, Gio, Adw
+from gi.repository import GLib, Gdk, Gtk, Gio, Adw, CambalachePrivate
 
 from .cmb_window import CmbWindow
 from .cmb_help_window import CmbHelpWindow
-from cambalache import utils, config, _
+from cambalache import utils, config, _, getLogger
 
 
 basedir = os.path.dirname(__file__) or "."
+logger = getLogger(__name__)
 
 
 class CmbApplication(Adw.Application):
@@ -52,6 +53,32 @@ class CmbApplication(Adw.Application):
         )
 
         self.__help_window = None
+        self.__dmabuf_dialog = None
+
+        # Dmabuf plane fd support was fixed in 4.23
+        # FIXME: remove this when we depend on a fixed gtk version
+        if Gtk.MINOR_VERSION <= 22:
+            GLib.log_set_writer_func(self.__log_writer_handler)
+
+    def __log_writer_handler(self, level, field_list, data):
+
+        fields = {f.key: CambalachePrivate.log_field_get_string(f) for f in field_list if f.length < 0}
+
+        if fields.get("GLIB_DOMAIN") == "Gdk" and fields.get("MESSAGE") == "dmabuf plane 1 has no file descriptor":
+            message = "There is a bug in Gtk < 4.23 dmabuf handling, the application will crash!"
+            workaround = "Run with GSK_RENDERER=gl or CASILDA_FORCE_SOFTWARE=1 as a workaround."
+
+            if self.__dmabuf_dialog is None:
+                self.__dmabuf_dialog = Gtk.AlertDialog(
+                    message="Vulkan renderer bug detected",
+                    detail=f"{message}\n{workaround}"
+                )
+                self.__dmabuf_dialog.show(self.props.active_window)
+
+            logger.warning(message)
+            logger.warning(message)
+
+        return GLib.log_writer_default(level, field_list, data)
 
     def add_new_window(self):
         window = CmbWindow(application=self)
