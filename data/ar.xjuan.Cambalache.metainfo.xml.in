@@ -18,6 +18,8 @@
       <description>
         <p>Getting ready for release 1.0!</p>
         <ul>
+          <li>Basic user manual</li>
+          <li>Update widget catalogs to SDK 50</li>
           <li>Add GtkExpression support</li>
           <li>Add Blueprint support</li>
           <li>Project Settings dialog</li>
