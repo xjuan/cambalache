@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
-<!-- Created with Cambalache 0.99.18 -->
+<!-- Created with Cambalache 0.99.19 -->
 <cambalache-project version="0.99.0" target_tk="gtk-4.0" depends="casilda-1.0,libadwaita-1">
   <icontheme-search-path>app/icons</icontheme-search-path>
   <icontheme-search-path>icons/scalable/actions</icontheme-search-path>
@@ -291,7 +291,7 @@
     <requires>CmbFileButton</requires>
     <requires>CmbSourceView</requires>
   </ui>
-  <ui template-class="CmbHelpWindow" filename="app/cmb_help_window.ui" sha256="23d862d71afdd187168f46dcbf1b84b7bed68a80c010dcb14b742e704161d4d6">
+  <ui template-class="CmbHelpWindow" filename="app/cmb_help_window.ui" sha256="e581f58a74e6bb57bc3119bd32b181fdec095b881553a4ce43c65a2d45687055">
     <requires>CmbPicture</requires>
     <requires>CmbSourceView</requires>
     <css-provider>app/cambalache.css</css-provider>

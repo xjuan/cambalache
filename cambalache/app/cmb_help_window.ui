@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.99.18 -->
+<!-- Created with Cambalache 0.99.19 -->
 <interface>
   <!-- interface-name cmb_help_window.ui -->
   <requires lib="gtk" version="4.20"/>
@@ -42,6 +42,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Cambalache is a WYSIWYG (What You See Is What You Get) tool that allows you to create and edit user interfaces for Gtk 4 and 3 applications.
 
 Gtk provides all the necessary building blocks to create desktop and mobile application such as windows, labels, buttons, text boxes, dialogs.
@@ -54,6 +55,7 @@ These blocks are called widgets and you can use this application to arrange them
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="halign">start</property>
                                     <property name="label" translatable="yes">Etymology</property>
                                     <property name="selectable">True</property>
@@ -64,6 +66,7 @@ These blocks are called widgets and you can use this application to arrange them
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Cambalache (pronounced /kamba'latʃe/) means second-hand shop, junk shop, the windows of such places or something messy.
 
 It is also a very famous Tango from the 30's by Enrique Discépolo, you can find my favorite interpretation by Julio Sosa &lt;a href="https://www.youtube.com/watch?v=T0kTiKCC3UI" title="https://www.youtube.com/watch?v=T0kTiKCC3UI"&gt;here&lt;/a&gt;.
@@ -79,6 +82,7 @@ While I know it is a weird and hard to pronounce name specially for English nati
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="halign">start</property>
                                     <property name="label" translatable="yes">Target audience</property>
                                     <property name="selectable">True</property>
@@ -89,6 +93,7 @@ While I know it is a weird and hard to pronounce name specially for English nati
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Cambalache has one simple goal, spare you from writing XML UI files by hand.
 
 Which means the intended audience are developers familiar with Gtk and the GtkBuilder format.
@@ -127,6 +132,7 @@ It is also a good idea to write some simple GtkBuilder files by hand to learn th
                                 <property name="orientation">vertical</property>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="halign">center</property>
                                     <property name="label" translatable="yes">Architecture</property>
                                     <property name="selectable">True</property>
@@ -137,6 +143,7 @@ It is also a good idea to write some simple GtkBuilder files by hand to learn th
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Cambalache relies heavily on the model view controller design pattern.</property>
                                     <property name="selectable">True</property>
                                     <property name="width-chars">28</property>
@@ -146,6 +153,7 @@ It is also a good idea to write some simple GtkBuilder files by hand to learn th
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="halign">start</property>
                                     <property name="label" translatable="yes">Data Model</property>
                                     <property name="selectable">True</property>
@@ -156,6 +164,7 @@ It is also a good idea to write some simple GtkBuilder files by hand to learn th
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">The data model is a SQLite relational DB which models the GObject type system and uses triggers to keep the undo/redo history stack.</property>
                                     <property name="selectable">True</property>
                                     <property name="width-chars">28</property>
@@ -171,6 +180,7 @@ It is also a good idea to write some simple GtkBuilder files by hand to learn th
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">All the type data is populated from GObject introspection files (Gir files) by a script called &lt;b&gt;cmb-catalog-gen&lt;/b&gt; and stored in one catalog file per widget library and loaded at initialization time.</property>
                                     <property name="selectable">True</property>
                                     <property name="use-markup">True</property>
@@ -181,6 +191,7 @@ It is also a good idea to write some simple GtkBuilder files by hand to learn th
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="halign">start</property>
                                     <property name="label" translatable="yes">Workspace</property>
                                     <property name="selectable">True</property>
@@ -191,6 +202,7 @@ It is also a good idea to write some simple GtkBuilder files by hand to learn th
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">The workspace view runs in a separate process called &lt;b&gt;Merengue&lt;/b&gt; and is responsible to create and update the widgets you are editing according to your actions.
 
 These widgets are embedded in the main UI using a Wayland compositor widget for seamless integration. This allows  support not only for Gtk 4 but also version 3.
@@ -213,6 +225,7 @@ Think of widgets that call abort() if a property is not set, which is correct fr
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="halign">start</property>
                                     <property name="label" translatable="yes">Editor UI</property>
                                     <property name="selectable">True</property>
@@ -223,6 +236,7 @@ Think of widgets that call abort() if a property is not set, which is correct fr
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">The controller is a regular Gtk 4 application that allows the user to create multiple UI files and edit object properties and signals. It's design is heavily influenced by Glade's UI because well... I made it and also did not wanted to spend the little cycles I had in a new UI.</property>
                                     <property name="selectable">True</property>
                                     <property name="width-chars">28</property>
@@ -238,6 +252,7 @@ Think of widgets that call abort() if a property is not set, which is correct fr
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">The interface is ofcourse made with Cambalache.</property>
                                     <property name="selectable">True</property>
                                     <property name="width-chars">28</property>
@@ -275,6 +290,7 @@ Think of widgets that call abort() if a property is not set, which is correct fr
                                 <property name="orientation">vertical</property>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Catalogs</property>
                                     <property name="selectable">True</property>
                                     <style>
@@ -284,6 +300,7 @@ Think of widgets that call abort() if a property is not set, which is correct fr
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Widget catalogs are XML files containing all the metadata needed to use widgets from different libraries in Cambalache.
 
 This includes object types, interfaces, enumerations, flags, properties and signals.
@@ -297,6 +314,7 @@ These are created using GObject introspection data, the actual runtime objects a
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="halign">center</property>
                                     <property name="label" translatable="yes">&lt;b&gt;NOTE:&lt;/b&gt; Keep in mind this tool and the file format is not stable and will change in the near future.</property>
                                     <property name="selectable">True</property>
@@ -310,6 +328,7 @@ These are created using GObject introspection data, the actual runtime objects a
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="creating">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Creating a new catalog</property>
                                     <property name="selectable">True</property>
                                     <property name="xalign">0.0</property>
@@ -320,6 +339,7 @@ These are created using GObject introspection data, the actual runtime objects a
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">To create a simple catalog for a library like Casilda all you need is specify with Gtk version the library targets, the catalog dependencies and the gir file.
 The tool will read all the required metadata from the gir file and instantiate each object type to get things like properties defaults and such.</property>
                                     <property name="selectable">True</property>
@@ -343,6 +363,7 @@ The tool will read all the required metadata from the gir file and instantiate e
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">In this case there is only one type with one property.</property>
                                     <property name="selectable">True</property>
                                     <property name="use-markup">True</property>
@@ -375,6 +396,7 @@ The tool will read all the required metadata from the gir file and instantiate e
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="builtins">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Built in catalogs</property>
                                     <property name="selectable">True</property>
                                     <property name="xalign">0.0</property>
@@ -385,6 +407,7 @@ The tool will read all the required metadata from the gir file and instantiate e
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Internally Cambalache use the same workflow to create all the catalogs needed for Gtk.
 
 If you are interested you can take a look at the &lt;a href="https://gitlab.gnome.org/jpu/cambalache/-/blob/main/catalogs/Makefile" title="https://gitlab.gnome.org/jpu/"&gt;Makefile&lt;/a&gt; used to generate all the built in catalogs.</property>
@@ -396,6 +419,7 @@ If you are interested you can take a look at the &lt;a href="https://gitlab.gnom
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="external">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">3rd party catalogs</property>
                                     <property name="selectable">True</property>
                                     <property name="xalign">0.0</property>
@@ -406,6 +430,7 @@ If you are interested you can take a look at the &lt;a href="https://gitlab.gnom
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">By default Cambalache also includes 3rd party catalogs for libraries like Adwaita and WebkitGtk but other 3rd party libraries could ship their own catalogs and install them in any of the system data dirs as returned by &lt;span font-family="monospace"&gt;GLib.get_system_data_dirs()&lt;/span&gt;
 
 User catalogs can be installed in &lt;span font-family="monospace"&gt;~/.cambalache/catalogs&lt;/span&gt;</property>
@@ -417,6 +442,7 @@ User catalogs can be installed in &lt;span font-family="monospace"&gt;~/.cambala
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="merengue">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Workspace plugins</property>
                                     <property name="selectable">True</property>
                                     <property name="xalign">0.0</property>
@@ -427,6 +453,7 @@ User catalogs can be installed in &lt;span font-family="monospace"&gt;~/.cambala
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Workspace integration requires extra code to do things like add placeholders to containers, make sure objects can be shown, selected, etc.
 
 Currently this is not documented or exposed for 3rd party libraries but there are plans to add support for it once the catalog format is more stable.
@@ -465,6 +492,7 @@ If you are interested in adding support for your library please contact us at th
                                 <property name="spacing">6</property>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Projects</property>
                                     <property name="selectable">True</property>
                                     <style>
@@ -474,6 +502,7 @@ If you are interested in adding support for your library please contact us at th
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Back in the day it was common practice to have one big XML file describing all windows and dialogs of an application.
 
 This started to change with the introduction of composite widgets using &lt;a href="https://docs.gtk.org/gtk4/class.Widget.html#building-composite-widgets-from-template-xml"&gt;XML templates&lt;/a&gt; which makes creating custom widgets really easy. This allows you to split UI and logic in smaller and simpler components that can be reused just like any other Gtk widget making things easier to maintain.
@@ -487,6 +516,7 @@ For this reason Cambalache workflow is built around projects where you can creat
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="supported_types">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Supported types</property>
                                     <property name="selectable">True</property>
                                     <property name="xalign">0.0</property>
@@ -497,6 +527,7 @@ For this reason Cambalache workflow is built around projects where you can creat
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">    • &lt;a href="https://docs.gtk.org/gtk4/class.Builder.html#gtkbuilder-ui-definitions" title="https://docs.gtk.org/gtk4/class.Builder.html#gtkbuilder-ui-definitions"&gt;GtkBuilder&lt;/a&gt; - XML UI files and templates
     • &lt;a href="https://gnome.pages.gitlab.gnome.org/blueprint-compiler/" title="https://gnome.pages.gitlab.gnome.org/blueprint-compiler/"&gt;Blueprint&lt;/a&gt; - markup language
     • &lt;a href="https://docs.gtk.org/gio/struct.Resource.html" title="https://docs.gtk.org/gio/struct.Resource.html"&gt;GResources&lt;/a&gt; - XML bundle definitions
@@ -509,6 +540,7 @@ For this reason Cambalache workflow is built around projects where you can creat
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="halign">center</property>
                                     <property name="label" translatable="yes">&lt;b&gt;NOTE:&lt;/b&gt; Please keep in mind that when importing a UI file there will be differences on the output the first time its saved because Cambalache outputs properties, signals and other elements in a particular order.
 Once saved the output should be stable, if not, please file an issue.</property>
@@ -523,6 +555,7 @@ Once saved the output should be stable, if not, please file an issue.</property>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="new_project">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Creating a new project</property>
                                     <property name="selectable">True</property>
                                     <property name="use-markup">True</property>
@@ -535,6 +568,7 @@ Once saved the output should be stable, if not, please file an issue.</property>
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">To create a new project you can use Ctrl+N shortcut or activate Menu -&gt; New Project menu button to open the "New Project" screen where you can select a filename, location and an initial UI for your project.</property>
                                     <property name="selectable">True</property>
                                     <property name="wrap">True</property>
@@ -549,6 +583,7 @@ Once saved the output should be stable, if not, please file an issue.</property>
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">All files will be relative to the project file so its better to choose a toplevel directory in your project.
 
 Once created you can start adding UI files to your project or if you already have UI files you can manually import individual files or import everything suported using Menu -&gt; Import directory.
@@ -561,6 +596,7 @@ This will scan the selected directory for all supported files and load them in t
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="project_settings">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Project Settings</property>
                                     <property name="selectable">True</property>
                                     <property name="use-markup">True</property>
@@ -573,6 +609,7 @@ This will scan the selected directory for all supported files and load them in t
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">The project settings dialog allows you to select which extra widget libraries (Catalogs) will be available to use in the project. So if you are makeing a GNOME application you will need Adwaita widgets. 
 
 It also lets you specify a list of directories with icons for named icons to work in the preview.</property>
@@ -612,6 +649,7 @@ It also lets you specify a list of directories with icons for named icons to wor
                                 <property name="orientation">vertical</property>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Creating Widgets</property>
                                     <property name="selectable">True</property>
                                     <style>
@@ -621,6 +659,7 @@ It also lets you specify a list of directories with icons for named icons to wor
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Once the project is setup you can start creating widgets in any UI file.
 For convenience a UI file named as the project is created by default but you can add more UI files using the Add button in the header bar or the Add file submenu in the main menu.</property>
                                     <property name="selectable">True</property>
@@ -630,6 +669,7 @@ For convenience a UI file named as the project is created by default but you can
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="type_chooser">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Type Chooser</property>
                                     <property name="selectable">True</property>
                                     <property name="xalign">0.0</property>
@@ -640,6 +680,7 @@ For convenience a UI file named as the project is created by default but you can
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Object types are accessible in the chooser bar by category.
 
     • &lt;b&gt;Toplevel&lt;/b&gt;: Windows, dialogs, popovers, things that do not have a parent
@@ -648,7 +689,7 @@ For convenience a UI file named as the project is created by default but you can
     • &lt;b&gt;Display&lt;/b&gt;: label, view, things to display information
     • &lt;b&gt;Model&lt;/b&gt;: Store, buffers, list models things that store data
 
-Objects in the toplevel category are created immediatelly after selecting one in the dropdown menu.</property>
+Objects in the toplevel category are created immediately after selecting one in the dropdown menu.</property>
                                     <property name="selectable">True</property>
                                     <property name="use-markup">True</property>
                                     <property name="wrap">True</property>
@@ -663,6 +704,7 @@ Objects in the toplevel category are created immediatelly after selecting one in
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Objects in other categories are created by first selecting a type and then clicking on a placeholder or using the context menu in the object hierarchy.
 
 Holding Alt while selecting a type will force the creation of a new object in the currently selected object. This is particularly useful for adding children to types that do not have placeholder support yet.</property>
@@ -673,6 +715,7 @@ Holding Alt while selecting a type will force the creation of a new object in th
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="placeholders">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Placeholders</property>
                                     <property name="selectable">True</property>
                                     <property name="xalign">0.0</property>
@@ -683,6 +726,7 @@ Holding Alt while selecting a type will force the creation of a new object in th
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">A placeholder is a workspace widget that looks like a grid added to container objects to hold a place for future widgets.
 
 After selecting a type you can create a new object where the placeholder is by clicking on it.
@@ -701,6 +745,7 @@ Another convenient way to add a child is to double click on a placeholder when n
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="property_editor">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Object Editor</property>
                                     <property name="selectable">True</property>
                                     <property name="xalign">0.0</property>
@@ -711,6 +756,7 @@ Another convenient way to add a child is to double click on a placeholder when n
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Once you created an object you can set its properties, signals and Accessibility properties in the object editor panel on the right.</property>
                                     <property name="selectable">True</property>
                                     <property name="wrap">True</property>
@@ -725,6 +771,7 @@ Another convenient way to add a child is to double click on a placeholder when n
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="undo">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Undo / Redo</property>
                                     <property name="selectable">True</property>
                                     <property name="xalign">0.0</property>
@@ -735,6 +782,7 @@ Another convenient way to add a child is to double click on a placeholder when n
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Every action can be undone by using the undo/redo button in the header bar.</property>
                                     <property name="selectable">True</property>
                                     <property name="wrap">True</property>
@@ -765,6 +813,7 @@ Another convenient way to add a child is to double click on a placeholder when n
                                 <property name="orientation">vertical</property>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Gtk Templates</property>
                                     <property name="selectable">True</property>
                                     <style>
@@ -774,6 +823,7 @@ Another convenient way to add a child is to double click on a placeholder when n
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Templates are a convenient way of creating new UI components made out of other components from a UI XML definition.
 
 A template is bound to a type and will create all the widgets defined in the XML file automatically every time you instantiate an object. It also provide a way to bind objects to instance fields and signals to callbacks.
@@ -788,6 +838,7 @@ For more information please refer to &lt;a href="https://developer.gnome.org/doc
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="new_template">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Creating a new template</property>
                                     <property name="selectable">True</property>
                                     <property name="xalign">0.0</property>
@@ -798,6 +849,7 @@ For more information please refer to &lt;a href="https://developer.gnome.org/doc
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">To create a new template all you need to do is create a new UI file, add a toplevel widget which will be the parent class of the template type and select the template flag in the property editor.</property>
                                     <property name="lines">0</property>
                                     <property name="selectable">True</property>
@@ -814,6 +866,7 @@ For more information please refer to &lt;a href="https://developer.gnome.org/doc
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="halign">center</property>
                                     <property name="label" translatable="yes">Object id will be used as the new type name</property>
                                     <property name="lines">0</property>
@@ -828,6 +881,7 @@ For more information please refer to &lt;a href="https://developer.gnome.org/doc
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="using_templates">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Using templates</property>
                                     <property name="selectable">True</property>
                                     <property name="xalign">0.0</property>
@@ -838,6 +892,7 @@ For more information please refer to &lt;a href="https://developer.gnome.org/doc
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="hexpand">True</property>
                                     <property name="label" translatable="yes">Once a template is defined it will be available immediately to use as a new type in the project. 
 
@@ -860,6 +915,7 @@ The type is not associated to any specific category so it will only be available
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Keep in mind that Cambalache only knows the name and parent type, so new properties and signals wont be available. But do not worry I plan to add support for defining properties and signals in Cambalache soon, in the mean time it is possible to define them using XML fragments.
 </property>
                                     <property name="lines">0</property>
@@ -899,6 +955,7 @@ The type is not associated to any specific category so it will only be available
                                 <property name="orientation">vertical</property>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">GResources</property>
                                     <property name="selectable">True</property>
                                     <style>
@@ -908,6 +965,7 @@ The type is not associated to any specific category so it will only be available
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Cambalache supports editing GResources XML files, while these files are pretty simple to create manually the main purpose of importing them is to let the workspace know about the different resources for the preview to work.
 
 You can import a gresource file accessing Menu -&gt; Import file or add a new one with Menu -&gt; Add file -&gt; Add GResource</property>
@@ -919,6 +977,7 @@ You can import a gresource file accessing Menu -&gt; Import file or add a new on
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="prefixes">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Prefixes</property>
                                     <property name="selectable">True</property>
                                     <property name="xalign">0.0</property>
@@ -929,6 +988,7 @@ You can import a gresource file accessing Menu -&gt; Import file or add a new on
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">A GResources file can have one or multiple prefixes containing multiple files and are added from the resource property editor.</property>
                                     <property name="selectable">True</property>
                                     <property name="use-markup">True</property>
@@ -938,6 +998,7 @@ You can import a gresource file accessing Menu -&gt; Import file or add a new on
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="files">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Adding files</property>
                                     <property name="selectable">True</property>
                                     <property name="xalign">0.0</property>
@@ -948,6 +1009,7 @@ You can import a gresource file accessing Menu -&gt; Import file or add a new on
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Files can be added from a prefix property editor. Once a new file is added the filename and its properties can be set in the editor.
 
 More information about how GResources works is available &lt;a href="https://docs.gtk.org/gio/struct.Resource.html" title="https://docs.gtk.org/gio/struct.Resource.html"&gt;here.&lt;/a&gt;</property>
@@ -965,6 +1027,7 @@ More information about how GResources works is available &lt;a href="https://doc
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="preview">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Workspace preview</property>
                                     <property name="selectable">True</property>
                                     <property name="xalign">0.0</property>
@@ -975,6 +1038,7 @@ More information about how GResources works is available &lt;a href="https://doc
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Once you define a file in a resource prefix it will be available to the workspace for use in GFile uri properties or plain resource properties.</property>
                                     <property name="selectable">True</property>
                                     <property name="use-markup">True</property>
@@ -1012,6 +1076,7 @@ More information about how GResources works is available &lt;a href="https://doc
                                 <property name="orientation">vertical</property>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">CSS Support</property>
                                     <property name="selectable">True</property>
                                     <style>
@@ -1021,6 +1086,7 @@ More information about how GResources works is available &lt;a href="https://doc
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">CSS support allows visualizing stylesheets while creating an application UI.
 
 You can import or create as many CSS files as needed and define exactly how they are loaded at runtime using the property editor.</property>
@@ -1032,6 +1098,7 @@ You can import or create as many CSS files as needed and define exactly how they
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="priority">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Priority</property>
                                     <property name="selectable">True</property>
                                     <property name="xalign">0.0</property>
@@ -1042,6 +1109,7 @@ You can import or create as many CSS files as needed and define exactly how they
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Parameter passed to Gtk.StyleContext.add_provider_for_display() when adding the CSS provider with to the workspace.
 
 Defaults to application priority (600) but it should match the priority used at runtime to get the same results.</property>
@@ -1053,6 +1121,7 @@ Defaults to application priority (600) but it should match the priority used at 
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="global">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Global</property>
                                     <property name="selectable">True</property>
                                     <property name="xalign">0.0</property>
@@ -1063,6 +1132,7 @@ Defaults to application priority (600) but it should match the priority used at 
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Convenience flag to load this CSS in every UI file in the project.</property>
                                     <property name="selectable">True</property>
                                     <property name="use-markup">True</property>
@@ -1072,6 +1142,7 @@ Defaults to application priority (600) but it should match the priority used at 
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="provider">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">Provider for</property>
                                     <property name="selectable">True</property>
                                     <property name="xalign">0.0</property>
@@ -1082,6 +1153,7 @@ Defaults to application priority (600) but it should match the priority used at 
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">If this CSS is not meant to be used for all UI files in the project you can specify for which it should.</property>
                                     <property name="selectable">True</property>
                                     <property name="use-markup">True</property>
@@ -1097,6 +1169,7 @@ Defaults to application priority (600) but it should match the priority used at 
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">CSS can be edited in the property editor and changes will be reflected after a few seconds.
 
 For more information about the CSS features supported in Gtk read the documentation &lt;a href="https://docs.gtk.org/gtk4/css-overview.html" title="https://docs.gtk.org/gtk4/css-overview.html"&gt;here&lt;/a&gt;.</property>
