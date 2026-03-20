@@ -14,9 +14,9 @@
     </p>
   </description>
   <releases>
-    <release date="2026-03-18" version="0.99.19">
+    <release date="2026-03-20" version="1.0">
       <description>
-        <p>Getting ready for release 1.0!</p>
+        <p>First Major Milestone</p>
         <ul>
           <li>Basic user manual</li>
           <li>Update widget catalogs to SDK 50</li>
