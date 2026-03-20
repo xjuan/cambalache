@@ -8,28 +8,61 @@ packaging changes like new dependencies or build system changes.
 Cambalache used even/odd minor numbers to differentiate between stable and
 development releases.
 
-## Unreleased
+## 1.0
 
- - Add GtkExpression support
- - Add Blueprint support
- - Make workspace scrollable
- - Deprecate project format 0.94 and older
- - Add Brazilian Portuguese translation. John Peter Sa
- - Fix GResource list model update
- - Fix object data editor
+2026-03-19 - First Major Milestone
+
+  - Basic user manual
+  - Update widget catalogs to SDK 50
+  - Add GtkExpression support
+  - Add Blueprint support
+  - Project Settings dialog
+  - 3rd party libraries selector
+  - Icon theme path support
+  - CSS editor UX improvements
+  - New Project and donate dialogs. Matthieu Lorier
+  - Improved workspace rendering
+  - GResource preview in workspace
+  - Scrollable workspace
+  - Monitor files for external changes
+  - Add support for more types like GIcon, GdkCursor etc
+  - Support loading unknown types and properties
+  - Deprecate project format 0.94 and older
+  - Add Brazilian Portuguese translation. John Peter Sa
+  - Add Romanian translation. Vlad
+  - Add Simplified Chinese translation. xu-haozhe
+  - Update Swedish translation. Anders Jonsson
+  - Fix GResource list model update
 
 ### Packaging changes
 
- - Bump Casilda dependency to 1.0.
-   This new version has a small API break (removed bg-color property) so the
-   soname version was bumped from 0.1 to 1.0
+ - Bump Casilda dependency to 1.2.1
+   This new version depends on wlroots 0.19 and has an important leak fix.
 
 ### Issues
 
- - #80 "Support for blueprint file format"
- - #276 "Signal loses reference to object if defined later in the XML"
- - #257 "Add GtkExpression support"
- - #281 "new add language" John Peter Sa
+  - #302 "Custom fragments uneditable"
+  - #307 "Dialogs are using the display 'formatting'."
+  - #306 "Property binding clear button leaves empty tag for property"
+  - #304 "Styling of the tabs of a GtkStack does not show up"
+  - #305 "GtkSearchEntry placeholder-text property doesn't provide translation"
+  - Fixes issue #300 "Rework properties on 'add' basis instead of list of all properties"
+  - #303 "Open project, even if files are missing."
+  - #298 "Plural form of string string not found in pot file"
+  - #285 "Ability to reload project and ui file"
+  - #290 "cmb_init_dev.py and meson disagree on including target triplet in local library path"
+  - #293 "Metainfo fails validation"
+  - #291 "cmb-catalog-gen fails to handle multiple identifier prefixes in GIR files"
+  - #290 "cmb_init_dev.py and meson disagree on including target triplet in local library path"
+  - #292 "Custom fragment or inline GMenuModel removed when modified"
+  - #286 "Changing main UI file path causes hang/infinite loop"
+  - #288 "Add Simplified Chinese" xu-haozhe
+  - #287 Improve README.md file John Peter Sa
+  - #284 "No feedback and broken design for fragments Cambalache doesn't understand"
+  - #281 #289 "new add language" John Peter Sa
+  - #257 "Add GtkExpression support"
+  - #276 "Signal loses reference to object if defined later in the XML"
+  - #80 "Support for blueprint file format"
 
 ## 0.96.0
 
