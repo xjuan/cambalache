@@ -2697,7 +2697,7 @@ msgstr ""
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:122
 msgid "Output minimum required library version instead of latest one"
-msgstr " "
+msgstr ""
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:123
 msgid "Fix output for templates with inline object properties"
