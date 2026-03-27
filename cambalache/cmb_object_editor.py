@@ -70,5 +70,10 @@ class CmbObjectEditor(Gtk.Box):
             editor.object = obj
             page.props.visible = is_not_builtin
 
+        # TODO: add metadata in catalog to disable this from data when the special cases grow too much
+        if obj and obj.info.is_a("GtkEventController"):
+            for page in [self.layout_page, self.accessible_page, self.fragment_page]:
+                page.props.visible = False
+
 
 Gtk.WidgetClass.set_css_name(CmbObjectEditor, "CmbObjectEditor")
