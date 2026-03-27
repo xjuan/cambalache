@@ -1803,8 +1803,11 @@ class CmbDB(GObject.GObject):
             elif child.tag == "child":
                 self.__import_child(c, info, ui_id, object_id, child, object_id_map=object_id_map)
             elif child.tag == "layout" and self.target_tk == "gtk-4.0":
-                # Gtk 4, layout props are children of <object>
-                self.__import_layout_properties(c, info, ui_id, parent_id, object_id, child)
+                if info.is_a("GtkEventController"):
+                    self.__unknown_tag(child, klass)
+                else:
+                    # Gtk 4, layout props are children of <object>
+                    self.__import_layout_properties(c, info, ui_id, parent_id, object_id, child)
             elif child.tag == "accessibility":
                 if info.is_a("GtkWidget"):
                     self.__import_accessibility(c, ui_id, object_id, child, object_id_map=object_id_map)
@@ -2980,7 +2983,7 @@ class CmbDB(GObject.GObject):
         # Children
         for row in c.execute(
             """
-            SELECT object_id, internal, type, comment, position, custom_child_fragment
+            SELECT object_id, type_id, internal, type, comment, position, custom_child_fragment
             FROM object
             WHERE ui_id=? AND parent_id=? AND
                   type_id NOT IN ('GtkPropertyExpression', 'GtkConstantExpression', 'GtkClosureExpression') AND
@@ -2990,7 +2993,7 @@ class CmbDB(GObject.GObject):
             """,
             (ui_id, object_id, ui_id, object_id),
         ):
-            child_id, internal, ctype, comment, position, custom_child_fragment = row
+            child_id, child_type_id, internal, ctype, comment, position, custom_child_fragment = row
 
             # Here we try to output internal children only if nescesary
             if not merengue and internal and self.__internal_object_is_empty(ui_id, child_id):
@@ -3029,8 +3032,10 @@ class CmbDB(GObject.GObject):
             utils.xml_node_set(child, "type", ctype)
             obj.append(child)
             self.__node_add_comment(child_obj, comment)
+            cinfo = self.type_info.get(child_type_id, None)
 
-            if linfo is not None:
+            # GtkEventController can be added to GtkWidget but do not support layout properties
+            if linfo is not None and not cinfo.is_a("GtkEventController"):
                 # Packing / Layout
                 layout = E("packing" if target_gtk3 else "layout")
                 for prop in cc.execute(
