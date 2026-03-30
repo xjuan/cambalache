@@ -9,15 +9,15 @@ msgstr ""
 "Project-Id-Version: cambalache\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-19 22:00-0400\n"
-"PO-Revision-Date: 2025-11-29 23:32-0300\n"
-"Last-Translator: John peter sa <johnppetersa@gmail.com>\n"
+"PO-Revision-Date: 2026-03-28 23:20-0300\n"
+"Last-Translator: john peter sa <johnppetersa@gmail.com>\n"
 "Language-Team: \n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.8\n"
+"X-Generator: Poedit 3.9\n"
 
 #: cambalache/app/cmb_application.py:49
 msgid "Print version"
@@ -33,10 +33,9 @@ msgstr "Selecione quais arquivos:"
 
 #: cambalache/app/cmb_donate_dialog.ui:31
 msgid "Liberapay"
-msgstr ""
+msgstr "Liberapay"
 
 #: cambalache/app/cmb_donate_dialog.ui:41
-#, fuzzy
 msgid ""
 "\n"
 "• Liberapay is a recurrent donations platform\n"
@@ -50,15 +49,17 @@ msgid ""
 "• ~5% payment processing fee\n"
 "                    "
 msgstr ""
+"\n"
 "• Liberapay é uma plataforma de doações recorrentes\n"
 "\n"
 "• Administrada por uma organização sem fins lucrativos\n"
 "\n"
 "• Código-fonte público\n"
 "\n"
-"• Sem comissão\n"
+"• Sem taxa de comissão\n"
 "\n"
-"• Taxa de processamento de pagamento de ~5%"
+"• Taxa de processamento de pagamento de aproximadamente 5%\n"
+"                    "
 
 #: cambalache/app/cmb_donate_dialog.ui:61
 #: cambalache/app/cmb_donate_dialog.ui:122 cambalache/app/cmb_tutorial.py:84
@@ -68,10 +69,9 @@ msgstr "Doar"
 
 #: cambalache/app/cmb_donate_dialog.ui:92
 msgid "Patreon"
-msgstr ""
+msgstr "Patreon"
 
 #: cambalache/app/cmb_donate_dialog.ui:102
-#, fuzzy
 msgid ""
 "\n"
 "• Patreon is a membership platform for creators\n"
@@ -85,19 +85,21 @@ msgid ""
 "• ~8% payment processing fee\n"
 "                    "
 msgstr ""
-"• O Patreon é uma plataforma de membros para criadores\n"
 "\n"
-"• Administrado por uma empresa privada\n"
+"• O Patreon é uma plataforma de assinatura para criadores de conteúdo.\n"
 "\n"
-"• Sem código-fonte disponível\n"
+"• Administrado por uma empresa privada.\n"
 "\n"
-"• Taxa de comissão de ~8%\n"
+"• Código-fonte não disponível.\n"
 "\n"
-"• Taxa de processamento de pagamento de ~8%"
+"• Taxa de comissão de aproximadamente 8%.\n"
+"\n"
+"• Taxa de processamento de pagamento de aproximadamente 8%.\n"
+"                    "
 
 #: cambalache/app/cmb_donate_dialog.ui:140
 msgid "Help us continue developing"
-msgstr ""
+msgstr "Ajude-nos a continuar desenvolvendo"
 
 #: cambalache/app/cmb_help_window.ui:46
 msgid ""
@@ -111,10 +113,20 @@ msgid ""
 "them, modify their properties and define event connections to your "
 "application source code."
 msgstr ""
+"Bagunça é uma ferramenta WYSIWYG (O que você vê é o que você obtém) que "
+"permite criar e editar interfaces de usuário para aplicativos GTK 4 e 3.\n"
+"\n"
+"O GTK fornece todos os blocos de construção necessários para criar "
+"aplicativos para desktop e dispositivos móveis, como janelas, rótulos, "
+"botões, caixas de texto e diálogos.\n"
+"\n"
+"Esses blocos são chamados de widgets e você pode usar este aplicativo para "
+"organizá-los, modificar suas propriedades e definir conexões de eventos com "
+"o código-fonte do seu aplicativo."
 
 #: cambalache/app/cmb_help_window.ui:60
 msgid "Etymology"
-msgstr ""
+msgstr "Etimologia"
 
 #: cambalache/app/cmb_help_window.ui:70
 msgid ""
@@ -133,10 +145,25 @@ msgid ""
 "an application made in South America and hopefully encourage more people "
 "from the area to contribute and be part of the open source community."
 msgstr ""
+"Bagunça (pronuncia-se /kamba'latʃe/) significa brechó, loja de "
+"quinquilharias, as vitrines desses lugares ou algo bagunçado.\n"
+"\n"
+"É também o nome de um tango muito famoso dos anos 30, de Enrique Discépolo. "
+"Você pode encontrar minha interpretação favorita, de Julio Sosa, <a "
+"href=\"https://www.youtube.com/watch?v=T0kTiKCC3UI\" title=\"https://"
+"www.youtube.com/watch?v=T0kTiKCC3UI\">aqui</a>.\n"
+"\n"
+"Por que esse nome?\n"
+"\n"
+"Embora eu saiba que é um nome estranho e difícil de pronunciar, "
+"especialmente para falantes nativos de inglês, quis deixar claro, só pelo "
+"nome, que se trata de um aplicativo feito na América do Sul e, com sorte, "
+"incentivar mais pessoas da região a contribuir e fazer parte da comunidade "
+"de código aberto."
 
 #: cambalache/app/cmb_help_window.ui:87
 msgid "Target audience"
-msgstr ""
+msgstr "Público-alvo"
 
 #: cambalache/app/cmb_help_window.ui:97
 msgid ""
@@ -156,19 +183,34 @@ msgid ""
 "learn the fundamentals of GtkBuilder before starting to use this application "
 "for your day to day work."
 msgstr ""
+"O Bagunça tem um objetivo simples: evitar que você precise escrever arquivos "
+"XML de interface do usuário manualmente.\n"
+"\n"
+"Isso significa que o público-alvo são desenvolvedores familiarizados com Gtk "
+"e o formato GtkBuilder.\n"
+"\n"
+"Caso você não esteja familiarizado, recomendo seguir a excelente <a "
+"href=\"https://www.gtk.org/docs/getting-started/\" title=\"https://"
+"www.gtk.org/docs/getting-started/\">documentação do Gtk</a> e se "
+"familiarizar com os conceitos de widgets, propriedades, sinais e widgets de "
+"layout/container como GtkBox e GtkGrid.\n"
+"\n"
+"Também é uma boa ideia escrever alguns arquivos GtkBuilder simples "
+"manualmente para aprender os fundamentos do GtkBuilder antes de começar a "
+"usar este aplicativo no seu trabalho diário."
 
 #: cambalache/app/cmb_help_window.ui:120
-#, fuzzy
 msgid "Introduction"
-msgstr "Internacional"
+msgstr "Introdução"
 
 #: cambalache/app/cmb_help_window.ui:137 cambalache/app/cmb_help_window.ui:278
 msgid "Architecture"
-msgstr ""
+msgstr "Arquitetura"
 
 #: cambalache/app/cmb_help_window.ui:147
 msgid "Cambalache relies heavily on the model view controller design pattern."
 msgstr ""
+"Bagunça depende muito do padrão de projeto Model-View-Controller (MVC)."
 
 #: cambalache/app/cmb_help_window.ui:158 cambalache/cmb_view.ui:126
 msgid "Data Model"
@@ -179,6 +221,8 @@ msgid ""
 "The data model is a SQLite relational DB which models the GObject type "
 "system and uses triggers to keep the undo/redo history stack."
 msgstr ""
+"O modelo de dados é um banco de dados relacional SQLite que modela o sistema "
+"de tipos GObject e usa gatilhos para manter o histórico de desfazer/refazer."
 
 #: cambalache/app/cmb_help_window.ui:184
 msgid ""
@@ -186,6 +230,10 @@ msgid ""
 "by a script called <b>cmb-catalog-gen</b> and stored in one catalog file per "
 "widget library and loaded at initialization time."
 msgstr ""
+"Todos os dados de tipo são preenchidos a partir de arquivos de introspecção "
+"do GObject (arquivos Gir) por um script chamado <b>cmb-catalog-gen</b> e "
+"armazenados em um arquivo de catálogo por biblioteca de widgets, sendo "
+"carregados no momento da inicialização."
 
 #: cambalache/app/cmb_help_window.ui:196 cambalache/app/cmb_shortcuts.ui:74
 #: cambalache/app/cmb_window.ui:489
@@ -209,11 +257,25 @@ msgid ""
 "correct from the type point of view but requires custom code to make sure "
 "these conditions are not reached while previewing."
 msgstr ""
+"A área de trabalho é executada em um processo separado chamado <b>Merengue</"
+"b> e é responsável por criar e atualizar os widgets que você está editando "
+"de acordo com suas ações.\n"
+"\n"
+"Esses widgets são incorporados à interface principal usando um widget "
+"compositor Wayland para uma integração perfeita. Isso permite suporte não "
+"apenas para o GTK 4, mas também para a versão 3.\n"
+"\n"
+"Essa separação é crucial para a estabilidade, pois impede que os widgets que "
+"você está criando causem a queda de toda a aplicação.\n"
+"\n"
+"Pense em widgets que chamam `abort()` se uma propriedade não estiver "
+"definida, o que é correto do ponto de vista dos tipos, mas requer código "
+"personalizado para garantir que essas condições não sejam atingidas durante "
+"a visualização."
 
 #: cambalache/app/cmb_help_window.ui:230
-#, fuzzy
 msgid "Editor UI"
-msgstr "Editor de IU"
+msgstr "Interface do Editor"
 
 #: cambalache/app/cmb_help_window.ui:240
 msgid ""
@@ -222,15 +284,20 @@ msgid ""
 "heavily influenced by Glade's UI because well... I made it and also did not "
 "wanted to spend the little cycles I had in a new UI."
 msgstr ""
+"O controlador é um aplicativo Gtk 4 comum que permite ao usuário criar "
+"vários arquivos de interface do usuário e editar propriedades e sinais de "
+"objetos. Seu design foi fortemente influenciado pela interface do Glade "
+"porque, bem... eu o criei e também não queria gastar os poucos ciclos que "
+"tinha em uma nova interface."
 
 #: cambalache/app/cmb_help_window.ui:256
 msgid "The interface is ofcourse made with Cambalache."
-msgstr ""
+msgstr "A interface foi feita, obviamente, com Bagunça."
 
 #: cambalache/app/cmb_help_window.ui:294 cambalache/app/cmb_help_window.ui:477
 #: cambalache/cmb_project_settings.ui:17
 msgid "Catalogs"
-msgstr ""
+msgstr "Catálogos"
 
 #: cambalache/app/cmb_help_window.ui:304
 msgid ""
@@ -243,17 +310,27 @@ msgid ""
 "These are created using GObject introspection data, the actual runtime "
 "objects and extra metadata with a tool called <b>cmb-catalog-gen</b>"
 msgstr ""
+"Catálogos de widgets são arquivos XML que contêm todos os metadados "
+"necessários para usar widgets de diferentes bibliotecas no Bagunça.\n"
+"\n"
+"Isso inclui tipos de objetos, interfaces, enumerações, flags, propriedades e "
+"sinais.\n"
+"\n"
+"Eles são criados usando dados de introspecção do GObject, os objetos de "
+"tempo de execução reais e metadados extras com uma ferramenta chamada <b>cmb-"
+"catalog-gen</b>"
 
 #: cambalache/app/cmb_help_window.ui:319
 msgid ""
 "<b>NOTE:</b> Keep in mind this tool and the file format is not stable and "
 "will change in the near future."
 msgstr ""
+"<b>NOTA:</b> Lembre-se de que esta ferramenta e o formato do arquivo não são "
+"estáveis ​​e sofrerão alterações em breve."
 
 #: cambalache/app/cmb_help_window.ui:332
-#, fuzzy
 msgid "Creating a new catalog"
-msgstr "Crie um novo projeto"
+msgstr "Criando um novo catálogo"
 
 #: cambalache/app/cmb_help_window.ui:343
 msgid ""
@@ -263,15 +340,20 @@ msgid ""
 "The tool will read all the required metadata from the gir file and "
 "instantiate each object type to get things like properties defaults and such."
 msgstr ""
+"Para criar um catálogo simples para uma biblioteca como Casilda, tudo o que "
+"você precisa fazer é especificar a versão do Gtk, os destinos da biblioteca, "
+"as dependências do catálogo e o arquivo gir.\n"
+"A ferramenta lerá todos os metadados necessários do arquivo gir e "
+"instanciará cada tipo de objeto para obter informações como valores padrão "
+"de propriedades e afins."
 
 #: cambalache/app/cmb_help_window.ui:367
 msgid "In this case there is only one type with one property."
-msgstr ""
+msgstr "Neste caso, existe apenas um tipo com uma propriedade."
 
 #: cambalache/app/cmb_help_window.ui:400
-#, fuzzy
 msgid "Built in catalogs"
-msgstr "Atualizar catálogos de widgets para o SDK 48"
+msgstr "Catálogos integrados"
 
 #: cambalache/app/cmb_help_window.ui:411
 msgid ""
@@ -283,10 +365,17 @@ msgid ""
 "title=\"https://gitlab.gnome.org/jpu/\">Makefile</a> used to generate all "
 "the built in catalogs."
 msgstr ""
+"Internamente, o Cambalache usa o mesmo fluxo de trabalho para criar todos os "
+"catálogos necessários para o GTK.\n"
+"\n"
+"Se tiver interesse, você pode dar uma olhada no <a href=\"https://"
+"gitlab.gnome.org/jpu/cambalache/-/blob/main/catalogs/Makefile\" "
+"title=\"https://gitlab.gnome.org/jpu/\">Makefile</a> usado para gerar todos "
+"os catálogos internos."
 
 #: cambalache/app/cmb_help_window.ui:423
 msgid "3rd party catalogs"
-msgstr ""
+msgstr "Catálogos de terceiros"
 
 #: cambalache/app/cmb_help_window.ui:434
 msgid ""
@@ -298,11 +387,16 @@ msgid ""
 "User catalogs can be installed in <span font-"
 "family=\"monospace\">~/.cambalache/catalogs</span>"
 msgstr ""
+"Por padrão, o bagunça também inclui catálogos de terceiros para bibliotecas "
+"como Adwaita e WebkitGtk, mas outras bibliotecas de terceiros podem fornecer "
+"seus próprios catálogos e instalá-los em qualquer um dos diretórios de dados "
+"do sistema retornados por `GLib.get_system_data_dirs()`.\n"
+"\n"
+"Catálogos de usuário podem ser instalados em `~/.cambalache/catalogs`"
 
 #: cambalache/app/cmb_help_window.ui:446
-#, fuzzy
 msgid "Workspace plugins"
-msgstr "Espaço de trabalho"
+msgstr "Plugins do espaço de trabalho"
 
 #: cambalache/app/cmb_help_window.ui:457
 msgid ""
@@ -316,11 +410,20 @@ msgid ""
 "If you are interested in adding support for your library please contact us "
 "at the matrix channel."
 msgstr ""
+"A integração do espaço de trabalho requer código adicional para tarefas como "
+"adicionar marcadores de posição aos contêineres, garantir que os objetos "
+"possam ser exibidos, selecionados etc.\n"
+"\n"
+"Atualmente, isso não está documentado nem exposto para bibliotecas de "
+"terceiros, mas há planos para adicionar suporte assim que o formato do "
+"catálogo estiver mais estável.\n"
+"\n"
+"Se você tiver interesse em adicionar suporte para sua biblioteca, entre em "
+"contato conosco pelo canal Matrix."
 
 #: cambalache/app/cmb_help_window.ui:496 cambalache/app/cmb_help_window.ui:637
-#, fuzzy
 msgid "Projects"
-msgstr "Projeto"
+msgstr "Projetos"
 
 #: cambalache/app/cmb_help_window.ui:506
 msgid ""
@@ -337,11 +440,23 @@ msgid ""
 "For this reason Cambalache workflow is built around projects where you can "
 "create or import all files needed to define your application GUI."
 msgstr ""
+"Antigamente, era comum ter um único arquivo XML grande descrevendo todas as "
+"janelas e diálogos de um aplicativo.\n"
+"\n"
+"Isso começou a mudar com a introdução de widgets compostos usando <a "
+"href=\"https://docs.gtk.org/gtk4/class.Widget.html#building-composite-"
+"widgets-from-template-xml\">modelos XML</a>, o que facilita muito a criação "
+"de widgets personalizados. Isso permite dividir a interface do usuário e a "
+"lógica em componentes menores e mais simples, que podem ser reutilizados "
+"como qualquer outro widget GTK, tornando a manutenção mais fácil.\n"
+"\n"
+"Por esse motivo, o fluxo de trabalho do Cambalache é baseado em projetos "
+"onde você pode criar ou importar todos os arquivos necessários para definir "
+"a interface gráfica do seu aplicativo."
 
 #: cambalache/app/cmb_help_window.ui:520
-#, fuzzy
 msgid "Supported types"
-msgstr "Apoiadores"
+msgstr "Tipos suportados"
 
 #: cambalache/app/cmb_help_window.ui:531
 msgid ""
@@ -359,6 +474,19 @@ msgid ""
 "title=\"https://docs.gtk.org/gtk4/css-overview.html\">CSS</a> - Gtk "
 "stylesheets"
 msgstr ""
+"    • <a href=\"https://docs.gtk.org/gtk4/class.Builder.html#gtkbuilder-ui-"
+"definitions\" title=\"https://docs.gtk.org/gtk4/"
+"class.Builder.html#gtkbuilder-ui-definitions\">GtkBuilder</a> - Arquivos e "
+"modelos de interface do usuário XML\n"
+"    • <a href=\"https://gnome.pages.gitlab.gnome.org/blueprint-compiler/\" "
+"title=\"https://gnome.pages.gitlab.gnome.org/blueprint-compiler/"
+"\">Blueprint</a> - linguagem de marcação\n"
+"    • <a href=\"https://docs.gtk.org/gio/struct.Resource.html\" "
+"title=\"https://docs.gtk.org/gio/struct.Resource.html\">GResources</a> - "
+"Definições de pacotes XML\n"
+"    • <a href=\"https://docs.gtk.org/gtk4/css-overview.html\" "
+"title=\"https://docs.gtk.org/gtk4/css-overview.html\">CSS</a> - Folhas de "
+"estilo Gtk"
 
 #: cambalache/app/cmb_help_window.ui:545
 msgid ""
@@ -367,11 +495,16 @@ msgid ""
 "outputs properties, signals and other elements in a particular order.\n"
 "Once saved the output should be stable, if not, please file an issue."
 msgstr ""
+"<b>NOTA:</b> Lembre-se de que, ao importar um arquivo de interface do "
+"usuário, haverá diferenças na saída na primeira vez que ele for salvo, pois "
+"o Bagunça gera propriedades, sinais e outros elementos em uma ordem "
+"específica.\n"
+"Após salvar, a saída deverá estar estável; caso contrário, registre um "
+"problema."
 
 #: cambalache/app/cmb_help_window.ui:559
-#, fuzzy
 msgid "Creating a new project"
-msgstr "Crie um novo projeto"
+msgstr "Criar um novo projeto"
 
 #: cambalache/app/cmb_help_window.ui:572
 msgid ""
@@ -379,6 +512,10 @@ msgid ""
 "Project menu button to open the \"New Project\" screen where you can select "
 "a filename, location and an initial UI for your project."
 msgstr ""
+"Para criar um novo projeto, você pode usar o atalho Ctrl+N ou ativar o botão "
+"de menu \"Novo Projeto\" para abrir a tela \"Novo Projeto\", onde poderá "
+"selecionar um nome de arquivo, um local e uma interface inicial para o seu "
+"projeto."
 
 #: cambalache/app/cmb_help_window.ui:587
 msgid ""
@@ -392,11 +529,20 @@ msgid ""
 "This will scan the selected directory for all supported files and load them "
 "in the right order."
 msgstr ""
+"Todos os arquivos serão relativos ao arquivo do projeto, portanto, é melhor "
+"escolher um diretório raiz no seu projeto.\n"
+"\n"
+"Após a criação, você pode começar a adicionar arquivos de interface do "
+"usuário ao seu projeto ou, se já tiver arquivos de interface do usuário, "
+"pode importar arquivos individuais manualmente ou importar todos os arquivos "
+"compatíveis usando Menu -> Importar diretório.\n"
+"\n"
+"Isso fará uma varredura no diretório selecionado em busca de todos os "
+"arquivos compatíveis e os carregará na ordem correta."
 
 #: cambalache/app/cmb_help_window.ui:600
-#, fuzzy
 msgid "Project Settings"
-msgstr "Visualização do Projeto"
+msgstr "Configurações do projeto"
 
 #: cambalache/app/cmb_help_window.ui:613
 msgid ""
@@ -407,10 +553,17 @@ msgid ""
 "It also lets you specify a list of directories with icons for named icons to "
 "work in the preview."
 msgstr ""
+"A caixa de diálogo de configurações do projeto permite selecionar quais "
+"bibliotecas de widgets adicionais (Catálogos) estarão disponíveis para uso "
+"no projeto. Portanto, se você estiver criando um aplicativo GNOME, precisará "
+"dos widgets Adwaita.\n"
+"\n"
+"Ela também permite especificar uma lista de diretórios com ícones para que "
+"os ícones nomeados funcionem na pré-visualização."
 
 #: cambalache/app/cmb_help_window.ui:653 cambalache/app/cmb_help_window.ui:801
 msgid "Creating Widgets"
-msgstr ""
+msgstr "Criando widgets"
 
 #: cambalache/app/cmb_help_window.ui:663
 msgid ""
@@ -419,11 +572,16 @@ msgid ""
 "can add more UI files using the Add button in the header bar or the Add file "
 "submenu in the main menu."
 msgstr ""
+"Depois que o projeto estiver configurado, você poderá começar a criar "
+"widgets em qualquer arquivo de interface do usuário.\n"
+"Para sua conveniência, um arquivo de interface do usuário com o mesmo nome "
+"do projeto é criado por padrão, mas você pode adicionar mais arquivos de "
+"interface do usuário usando o botão Adicionar na barra de cabeçalho ou o "
+"submenu Adicionar arquivo no menu principal."
 
 #: cambalache/app/cmb_help_window.ui:673
-#, fuzzy
 msgid "Type Chooser"
-msgstr "Nova barra seletora de tipo"
+msgstr "Seletor de tipo"
 
 #: cambalache/app/cmb_help_window.ui:684
 msgid ""
@@ -441,6 +599,22 @@ msgid ""
 "Objects in the toplevel category are created immediately after selecting one "
 "in the dropdown menu."
 msgstr ""
+"Os tipos de objeto são acessíveis na barra de seleção por categoria.\n"
+"\n"
+"• <b>Nível superior</b>: Janelas, diálogos, pop-ups, elementos que não "
+"possuem um elemento pai\n"
+"• <b>Layout</b>: Caixa, Grade, elementos usados ​​para organizar widgets em "
+"diferentes layouts\n"
+"• <b>Controle</b>: Botão, entrada, spin, elementos usados ​​para controlar "
+"ações em seu aplicativo\n"
+"\n"
+"• <b>Exibição</b>: Rótulo, visualização, elementos para exibir informações\n"
+"\n"
+"<b>Modelo</b>: Armazenamento, buffers, modelos de lista, elementos que "
+"armazenam dados\n"
+"\n"
+"Os objetos na categoria de nível superior são criados imediatamente após a "
+"seleção de um deles no menu suspenso."
 
 #: cambalache/app/cmb_help_window.ui:708
 msgid ""
@@ -452,11 +626,18 @@ msgid ""
 "in the currently selected object. This is particularly useful for adding "
 "children to types that do not have placeholder support yet."
 msgstr ""
+"Objetos em outras categorias são criados selecionando-se primeiro um tipo e, "
+"em seguida, clicando em um marcador ou usando o menu de contexto na "
+"hierarquia de objetos.\n"
+"\n"
+"Manter a tecla Alt pressionada enquanto seleciona um tipo forçará a criação "
+"de um novo objeto no objeto atualmente selecionado. Isso é particularmente "
+"útil para adicionar filhos a tipos que ainda não possuem suporte a "
+"marcadores."
 
 #: cambalache/app/cmb_help_window.ui:719
-#, fuzzy
 msgid "Placeholders"
-msgstr "Ocultar marcadores de posição"
+msgstr "Espaços reservados"
 
 #: cambalache/app/cmb_help_window.ui:730
 msgid ""
@@ -470,6 +651,16 @@ msgid ""
 "when no type is selected which will open a dropdown menu with a list of "
 "possible types to create."
 msgstr ""
+"Um marcador de posição é um widget de espaço de trabalho que se assemelha a "
+"uma grade, adicionado a objetos contêineres para reservar um espaço para "
+"widgets futuros.\n"
+"\n"
+"Após selecionar um tipo, você pode criar um novo objeto no local do marcador "
+"de posição clicando nele.\n"
+"\n"
+"Outra maneira prática de adicionar um filho é clicar duas vezes em um "
+"marcador de posição quando nenhum tipo estiver selecionado. Isso abrirá um "
+"menu suspenso com uma lista de tipos possíveis para criar."
 
 #: cambalache/app/cmb_help_window.ui:749 cambalache/app/cmb_window.ui:354
 msgid "Object Editor"
@@ -480,21 +671,23 @@ msgid ""
 "Once you created an object you can set its properties, signals and "
 "Accessibility properties in the object editor panel on the right."
 msgstr ""
+"Depois de criar um objeto, você pode definir suas propriedades, sinais e "
+"propriedades de acessibilidade no painel do editor de objetos à direita."
 
 #: cambalache/app/cmb_help_window.ui:775
-#, fuzzy
 msgid "Undo / Redo"
-msgstr "Pilha desfazer/refazer"
+msgstr "Desfazer/Refazer"
 
 #: cambalache/app/cmb_help_window.ui:786
 msgid ""
 "Every action can be undone by using the undo/redo button in the header bar."
 msgstr ""
+"Todas as ações podem ser desfeitas usando o botão desfazer/refazer na barra "
+"de cabeçalho."
 
 #: cambalache/app/cmb_help_window.ui:817 cambalache/app/cmb_help_window.ui:943
-#, fuzzy
 msgid "Gtk Templates"
-msgstr "Modelo"
+msgstr "Modelos Gtk"
 
 #: cambalache/app/cmb_help_window.ui:827
 msgid ""
@@ -510,11 +703,23 @@ msgid ""
 "developer.gnome.org/documentation/tutorials/widget-templates.html\">Gtk "
 "documentation</a>"
 msgstr ""
+"Os templates são uma maneira prática de criar novos componentes de interface "
+"do usuário a partir de outros componentes definidos em um arquivo XML de "
+"interface do usuário.\n"
+"\n"
+"Um template é vinculado a um tipo e cria automaticamente todos os widgets "
+"definidos no arquivo XML sempre que um objeto é instanciado. Ele também "
+"permite vincular objetos a campos de instância e sinais a funções de retorno "
+"de chamada (callbacks).\n"
+"\n"
+"Para mais informações, consulte a <a href=\"https://developer.gnome.org/"
+"documentation/tutorials/widget-templates.html\" title=\"https://"
+"developer.gnome.org/documentation/tutorials/widget-"
+"templates.html\">Documentação do GTK</a>"
 
 #: cambalache/app/cmb_help_window.ui:842
-#, fuzzy
 msgid "Creating a new template"
-msgstr "{name} (modelo)"
+msgstr "Criando um novo modelo"
 
 #: cambalache/app/cmb_help_window.ui:853
 msgid ""
@@ -522,15 +727,17 @@ msgid ""
 "toplevel widget which will be the parent class of the template type and "
 "select the template flag in the property editor."
 msgstr ""
+"Para criar um novo modelo, basta criar um novo arquivo de interface do "
+"usuário, adicionar um widget de nível superior que será a classe pai do tipo "
+"de modelo e selecionar o sinalizador de modelo no editor de propriedades."
 
 #: cambalache/app/cmb_help_window.ui:871
 msgid "Object id will be used as the new type name"
-msgstr ""
+msgstr "O ID do objeto será usado como o novo nome do tipo"
 
 #: cambalache/app/cmb_help_window.ui:885
-#, fuzzy
 msgid "Using templates"
-msgstr "{name} (modelo)"
+msgstr "Utilizando modelos"
 
 #: cambalache/app/cmb_help_window.ui:897
 msgid ""
@@ -541,6 +748,12 @@ msgid ""
 "available in the global type search, the uncategorized drowdown or on "
 "placeholder double click."
 msgstr ""
+"Assim que um modelo for definido, ele estará imediatamente disponível para "
+"uso como um novo tipo no projeto.\n"
+"\n"
+"O tipo não está associado a nenhuma categoria específica, portanto, estará "
+"disponível apenas na busca global de tipos, na lista suspensa de tipos não "
+"categorizados ou ao clicar duas vezes no marcador de posição."
 
 #: cambalache/app/cmb_help_window.ui:919
 msgid ""
@@ -549,11 +762,14 @@ msgid ""
 "support for defining properties and signals in Cambalache soon, in the mean "
 "time it is possible to define them using XML fragments.\n"
 msgstr ""
+"Lembre-se de que o Bagunça só conhece o nome e o tipo pai, portanto, novas "
+"propriedades e sinais não estarão disponíveis. Mas não se preocupe, pretendo "
+"adicionar suporte para a definição de propriedades e sinais no Cambalache em "
+"breve. Enquanto isso, é possível defini-los usando fragmentos XML.\n"
 
 #: cambalache/app/cmb_help_window.ui:959 cambalache/app/cmb_help_window.ui:1064
-#, fuzzy
 msgid "GResources"
-msgstr "Adicionar GResource"
+msgstr "GResources"
 
 #: cambalache/app/cmb_help_window.ui:969
 msgid ""
@@ -565,22 +781,30 @@ msgid ""
 "You can import a gresource file accessing Menu -> Import file or add a new "
 "one with Menu -> Add file -> Add GResource"
 msgstr ""
+"O Bagunça permite a edição de arquivos XML GResources. Embora esses arquivos "
+"sejam relativamente simples de criar manualmente, o principal objetivo de "
+"importá-los é informar ao espaço de trabalho os diferentes recursos "
+"necessários para o funcionamento da pré-visualização.\n"
+"\n"
+"Você pode importar um arquivo GResource acessando Menu -> Importar arquivo "
+"ou adicionar um novo em Menu -> Adicionar arquivo -> Adicionar GResource"
 
 #: cambalache/app/cmb_help_window.ui:981
-#, fuzzy
 msgid "Prefixes"
-msgstr "Prefixo"
+msgstr "Prefixos"
 
 #: cambalache/app/cmb_help_window.ui:992
 msgid ""
 "A GResources file can have one or multiple prefixes containing multiple "
 "files and are added from the resource property editor."
 msgstr ""
+"Um arquivo GResources pode ter um ou vários prefixos contendo diversos "
+"arquivos, os quais são adicionados a partir do editor de propriedades de "
+"recursos."
 
 #: cambalache/app/cmb_help_window.ui:1002
-#, fuzzy
 msgid "Adding files"
-msgstr "Adicionar arquivo"
+msgstr "Adicionando arquivos"
 
 #: cambalache/app/cmb_help_window.ui:1013
 msgid ""
@@ -591,22 +815,30 @@ msgid ""
 "docs.gtk.org/gio/struct.Resource.html\" title=\"https://docs.gtk.org/gio/"
 "struct.Resource.html\">here.</a>"
 msgstr ""
+"É possível adicionar arquivos a partir de um editor de propriedades de "
+"prefixo. Após a adição de um novo arquivo, o nome e as propriedades do "
+"arquivo podem ser definidos no editor.\n"
+"\n"
+"Mais informações sobre o funcionamento do GResources estão disponíveis <a "
+"href=\"https://docs.gtk.org/gio/struct.Resource.html\" title=\"https://"
+"docs.gtk.org/gio/struct.Resource.html\">aqui</a>"
 
 #: cambalache/app/cmb_help_window.ui:1031
-#, fuzzy
 msgid "Workspace preview"
-msgstr "Espaço de trabalho"
+msgstr "Pré-visualização do espaço de trabalho"
 
 #: cambalache/app/cmb_help_window.ui:1042
 msgid ""
 "Once you define a file in a resource prefix it will be available to the "
 "workspace for use in GFile uri properties or plain resource properties."
 msgstr ""
+"Depois de definir um arquivo em um prefixo de recurso, ele estará disponível "
+"para o espaço de trabalho para uso em propriedades URI do GFile ou em "
+"propriedades de recurso simples."
 
 #: cambalache/app/cmb_help_window.ui:1080
-#, fuzzy
 msgid "CSS Support"
-msgstr "Apoiadores"
+msgstr "Suporte a CSS"
 
 #: cambalache/app/cmb_help_window.ui:1090
 msgid ""
@@ -616,11 +848,16 @@ msgid ""
 "You can import or create as many CSS files as needed and define exactly how "
 "they are loaded at runtime using the property editor."
 msgstr ""
+"O suporte a CSS permite visualizar folhas de estilo durante a criação da "
+"interface do usuário de um aplicativo.\n"
+"\n"
+"Você pode importar ou criar quantos arquivos CSS forem necessários e definir "
+"exatamente como eles serão carregados em tempo de execução usando o editor "
+"de propriedades."
 
 #: cambalache/app/cmb_help_window.ui:1102
-#, fuzzy
 msgid "Priority"
-msgstr "Prioridade:"
+msgstr "Prioridade"
 
 #: cambalache/app/cmb_help_window.ui:1113
 msgid ""
@@ -630,26 +867,34 @@ msgid ""
 "Defaults to application priority (600) but it should match the priority used "
 "at runtime to get the same results."
 msgstr ""
+"Parâmetro passado para Gtk.StyleContext.add_provider_for_display() ao "
+"adicionar o provedor CSS ao espaço de trabalho.\n"
+"\n"
+"O padrão é a prioridade da aplicação (600), mas deve corresponder à "
+"prioridade usada em tempo de execução para obter os mesmos resultados."
 
 #: cambalache/app/cmb_help_window.ui:1125
-#, fuzzy
 msgid "Global"
-msgstr "Global:"
+msgstr "Global"
 
 #: cambalache/app/cmb_help_window.ui:1136
 msgid "Convenience flag to load this CSS in every UI file in the project."
 msgstr ""
+"Uma opção para facilitar o carregamento deste CSS em todos os arquivos de "
+"interface do usuário do projeto."
 
 #: cambalache/app/cmb_help_window.ui:1146
-#, fuzzy
 msgid "Provider for"
-msgstr "Provider for:"
+msgstr "Fornecedor para"
 
 #: cambalache/app/cmb_help_window.ui:1157
 msgid ""
 "If this CSS is not meant to be used for all UI files in the project you can "
 "specify for which it should."
 msgstr ""
+"Se este CSS não for destinado a ser usado em todos os arquivos de interface "
+"do usuário do projeto, você pode especificar para quais arquivos ele deve "
+"ser usado."
 
 #: cambalache/app/cmb_help_window.ui:1173
 msgid ""
@@ -660,27 +905,29 @@ msgid ""
 "documentation <a href=\"https://docs.gtk.org/gtk4/css-overview.html\" "
 "title=\"https://docs.gtk.org/gtk4/css-overview.html\">here</a>."
 msgstr ""
+"O CSS pode ser editado no editor de propriedades e as alterações serão "
+"refletidas após alguns segundos.\n"
+"\n"
+"Para obter mais informações sobre os recursos de CSS suportados no GTK, leia "
+"a documentação <a href=\"https://docs.gtk.org/gtk4/css-overview.html\" "
+"title=\"https://docs.gtk.org/gtk4/css-overview.html\">aqui</a>."
 
 #: cambalache/app/cmb_help_window.ui:1183
-#, fuzzy
 msgid "Note: CSS files need to be loaded at runtime"
 msgstr ""
-"<small>Observação: os arquivos CSS precisam ser carregados em tempo de "
-"execução</small>"
+"Observação: os arquivos CSS precisam ser carregados em tempo de execução"
 
 #: cambalache/app/cmb_help_window.ui:1203
-#, fuzzy
 msgid "CSS"
-msgstr "Adicionar CSS"
+msgstr "CSS"
 
 #: cambalache/app/cmb_help_window.ui:1217
 msgid "Toggle Sidebar"
-msgstr ""
+msgstr "Alternar barra lateral"
 
 #: cambalache/app/cmb_help_window.ui:1226
-#, fuzzy
 msgid "Cambalache User Manual"
-msgstr "Janela de início do Bagunça"
+msgstr "Manual do Usuário do Bagunça"
 
 #: cambalache/app/cmb_np_dialog.py:74 cambalache/app/cmb_np_dialog.py:122
 msgid "File name already exists, choose a different name."
@@ -691,9 +938,8 @@ msgid "Select project location"
 msgstr "Selecione o local do projeto"
 
 #: cambalache/app/cmb_np_dialog.ui:20
-#, fuzzy
 msgid "Project Name"
-msgstr "Visualização do Projeto"
+msgstr "Nome do projeto"
 
 #: cambalache/app/cmb_np_dialog.ui:27
 msgid "UI Filename"
@@ -704,22 +950,20 @@ msgid "Location"
 msgstr "Localização"
 
 #: cambalache/app/cmb_np_dialog.ui:49
-#, fuzzy
 msgid "Toolkit Target"
-msgstr "Alvo do kit de ferramentas"
+msgstr "Kit de ferramentas alvo"
 
 #: cambalache/app/cmb_np_dialog.ui:72
 msgid "Gtk 3"
-msgstr ""
+msgstr "Gtk 3"
 
 #: cambalache/app/cmb_np_dialog.ui:78
 msgid "Old stable version"
 msgstr "Versão estável mais antiga"
 
 #: cambalache/app/cmb_np_dialog.ui:98
-#, fuzzy
 msgid "Gtk 4"
-msgstr "Porta Gtk 4"
+msgstr "Gtk 4"
 
 #: cambalache/app/cmb_np_dialog.ui:104
 msgid "Recommended for new projects"
@@ -1145,7 +1389,7 @@ msgstr "Adicionar GResource"
 
 #: cambalache/app/cmb_window.ui:40
 msgid "Settings"
-msgstr ""
+msgstr "Configurações"
 
 #: cambalache/app/cmb_window.ui:50
 msgid "Save As"
@@ -1161,7 +1405,7 @@ msgstr "Introdução interativa"
 
 #: cambalache/app/cmb_window.ui:78
 msgid "Help"
-msgstr ""
+msgstr "Ajuda"
 
 #: cambalache/app/cmb_window.ui:82
 msgid "About"
@@ -1177,7 +1421,7 @@ msgstr "_Abrir"
 
 #: cambalache/app/cmb_window.ui:159
 msgid "Edit project settings"
-msgstr ""
+msgstr "Editar configurações do projeto"
 
 #: cambalache/app/cmb_window.ui:171
 msgid "Add new UI to project"
@@ -1310,33 +1554,32 @@ msgstr "CSS sem nome {css_id}"
 #. Translators: GTK_STYLE_PROVIDER_PRIORITY_FALLBACK
 #: cambalache/cmb_css_editor.py:94
 msgid "Fallback (1)"
-msgstr ""
+msgstr "Recurso alternativo (1)"
 
 #. Translators: GTK_STYLE_PROVIDER_PRIORITY_THEME
 #: cambalache/cmb_css_editor.py:96
 msgid "Theme (200)"
-msgstr ""
+msgstr "Tema (200)"
 
 #. Translators: GTK_STYLE_PROVIDER_PRIORITY_SETTINGS
 #: cambalache/cmb_css_editor.py:98
 msgid "Settings (400)"
-msgstr ""
+msgstr "Configurações (400)"
 
 #. Translators: GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
 #: cambalache/cmb_css_editor.py:100
-#, fuzzy
 msgid "Application (600)"
-msgstr "Aplicações"
+msgstr "Aplicação (600)"
 
 #. Translators: GTK_STYLE_PROVIDER_PRIORITY_USER
 #: cambalache/cmb_css_editor.py:102
 msgid "User (800)"
-msgstr ""
+msgstr "Usuário (800)"
 
 #. Translators: label for custom GtkStyleProvider priority
 #: cambalache/cmb_css_editor.py:104
 msgid "Custom"
-msgstr ""
+msgstr "Custom"
 
 #: cambalache/cmb_css_editor.ui:24 cambalache/cmb_ui_property_editor.ui:17
 msgid "Filename:"
@@ -1411,41 +1654,38 @@ msgid "Discard Changes and Reload"
 msgstr "Descartar alterações e recarregar"
 
 #: cambalache/cmb_file_status_bar.py:102
-#, fuzzy
 msgid ""
 "<b>File Not Found</b>\n"
 "<small>The file does not exists.</small>"
 msgstr ""
-"<b>O arquivo foi alterado no disco</b>\n"
-"<small>O arquivo foi modificado por outro aplicativo.</small>"
+"<b>Arquivo não encontrado</b>\n"
+"<small>O arquivo não existe.</small>"
 
 #: cambalache/cmb_file_status_bar.py:103 cambalache/cmb_file_status_bar.py:106
-#, fuzzy
 msgid "Remove"
-msgstr "Remover linha"
+msgstr "Remover"
 
 #: cambalache/cmb_file_status_bar.py:105
-#, fuzzy
 msgid ""
 "<b>File Deleted</b>\n"
 "<small>The file has been deleted by another application.</small>"
 msgstr ""
-"<b>O arquivo foi alterado no disco</b>\n"
-"<small>O arquivo foi modificado por outro aplicativo.</small>"
+"<b>Arquivo Excluído</b>\n"
+"<small>O arquivo foi excluído por outro aplicativo.</small>"
 
 #: cambalache/cmb_file_status_bar.py:109
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid ""
 "<b>File Renamed</b>\n"
 "<small>The file has been renamed to {filename} by another application.</"
 "small>"
 msgstr ""
-"<b>O arquivo foi alterado no disco</b>\n"
-"<small>O arquivo foi modificado por outro aplicativo.</small>"
+"<b>Arquivo Renomeado</b>\n"
+"<small>O arquivo foi renomeado para {filename} por outro aplicativo.</small>"
 
 #: cambalache/cmb_file_status_bar.py:111
 msgid "Update"
-msgstr ""
+msgstr "Atualização"
 
 #: cambalache/cmb_fragment_editor.ui:13
 msgid "Extra fragments:"
@@ -1514,23 +1754,21 @@ msgid "Clear"
 msgstr "Claro"
 
 #: cambalache/cmb_list_view.py:265
-#, fuzzy
 msgid "File Has Changed on Disk"
-msgstr "O arquivo foi alterado no disco."
+msgstr "O arquivo foi alterado no disco"
 
 #: cambalache/cmb_list_view.py:267
 msgid "File Not Found"
-msgstr ""
+msgstr "Arquivo não encontrado"
 
 #: cambalache/cmb_list_view.py:269
-#, fuzzy
 msgid "File Deleted"
-msgstr "Excluir"
+msgstr "Arquivo excluído"
 
 #: cambalache/cmb_list_view.py:271
 #, python-brace-format
 msgid "File renamed to {new_filename}"
-msgstr ""
+msgstr "Arquivo renomeado para {new_filename}"
 
 #: cambalache/cmb_object.py:485 cambalache/cmb_object_data.py:199
 #, python-brace-format
@@ -1605,7 +1843,7 @@ msgstr "Nome do tipo"
 
 #: cambalache/cmb_object_property_editor.py:129
 msgid "Parent Class"
-msgstr ""
+msgstr "Classe dos Pais"
 
 #: cambalache/cmb_object_property_editor.py:148
 msgid "Child Type"
@@ -1679,14 +1917,14 @@ msgstr ""
 "0.96.0 para migrar para o novo formato."
 
 #: cambalache/cmb_project.py:528
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Error parsing dependency {library}"
-msgstr "Erro ao importar o diretório {basename}"
+msgstr "Erro ao analisar a dependência {library}"
 
 #: cambalache/cmb_project.py:540
 #, python-brace-format
 msgid "Unknown dependencies found {depends}"
-msgstr ""
+msgstr "Dependências desconhecidas encontradas {depends}"
 
 #: cambalache/cmb_project.py:574
 #, python-brace-format
@@ -1882,9 +2120,9 @@ msgid "Remove object {name}"
 msgstr "Remover objeto {name}"
 
 #: cambalache/cmb_project.py:1511
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Remove objects from {library}"
-msgstr "Remover objeto {obj}"
+msgstr "Remover objetos de {library}"
 
 #. Translators: This refers to "properties" in object property undo/redo messages
 #: cambalache/cmb_project.py:2021 cambalache/cmb_property.py:199
@@ -2078,20 +2316,19 @@ msgstr "Remover pai de {name}"
 
 #: cambalache/cmb_project_settings.py:96
 msgid "Select icon path search directory"
-msgstr ""
+msgstr "Selecione o diretório de pesquisa do caminho do ícone"
 
 #: cambalache/cmb_project_settings.ui:15
-#, fuzzy
 msgid "Available widget catalogs"
-msgstr "Atualizar catálogos de widgets para o SDK 48"
+msgstr "Catálogos de widgets disponíveis"
 
 #: cambalache/cmb_project_settings.ui:22
 msgid "List of directories to load icons"
-msgstr ""
+msgstr "Lista de diretórios para carregar ícones"
 
 #: cambalache/cmb_project_settings.ui:33
 msgid "Icon Themes"
-msgstr ""
+msgstr "Temas de ícones"
 
 #: cambalache/cmb_property.py:231
 #, python-brace-format
@@ -2128,13 +2365,12 @@ msgid "Bind {object}::{property} to {expression_type}"
 msgstr "Vincular {object}::{property} a {expression_type}"
 
 #: cambalache/cmb_property_label.ui:42
-#, fuzzy
 msgid "Reset property"
-msgstr "propriedade"
+msgstr "Redefinir propriedade"
 
 #: cambalache/cmb_property_label.ui:53
 msgid "Serialize default"
-msgstr ""
+msgstr "Serializar padrão"
 
 #: cambalache/cmb_signal_editor.ui:44
 msgid "Signal"
@@ -2431,16 +2667,15 @@ msgstr ""
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:19
 msgid "First Major Milestone"
-msgstr ""
+msgstr "Primeiro marco importante"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:21
 msgid "Basic user manual"
-msgstr ""
+msgstr "Manual básico do usuário"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:22
-#, fuzzy
 msgid "Update widget catalogs to SDK 50"
-msgstr "Atualizar catálogos de widgets para o SDK 48"
+msgstr "Atualizar catálogos de widgets para SDK 50"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:23
 msgid "Add GtkExpression support"
@@ -2452,25 +2687,23 @@ msgstr "Adicionar suporte ao Blueprint"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:25
 msgid "Project Settings dialog"
-msgstr ""
+msgstr "Caixa de diálogo Configurações do projeto"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:26
-#, fuzzy
 msgid "3rd party libraries selector"
-msgstr "Lançamento de bibliotecas de terceiros!"
+msgstr "Seletor de bibliotecas de terceiros"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:27
 msgid "Icon theme path support"
-msgstr ""
+msgstr "Suporte ao caminho do tema de ícones"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:28
-#, fuzzy
 msgid "CSS editor UX improvements"
-msgstr "Muitas correções de bugs e pequenas melhorias na interface do usuário"
+msgstr "Melhorias na experiência do usuário do editor CSS"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:29
 msgid "New Project and donate dialogs. Matthieu Lorier"
-msgstr ""
+msgstr "Novo projeto e diálogos de doação. Matthieu Lorier"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:30
 msgid "Improved workspace rendering"
@@ -2478,7 +2711,7 @@ msgstr "Renderização aprimorada do espaço de trabalho"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:31
 msgid "GResource preview in workspace"
-msgstr ""
+msgstr "Pré-visualização do GResource no espaço de trabalho"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:32
 msgid "Scrollable workspace"
@@ -2493,9 +2726,8 @@ msgid "Add support for more types like GIcon, GdkCursor etc"
 msgstr "Adicionar suporte para mais tipos como GIcon, GdkCursor etc"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:35
-#, fuzzy
 msgid "Support loading unknown types and properties"
-msgstr "Adicionar suporte para tipos e propriedades adicionados no SDK 45"
+msgstr "Suporte para carregamento de tipos e propriedades desconhecidos"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:36
 msgid "Deprecate project format 0.94 and older"
@@ -2506,18 +2738,16 @@ msgid "Add Brazilian Portuguese translation. John Peter Sa"
 msgstr "Adicione tradução para o português brasileiro. John Peter Sa"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:38
-#, fuzzy
 msgid "Add Romanian translation. Vlad"
-msgstr "Adicionar tradução italiana (capaz)"
+msgstr "Adicionar tradução para romeno. Vlad"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:39
 msgid "Add Simplified Chinese translation. xu-haozhe"
-msgstr ""
+msgstr "Adicionar tradução para chinês simplificado. xu-haozhe"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:40
-#, fuzzy
 msgid "Update Swedish translation. Anders Jonsson"
-msgstr "Adicionar tradução para o sueco. Anders Jonsson"
+msgstr "Atualização da tradução para sueco. Anders Jonsson"
 
 #: data/ar.xjuan.Cambalache.metainfo.xml.in:41
 msgid "Fix GResource list model update"
