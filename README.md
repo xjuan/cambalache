@@ -109,7 +109,7 @@ This is a regular **Meson** package and can be installed the usual way.
 
 ```bash
 # Configure project in _build directory
-meson setup --wipe --prefix=~/.local _build .
+meson setup --wipe --prefix=~/.local _build . && ninja -C _build install
 
 # Build and install in ~/.local
 ninja -C _build install

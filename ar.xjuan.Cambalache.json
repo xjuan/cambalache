@@ -78,8 +78,8 @@
                 {
                     "type" : "git",
                     "url" : "https://gitlab.gnome.org/jpu/casilda.git",
-                    "tag" : "1.2.1",
-                    "commit" : "c0ef004bb9cfc6c82407a5797ff6550700a6fe9e"
+                    "tag" : "1.2.2",
+                    "commit" : "993d01be43079245c8b5dfea4dc86baf90abb105"
                 }
             ]
         },

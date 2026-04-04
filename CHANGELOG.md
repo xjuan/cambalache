@@ -8,6 +8,21 @@ packaging changes like new dependencies or build system changes.
 Cambalache used even/odd minor numbers to differentiate between stable and
 development releases.
 
+## Unreleased
+
+ - Add support for fractional scaling in workspace
+ - Disable layout properties for GtkEventController
+ - Update pt_BR translation. john peter sa
+
+### Packaging changes
+
+ - Bump Casilda dependency to 1.2.2 (depends on wlroots 0.20)
+
+### Issues
+
+ - #310 "Widgets are rendered too big on Wayland + Fractional Scaling"
+ - #312 "GtkGestureClick causes Cambalache to act up"
+
 ## 1.0
 
 2026-03-19 - First Major Milestone
