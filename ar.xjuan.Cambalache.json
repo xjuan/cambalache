@@ -34,8 +34,8 @@
             "sources" : [
                 {
                     "type" : "file",
-                    "url" : "https://files.pythonhosted.org/packages/aa/88/262177de60548e5a2bfc46ad28232c9e9cbde697bd94132aeb80364675cb/lxml-6.0.2.tar.gz",
-                    "sha256" : "cd79f3367bd74b317dda655dc8fcfa304d9eb6e4fb06b7168c5cf27f96e0cd62"
+                    "url" : "https://files.pythonhosted.org/packages/43/42/149c7747977db9d68faee960c1a3391eb25e94d4bb677f8e2df8328e4098/lxml-6.0.3.tar.gz",
+                    "sha256" : "a1664c5139755df44cab3834f4400b331b02205d62d3fdcb1554f63439bf3372"
                 }
             ]
         },
@@ -64,8 +64,8 @@
                 {
                     "type" : "git",
                     "url" : "https://gitlab.freedesktop.org/wlroots/wlroots.git",
-                    "tag" : "0.19.2",
-                    "commit" : "8c9e6b7c9f3c5344f456e97dc29dcd8d8a5f015b"
+                    "tag" : "0.20.0",
+                    "commit" : "c1d38536c926134698ff2615843e0d4103e84ac4"
                 }
             ]
         },
@@ -78,8 +78,8 @@
                 {
                     "type" : "git",
                     "url" : "https://gitlab.gnome.org/jpu/casilda.git",
-                    "tag" : "1.2.2",
-                    "commit" : "993d01be43079245c8b5dfea4dc86baf90abb105"
+                    "tag" : "1.2.3",
+                    "commit" : "96f1fd8080c75aee62f62637a6695e6c524b825d"
                 }
             ]
         },
