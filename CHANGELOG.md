@@ -18,7 +18,7 @@ development releases.
 
 ### Packaging changes
 
- - Bump Casilda dependency to 1.2.3 (depends on wlroots 0.20)
+ - Bump Casilda dependency to 1.2.4 (depends on wlroots 0.20)
  - Bump Gtk dependecy to 4.22.2 (fix dmabuf leak with some vulkan drivers)
 
 ### Issues
