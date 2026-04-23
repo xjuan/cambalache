@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
+<!-- Created with Cambalache 1.0 -->
+<cambalache-project version="1.0.0" target_tk="gtk+-3.0">
+  <ui filename="gtk+-3.0/custom_fragment.ui" sha256="97f8af6d52b9e31509418bdd6dad170f8bf402072ce573380736b63d74d69580"/>
+  <ui filename="gtk+-3.0/window.ui" sha256="1575b8e4de3295c631fff12b13c7b3a6341f02823e79056865cea3abc6af421a"/>
+  <ui filename="gtk+-3.0/accessibility.ui" sha256="b554cf16eecc5b2b0e91e04562a529b907f12d3aa01229cc057d763e3788a0fd"/>
+  <ui filename="gtk+-3.0/menu.ui" sha256="c005e8e46872464adbed8999775d48f530b6a3448150fb9ed3ac6527bf146066"/>
+  <ui filename="gtk+-3.0/dialog.ui" sha256="80500d08a9361d833f507115bf4afb6a024c614dd12f484707da3b2f74453773"/>
+  <ui filename="gtk+-3.0/style.ui" sha256="80b9dcead042259c48a736e6eafb9329803f3265ea647fb0756ece2bc2c11a90"/>
+  <ui filename="gtk+-3.0/label.ui" sha256="392965711b70a599a5d4d9dc30ecc56c9924c9cf60747f1a088b678d0587f606"/>
+  <ui filename="gtk+-3.0/children.ui" sha256="1eb81cf6a17cc3f12b30cf5d5af58a028ce49d52891315bd448e29e1d16eb34e"/>
+  <ui filename="gtk+-3.0/custom_type.ui" sha256="5013c8ffd90c3295ab949a3420ebc101723f073e91c8638bb77ffa1f9c72755f"/>
+  <ui filename="gtk+-3.0/sizegroup.ui" sha256="2e5c8f97f5ef12e6bce66254efcee4387f315fa1809206ad0e8c9daad9ba7cd4"/>
+  <ui filename="gtk+-3.0/liststore.ui" sha256="004ddfc4acbd65e156d740322ff080680f0b0d92e97c0a89c603b5518408f6ec"/>
+  <ui filename="gtk+-3.0/bindings.ui" sha256="37fee644b5a7b3cc1d3a45024d3c81558f26ef6b1cfb09506f0721c50126aca1"/>
+  <ui filename="gtk+-3.0/signals.ui" sha256="2817deb61e19b93684f3f221689e8738f8b7e6dc8732ccad9d39b8a613a55679"/>
+  <ui filename="gtk+-3.0/comboboxtext.ui" sha256="adbdb445b19b4111921939c8ddb979649ae1f96ea7fa4ddbd8bad848f5e0df53"/>
+  <ui filename="gtk+-3.0/packing.ui" sha256="b55c1903814d8899ebb3980e370d9052f9c9c81c00b3c34c3cb2372ed4ce78ba"/>
+  <ui filename="gtk+-3.0/treestore.ui" sha256="ea4d4331e234bdd88623f582a74d10fb9427c25f94b7cbf9e5a2a478802a6941"/>
+  <ui filename="gtk+-3.0/filefilter.ui" sha256="1fd548d5c4d8dfa84a8576544d233340b9c9f0a1be6b6087db36aa46ab968f82"/>
+  <ui filename="gtk+-3.0/scale.ui" sha256="6680f2c313be08d12b5039628ef56a21b1cc2d4950fda0a5d96d1b1a13a638e9"/>
+  <ui filename="gtk+-3.0/levelbar.ui" sha256="8b8a68b31f6815211d468efa2e20829848c4d7e2800040cbb435a6aee51efcbe"/>
+  <ui template-class="MyWindow" filename="gtk+-3.0/template.ui" sha256="4b3048f20d6837fe4ff491e6f52b32a34792a3d4355428a3a2f68f5a12c71f1e"/>
+</cambalache-project>

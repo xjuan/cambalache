@@ -1,18 +1,36 @@
 <?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 1.0 -->
 <interface>
   <!-- interface-name comboboxtext.ui -->
   <requires lib="gtk" version="4.0"/>
   <object class="GtkWindow">
     <property name="can-focus">False</property>
     <child>
-      <object class="GtkComboBoxText">
-        <property name="can-focus">False</property>
-        <property name="visible">True</property>
-        <items>
-          <item id="msg1">Hola</item>
-          <item id="msg2">Mundo</item>
-          <item id="msg3">Hello World</item>
-        </items>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="GtkComboBoxText">
+            <property name="can-focus">False</property>
+            <property name="visible">True</property>
+            <items>
+              <item id="msg1">Hola</item>
+              <item id="msg2">Mundo</item>
+              <item id="msg3">Hello World</item>
+            </items>
+          </object>
+        </child>
+        <child>
+          <object class="GtkComboBoxText" id="WID_cbt_TraceProfile">
+            <property name="has-entry">True</property>
+            <property name="hexpand">True</property>
+            <property name="tooltip-markup">Trace profile
+&lt;span style="italic"&gt;(press F2 to rename the profile or to move or copy it to another project)&lt;/span&gt;</property>
+            <property name="valign">start</property>
+            <child internal-child="entry">
+              <object class="GtkEntry" id="WID_entry_TraceProfile"/>
+            </child>
+          </object>
+        </child>
       </object>
     </child>
   </object>

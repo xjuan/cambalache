@@ -1,25 +1,26 @@
 <?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 1.0 -->
 <interface>
   <!-- interface-name window.ui -->
   <requires lib="gtk" version="4.0"/>
   <object class="GtkEntry" id="nick">
-    <property name="input-hints">emoji | private | lowercase</property>
+    <property name="input-hints">emoji|lowercase|private</property>
     <property name="input-purpose">digits</property>
     <property name="valign">center</property>
   </object>
   <object class="GtkEntry" id="name">
-    <property name="input-hints">GTK_INPUT_HINT_LOWERCASE | GTK_INPUT_HINT_EMOJI | GTK_INPUT_HINT_PRIVATE</property>
-    <property name="input-purpose">GTK_INPUT_PURPOSE_DIGITS</property>
-    <property name="valign">GTK_ALIGN_CENTER</property>
+    <property name="input-hints">emoji|lowercase|private</property>
+    <property name="input-purpose">digits</property>
+    <property name="valign">center</property>
   </object>
   <object class="GtkEntry" id="nick_name">
-    <property name="input-hints">GTK_INPUT_HINT_LOWERCASE | private | emoji</property>
+    <property name="input-hints">emoji|lowercase|private</property>
     <property name="input-purpose">digits</property>
-    <property name="valign">GTK_ALIGN_CENTER</property>
+    <property name="valign">center</property>
   </object>
   <object class="GtkEntry" id="integer">
-    <property name="input-hints">2568</property>
-    <property name="input-purpose">2</property>
-    <property name="valign">3</property>
+    <property name="input-hints">emoji|lowercase|private</property>
+    <property name="input-purpose">digits</property>
+    <property name="valign">center</property>
   </object>
 </interface>
