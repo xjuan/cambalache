@@ -1759,6 +1759,8 @@ class CmbDB(GObject.GObject):
 
         # Insert object
         try:
+            object_id = None
+
             if internal_child:
                 # Internal children are created by default so they show up in the hierarchy
                 # They are not serialized unless something is added or set
@@ -1769,8 +1771,11 @@ class CmbDB(GObject.GObject):
                     """,
                     (name, comment, ui_id, parent_id, internal_child)
                 ).fetchone()
-                object_id, = row
-            else:
+
+                if row is not None:
+                    object_id, = row
+
+            if object_id is None:
                 # Create the new object
                 object_id = self.add_object(ui_id, klass, name, parent_id, internal_child, child_type, comment)
         except Exception as e:
