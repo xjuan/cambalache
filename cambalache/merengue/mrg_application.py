@@ -74,19 +74,6 @@ class MrgApplication(Gtk.Application, MrgCommand):
 
         self.connect("notify::dirname", self.__on_dirname_notify)
 
-        GLib.log_set_writer_func(self.__log_writer_handler)
-
-    def __log_writer_handler(self, level, field_list, data):
-        fields = {f.key: CambalachePrivate.log_field_get_string(f) for f in field_list if f.length < 0}
-
-        if fields.get("GLIB_DOMAIN") == "GLib-GIO":
-            if fields.get("MESSAGE").startswith("Adding GResources overlay") or \
-               fields.get("MESSAGE").startswith("Mapped file") or \
-               fields.get("MESSAGE").startswith("Can't mmap overlay file"):
-                return GLib.LogWriterOutput.HANDLED
-
-        return GLib.log_writer_default(level, field_list, data)
-
     def handle_command(self, line):
         try:
             # Command is a Json string with a command and args fields

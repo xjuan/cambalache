@@ -29,7 +29,7 @@ import logging
 gi.require_version('GIRepository', '3.0')
 
 from . import config
-from gi.repository import Gio, Gtk
+from gi.repository import GLib, Gio, Gtk
 
 
 resource = Gio.Resource.load(os.path.join(config.pkgdatadir, "merengue.gresource"))
@@ -40,6 +40,21 @@ repository.prepend_search_path(config.privatecambalachedir)
 repository.prepend_library_path(config.privatecambalachedir)
 
 gi.require_version("CambalachePrivate", "4.0" if Gtk.MAJOR_VERSION == 4 else "3.0")
+from gi.repository import CambalachePrivate
+
+def __log_writer_handler(level, field_list, data):
+    fields = {f.key: CambalachePrivate.log_field_get_string(f) for f in field_list if f.length < 0}
+
+    if fields.get("GLIB_DOMAIN") == "GLib-GIO":
+        if fields.get("MESSAGE").startswith("Adding GResources overlay") or \
+           fields.get("MESSAGE").startswith("Mapped file") or \
+           fields.get("MESSAGE").startswith("Can't mmap overlay file"):
+            return GLib.LogWriterOutput.HANDLED
+
+    return GLib.log_writer_default(level, field_list, data)
+
+
+GLib.log_set_writer_func(__log_writer_handler)
 
 
 def getLogger(name):
