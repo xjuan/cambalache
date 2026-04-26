@@ -6,6 +6,7 @@ install_data([
     'gtk/gdk-4.0.xml',
     'gtk/gsk-4.0.xml',
     'gtk/gtk-4.0.xml',
+    'gnome/casilda-1.0.xml',
     'gnome/libadwaita-1.xml'
     ],
     install_dir: catalogsdir)

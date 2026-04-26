@@ -31,6 +31,7 @@ CATALOG_FILES = \
 	gnome/webkit2gtk-4.1.xml \
 	gnome/libhandy-1.xml \
 	gnome/libadwaita-1.xml \
+	gnome/casilda-1.0.xml \
 	$(NULL)
 
 
@@ -168,6 +169,14 @@ gnome/webkitgtk-6.0.xml: gtk/gtk-4.0.xml
 		--types WebKitWebViewBase WebKitWebView WebKitSettings WebKitWebContext \
 		--extra-data gnome/WebKit2.xml \
 		--skip-types WebKitWebViewBase \
+		--output $@
+
+gnome/casilda-1.0.xml: gtk/gtk-4.0.xml
+	${CMB_CATALOG_GEN} \
+		--gtk-version=4 \
+		--dependencies gtk-4.0 \
+		--gir /app/share/gir-1.0/Casilda-1.0.gir \
+		--external-catalogs ${GTK4_DEPS} gtk/gtk-4.0.xml \
 		--output $@
 
 .PHONY: all clean

@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<!DOCTYPE cambalache-catalog SYSTEM "cambalache-catalog.dtd">
+<cambalache-catalog name="casilda" namespace="Casilda" prefix="Casilda" version="1.0" targets="1.0" depends="gtk-4.0">
+  <type>
+	("CasildaCompositor","GtkWidget","casilda",None,None,None,1,"container",None,None)
+  </type>
+  <type_iface>
+	("CasildaCompositor","GtkAccessible"),
+	("CasildaCompositor","GtkBuildable"),
+	("CasildaCompositor","GtkConstraintTarget"),
+	("CasildaCompositor","GtkScrollable")
+  </type_iface>
+  <property>
+	("CasildaCompositor","socket","gchararray",None,1,None,None,None,None,None,None,None,None,None,None,None,None,None)
+  </property>
+</cambalache-catalog>
