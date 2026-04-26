@@ -70,7 +70,8 @@ def cmb_object_data_test(target_tk):
     str_exported = project.db.tostring(ui.ui_id)
 
     # Remove "Created with" comment since version will not match
-    str_exported = str_exported.replace(f"<!-- Created with Cambalache {config.VERSION} -->\n", "")
+    str_original = "\n".join([ l for l in str_original.splitlines() if not l.startswith(f"<!-- Created with Cambalache")])
+    str_exported = "\n".join([ l for l in str_exported.splitlines() if not l.startswith(f"<!-- Created with Cambalache")])
 
     assert str_exported == str_original
 
