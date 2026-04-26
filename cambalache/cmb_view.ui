@@ -16,16 +16,16 @@
             <property name="child">
               <object class="GtkBox" id="compositor_box">
                 <child>
-                  <object class="GtkGraphicsOffload" id="compositor_offload">
+                  <object class="GtkScrolledWindow">
                     <property name="child">
-                      <object class="GtkScrolledWindow">
-                        <child>
+                      <object class="CmbGraphicsOffload" id="compositor_offload">
+                        <property name="child">
                           <object class="CasildaCompositor" id="compositor">
                             <!-- Custom object fragments -->
                             <property name="hexpand">True</property>
                             <property name="vexpand">True</property>
                           </object>
-                        </child>
+                        </property>
                       </object>
                     </property>
                     <property name="hexpand">True</property>
