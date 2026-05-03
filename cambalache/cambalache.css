@@ -92,6 +92,7 @@ listview.cmb-list-view {
 listview.cmb-list-view > row {
   padding: 2px 8px;
   min-height: 30px;
+  box-shadow: none;
 }
 
 listview.cmb-list-view > row:drop(active):not(.drop-after):not(.drop-before) {
