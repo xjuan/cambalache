@@ -14,6 +14,22 @@
     </p>
   </description>
   <releases>
+    <release date="2026-05-10" version="1.0.1">
+      <description>
+        <p>First bugfix release!</p>
+        <ul>
+          <li>Add fractional scaling support</li>
+          <li>Fix cursor size in workspace</li>
+          <li>Add casilda widget catalog</li>
+          <li>Disable layout properties for GtkEventController</li>
+          <li>Update pt_BR translation (john peter sa)</li>
+          <li>Fix loading internal children that depend on a property</li>
+          <li>Fix leak/crash with some vulkan drivers</li>
+          <li>And a few other minor fixes and improvements</li>
+        </ul>
+      </description>
+    </release>
+
     <release date="2026-03-20" version="1.0">
       <description>
         <p>First Major Milestone</p>
