@@ -8,6 +8,12 @@ packaging changes like new dependencies or build system changes.
 Cambalache used even/odd minor numbers to differentiate between stable and
 development releases.
 
+## Unreleased
+
+### Issues
+
+ - #319 "Syntax error while byte-compiling"
+
 ## 1.0.1
 
  - Add support for fractional scaling in workspace
