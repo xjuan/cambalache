@@ -726,7 +726,8 @@ class CmbWindow(Adw.ApplicationWindow):
         def on_response(dialog, response):
             if response == 1:
                 clip = self.get_clipboard()
-                clip.set(f"{message}\n{secondary_text}\n{'\n'.join(details or [])}")
+                details_string = '\n'.join(details or [])
+                clip.set(f"{message}\n{secondary_text}\n{details_string}")
             else:
                 dialog.destroy()
 

@@ -11,21 +11,25 @@ development releases.
 ## Unreleased
 
  - Add support for fractional scaling in workspace
+ - Add casilda widget catalog
  - Fix cursor size in workspace
  - Disable layout properties for GtkEventController
  - Fix memory leak with some vulkan drivers
+ - Fix loading internal children that depend on a property
  - Update pt_BR translation. john peter sa
 
 ### Packaging changes
 
  - Bump Casilda dependency to 1.2.4 (depends on wlroots 0.20)
- - Bump Gtk dependecy to 4.22.2 (fix dmabuf leak with some vulkan drivers)
+ - Bump Gtk dependency to 4.22.2 (fix dmabuf leak with some vulkan drivers)
 
 ### Issues
 
+ - #319 "Syntax error while byte-compiling"
  - #310 "Widgets are rendered too big on Wayland + Fractional Scaling"
  - #312 "GtkGestureClick causes Cambalache to act up"
  - #297 "Rapid memory allocation and lack of deallocation on resized window"
+ - #314 "Opening a older project with the latest Cambalache gives errors."
 
 ## 1.0
 
