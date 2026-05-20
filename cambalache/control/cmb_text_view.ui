@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 1.0 -->
+<interface>
+  <!-- interface-name CmbTextView -->
+  <!-- interface-copyright Juan Pablo Ugarte -->
+  <requires lib="gtk" version="4.0"/>
+  <template class="CmbTextView" parent="GtkBox">
+    <child>
+      <object class="GtkOverlay">
+        <child>
+          <object class="GtkScrolledWindow">
+            <property name="has-frame">True</property>
+            <property name="min-content-height">96</property>
+            <child>
+              <object class="GtkTextView" id="view">
+                <property name="buffer">
+                  <object class="CmbTextBuffer" id="buffer"/>
+                </property>
+                <property name="hexpand">True</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="overlay">
+          <object class="GtkButton" id="edit">
+            <property name="halign">end</property>
+            <property name="icon-name">document-edit-symbolic</property>
+            <property name="valign">end</property>
+            <signal name="clicked" handler="on_edit_clicked"/>
+            <style>
+              <class name="flat"/>
+            </style>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

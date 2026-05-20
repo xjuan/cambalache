@@ -171,3 +171,12 @@ row.cmb-notification-list-row button.cmb-close {
 row.cmb-notification-list-row:hover button.cmb-close {
   opacity: 1;
 }
+
+CmbTextView > overlay > button {
+  opacity: 0.7;
+  background: unset;
+}
+
+CmbTextView > overlay > button:hover {
+  opacity: 1;
+}
