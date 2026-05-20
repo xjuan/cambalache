@@ -355,6 +355,7 @@ class CmbGirData:
 
         # Extra types for Gtk 3 and 4
         extra_types["CmbIconName"] = {"parent": "gchararray"}
+        extra_types["CmbText"] = {"parent": "gchararray"}
 
         if self.lib == "gtk+":
             extra_types["CmbStockId"] = {"parent": "gchararray"}
