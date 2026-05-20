@@ -40,6 +40,7 @@ from .cmb_object_list_editor import CmbObjectListEditor
 from .cmb_switch import CmbSwitch
 from .cmb_text_view import CmbTextView
 from .cmb_suggestion_entry import CmbSuggestionEntry
+from .cmb_translatable_popover import CmbTranslatablePopover
 
 
 def cmb_create_editor(project, type_id, prop=None, data=None, parent=None):
@@ -70,6 +71,13 @@ def cmb_create_editor(project, type_id, prop=None, data=None, parent=None):
             return os.path.dirname(project.filename)
         else:
             return os.getcwd()
+
+    def on_translatable_edit_clicked(widget, target):
+        popover = CmbTranslatablePopover()
+        popover.set_parent(widget)
+        popover.bind_properties(target)
+        popover.popup()
+        popover = None
 
     editor = None
     info = project.type_info.get(type_id, None)
@@ -122,7 +130,8 @@ def cmb_create_editor(project, type_id, prop=None, data=None, parent=None):
     elif type_id == "GBytes":
         editor = CmbTextView(hexpand=True)
     elif type_id == "GStrv":
-        editor = CmbTextView(hexpand=True)
+        editor = CmbTextView(hexpand=True, translatable=translatable)
+        editor.connect("edit-translatable", on_translatable_edit_clicked, prop or data)
     elif type_id == "GdkRGBA":
         editor = CmbColorEntry()
     elif type_id == "GdkColor":
@@ -166,11 +175,8 @@ def cmb_create_editor(project, type_id, prop=None, data=None, parent=None):
             editor = CmbFlagsEntry(info=info)
 
     if editor is None:
-        editor = CmbEntry(hexpand=True, placeholder_text=f"<{type_id}>")
-        if translatable:
-            target = prop if prop else data
-            if target:
-                editor.make_translatable(target=target)
+        editor = CmbEntry(hexpand=True, placeholder_text=f"<{type_id}>", translatable=translatable)
+        editor.connect("edit-translatable", on_translatable_edit_clicked, prop or data)
 
     editor.show()
 
