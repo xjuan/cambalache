@@ -129,7 +129,7 @@ def cmb_create_editor(project, type_id, prop=None, data=None, parent=None):
         editor = CmbSpinButton(digits=digits, adjustment=adjustment)
     elif type_id == "GBytes":
         editor = CmbTextView(hexpand=True)
-    elif type_id == "GStrv":
+    elif type_id in ["GStrv", "CmbText"]:
         editor = CmbTextView(hexpand=True, translatable=translatable)
         editor.connect("edit-translatable", on_translatable_edit_clicked, prop or data)
     elif type_id == "GdkRGBA":

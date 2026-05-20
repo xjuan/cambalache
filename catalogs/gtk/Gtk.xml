@@ -211,7 +211,7 @@
         </attributes>
       </data>
       <properties>
-        <property id="label" translatable="True"/>
+        <property id="label" translatable="True"  type="CmbText"/>
       </properties>
     </GtkLabel>
 
@@ -415,7 +415,7 @@
 
     <GtkTextBuffer>
       <properties>
-        <property id="text" translatable="True"/>
+        <property id="text" translatable="True" type="CmbText"/>
       </properties>
     </GtkTextBuffer>
 
