@@ -230,16 +230,16 @@
       <properties>
         <property id="application-name" translatable="True"/>
         <property id="artists" translatable="True"/>
-        <property id="comments" translatable="True"/>
-        <property id="copyright" translatable="True"/>
-        <property id="debug-info" translatable="True"/>
+        <property id="comments" translatable="True" type="CmbText"/>
+        <property id="copyright" translatable="True" type="CmbText"/>
+        <property id="debug-info" translatable="True" type="CmbText"/>
         <property id="designers" translatable="True"/>
         <property id="developer-name" translatable="True"/>
         <property id="developers" translatable="True"/>
         <property id="documenters" translatable="True"/>
-        <property id="license" translatable="True"/>
-        <property id="release-notes" translatable="True"/>
-        <property id="translator-credits" translatable="True"/>
+        <property id="license" translatable="True" type="CmbText"/>
+        <property id="release-notes" translatable="True" type="CmbText"/>
+        <property id="translator-credits" translatable="True" type="CmbText"/>
       </properties>
     </AdwAboutDialog>
 
