@@ -27,17 +27,22 @@ from gi.repository import GObject, Gtk
 from .cmb_text_buffer import CmbTextBuffer
 
 
-class CmbTextView(Gtk.ScrolledWindow):
+@Gtk.Template(resource_path="/ar/xjuan/Cambalache/control/cmb_text_view.ui")
+class CmbTextView(Gtk.Box):
     __gtype_name__ = "CmbTextView"
+
+    __gsignals__ = {
+        "edit-translatable": (GObject.SignalFlags.RUN_FIRST, None, ()),
+    }
 
     cmb_value = GObject.Property(type=str, flags=GObject.ParamFlags.READWRITE)
 
+    buffer = Gtk.Template.Child()
+    view = Gtk.Template.Child()
+    edit = Gtk.Template.Child()
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
-        self.props.height_request = 96
-        self.buffer = CmbTextBuffer()
-        self.view = Gtk.TextView(visible=True, buffer=self.buffer)
 
         GObject.Object.bind_property(
             self,
@@ -47,7 +52,16 @@ class CmbTextView(Gtk.ScrolledWindow):
             GObject.BindingFlags.SYNC_CREATE | GObject.BindingFlags.BIDIRECTIONAL,
         )
 
-        self.set_child(self.view)
+    @GObject.Property(type=bool, default=False)
+    def translatable(self):
+        return self.edit.props.visible
 
+    @translatable.setter
+    def _set_translatable(self, value):
+        self.edit.props.visible = value
+
+    @Gtk.Template.Callback("on_edit_clicked")
+    def __on_edit_clicked(self, widget):
+        self.emit("edit-translatable")
 
 Gtk.WidgetClass.set_css_name(CmbTextView, "CmbTextView")
