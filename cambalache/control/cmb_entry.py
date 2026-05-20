@@ -24,29 +24,33 @@
 #
 
 from gi.repository import GObject, Gtk
-from .cmb_translatable_popover import CmbTranslatablePopover
 
 
 class CmbEntry(Gtk.Entry):
     __gtype_name__ = "CmbEntry"
 
+    __gsignals__ = {
+        "edit-translatable": (GObject.SignalFlags.RUN_FIRST, None, ()),
+    }
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.connect("notify::text", self.__on_text_notify)
-
-    def make_translatable(self, target):
-        self._target = target
-        self.props.secondary_icon_name = "document-edit-symbolic"
         self.connect("icon-press", self.__on_icon_pressed)
 
     def __on_icon_pressed(self, widget, icon_pos):
-        popover = CmbTranslatablePopover()
-        popover.set_parent(self)
-        popover.bind_properties(self._target)
-        popover.popup()
+        self.emit("edit-translatable")
 
     def __on_text_notify(self, obj, pspec):
         self.notify("cmb-value")
+
+    @GObject.Property(type=bool, default=False)
+    def translatable(self):
+        return self.props.secondary_icon_name == "document-edit-symbolic"
+
+    @translatable.setter
+    def _set_translatable(self, value):
+        self.props.secondary_icon_name = "document-edit-symbolic" if value else None
 
     @GObject.Property(type=str)
     def cmb_value(self):
