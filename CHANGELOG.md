@@ -10,9 +10,19 @@ development releases.
 
 ## Unreleased
 
+ - Add support for translatable GStrv properties
+ - Fix crash with some new gpu drivers
+ - Mark AdwAboutDialog translatable properties
+
+### Packaging changes
+
+ - Bump Casilda dependency to 1.4.0 to fix crash with some gpu drivers
+
 ### Issues
 
  - #319 "Syntax error while byte-compiling"
+ - #321 "Make AdwAboutDialog.translator-credits multiline + translatable"
+ - #316 "Crash when creating GtkWindow"
 
 ## 1.0.1
 

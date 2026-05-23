@@ -14,10 +14,14 @@
     </p>
   </description>
   <releases>
-    <release date="2026-05-10" version="1.0.1">
+    <release date="2026-05-23" version="1.0.2">
       <description>
-        <p>First bugfix release!</p>
+        <p>Second bugfix release!</p>
         <ul>
+          <li>Add support for translatable GStrv properties</li>
+          <li>Fix crash with some new gpu drivers</li>
+          <li>Mark AdwAboutDialog translatable properties</li>
+          <li>1.0.1</li>
           <li>Add fractional scaling support</li>
           <li>Fix cursor size in workspace</li>
           <li>Add casilda widget catalog</li>
